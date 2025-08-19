@@ -1,16 +1,33 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Century Gothic";
+  src: url("/font/centurygothic.ttf");
+}
+
 @theme {
   --font-sans:
-    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  color: #353635;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+button {
+  cursor: pointer;
+}
+
+.Century {
+  font-family: "Century Gothic";
+}
+
+.Jakarta {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.swiper-3d .swiper-slide-shadow {
+  background: transparent !important;
 }
