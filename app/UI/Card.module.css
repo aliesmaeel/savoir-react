@@ -1,0 +1,12 @@
+.card {
+  border-radius: 67.5px;
+  background: linear-gradient(
+    162deg,
+    rgba(53, 54, 53, 0.05) -2.97%,
+    rgba(255, 255, 255, 0.07) 120.88%
+  );
+  box-shadow:
+    49.15px -49.15px 49.15px 0 rgba(37, 37, 37, 0.07) inset,
+    -49.15px 49.15px 49.15px 0 rgba(255, 255, 255, 0.07) inset;
+  backdrop-filter: blur(59.471500396728516px);
+}
