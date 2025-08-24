@@ -1,0 +1,44 @@
+.wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 3rem; /* space between logos */
+  width: max-content; /* shrink to content so translate works cleanly */
+  animation: marquee var(--speed, 20s) linear infinite;
+  padding-inline: 3rem; /* side padding */
+}
+
+.track:hover {
+  animation-play-state: paused; /* pause on hover */
+}
+
+.item img {
+  height: 74px; /* h-12 approx */
+  width: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}
+
+/* Infinite scroll keyframes:
+   We duplicate the content once, so shifting by -50% loops perfectly. */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

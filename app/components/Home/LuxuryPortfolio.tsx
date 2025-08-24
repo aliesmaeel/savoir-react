@@ -20,7 +20,7 @@ export default function LuxuryPortfolio() {
           </p>
         </div>
         <Button className="w-[299px]">
-          View all <img src={arrow.longWhite} alt="" />
+          View all <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
         </Button>
       </div>
       <img src={icon.Magazine} alt="" className="absolute bottom-0 right-0" />

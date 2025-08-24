@@ -11,6 +11,7 @@ import Locations from "~/components/Home/Locations/Locations";
 import OffPlanProjects from "~/components/Home/OffPlanProjects/OffPlanProjects";
 import OurCustomers from "~/components/Home/OurCustomers/OurCustomers";
 import LuxuryPortfolio from "~/components/Home/LuxuryPortfolio";
+import Sponsors from "~/components/Home/Sponsors/Sponsors";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Savoir" }];
@@ -46,6 +47,7 @@ export default function Home() {
           <OffPlanProjects />
           <LuxuryPortfolio />
         </div>
+        <Sponsors />
       </PageLayout>
     </div>
   );

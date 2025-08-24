@@ -17,7 +17,7 @@ export default function HomeAbout() {
         selection of exclusive properties epitomizing luxury living.
       </p>
       <Button className="w-[299px]">
-        Read more <img src={arrow.longWhite} alt="" />
+        Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
       </Button>
     </div>
   );

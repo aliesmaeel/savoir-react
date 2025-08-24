@@ -10,3 +10,15 @@
     -49.15px 49.15px 49.15px 0 rgba(255, 255, 255, 0.07) inset;
   backdrop-filter: blur(59.471500396728516px);
 }
+
+.luxury {
+  background: linear-gradient(
+    171deg,
+    rgba(53, 54, 53, 0.64) 6.53%,
+    rgba(255, 255, 255, 0.64) 142.67%
+  );
+  box-shadow:
+    33.883px -33.883px 33.883px 0 rgba(37, 37, 37, 0.07) inset,
+    -33.883px 33.883px 33.883px 0 rgba(255, 255, 255, 0.07) inset;
+  backdrop-filter: blur(40.998931884765625px);
+}
