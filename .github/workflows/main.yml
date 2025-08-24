@@ -41,6 +41,6 @@ jobs:
           script: |
             cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
             git pull origin main
-            npm install
-            npm run build
-            pm2 restart savoir-react
+            sudo npm install
+            sudo npm run build
+            sudo pm2 restart savoir-react
