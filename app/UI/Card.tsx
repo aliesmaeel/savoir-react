@@ -1,10 +1,15 @@
 import styles from "./Card.module.css";
 
-type props = {
+type Props = {
   children: React.ReactNode;
   className?: string;
+  luxury?: boolean; // ⬅ new prop
 };
 
-export default function Card({ children, className }: props) {
-  return <div className={`${styles.card} ${className}`}>{children}</div>;
+export default function Card({ children, className, luxury }: Props) {
+  return (
+    <div className={`${styles.card} ${luxury ? styles.luxury : ""} ${className || ""}`}>
+      {children}
+    </div>
+  );
 }
