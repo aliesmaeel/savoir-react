@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: "Century Gothic";
-  src: url("/fonts/centurygothic.ttf");
+  src: url("../public/fonts/centurygothic.ttf");
 }
 
 @theme {
