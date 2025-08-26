@@ -4,7 +4,7 @@ import LocationsSwiper from "./LocationsSwiper";
 
 export default function Locations() {
   return (
-    <Card>
+    <Card className="h-full">
       <div className="pt-[38px] pb-[36px]">
         <LocationsSwiper />
       </div>

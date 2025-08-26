@@ -34,18 +34,32 @@ export default function Home() {
         <HomeAbout />
         <HomeOurData />
         <div className="grid grid-cols-2 gap-[37.5px] w-full">
-          <HomeProperties />
+          <div className="w-full" data-aos="fade-right">
+            <HomeProperties />
+          </div>
           <div className="flex flex-col items-end justify-end gap-[37px] w-full">
-            <NewsInsights />
-            <GlobalProjects />
+            <div className="flex justify-end w-full" data-aos="fade-left">
+              <NewsInsights />
+            </div>
+            <div className="w-full flex justify-end" data-aos="fade-left">
+              <GlobalProjects />
+            </div>
           </div>
         </div>
         <GlobalAccess />
         <div className="grid grid-cols-2 gap-[37.5px] w-full">
-          <Locations />
-          <OurCustomers />
-          <OffPlanProjects />
-          <LuxuryPortfolio />
+          <div className="w-full" data-aos="fade-right">
+            <Locations />
+          </div>
+          <div className="w-full" data-aos="fade-left">
+            <OurCustomers />
+          </div>
+          <div className="w-full" data-aos="fade-right">
+            <OffPlanProjects />
+          </div>
+          <div className="w-full h-full" data-aos="fade-left">
+            <LuxuryPortfolio />
+          </div>
         </div>
         <Sponsors />
       </PageLayout>

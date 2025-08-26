@@ -21,7 +21,7 @@ export default function HomeOurData() {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-[36px] w-full pt-[52px] pb-[99px]">
+    <div className="grid grid-cols-3 gap-[36px] w-full pt-[52px] pb-[99px]" data-aos="fade-up">
       {data.map((item: any, index: number) => (
         <div key={index} className="flex flex-col items-center justify-between gap-[36px]">
           <img src={item.logo} alt="" />
