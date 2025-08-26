@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import useIcons from "~/hooks/imageHooks/useIcons";
+import Sidebar from "./Sidebar";
 
 export default function Header() {
   const icon = useIcons();
   const [show, setShow] = useState(true);
+  const [sidebar, setSidebar] = useState(false);
+
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
@@ -30,7 +34,10 @@ export default function Header() {
         ${show ? "top-0" : "top-[-90px]"}`}
     >
       <img src={icon.logo} alt="logo" className="w-[141px]" />
-      <img src={icon.menu} alt="menu" className="w-[43px]" />
+      <button onClick={() => setSidebar(true)}>
+        <img src={icon.menu} alt="menu" className="w-[43px]" />
+      </button>
+      <AnimatePresence>{sidebar && <Sidebar onClose={() => setSidebar(false)} />}</AnimatePresence>
     </div>
   );
 }

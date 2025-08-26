@@ -23,6 +23,7 @@ export default function FooterAbout() {
 
   return (
     <div className="flex flex-col items-start gap-[30px] w-full max-w-[456px]">
+      <img src={icon.logoFooter} alt="" className="w-[183px]" />
       <p className="text-[18.7px] leading-[200%]">
         Savoir Properties is committed to delivering a high level of expertise, customer service,
         and attention to detail to the marketing and sales of luxury real estate and rental

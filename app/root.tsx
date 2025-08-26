@@ -5,10 +5,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import "./app.css";
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -50,6 +54,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    AOS.init({
+      duration: 700, // ms
+      once: false, // <--- allow it to animate every time it enters viewport
+      mirror: true, // <--- animate elements out while scrolling past them
+      offset: 0,
+      delay: 100,
+    });
+
+    // Refresh on component update (helps with dynamic content)
+  }, []);
+
+  useEffect(() => {
+    requestAnimationFrame(() => AOS.refreshHard());
+  }, [pathname]);
   return <Outlet />;
 }
 

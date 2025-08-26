@@ -9,7 +9,7 @@ export default function LuxuryPortfolio() {
   const arrow = useArrow();
   const icon = useIcons();
   return (
-    <Card className="flex flex-col items-start gap-[30px] w-full pt-[33px] pb-[36px] px-[33px] relative overflow-hidden">
+    <Card className="flex flex-col items-start gap-[30px] w-full pt-[33px] pb-[36px] px-[33px] h-full relative overflow-hidden">
       <Title className="text-[30px]">EXPLORE RECENT OFF PLAN PROJECTS</Title>
       <div className="flex flex-col items-start gap-[22px] w-full">
         <div className="flex flex-col items-start w-full">

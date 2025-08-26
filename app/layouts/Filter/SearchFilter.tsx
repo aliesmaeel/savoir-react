@@ -5,7 +5,10 @@ import useArrow from "~/hooks/imageHooks/useArrow";
 export default function SearchFilter() {
   const arrow = useArrow();
   return (
-    <div className="flex items-center justify-end rounded-[20px] bg-[#FFFFFF40] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] py-[19px] px-[39px] w-full">
+    <div
+      className="flex items-center justify-end rounded-[20px] bg-[#FFFFFF40] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] py-[19px] px-[39px] w-full"
+      data-aos="fade-up"
+    >
       <div className="flex gap-[20px] justify-between w-full">
         <button className="w-full max-w-[211px]">
           <div className="flex flex-col items-start">
