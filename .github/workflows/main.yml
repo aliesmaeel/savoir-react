@@ -41,6 +41,15 @@ jobs:
           script: |
             cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
             git pull origin main
-            sudo npm install
-            sudo npm run build
-            sudo pm2 restart savoir-react
+            npm install --production
+            npm run build
+
+            # Check if app already exists in PM2, else start it
+            if pm2 list | grep -q "savoir-react"; then
+              pm2 restart savoir-react --update-env
+            else
+              pm2 start "npm run start" --name savoir-react
+            fi
+
+            pm2 save
+          
