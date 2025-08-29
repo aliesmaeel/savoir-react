@@ -33,10 +33,12 @@ export default function Header() {
         shadow-[0_4px_54px_0_rgba(0,0,0,0.15),0_31.242px_62.484px_-15.621px_rgba(143,144,188,0.15)]
         ${show ? "top-0" : "top-[-90px]"}`}
     >
-      <img src={icon.logo} alt="logo" className="w-[141px]" />
-      <button onClick={() => setSidebar(true)}>
-        <img src={icon.menu} alt="menu" className="w-[43px]" />
-      </button>
+      <div className="flex items-center justify-between w-full max-w-[1330px] mx-auto">
+        <img src={icon.logo} alt="logo" className="w-[141px]" />
+        <button onClick={() => setSidebar(true)}>
+          <img src={icon.menu} alt="menu" className="w-[43px]" />
+        </button>
+      </div>
       <AnimatePresence>{sidebar && <Sidebar onClose={() => setSidebar(false)} />}</AnimatePresence>
     </div>
   );
