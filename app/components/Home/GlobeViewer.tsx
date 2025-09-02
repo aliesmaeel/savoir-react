@@ -28,7 +28,7 @@ const DEFAULT_COUNTRIES = [
 const GEOJSON_URL =
   "https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson";
 
-const GlobeComponent: React.FC<Props> = ({
+const GlobeViewer: React.FC<Props> = ({
   selectedCountries = DEFAULT_COUNTRIES,
   height = "100vh",
 }) => {
@@ -213,4 +213,4 @@ const GlobeComponent: React.FC<Props> = ({
   );
 };
 
-export default GlobeComponent;
+export default GlobeViewer;
