@@ -6,14 +6,14 @@ type Arrows = {
 
 const useArrow = (): Arrows => {
   const arrows = useMemo(() => {
-    const files = import.meta.glob("/public/images/arrows/*.{svg,png,jpg,jpeg}");
+    const files = import.meta.glob("/public/images/arrows/*.{svg,png,jpg,jpeg,webp}");
 
     const importedArrows: Arrows = {};
 
     for (const path in files) {
       const arrowName = path
         .replace("/public/images/arrows/", "") // Remove folder path
-        .replace(/\.(svg|png|jpg|jpeg)$/, ""); // Remove file extension
+        .replace(/\.(svg|png|jpg|jpeg|webp)$/, ""); // Remove file extension
 
       const publicPath = path.replace("/public", ""); // ✅ Adjust for runtime access
       importedArrows[arrowName] = publicPath;

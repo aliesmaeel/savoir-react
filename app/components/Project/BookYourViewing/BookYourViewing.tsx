@@ -31,12 +31,12 @@ export default function BookYourViewing() {
         <div className="flex flex-col items-center gap-[12px] w-full max-w-[347px]">
           <div className="relative z-10">
             <img
-              src="/images/placeholders/user.jpg"
+              src="/images/placeholders/user.webp"
               alt=""
               className="w-full aspect-[347/429] rounded-[9px] object-cover"
             />
             <img
-              src="/images/placeholders/user.jpg"
+              src="/images/placeholders/user.webp"
               alt=""
               className="w-full aspect-[347/429] rounded-[9px] object-cover rotate-x-180 blur-[50px] absolute left-0 top-[75%]"
             />

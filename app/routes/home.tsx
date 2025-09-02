@@ -22,7 +22,7 @@ export default function Home() {
     <div className="relative ">
       <HeroSection />
       <div className="fixed w-full  top-[20px] z-[-1]">
-        <img src="/images/placeholders/homeBackground.png" alt="" className="w-full opacity-25" />
+        <img src="/images/placeholders/homeBackground.webp" alt="" className="w-full opacity-25" />
         <div
           className="absolute bottom-0 left-0 w-full h-[250px]"
           style={{

@@ -8,11 +8,11 @@ import "swiper/css/navigation";
 import { Link } from "react-router";
 
 const items = [
-  { id: 1, img: "/images/placeholders/imagePlaceholder.jpg", title: "Dubai Creek Harbour" },
-  { id: 2, img: "/images/placeholders/imagePlaceholder.jpg", title: "Dubai Creek Harbour" },
-  { id: 3, img: "/images/placeholders/imagePlaceholder.jpg", title: "Dubai Creek Harbour" },
-  { id: 4, img: "/images/placeholders/imagePlaceholder.jpg", title: "Dubai Creek Harbour" },
-  { id: 5, img: "/images/placeholders/imagePlaceholder.jpg", title: "Dubai Creek Harbour" },
+  { id: 1, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
+  { id: 2, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
+  { id: 3, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
+  { id: 4, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
+  { id: 5, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
 ];
 
 export default function OffPlanProjectsSwiper() {

@@ -9,11 +9,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 const items = [
-  { id: 1, img: "/images/placeholders/imagePlaceholder.jpg", title: "Dubai Creek Harbour" },
-  { id: 2, img: "/images/placeholders/imagePlaceholder.jpg", title: "Dubai Marina" },
-  { id: 3, img: "/images/placeholders/imagePlaceholder.jpg", title: "JBR" },
-  { id: 4, img: "/images/placeholders/imagePlaceholder.jpg", title: "Business Bay" },
-  { id: 5, img: "/images/placeholders/imagePlaceholder.jpg", title: "Downtown Dubai" },
+  { id: 1, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
+  { id: 2, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Marina" },
+  { id: 3, img: "/images/placeholders/imagePlaceholder.webp", title: "JBR" },
+  { id: 4, img: "/images/placeholders/imagePlaceholder.webp", title: "Business Bay" },
+  { id: 5, img: "/images/placeholders/imagePlaceholder.webp", title: "Downtown Dubai" },
 ];
 
 export default function LocationsSwiper() {

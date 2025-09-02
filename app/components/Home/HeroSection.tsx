@@ -5,7 +5,7 @@ export default function HeroSection() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
       <img
-        src="/images/placeholders/hero.png"
+        src="/images/placeholders/hero.webp"
         alt=""
         className="w-full h-screen object-cover fixed top-0 left-0 z-[-1]"
       />

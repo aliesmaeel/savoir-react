@@ -9,27 +9,27 @@ const items = [
   {
     id: 1,
     title: "Savoir Properties Attends The Unique Estates’ Casino Royale Annual Gala In Bulgaria",
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
   },
   {
     id: 2,
     title: "Savoir Properties Attends The Unique Estates’ Casino Royale Annual Gala In Bulgaria",
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
   },
   {
     id: 3,
     title: "Savoir Properties Attends The Unique Estates’ Casino Royale Annual Gala In Bulgaria",
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
   },
   {
     id: 4,
     title: "Savoir Properties Attends The Unique Estates’ Casino Royale Annual Gala In Bulgaria",
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
   },
   {
     id: 5,
     title: "Savoir Properties Attends The Unique Estates’ Casino Royale Annual Gala In Bulgaria",
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
   },
 ];
 
