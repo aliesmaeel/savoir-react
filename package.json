@@ -11,12 +11,16 @@
   "dependencies": {
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
+    "@turf/turf": "^7.2.0",
     "aos": "^2.3.4",
+    "framer-motion": "^12.23.12",
+    "globe.gl": "^2.43.0",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.7.1",
     "swiper": "^11.2.10",
+    "three": "^0.179.1",
     "typed.js": "^2.1.0"
   },
   "devDependencies": {

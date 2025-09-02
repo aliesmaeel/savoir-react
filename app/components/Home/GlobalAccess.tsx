@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Typed from "typed.js";
 import Title from "~/UI/Title";
+import GlobeViewer from "~/components/Home/GlobeViewer";
 
 export default function GlobalAccess() {
   const typedElRef = useRef<HTMLParagraphElement | null>(null);
@@ -53,6 +54,7 @@ export default function GlobalAccess() {
         <p ref={typedElRef} className="text-[#353635] text-[23px] leading-[225.806%]"></p>
       </div>
       <img src="/images/placeholders/GlobalAccess.svg" alt="" data-aos="fade-up" />
+        <GlobeViewer />
     </div>
   );
 }
