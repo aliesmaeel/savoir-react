@@ -4,7 +4,7 @@ import Title from "~/UI/Title";
 export default function GlobalAccess() {
   return (
     <div className="flex flex-col items-center gap-[52px] w-full  ">
-      <div className="flex flex-col items-start gap-[21px] w-full" data-aos="fade-down">
+      <div className="flex flex-col items-start gap-[21px] w-full" data-aos="fade-up">
         <Title className="text-[#C6A45A] text-[31px]">
           UNLOCK ENDLESS REAL ESTATE OPPORTUNITIES WITH GLOBAL ACCESS
         </Title>
