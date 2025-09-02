@@ -4,7 +4,11 @@ import SearchFilter from "~/layouts/Filter/SearchFilter";
 export default function HeroSection() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
-      <img src="/images/placeholders/hero.png" alt="" className="w-full h-screen object-cover" />
+      <img
+        src="/images/placeholders/hero.png"
+        alt=""
+        className="w-full h-screen object-cover fixed top-0 left-0 z-[-1]"
+      />
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[45px]">
         <div className="flex flex-col items-center gap-[61px] w-full">
           <div className="flex flex-col items-center gap-[9px]" data-aos="fade-down">
@@ -16,12 +20,12 @@ export default function HeroSection() {
           </div>
           <SearchFilter />
         </div>
-        <div
+        {/* <div
           className="absolute bottom-0 left-0 w-full h-[200px]"
           style={{
             background: "linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%)",
           }}
-        />
+        /> */}
       </div>
     </div>
   );

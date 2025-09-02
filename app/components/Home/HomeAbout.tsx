@@ -6,7 +6,7 @@ import Header from "~/UI/Header";
 export default function HomeAbout() {
   const arrow = useArrow();
   return (
-    <div className="flex flex-col items-start gap-[18px] w-full" data-aos="fade-down">
+    <div className="flex flex-col items-start gap-[18px] w-full">
       <Header className="text-[34px]">WE’RE LOCAL, WE’RE GLOBAL</Header>
       <p className="text-[#353635] text-[22px] leading-[233.333%]">
         With four decades of experience, our luxury boutique real estate agency is dedicated to

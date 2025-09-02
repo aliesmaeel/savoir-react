@@ -19,9 +19,9 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <div className="relative">
+    <div className="relative ">
       <HeroSection />
-      <div className="absolute w-full  top-[calc(100vh+290px)] z-[-1]">
+      <div className="fixed w-full  top-[20px] z-[-1]">
         <img src="/images/placeholders/homeBackground.png" alt="" className="w-full opacity-25" />
         <div
           className="absolute bottom-0 left-0 w-full h-[250px]"
@@ -30,11 +30,17 @@ export default function Home() {
           }}
         />
       </div>
+
       <PageLayout>
-        <div className="w-full max-w-[1330px] mx-auto">
-          <HomeAbout />
-          <HomeOurData />
-          <div className="grid grid-cols-2 gap-[37.5px] w-full">
+        <div className="w-full max-w-[1226px] mx-auto">
+          <div
+            className="w-full bg-[#ffffff3d] backdrop-blur-[9px] p-[10px] rounded-[10px]"
+            data-aos="fade-down"
+          >
+            <HomeAbout />
+            <HomeOurData />
+          </div>
+          <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[99px] mb-[167px]">
             <div className="w-full" data-aos="fade-right">
               <HomeProperties />
             </div>
@@ -47,8 +53,10 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <GlobalAccess />
-          <div className="grid grid-cols-2 gap-[37.5px] w-full">
+          <div className="w-full bg-[#ffffff3d] backdrop-blur-[9px] p-[10px] rounded-[10px]">
+            <GlobalAccess />
+          </div>
+          <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[142px]">
             <div className="w-full" data-aos="fade-right">
               <Locations />
             </div>
@@ -63,8 +71,10 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <Sponsors />
       </PageLayout>
+      <div>
+        <Sponsors />
+      </div>
     </div>
   );
 }
