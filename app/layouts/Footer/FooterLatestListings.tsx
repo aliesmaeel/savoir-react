@@ -5,17 +5,17 @@ export default function FooterLatestListings() {
   const items = [
     {
       title: "Stunning Palm Views | Upgraded",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
       prise: "$24.000",
     },
     {
       title: "Stunning Palm Views | Upgraded",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
       prise: "$24.000",
     },
     {
       title: "Stunning Palm Views | Upgraded",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
       prise: "$24.000",
     },
   ];

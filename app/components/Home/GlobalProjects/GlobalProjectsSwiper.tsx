@@ -8,27 +8,27 @@ import "swiper/css/navigation";
 const items = [
   {
     id: 1,
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
     title: "Bulgaria",
   },
   {
     id: 2,
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
     title: "Bulgaria",
   },
   {
     id: 3,
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
     title: "Bulgaria",
   },
   {
     id: 4,
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
     title: "Bulgaria",
   },
   {
     id: 5,
-    img: "/images/placeholders/imagePlaceholder.jpg",
+    img: "/images/placeholders/imagePlaceholder.webp",
     title: "Bulgaria",
   },
 ];

@@ -58,7 +58,7 @@ export default function PropertiesSwiper() {
               </div>
             </div>
             <img
-              src="/images/placeholders/properties.png"
+              src="/images/placeholders/properties.webp"
               alt=""
               className="w-full aspect-[618/398] rounded-[18px] object-cover"
             />
@@ -104,7 +104,7 @@ export default function PropertiesSwiper() {
               </div>
             </div>
             <img
-              src="/images/placeholders/properties.png"
+              src="/images/placeholders/properties.webp"
               alt=""
               className="w-full aspect-[618/398] rounded-[18px] object-cover"
             />

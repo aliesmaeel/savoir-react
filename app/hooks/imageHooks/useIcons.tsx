@@ -6,14 +6,14 @@ type Icons = {
 
 const useIcons = (): Icons => {
   const icons = useMemo(() => {
-    const files = import.meta.glob("/public/images/icons/*.{svg,png,jpg,jpeg}");
+    const files = import.meta.glob("/public/images/icons/*.{svg,png,jpg,jpeg,webp}");
 
     const importedIcons: Icons = {};
 
     for (const path in files) {
       const iconName = path
         .replace("/public/images/icons/", "") // Remove full public path
-        .replace(/\.(svg|png|jpg|jpeg)$/, ""); // Remove file extension
+        .replace(/\.(svg|png|jpg|jpeg|webp)$/, ""); // Remove file extension
 
       const publicPath = path.replace("/public", ""); // ✅ Convert to runtime-accessible path
       importedIcons[iconName] = publicPath;

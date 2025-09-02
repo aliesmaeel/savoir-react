@@ -9,16 +9,16 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 const items = [
-  { id: 1, img: "/images/placeholders/project1.png", title: "Dubai Creek Harbour" },
-  { id: 2, img: "/images/placeholders/project2.png", title: "Dubai Creek Harbour1" },
-  { id: 3, img: "/images/placeholders/project3.png", title: "Dubai Creek Harbour2" },
-  { id: 4, img: "/images/placeholders/project4.png", title: "Dubai Creek Harbour3" },
-  { id: 5, img: "/images/placeholders/project5.png", title: "Dubai Creek Harbour4" },
-  { id: 6, img: "/images/placeholders/project6.png", title: "Dubai Creek Harbour5" },
-  { id: 7, img: "/images/placeholders/project7.png", title: "Dubai Creek Harbour6" },
-  { id: 8, img: "/images/placeholders/project8.png", title: "Dubai Creek Harbour7" },
-  { id: 9, img: "/images/placeholders/project9.png", title: "Dubai Creek Harbour8" },
-  { id: 10, img: "/images/placeholders/project1.png", title: "Dubai Creek Harbour" },
+  { id: 1, img: "/images/placeholders/project1.webp", title: "Dubai Creek Harbour" },
+  { id: 2, img: "/images/placeholders/project2.webp", title: "Dubai Creek Harbour1" },
+  { id: 3, img: "/images/placeholders/project3.webp", title: "Dubai Creek Harbour2" },
+  { id: 4, img: "/images/placeholders/project4.webp", title: "Dubai Creek Harbour3" },
+  { id: 5, img: "/images/placeholders/project5.webp", title: "Dubai Creek Harbour4" },
+  { id: 6, img: "/images/placeholders/project6.webp", title: "Dubai Creek Harbour5" },
+  { id: 7, img: "/images/placeholders/project7.webp", title: "Dubai Creek Harbour6" },
+  { id: 8, img: "/images/placeholders/project8.webp", title: "Dubai Creek Harbour7" },
+  { id: 9, img: "/images/placeholders/project9.webp", title: "Dubai Creek Harbour8" },
+  { id: 10, img: "/images/placeholders/project1.webp", title: "Dubai Creek Harbour" },
 ];
 
 export default function ProjectPageSwiper() {
@@ -123,7 +123,7 @@ export default function ProjectPageSwiper() {
         </div>
 
         <img
-          src="/images/placeholders/project9.png"
+          src="/images/placeholders/project9.webp"
           alt=""
           className="rounded-[8px] w-full h-full object-cover"
         />

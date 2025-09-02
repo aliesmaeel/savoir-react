@@ -14,7 +14,7 @@ export default function OffPlanResults() {
       price: "45 M",
       location: "Marina, Dubai",
       date: "2years ago",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
     },
     {
       id: 2,
@@ -22,7 +22,7 @@ export default function OffPlanResults() {
       price: "45 M",
       location: "Marina, Dubai",
       date: "2years ago",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
     },
     {
       id: 3,
@@ -30,7 +30,7 @@ export default function OffPlanResults() {
       price: "45 M",
       location: "Marina, Dubai",
       date: "2years ago",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
     },
     {
       id: 4,
@@ -38,7 +38,7 @@ export default function OffPlanResults() {
       price: "45 M",
       location: "Marina, Dubai",
       date: "2years ago",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
     },
     {
       id: 5,
@@ -46,7 +46,7 @@ export default function OffPlanResults() {
       price: "45 M",
       location: "Marina, Dubai",
       date: "2years ago",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
     },
     {
       id: 6,
@@ -54,7 +54,7 @@ export default function OffPlanResults() {
       price: "45 M",
       location: "Marina, Dubai",
       date: "2years ago",
-      image: "/images/placeholders/properties.png",
+      image: "/images/placeholders/properties.webp",
     },
   ];
 
