@@ -45,3 +45,18 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.small-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 100px;
+}
+
+.small-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.small-scroll::-webkit-scrollbar-thumb {
+  background: #fff;
+  border-radius: 100px;
+}

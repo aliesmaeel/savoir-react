@@ -62,7 +62,7 @@ export default function HomeAbout() {
         initial="hidden"
         animate={titleCtrl}
         style={{ willChange: "transform, opacity" }}
-        viewport={{ amount: 0.5 }}
+        viewport={{ amount: 0 }}
         onViewportEnter={handleEnter}
         onViewportLeave={handleLeave}
       >
@@ -75,7 +75,7 @@ export default function HomeAbout() {
         initial="hidden"
         animate={textCtrl}
         style={{ willChange: "transform, opacity" }}
-        viewport={{ amount: 0.5 }}
+        viewport={{ amount: 0 }}
         className="text-[#353635] text-[22px] leading-[233.333%]"
       >
         With four decades of experience, our luxury boutique real estate agency is dedicated to
@@ -92,7 +92,7 @@ export default function HomeAbout() {
         initial="hidden"
         animate={btnCtrl}
         style={{ willChange: "transform, opacity" }}
-        viewport={{ amount: 0.5 }}
+        viewport={{ amount: 0 }}
       >
         <Button className="w-[299px]">
           Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
