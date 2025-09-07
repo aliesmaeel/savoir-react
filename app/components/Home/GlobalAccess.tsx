@@ -1,81 +1,94 @@
 import React, { useEffect, useRef, useState } from "react";
-import Typed from "typed.js";
 import Title from "~/UI/Title";
 import GlobeViewer from "~/components/Home/GlobeViewer";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import styles from "./GlobalAccess.module.css";
 import AnimatedInfo from "~/UI/AnimatedInfo";
+import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
 
 export default function GlobalAccess() {
   const icon = useIcons();
 
-  // Typed
-  const typedElRef = useRef<HTMLParagraphElement | null>(null);
-  const typedInstanceRef = useRef<Typed | null>(null);
-  const startedRef = useRef(false);
-
-  // In-view for the absolute pins
+  // --- In-view for the absolute pins (your original logic) ---
   const globeWrapRef = useRef<HTMLDivElement | null>(null);
   const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    if (!typedElRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !startedRef.current) {
-          startedRef.current = true;
-
-          typedInstanceRef.current = new Typed(typedElRef.current!, {
-            strings: [
-              "We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.",
-            ],
-            typeSpeed: 10,
-            showCursor: false,
-            loop: false,
-          });
-
-          if (typedElRef.current) observer.unobserve(typedElRef.current);
-        }
-      },
-      { root: null, threshold: 0.2 }
-    );
-
-    observer.observe(typedElRef.current);
-
-    return () => {
-      observer.disconnect();
-      typedInstanceRef.current?.destroy();
-    };
-  }, []);
-
-  // Observe the globe wrapper to trigger pin animations
   useEffect(() => {
     if (!globeWrapRef.current) return;
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        setInView(entry.isIntersecting);
-      },
-      { root: null, threshold: 0.25 }
-    );
-
+    const obs = new IntersectionObserver((entries) => setInView(entries[0].isIntersecting), {
+      root: null,
+      threshold: 0.25,
+    });
     obs.observe(globeWrapRef.current);
     return () => obs.disconnect();
   }, []);
 
+  // --- Title/Text sequential reveal ---
+  const titleCtrl = useAnimation();
+  const textCtrl = useAnimation();
+
+  const variants: Variants = {
+    hidden: { opacity: 0, y: 60, transition: { duration: 0.35, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
+  // (Optional) direction-aware reset like your other sections
+  const { scrollY } = useScroll();
+  const prev = useRef(0);
+  const dir = useRef<"down" | "up">("down");
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    dir.current = latest > prev.current ? "down" : "up";
+    prev.current = latest;
+  });
+
+  const onEnter = async () => {
+    if (dir.current !== "down") return;
+    await titleCtrl.start("visible"); // wait for title to finish
+    await textCtrl.start({
+      // then reveal paragraph
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, ease: "easeOut" },
+    });
+  };
+
+  const onLeave = async () => {
+    if (dir.current !== "up") return;
+    await Promise.all([textCtrl.start("hidden"), titleCtrl.start("hidden")]);
+  };
+
   return (
     <div className="flex flex-col items-center gap-[52px] w-full relative">
-      <div className="flex flex-col items-start gap-[21px] w-full" data-aos="fade-up">
-        <Title className="text-[#C6A45A] text-[31px]">
-          UNLOCK ENDLESS REAL ESTATE OPPORTUNITIES WITH GLOBAL ACCESS
-        </Title>
-        <p ref={typedElRef} className="text-[#353635] text-[23px] leading-[225.806%]"></p>
+      <div className="flex flex-col items-start gap-[21px] w-full">
+        {/* Title */}
+        <motion.div
+          variants={variants}
+          initial="hidden"
+          animate={titleCtrl}
+          viewport={{ amount: 0.5 }}
+          onViewportEnter={onEnter}
+          onViewportLeave={onLeave}
+          style={{ willChange: "transform, opacity" }}
+        >
+          <Title className="text-[#C6A45A] text-[31px]">
+            UNLOCK ENDLESS REAL ESTATE OPPORTUNITIES WITH GLOBAL ACCESS
+          </Title>
+        </motion.div>
+
+        {/* Paragraph (appears after title completes) */}
+        <motion.p
+          variants={variants}
+          initial="hidden"
+          animate={textCtrl}
+          className="text-[#353635] text-[23px] leading-[225.806%]"
+          style={{ willChange: "transform, opacity" }}
+        >
+          We unlock a world of real estate opportunities with leading agents and real estate
+          professionals through our membership in the largest real estate network in the world. We
+          facilitate access to customers and provide luxury offers from more than 70 countries.
+        </motion.p>
       </div>
 
-      {/* Globe + Stats */}
+      {/* Globe + Stats (unchanged) */}
       <div className="relative" ref={globeWrapRef}>
         <img src={icon.globalAccessleft} alt="" className="absolute top-[-100%] left-0 z-10" />
         <img src={icon.globalAccessRight} alt="" className="absolute bottom-[0] right-0 z-10" />
@@ -122,9 +135,7 @@ export default function GlobalAccess() {
 }
 
 /**
- * StatPin
- * - Centers at (50%, 50%) with opacity-0 when not in view.
- * - Animates to provided top/left with opacity-100 when in view.
+ * StatPin (unchanged)
  */
 function StatPin({
   inView,
@@ -133,8 +144,8 @@ function StatPin({
   children,
 }: {
   inView: boolean;
-  top: string; // e.g. "top-[23%]"
-  left: string; // e.g. "left-[21%]"
+  top: string;
+  left: string;
   children: React.ReactNode;
 }) {
   const base =
