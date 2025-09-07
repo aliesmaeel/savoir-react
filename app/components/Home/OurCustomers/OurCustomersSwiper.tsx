@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide, useSwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/effect-cards";
 
-import { EffectCards } from "swiper/modules";
+import { EffectCards, Autoplay } from "swiper/modules"; // ⬅️ add Autoplay
 import useIcons from "~/hooks/imageHooks/useIcons";
 import useArrow from "~/hooks/imageHooks/useArrow";
 
@@ -58,12 +58,22 @@ export default function OurCustomersSwiper() {
         </button>
       </div>
       <Swiper
-        effect={"cards"}
+        effect="cards"
         loop={true}
         grabCursor={true}
-        modules={[EffectCards]}
+        autoplay={{
+          delay: 5000,
+          disableOnInteraction: false,
+        }}
+        modules={[EffectCards, Autoplay]}
         onSwiper={(swiper) => setSwiperInstance(swiper)}
         className="mySwiper w-[307.059px] h-[413.25px]"
+        cardsEffect={{
+          perSlideOffset: 6, // default 8 → smaller offset
+          perSlideRotate: 2, // default 2 → keep small rotation
+          rotate: false, // disable extra rotation
+          slideShadows: false, // remove strong shadows
+        }}
       >
         {testimonials.map((item, index) => (
           <SwiperSlide key={index} className="rounded-[18px]">
@@ -91,7 +101,7 @@ function TestimonialCard({ data }: { data: any }) {
 
   return (
     <div
-      className={`w-full h-full rounded-[18px] px-[7px] py-[21px]  transition-all duration-300
+      className={`w-full h-full rounded-[18px] px-[7px] py-[21px] transition-all duration-300
         ${isActive ? "bg-[#EBEBEB]" : "bg-[#C6A45A33]"}
       `}
     >
@@ -99,7 +109,7 @@ function TestimonialCard({ data }: { data: any }) {
         <div className="flex flex-col items-start justify-between w-full h-full ">
           <div className="flex flex-col items-start gap-[10px]">
             <div className="flex items-center gap-2 ml-[12px]">
-              <span className=" bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
+              <span className="bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
                 {data.rating}
                 <img src={icon.startWhite} alt="" />
               </span>

@@ -35,14 +35,12 @@ export function useInView<T extends HTMLElement>(options?: IntersectionObserverI
 }
 
 export type AnimatedInfoProps = {
-  /** String to display/animate, e.g. "+4700K" */
-  display: string;
-  /** Duration of the animation in ms (default 100) */
-  duration?: number;
-  /** Optional className for the <p> element */
-  className?: string;
-  /** If true, resets to 0 when scrolled out (default true) */
-  resetOnExit?: boolean;
+  display: string; // String to display/animate, e.g. "+4700K"
+  duration?: number; // Duration of the animation in ms (default 100)
+  className?: string; // Optional className for the <p> element
+  resetOnExit?: boolean; // If true, resets to 0 when scrolled out (default true)
+  enabled?: boolean; // External gate to allow animation
+  startDelayMs?: number; // Optional start delay
 };
 
 /** Animated number that (re)starts whenever it enters the viewport */
@@ -51,6 +49,8 @@ export function AnimatedInfo({
   duration = 100,
   className,
   resetOnExit = true,
+  enabled = true,
+  startDelayMs = 0,
 }: AnimatedInfoProps) {
   const { sign, value, suffix, raw } = useMemo(() => parseTarget(display), [display]);
 
@@ -62,26 +62,28 @@ export function AnimatedInfo({
   const { ref, inView } = useInView<HTMLParagraphElement>();
   const [shown, setShown] = useState(0);
   const rafRef = useRef<number | null>(null);
+  const delayTimerRef = useRef<number | null>(null);
 
-  // Clean up any running animation frame
+  // Clean up on unmount
   useEffect(() => {
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      if (delayTimerRef.current != null) window.clearTimeout(delayTimerRef.current);
     };
   }, []);
 
   // Handle reduced motion
   useEffect(() => {
     if (!prefersReducedMotion) return;
-    if (inView) setShown(value);
+    if (inView && enabled) setShown(value);
     else if (resetOnExit) setShown(0);
-  }, [inView, value, prefersReducedMotion, resetOnExit]);
+  }, [inView, enabled, value, prefersReducedMotion, resetOnExit]);
 
-  // Animate when entering view; reset when leaving (if desired)
+  // Animate when entering view AND gate is open
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    if (inView) {
+    const startAnim = () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       setShown(0);
       const start = performance.now();
@@ -99,12 +101,21 @@ export function AnimatedInfo({
       };
 
       rafRef.current = requestAnimationFrame(tick);
-    } else if (resetOnExit) {
+    };
+
+    if (inView && enabled) {
+      if (delayTimerRef.current != null) window.clearTimeout(delayTimerRef.current);
+      delayTimerRef.current = window.setTimeout(startAnim, startDelayMs) as unknown as number;
+    } else if (!inView || !enabled) {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
-      setShown(0);
+      if (delayTimerRef.current != null) {
+        window.clearTimeout(delayTimerRef.current);
+        delayTimerRef.current = null;
+      }
+      if (resetOnExit) setShown(0);
     }
-  }, [inView, value, duration, prefersReducedMotion, resetOnExit]);
+  }, [inView, enabled, startDelayMs, value, duration, prefersReducedMotion, resetOnExit]);
 
   const formatted = Number.isFinite(shown) ? `${sign}${Math.ceil(shown)}${suffix}` : raw;
 
