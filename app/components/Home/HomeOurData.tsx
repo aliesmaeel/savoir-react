@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import styles from "./HomeOurData.module.css";
 import AnimatedInfo from "~/UI/AnimatedInfo";
 import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
@@ -11,9 +11,11 @@ export default function HomeOurData() {
   ];
 
   const controls = useAnimation();
+  const [canCount, setCanCount] = useState(false); // ⬅️ gate for AnimatedInfo
+
   const variants: Variants = {
     hidden: { opacity: 0, y: 100, transition: { duration: 0.7, ease: "easeOut" } },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut", delay: 0.9 } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
   };
 
   // Track scroll direction
@@ -33,11 +35,21 @@ export default function HomeOurData() {
       animate={controls}
       style={{ willChange: "transform, opacity" }}
       viewport={{ amount: 0.5 }}
-      onViewportEnter={() => {
-        if (dir.current === "down") controls.start("visible"); // only when scrolling down
+      onViewportEnter={async () => {
+        if (dir.current === "down") {
+          // reveal grid first, then start numbers slightly after
+          await controls.start("visible");
+          setTimeout(() => setCanCount(true), 300); // delay before numbers start
+        } else {
+          // scrolling up: let numbers start immediately
+          setCanCount(true);
+        }
       }}
-      onViewportLeave={() => {
-        if (dir.current === "up") controls.start("hidden"); // smooth reset when leaving upward
+      onViewportLeave={async () => {
+        if (dir.current === "up") {
+          await controls.start("hidden");
+          setCanCount(false); // reset
+        }
       }}
     >
       {data.map((item, index) => (
@@ -48,6 +60,8 @@ export default function HomeOurData() {
               display={item.info}
               duration={500}
               className={`text-[66px] ${styles.info}`}
+              enabled={canCount} // ⬅️ use gate
+              startDelayMs={index * 50} // ⬅️ optional stagger per item
             />
             <p className="text-[#353635] text-[33px]">{item.title}</p>
           </div>
