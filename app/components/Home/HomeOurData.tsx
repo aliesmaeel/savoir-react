@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 import styles from "./HomeOurData.module.css";
 import AnimatedInfo from "~/UI/AnimatedInfo";
+import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
 
 export default function HomeOurData() {
   const data = [
@@ -9,8 +10,36 @@ export default function HomeOurData() {
     { title: "Companies", logo: "/images/placeholders/image 47.svg", info: "+550K" },
   ];
 
+  const controls = useAnimation();
+  const variants: Variants = {
+    hidden: { opacity: 0, y: 100, transition: { duration: 0.7, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut", delay: 0.9 } },
+  };
+
+  // Track scroll direction
+  const { scrollY } = useScroll();
+  const prev = useRef(0);
+  const dir = useRef<"down" | "up">("down");
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    dir.current = latest > prev.current ? "down" : "up";
+    prev.current = latest;
+  });
+
   return (
-    <div className="grid grid-cols-3 gap-[36px] w-full pt-[52px]" data-aos="fade-up" id="our-data">
+    <motion.div
+      className="grid grid-cols-3 gap-[36px] w-full pt-[52px]"
+      variants={variants}
+      initial="hidden"
+      animate={controls}
+      style={{ willChange: "transform, opacity" }}
+      viewport={{ amount: 0.5 }}
+      onViewportEnter={() => {
+        if (dir.current === "down") controls.start("visible"); // only when scrolling down
+      }}
+      onViewportLeave={() => {
+        if (dir.current === "up") controls.start("hidden"); // smooth reset when leaving upward
+      }}
+    >
       {data.map((item, index) => (
         <div key={index} className="flex flex-col items-center justify-between gap-[36px]">
           <img src={item.logo} alt={item.title} />
@@ -19,12 +48,11 @@ export default function HomeOurData() {
               display={item.info}
               duration={500}
               className={`text-[66px] ${styles.info}`}
-              // resetOnExit={false}
             />
             <p className="text-[#353635] text-[33px]">{item.title}</p>
           </div>
         </div>
       ))}
-    </div>
+    </motion.div>
   );
 }

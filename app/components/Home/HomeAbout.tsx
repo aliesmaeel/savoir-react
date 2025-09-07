@@ -1,63 +1,103 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import useArrow from "~/hooks/imageHooks/useArrow";
 import Button from "~/UI/Button";
 import Header from "~/UI/Header";
-import Typed from "typed.js";
+import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
 
 export default function HomeAbout() {
   const arrow = useArrow();
-  const typedElRef = useRef<HTMLDivElement | null>(null);
-  const typedInstanceRef = useRef<Typed | null>(null);
-  const startedRef = useRef(false); // ensure it runs only once
 
-  useEffect(() => {
-    if (!typedElRef.current) return;
+  // Three independent controllers
+  const titleCtrl = useAnimation();
+  const textCtrl = useAnimation();
+  const btnCtrl = useAnimation();
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !startedRef.current) {
-          startedRef.current = true;
+  // Shared variants (fade + slide up)
+  const variants: Variants = {
+    hidden: { opacity: 0, y: 100, transition: { duration: 0.3, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+  };
 
-          // Init Typed on the actual element (safer than "#id" selectors)
-          typedInstanceRef.current = new Typed(typedElRef.current!, {
-            strings: [
-              "With four decades of experience, our luxury boutique real estate agency is dedicated to setting a new benchmark for service and expertise in the realm of upscale properties in Dubai. Understanding the distinct needs and preferences of our clients, we provide personalized solutions that consistently surpass expectations. Leveraging our profound knowledge of the local market and an extensive network, we present a carefully curated selection of exclusive properties epitomizing luxury living.",
-            ],
-            typeSpeed: 10, // smaller = faster typing
-            showCursor: false, // set true + cursorChar if you want the cursor
-            loop: false,
-          });
+  // Track scroll direction
+  const { scrollY } = useScroll();
+  const prev = useRef(0);
+  const dir = useRef<"down" | "up">("down");
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    dir.current = latest > prev.current ? "down" : "up";
+    prev.current = latest;
+  });
 
-          // no need to observe further once started
-          observer.unobserve(typedElRef.current!);
-        }
-      },
-      {
-        root: null, // viewport
-        threshold: 0.2, // start when 20% of the block is visible
-        rootMargin: "0px 0px -10% 0px", // optional tweak to start a bit earlier
-      }
-    );
+  // Prevent double triggers while running
+  const sequencing = useRef(false);
 
-    observer.observe(typedElRef.current);
+  // Kick off the chain when title enters while scrolling down
+  async function handleEnter() {
+    if (dir.current !== "down" || sequencing.current) return;
+    sequencing.current = true;
 
-    return () => {
-      observer.disconnect();
-      typedInstanceRef.current?.destroy();
-    };
-  }, []);
+    // Title → Text → Button (with individual durations)
+    await titleCtrl.start({ opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } });
+    await textCtrl.start({ opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } });
+    await btnCtrl.start({ opacity: 1, y: 0, transition: { duration: 1.0, ease: "easeOut" } });
+
+    sequencing.current = false;
+  }
+
+  // Reset (smooth) when leaving upward so it can replay
+  async function handleLeave() {
+    if (dir.current !== "up") return;
+    // reset all to hidden (you can stagger these if you want)
+    await Promise.all([
+      titleCtrl.start({ opacity: 0, y: 100, transition: { duration: 0.35, ease: "easeInOut" } }),
+      textCtrl.start({ opacity: 0, y: 100, transition: { duration: 0.35, ease: "easeInOut" } }),
+      btnCtrl.start({ opacity: 0, y: 100, transition: { duration: 0.35, ease: "easeInOut" } }),
+    ]);
+  }
 
   return (
     <div className="flex flex-col items-start gap-[18px] w-full">
-      <Header className="text-[34px]">WE’RE LOCAL, WE’RE GLOBAL</Header>
+      {/* Title (acts as the trigger for the whole sequence) */}
+      <motion.div
+        variants={variants}
+        initial="hidden"
+        animate={titleCtrl}
+        style={{ willChange: "transform, opacity" }}
+        viewport={{ amount: 0.5 }}
+        onViewportEnter={handleEnter}
+        onViewportLeave={handleLeave}
+      >
+        <Header className="text-[34px]">WE’RE LOCAL, WE’RE GLOBAL</Header>
+      </motion.div>
 
-      {/* Typed.js output (starts when scrolled into view) */}
-      <div ref={typedElRef} className="text-[#353635] text-[22px] leading-[233.333%]" />
+      {/* Text */}
+      <motion.div
+        variants={variants}
+        initial="hidden"
+        animate={textCtrl}
+        style={{ willChange: "transform, opacity" }}
+        viewport={{ amount: 0.5 }}
+        className="text-[#353635] text-[22px] leading-[233.333%]"
+      >
+        With four decades of experience, our luxury boutique real estate agency is dedicated to
+        setting a new benchmark for service and expertise in the realm of upscale properties in
+        Dubai. Understanding the distinct needs and preferences of our clients, we provide
+        personalized solutions that consistently surpass expectations. Leveraging our profound
+        knowledge of the local market and an extensive network, we present a carefully curated
+        selection of exclusive properties epitomizing luxury living.
+      </motion.div>
 
-      <Button className="w-[299px]">
-        Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
-      </Button>
+      {/* Button */}
+      <motion.div
+        variants={variants}
+        initial="hidden"
+        animate={btnCtrl}
+        style={{ willChange: "transform, opacity" }}
+        viewport={{ amount: 0.5 }}
+      >
+        <Button className="w-[299px]">
+          Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
+        </Button>
+      </motion.div>
     </div>
   );
 }

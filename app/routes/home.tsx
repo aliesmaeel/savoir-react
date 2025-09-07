@@ -36,13 +36,11 @@ export default function Home() {
           <HomeAbout />
           <HomeOurData />
           <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[99px] mb-[167px]">
-            <div className="w-full" data-aos="fade-right">
-              <HomeProperties />
-            </div>
+            {/* <div className="w-full" data-aos="fade-right"> */}
+            <HomeProperties />
+            {/* </div> */}
             <div className="flex flex-col items-end justify-end gap-[37px] w-full">
-              <div className="flex justify-end w-full" data-aos="fade-left">
-                <NewsInsights />
-              </div>
+              <NewsInsights />
               <div className="w-full flex justify-end" data-aos="fade-left">
                 <GlobalProjects />
               </div>
@@ -51,18 +49,10 @@ export default function Home() {
 
           <GlobalAccess />
           <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[142px]">
-            <div className="w-full" data-aos="fade-up">
-              <Locations />
-            </div>
-            <div className="w-full" data-aos="fade-up">
-              <OurCustomers />
-            </div>
-            <div className="w-full" data-aos="fade-up">
-              <OffPlanProjects />
-            </div>
-            <div className="w-full h-full" data-aos="fade-up">
-              <LuxuryPortfolio />
-            </div>
+            <Locations />
+            <OurCustomers />
+            <OffPlanProjects />
+            <LuxuryPortfolio />
           </div>
         </div>
       </PageLayout>
