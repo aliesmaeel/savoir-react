@@ -4,17 +4,14 @@ import SponsorsSwiper from "./SponsorsSwiper";
 import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
 
 function RevealSection({ heading, children }: { heading: string; children: React.ReactNode }) {
-  // separate controls
   const titleCtrl = useAnimation();
   const bodyCtrl = useAnimation();
 
-  // shared variants
   const variants: Variants = {
     hidden: { opacity: 0, y: 60, transition: { duration: 0.35, ease: "easeOut" } },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   };
 
-  // direction awareness (optional but nice)
   const { scrollY } = useScroll();
   const prev = useRef(0);
   const dir = useRef<"down" | "up">("down");
@@ -23,16 +20,18 @@ function RevealSection({ heading, children }: { heading: string; children: React
     prev.current = latest;
   });
 
-  // chain when title enters view
   const onEnter = async () => {
     if (dir.current !== "down") return;
-    await titleCtrl.start("visible"); // wait till title fully reveals
-    await bodyCtrl.start("visible"); // then show swiper
+    await titleCtrl.start("visible");
+    await bodyCtrl.start({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut", delay: 0.5 }, // ⬅️ half-second pause
+    });
   };
 
   const onLeave = async () => {
     if (dir.current !== "up") return;
-    // reset both so sequence can replay
     await Promise.all([bodyCtrl.start("hidden"), titleCtrl.start("hidden")]);
   };
 
