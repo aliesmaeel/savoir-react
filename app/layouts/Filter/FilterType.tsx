@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import useArrow from "~/hooks/imageHooks/useArrow";
 import useIcons from "~/hooks/imageHooks/useIcons";
@@ -70,37 +71,44 @@ export default function FilterType({
       </button>
 
       {/* Dropdown */}
-      {open && (
-        <div
-          role="listbox"
-          aria-multiselectable="true"
-          className="absolute  py-[19px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[382px] top-[160%]"
-        >
-          <div className="flex flex-col items-start gap-[14px] w-full h-[272px] overflow-y-scroll small-scroll">
-            {options.map((opt, idx) => {
-              const active = selected.includes(opt);
-              return (
-                <button
-                  key={opt}
-                  type="button"
-                  role="option"
-                  aria-selected={active}
-                  onClick={() => toggleValue(opt)}
-                  className="w-full text-left px-[32px]"
-                >
-                  <div className="flex items-center justify-between pb-[14px]">
-                    <p className="text-white text-[18px] leading-[22px]">{opt}</p>
-                    {/* Check mark bubble when selected */}
-                    {active && <img src={icon.checkGold} alt="" />}
-                  </div>
-                  {/* Divider line (skip after last item) */}
-                  {idx < options.length - 1 && <div className=" h-px bg-white/10" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            style={{ overflow: "hidden" }}
+            role="listbox"
+            aria-multiselectable="true"
+            className="absolute  py-[19px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[382px] top-[160%]"
+          >
+            <div className="flex flex-col items-start gap-[14px] w-full h-[272px] overflow-y-scroll small-scroll">
+              {options.map((opt, idx) => {
+                const active = selected.includes(opt);
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    onClick={() => toggleValue(opt)}
+                    className="w-full text-left px-[32px]"
+                  >
+                    <div className="flex items-center justify-between pb-[14px]">
+                      <p className="text-white text-[18px] leading-[22px]">{opt}</p>
+                      {/* Check mark bubble when selected */}
+                      {active && <img src={icon.checkGold} alt="" />}
+                    </div>
+                    {/* Divider line (skip after last item) */}
+                    {idx < options.length - 1 && <div className=" h-px bg-white/10" />}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

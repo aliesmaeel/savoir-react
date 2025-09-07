@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import useArrow from "~/hooks/imageHooks/useArrow";
 
@@ -150,43 +151,52 @@ export default function FilterBedroom({
       </button>
 
       {/* Dropdown panel */}
-      {open && (
-        <div className="absolute flex flex-col items-start gap-[28px]  px-[18px] py-[23px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[382px] top-[160%]">
-          {/* Bedrooms */}
-          <div className="flex flex-col items-start gap-[12px] w-full">
-            <p className="text-white text-[18px] font-semibold">Bedrooms</p>
-            <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-1 w-full small-scroll">
-              {BED_OPTIONS.map((opt) => (
-                <Item
-                  key={`bed-${opt}`}
-                  option={opt}
-                  active={draft.bedrooms === opt}
-                  onClick={() => setBedrooms(opt)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Bathrooms */}
-          {showBathrooms && (
-            <>
-              <div className="flex flex-col items-start gap-[12px] w-full">
-                <p className="text-white text-[18px] font-semibold">Bathrooms</p>
-                <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-1 w-full small-scroll">
-                  {BATH_OPTIONS.map((opt) => (
-                    <ItemBath
-                      key={`bath-${opt}`}
-                      option={opt}
-                      active={draft.bathrooms === opt}
-                      onClick={() => setBathrooms(opt)}
-                    />
-                  ))}
-                </div>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            style={{ overflow: "hidden" }}
+            className="absolute flex flex-col items-start gap-[28px]  px-[18px] py-[23px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[382px] top-[160%]"
+          >
+            {/* Bedrooms */}
+            <div className="flex flex-col items-start gap-[12px] w-full">
+              <p className="text-white text-[18px] font-semibold">Bedrooms</p>
+              <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-1 w-full small-scroll">
+                {BED_OPTIONS.map((opt) => (
+                  <Item
+                    key={`bed-${opt}`}
+                    option={opt}
+                    active={draft.bedrooms === opt}
+                    onClick={() => setBedrooms(opt)}
+                  />
+                ))}
               </div>
-            </>
-          )}
-        </div>
-      )}
+            </div>
+
+            {/* Bathrooms */}
+            {showBathrooms && (
+              <>
+                <div className="flex flex-col items-start gap-[12px] w-full">
+                  <p className="text-white text-[18px] font-semibold">Bathrooms</p>
+                  <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-1 w-full small-scroll">
+                    {BATH_OPTIONS.map((opt) => (
+                      <ItemBath
+                        key={`bath-${opt}`}
+                        option={opt}
+                        active={draft.bathrooms === opt}
+                        onClick={() => setBathrooms(opt)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

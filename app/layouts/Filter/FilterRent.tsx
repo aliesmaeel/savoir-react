@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import useArrow from "~/hooks/imageHooks/useArrow";
 
 type Interested = "Buy" | "Rent";
@@ -49,7 +50,6 @@ export default function FilterRent({
   }, []);
 
   const triggerSummary = useMemo(() => {
-    // Show compact text under the label
     return `${draft.interested} • ${draft.status}`;
   }, [draft]);
 
@@ -64,9 +64,9 @@ export default function FilterRent({
 
   // Button style helpers (gold fill vs outline)
   const filled =
-    "bg-[#B59B62] text-[16px] text-white font-medium  py-[6px] w-full border border-white rounded-[9px] h-[43px]";
+    "bg-[#B59B62] text-[16px] text-white font-medium py-[6px] w-full border border-white rounded-[9px] h-[43px]";
   const outline =
-    "bg-transparent text-[16px] text-white font-medium  py-[6px] w-full border border-white rounded-[9px] h-[43px]";
+    "bg-transparent text-[16px] text-white font-medium py-[6px] w-full border border-white rounded-[9px] h-[43px]";
 
   return (
     <div className={`relative w-full ${maxWidthClass}`} ref={wrapperRef}>
@@ -91,77 +91,89 @@ export default function FilterRent({
         </div>
       </button>
 
-      {/* Dropdown panel */}
-      {open && (
-        <div className="absolute flex flex-col items-start gap-[28px] px-[18px] py-[23px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[382px] top-[160%]">
-          {/* Title: Interested to */}
-          <div className="flex flex-col items-start gap-[12px] w-full">
-            <p className="text-white text-[18px] font-semibold">Interested to :</p>
-            <div className="flex items-center gap-[11px] w-full">
-              <button
-                type="button"
-                onClick={() => setInterested("Buy")}
-                className={draft.interested === "Buy" ? filled : outline}
-              >
-                Buy
-              </button>
-              <button
-                type="button"
-                onClick={() => setInterested("Rent")}
-                className={draft.interested === "Rent" ? filled : outline}
-              >
-                Rent
-              </button>
-            </div>
-          </div>
+      {/* Dropdown panel with height animation */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            style={{ overflow: "hidden" }}
+            className="absolute w-[382px] top-[160%] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)]"
+          >
+            {/* inner content can also have a subtle slide */}
+            <div className="flex flex-col items-start gap-[28px] px-[18px] py-[23px]">
+              {/* Interested to */}
+              <div className="flex flex-col items-start gap-[12px] w-full">
+                <p className="text-white text-[18px] font-semibold">Interested to :</p>
+                <div className="flex items-center gap-[11px] w-full">
+                  <button
+                    type="button"
+                    onClick={() => setInterested("Buy")}
+                    className={draft.interested === "Buy" ? filled : outline}
+                  >
+                    Buy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInterested("Rent")}
+                    className={draft.interested === "Rent" ? filled : outline}
+                  >
+                    Rent
+                  </button>
+                </div>
+              </div>
 
-          {/* Title: Property status */}
-          <div className="flex flex-col items-start gap-[12px] w-full">
-            <p className="text-white text-[18px] font-semibold">Property status :</p>
-            <div className="flex items-center gap-[7px] w-full">
-              <button
-                type="button"
-                onClick={() => setStatus("All")}
-                className={draft.status === "All" ? filled : outline}
-              >
-                All
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatus("Ready")}
-                className={draft.status === "Ready" ? filled : outline}
-              >
-                Ready
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatus("Off-plan")}
-                className={draft.status === "Off-plan" ? filled : outline}
-              >
-                Off -plan
-              </button>
-            </div>
-          </div>
+              {/* Property status */}
+              <div className="flex flex-col items-start gap-[12px] w-full">
+                <p className="text-white text-[18px] font-semibold">Property status :</p>
+                <div className="flex items-center gap-[7px] w-full">
+                  <button
+                    type="button"
+                    onClick={() => setStatus("All")}
+                    className={draft.status === "All" ? filled : outline}
+                  >
+                    All
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatus("Ready")}
+                    className={draft.status === "Ready" ? filled : outline}
+                  >
+                    Ready
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatus("Off-plan")}
+                    className={draft.status === "Off-plan" ? filled : outline}
+                  >
+                    Off -plan
+                  </button>
+                </div>
+              </div>
 
-          {/* Footer actions */}
-          <div className="flex items-center justify-between w-full">
-            <button
-              type="button"
-              onClick={resetAll}
-              className="text-white underline text-[16px] font-medium"
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              onClick={apply}
-              className="bg-[#B59B62] text-[16px] text-white font-medium   border border-white rounded-[9px] w-[110px] h-[34px]"
-            >
-              Filter
-            </button>
-          </div>
-        </div>
-      )}
+              {/* Footer */}
+              <div className="flex items-center justify-between w-full">
+                <button
+                  type="button"
+                  onClick={resetAll}
+                  className="text-white underline text-[16px] font-medium"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={apply}
+                  className="bg-[#B59B62] text-[16px] text-white font-medium border border-white rounded-[9px] w-[110px] h-[34px]"
+                >
+                  Filter
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
