@@ -1,52 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 import SearchButton from "./SearchButton";
 import useArrow from "~/hooks/imageHooks/useArrow";
+import FilterType from "./FilterType";
+import FilterRent, { type RentFilters } from "./FilterRent";
+import FilterBedroom, { type BedBathValue } from "./FilterBedroom";
+import FilterPriceRange, { type PriceRangeValue } from "./FilterPriceRange";
+
+const TYPE_OPTIONS = ["Apartment", "Villa", "Studio", "Duplex", "Penthouse", "Townhouse", "Loft"];
 
 export default function SearchFilter() {
   const arrow = useArrow();
+
+  const [types, setTypes] = useState<string[]>([]);
+  const [rentFilters, setRentFilters] = useState<RentFilters>({
+    interested: "Rent",
+    status: "All",
+  });
+  const [bedBath, setBedBath] = useState<BedBathValue>({ bedrooms: "Any", bathrooms: "Any" });
+  const [price, setPrice] = useState<PriceRangeValue>({ min: null, max: null });
+
   return (
     <div
-      className="flex items-center justify-end rounded-[20px] bg-[#FFFFFF40] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] py-[19px] px-[39px] w-full"
+      className="flex items-center justify-end rounded-[17.6px] bg-[#FFFFFF40] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] py-[16.72px] px-[34.32px] w-full relative z-20 max-w-[1226px]"
       data-aos="fade-up"
     >
-      <div className="flex gap-[20px] justify-between w-full">
-        <button className="w-full max-w-[211px]">
-          <div className="flex flex-col items-start">
-            <p className="text-white text-[18px] font-semibold">Rent</p>
-            <div className="flex items-center gap-[15px]">
-              <p className="text-white text-[16px]">Select Your Type</p>
-              <img src={arrow.smallBoldWhite} alt="" />
-            </div>
-          </div>
-        </button>
-        <button className="w-full max-w-[211px]">
-          <div className="flex flex-col items-start">
-            <p className="text-white text-[18px] font-semibold">Type </p>
-            <div className="flex items-center gap-[15px]">
-              <p className="text-white text-[16px]">Select Your Type</p>
-              <img src={arrow.smallBoldWhite} alt="" />
-            </div>
-          </div>
-        </button>
-        <button className="w-full max-w-[270px]">
-          <div className="flex flex-col items-start">
-            <p className="text-white text-[18px] font-semibold">Bedroom</p>
-            <div className="flex items-center gap-[15px]">
-              <p className="text-white text-[16px]">Choose bedroom Type</p>
-              <img src={arrow.smallBoldWhite} alt="" />
-            </div>
-          </div>
-        </button>
-        <button className="w-full max-w-[246px]">
-          <div className="flex flex-col items-start">
-            <p className="text-white text-[18px] font-semibold">PriceRange</p>
-            <div className="flex items-center gap-[15px]">
-              <p className="text-white text-[16px]">Choose Price Range</p>
-              <img src={arrow.smallBoldWhite} alt="" />
-            </div>
-          </div>
-        </button>
+      <div className="flex gap-[17.6px] justify-between w-full">
+        <FilterRent value={rentFilters} onChange={setRentFilters} />
+
+        <FilterType
+          options={TYPE_OPTIONS}
+          selected={types}
+          onChange={setTypes}
+          label="Type"
+          placeholder="Select Your Type"
+          maxWidthClass="max-w-[185.68px]"
+        />
+
+        <FilterBedroom value={bedBath} onChange={setBedBath} />
+
+        <FilterPriceRange value={price} onChange={setPrice} />
       </div>
+
       <SearchButton />
     </div>
   );

@@ -62,18 +62,12 @@ export default function OurCustomersSwiper() {
         loop={true}
         grabCursor={true}
         autoplay={{
-          delay: 5000,
-          disableOnInteraction: false,
+          delay: 3000, // ⬅️ auto scroll every 3s
+          disableOnInteraction: false, // keep autoplaying after manual nav
         }}
-        modules={[EffectCards, Autoplay]}
+        modules={[EffectCards, Autoplay]} // ⬅️ include Autoplay
         onSwiper={(swiper) => setSwiperInstance(swiper)}
         className="mySwiper w-[307.059px] h-[413.25px]"
-        cardsEffect={{
-          perSlideOffset: 6, // default 8 → smaller offset
-          perSlideRotate: 2, // default 2 → keep small rotation
-          rotate: false, // disable extra rotation
-          slideShadows: false, // remove strong shadows
-        }}
       >
         {testimonials.map((item, index) => (
           <SwiperSlide key={index} className="rounded-[18px]">
@@ -101,39 +95,39 @@ function TestimonialCard({ data }: { data: any }) {
 
   return (
     <div
-      className={`w-full h-full rounded-[18px] px-[7px] py-[21px] transition-all duration-300
-        ${isActive ? "bg-[#EBEBEB]" : "bg-[#C6A45A33]"}
+      className={`w-full h-full rounded-[18px] px-[7px] py-[21px] transition-all duration-300 
+        ${isActive ? "bg-[#EBEBEB] opacity-100" : "bg-[#C6A45A33]"}
       `}
     >
-      {isActive && (
-        <div className="flex flex-col items-start justify-between w-full h-full ">
-          <div className="flex flex-col items-start gap-[10px]">
-            <div className="flex items-center gap-2 ml-[12px]">
-              <span className="bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
-                {data.rating}
-                <img src={icon.startWhite} alt="" />
-              </span>
-            </div>
-
-            <div className="flex flex-col items-start">
-              <img src={icon.quotes} alt="" />
-              <p className="text-[#232222] text-[15px] leading-[166.667%] px-[7px]">{data.text}</p>
-            </div>
-            <hr className="w-[85%] border-2 border-[#3536354D] mx-auto" />
+      <div
+        className={`flex flex-col items-start justify-between w-full h-full ${isActive ? "opacity-100" : "opacity-30"}`}
+      >
+        <div className="flex flex-col items-start gap-[10px]">
+          <div className="flex items-center gap-2 ml-[12px]">
+            <span className="bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
+              {data.rating}
+              <img src={icon.startWhite} alt="" />
+            </span>
           </div>
-          <div className="flex items-center gap-3 mt-6">
-            <img
-              src={data.avatar}
-              alt={data.author}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-            <div>
-              <p className="font-semibold text-gray-900">{data.author}</p>
-              <p className="text-sm text-gray-500">{data.role}</p>
-            </div>
+
+          <div className="flex flex-col items-start">
+            <img src={icon.quotes} alt="" />
+            <p className="text-[#232222] text-[15px] leading-[166.667%] px-[7px]">{data.text}</p>
+          </div>
+          <hr className="w-[85%] border-2 border-[#3536354D] mx-auto" />
+        </div>
+        <div className="flex items-center gap-3 mt-6">
+          <img
+            src={data.avatar}
+            alt={data.author}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div>
+            <p className="font-semibold text-gray-900">{data.author}</p>
+            <p className="text-sm text-gray-500">{data.role}</p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

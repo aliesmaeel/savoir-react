@@ -26,7 +26,7 @@ export default function LuxuryPortfolio() {
       x: 0,
       y: 0,
       scale: 1,
-      transition: { duration: 0.6, ease: "easeOut", delay: 0.4 }, // delay for after parent
+      transition: { duration: 0.6, ease: "easeOut", delay: 0.7 }, // delay for after parent
     },
   };
 
