@@ -25,7 +25,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const items = [
     { title: "Off Plan", path: "/off-plan" },
     { title: "news", path: "/news" },
-    { title: "For Rent", path: "#" },
+    { title: "Popular Areas", path: "/popular-areas" },
     { title: "About Us", path: "#" },
     { title: "Our Blogs", path: "#" },
     { title: "Contact Us", path: "#" },
