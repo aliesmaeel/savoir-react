@@ -23,6 +23,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   }, [onClose]);
 
   const items = [
+    { title: "Off Plan", path: "/off-plan" },
     { title: "For Sale", path: "#" },
     { title: "For Rent", path: "#" },
     { title: "About Us", path: "#" },
@@ -30,7 +31,6 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { title: "Contact Us", path: "#" },
     { title: "Our Team", path: "#" },
     { title: "Career", path: "#" },
-    { title: "About us", path: "#" },
     { title: "About us", path: "#" },
   ];
 

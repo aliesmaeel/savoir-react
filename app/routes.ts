@@ -8,5 +8,9 @@ export default [
     route("/project/:projectid", "routes/project.tsx"),
     route("/off-plan", "routes/offPlanProjects.tsx"),
     route("/off-plan/:projectid", "routes/offPlan.tsx"),
+
+    // News
+    route("/news", "routes/news/news.tsx"),
+    route("/news/:newsid", "routes/news/newsPage.tsx"),
   ]),
 ] satisfies RouteConfig;

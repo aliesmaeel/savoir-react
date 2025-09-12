@@ -32,28 +32,26 @@ export default function Home() {
       </div>
 
       <PageLayout>
-        <div className="w-full max-w-[1226px] mx-auto">
-          <HomeAbout />
-          <HomeOurData />
-          <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[99px] mb-[167px]">
-            {/* <div className="w-full" data-aos="fade-right"> */}
-            <HomeProperties />
-            {/* </div> */}
-            <div className="flex flex-col items-end justify-end gap-[37px] w-full">
-              <NewsInsights />
-              <div className="w-full flex justify-end" data-aos="fade-left">
-                <GlobalProjects />
-              </div>
+        <HomeAbout />
+        <HomeOurData />
+        <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[99px] mb-[167px]">
+          {/* <div className="w-full" data-aos="fade-right"> */}
+          <HomeProperties />
+          {/* </div> */}
+          <div className="flex flex-col items-end justify-end gap-[37px] w-full">
+            <NewsInsights />
+            <div className="w-full flex justify-end" data-aos="fade-left">
+              <GlobalProjects />
             </div>
           </div>
+        </div>
 
-          <GlobalAccess />
-          <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[142px]">
-            <Locations />
-            <OurCustomers />
-            <OffPlanProjects />
-            <LuxuryPortfolio />
-          </div>
+        <GlobalAccess />
+        <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[142px]">
+          <Locations />
+          <OurCustomers />
+          <OffPlanProjects />
+          <LuxuryPortfolio />
         </div>
       </PageLayout>
       <div>
