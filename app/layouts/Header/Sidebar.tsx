@@ -23,14 +23,14 @@ export default function Sidebar({ onClose }: SidebarProps) {
   }, [onClose]);
 
   const items = [
-    { title: "For Sale", path: "#" },
-    { title: "For Rent", path: "#" },
+    { title: "Off Plan", path: "/off-plan" },
+    { title: "news", path: "/news" },
+    { title: "Popular Areas", path: "/popular-areas" },
     { title: "About Us", path: "#" },
     { title: "Our Blogs", path: "#" },
     { title: "Contact Us", path: "#" },
     { title: "Our Team", path: "#" },
     { title: "Career", path: "#" },
-    { title: "About us", path: "#" },
     { title: "About us", path: "#" },
   ];
 
