@@ -31,12 +31,11 @@ export default function Sponsors() {
   const seq1Running = useRef(false);
   const seq2Running = useRef(false);
 
-  // Try to start Section 2 whenever possible
+  // Try to start Section 2 whenever possible (no direction check)
   const tryStartSection2 = async () => {
     if (seq2Running.current) return;
     if (!section2Allowed) return;
     if (!title2InView.current) return;
-    if (dir.current !== "down") return;
 
     seq2Running.current = true;
     await title2Ctrl.start("visible");
@@ -91,7 +90,7 @@ export default function Sponsors() {
     ]);
   };
 
-  // SECTION 2: keep an explicit in-view flag and reset on ANY leave
+  // SECTION 2: keep an explicit in-view flag; reset ONLY when scrolling up
   const onEnterTitle2 = async () => {
     title2InView.current = true;
     await tryStartSection2();
@@ -99,8 +98,10 @@ export default function Sponsors() {
 
   const onLeaveTitle2 = async () => {
     title2InView.current = false;
-    // Reset on ANY leave (up or down) so it can replay reliably
-    await Promise.all([body2Ctrl.start("hidden"), title2Ctrl.start("hidden")]);
+    // Only reset when user is scrolling UP — keeps it visible when leaving while scrolling DOWN
+    if (dir.current === "up") {
+      await Promise.all([body2Ctrl.start("hidden"), title2Ctrl.start("hidden")]);
+    }
   };
 
   return (
@@ -137,7 +138,7 @@ export default function Sponsors() {
           animate={title2Ctrl}
           viewport={{ amount: 0.35, once: false }}
           onViewportEnter={onEnterTitle2}
-          onViewportLeave={onLeaveTitle2} // reset on any leave
+          onViewportLeave={onLeaveTitle2}
           style={{ willChange: "transform, opacity" }}
         >
           <Title className="text-[45px]">LISTING SYNDICATION AND AFFILIATED WEBSITES</Title>
