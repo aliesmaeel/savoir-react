@@ -15,6 +15,7 @@ export default [
 
     // Our Team
     route("/our-team", "routes/ourTeam/ourTeam.tsx"),
+    route("/our-team/:memberid", "routes/ourTeam/teamPage.tsx"),
 
     route("/popular-areas", "routes/popularAreas/popularAreas.tsx"),
   ]),
