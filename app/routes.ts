@@ -13,6 +13,9 @@ export default [
     route("/news", "routes/news/news.tsx"),
     route("/news/:newsid", "routes/news/newsPage.tsx"),
 
+    // Our Team
+    route("/our-team", "routes/ourTeam/ourTeam.tsx"),
+
     route("/popular-areas", "routes/popularAreas/popularAreas.tsx"),
   ]),
 ] satisfies RouteConfig;
