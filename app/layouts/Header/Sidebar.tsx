@@ -29,7 +29,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { title: "About Us", path: "#" },
     { title: "Our Blogs", path: "#" },
     { title: "Contact Us", path: "#" },
-    { title: "Our Team", path: "#" },
+    { title: "Our Team", path: "/our-team" },
     { title: "Career", path: "#" },
     { title: "About us", path: "#" },
   ];
