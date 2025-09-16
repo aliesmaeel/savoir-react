@@ -63,8 +63,7 @@ export default function FindYourPartner() {
           modules={[Autoplay]}
           slidesPerView={3} // always 3
           centeredSlides={false} // active is LEFT
-          loop={false}
-          spaceBetween={24}
+          loop={true}
           slidesOffsetBefore={0} // ensure far-left alignment
           slidesOffsetAfter={0}
           slideToClickedSlide
