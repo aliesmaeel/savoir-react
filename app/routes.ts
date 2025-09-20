@@ -18,5 +18,15 @@ export default [
     route("/our-team/:memberid", "routes/ourTeam/teamPage.tsx"),
 
     route("/popular-areas", "routes/popularAreas/popularAreas.tsx"),
+
+    route("/contact-us", "routes/contactUs.tsx"),
+
+    // Bogs
+    route("/blogs", "routes/blogs/blogs.tsx"),
+    route("/blogs/:blogid", "routes/blogs/blogPage.tsx"),
+
+    route("/career", "routes/career.tsx"),
+
+    route("/about-us", "routes/aboutUs.tsx"),
   ]),
 ] satisfies RouteConfig;

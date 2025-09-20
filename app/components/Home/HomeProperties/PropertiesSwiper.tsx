@@ -42,7 +42,7 @@ export default function PropertiesSwiper() {
                 </div>
               </div>
               <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-[5px] Jakarta text-[20px] font-medium">
+                <div className="flex items-center gap-[5px] Jakarta text-[17px] font-medium">
                   <p>4 beds</p>
                   <div className="w-[5px] h-[5px] bg-[#353635] rounded-full" />
                   <p>1 baths</p>
@@ -53,7 +53,7 @@ export default function PropertiesSwiper() {
                 </div>
                 <div className="flex items-center gap-[8px]">
                   <img src={icon.Clock} alt="" className="w-[23px]" />
-                  <p className="text-[20px] font-medium Jakarta">2years ago</p>
+                  <p className="text-[17px] font-medium Jakarta">2years ago</p>
                 </div>
               </div>
             </div>
