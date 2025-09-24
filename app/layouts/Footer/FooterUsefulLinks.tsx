@@ -9,24 +9,7 @@ export default function FooterUsefulLinks() {
     },
     {
       title: "Real Estate Advisory",
-    },
-    {
-      title: "Real Estate Advisory",
-    },
-    {
-      title: "Real Estate Advisory",
-    },
-    {
-      title: "Real Estate Advisory",
-    },
-    {
-      title: "Real Estate Advisory",
-    },
-    {
-      title: "Real Estate Advisory",
-    },
-    {
-      title: "Real Estate Advisory",
+      link: "/real-estate-advisory",
     },
   ];
 

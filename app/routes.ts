@@ -30,5 +30,7 @@ export default [
     route("/about-us", "routes/aboutUs.tsx"),
 
     route("/list-with-us", "routes/listWithUs.tsx"),
+
+    route("/real-estate-advisory", "routes/realEstateAdvisory.tsx"),
   ]),
 ] satisfies RouteConfig;
