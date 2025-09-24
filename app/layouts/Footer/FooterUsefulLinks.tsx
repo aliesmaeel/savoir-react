@@ -4,7 +4,8 @@ import { Link } from "react-router";
 export default function FooterUsefulLinks() {
   const items = [
     {
-      title: "Real Estate Advisory",
+      title: "List With Us",
+      link: "/list-with-us",
     },
     {
       title: "Real Estate Advisory",
@@ -35,7 +36,7 @@ export default function FooterUsefulLinks() {
       <ul className="flex flex-col items-start gap-[6px] w-full">
         {items.map((item: any, index: number) => (
           <li className="list-disc text-[21px] ml-[22px]">
-            <Link to={`/projects/1`} key={index} className="">
+            <Link to={item.link} key={index} className="">
               <p className="text-[18px]">{item.title}</p>
             </Link>
           </li>

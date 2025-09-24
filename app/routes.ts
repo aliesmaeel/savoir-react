@@ -28,5 +28,7 @@ export default [
     route("/career", "routes/career.tsx"),
 
     route("/about-us", "routes/aboutUs.tsx"),
+
+    route("/list-with-us", "routes/listWithUs.tsx"),
   ]),
 ] satisfies RouteConfig;
