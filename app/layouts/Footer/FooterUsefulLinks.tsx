@@ -4,6 +4,10 @@ import { Link } from "react-router";
 export default function FooterUsefulLinks() {
   const items = [
     {
+      title: "Global Project",
+      link: "/global-project",
+    },
+    {
       title: "List With Us",
       link: "/list-with-us",
     },
