@@ -3,7 +3,7 @@ import useArrow from "~/hooks/imageHooks/useArrow";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
 type ButtonProps = {
-  type?: "primary" | "border"; // Expandable for more types later
+  type?: "primary" | "border" | "white" | "transparent"; // Expandable for more types later
   className?: string;
   children: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -43,6 +43,30 @@ const Button: React.FC<ButtonProps> = ({
         onClick={onClick}
         disabled={disabled}
         className={`flex items-center justify-center gap-[3.5px] px-[24.88px] py-[9.7px] rounded-[10.5px] text-[#353635] text-[16px] font-semibold border border-[#C6A45A] ${className}`}
+      >
+        {children}
+      </button>
+    );
+  }
+
+  if (type === "white") {
+    return (
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`flex items-center justify-center gap-[3.5px] px-[93px] py-[18px] rounded-[10.5px] text-[#C6A45A] text-[24px] font-semibold bg-[#FFFFFF] ${className}`}
+      >
+        {children}
+      </button>
+    );
+  }
+
+  if (type === "transparent") {
+    return (
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={`flex items-center justify-center gap-[3.5px] px-[93px] py-[18px] rounded-[10.5px] text-white text-[24px]  bg-[#FFFFFF40] backdrop-blur-[10px] ${className}`}
       >
         {children}
       </button>

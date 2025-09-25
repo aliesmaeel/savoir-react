@@ -26,12 +26,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { title: "Off Plan", path: "/off-plan" },
     { title: "news", path: "/news" },
     { title: "Popular Areas", path: "/popular-areas" },
-    { title: "About Us", path: "#" },
-    { title: "Our Blogs", path: "#" },
-    { title: "Contact Us", path: "#" },
-    { title: "Our Team", path: "#" },
-    { title: "Career", path: "#" },
-    { title: "About us", path: "#" },
+    { title: "Our Blogs", path: "/blogs" },
+    { title: "Contact Us", path: "/contact-us" },
+    { title: "Our Team", path: "/our-team" },
+    { title: "Career", path: "/career" },
+    { title: "About us", path: "/about-us" },
   ];
 
   return (
