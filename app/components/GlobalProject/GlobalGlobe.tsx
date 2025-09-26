@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import * as turf from "@turf/turf";
+import useIcons from "~/hooks/imageHooks/useIcons";
 
 type GlobalGlobeProps = {
   fullscreen?: boolean;
@@ -159,6 +160,8 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
         position: "relative",
       };
 
+  const icon = useIcons();
+
   return (
     <div className="flex items-center justify-between w-full relative z-50">
       <div className="flex flex-col items-start gap-[37px]">
@@ -186,34 +189,44 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
               </div>
               {dropdownOpen && (
                 <ul
+                  className="small-scroll"
                   style={{
                     margin: 0,
                     padding: 0,
                     listStyle: "none",
                     position: "absolute",
-                    top: "100%",
+                    top: "180%",
                     left: 0,
                     width: "100%",
-                    backgroundColor: "#fff",
+                    backgroundColor: "#FFFFFF40",
                     color: "#000",
-                    border: "1px solid #ccc",
-                    borderRadius: 4,
+                    borderRadius: " 0 0 20px 20px",
                     maxHeight: 200,
                     overflowY: "auto",
                     zIndex: 20,
+                    boxShadow: "0 31.242px 62.484px -15.621px rgba(143, 144, 188, 0.15)",
+                    backdropFilter: "blur(10px)",
                   }}
                 >
+                  {/*  */}
                   {selectedCountries.map((c) => (
                     <li
                       key={c}
                       onClick={() => handleSelect(c)}
+                      className={`flex items-center gap-[20px] w-full py-[9px] px-[12px] border-l-[3px] ${c === selectedCountry ? " border-[#C6A45A]" : "border-transparent"}`}
                       style={{
-                        padding: "5px 10px",
-                        cursor: "pointer",
-                        backgroundColor: c === selectedCountry ? "#eee" : "transparent",
+                        background:
+                          c === selectedCountry
+                            ? "linear-gradient(90deg, #FFF 0%, rgba(198, 164, 90, 0.00) 100%)"
+                            : "transparent",
                       }}
                     >
-                      {c}
+                      <img
+                        src={c === selectedCountry ? icon.zap : ""}
+                        alt=""
+                        className="w-[12px]"
+                      />
+                      <p className="text-[18px]">{c}</p>
                     </li>
                   ))}
                 </ul>
