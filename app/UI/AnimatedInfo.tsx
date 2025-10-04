@@ -121,7 +121,7 @@ export function AnimatedInfo({
 
   return (
     <p ref={ref} className={className} aria-label={raw}>
-      {formatted}
+      +{formatted}
     </p>
   );
 }

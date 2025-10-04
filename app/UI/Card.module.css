@@ -23,3 +23,9 @@
     -33.883px 33.883px 33.883px 0 rgba(255, 255, 255, 0.07) inset;
   backdrop-filter: blur(40.998931884765625px);
 }
+
+@media (max-width: 1024px) {
+  .card {
+    border-radius: 44px;
+  }
+}

@@ -46,11 +46,14 @@ export default function LocationsSwiper() {
   };
 
   return (
-    <div className="flex flex-col items-start gap-[31px] w-full relative">
+    <div className="flex flex-col items-start gap-[17px] lg:gap-[31px] w-full relative">
       {/* Custom Navigation Buttons */}
 
-      <div className="flex items-center gap-[12px] px-[13px] w-full">
-        <button ref={prevRef} className="flex items-center justify-center w-[65px] aspect-square">
+      <div className="flex items-center gap-[6px] lg:gap-[12px] px-[7px] lg:px-[13px] w-full">
+        <button
+          ref={prevRef}
+          className="flex items-center justify-center w-[35px] lg:w-[65px] aspect-square"
+        >
           <img src={arrow.smallGold} alt="prev" className="w-6 h-6 rotate-180" />
         </button>
         {/* -------- TITLES SWIPER -------- */}
@@ -73,7 +76,10 @@ export default function LocationsSwiper() {
             </SwiperSlide>
           ))}
         </Swiper>
-        <button ref={nextRef} className="flex items-center justify-center w-[65px] aspect-square">
+        <button
+          ref={nextRef}
+          className="flex items-center justify-center w-[35px] lg:w-[65px] aspect-square"
+        >
           <img src={arrow.smallGold} alt="next" className="w-6 h-6" />
         </button>
       </div>
@@ -139,14 +145,14 @@ function SlideCard({ item, arrow }: { item: any; arrow: ReturnType<typeof useArr
       className={`relative flex flex-col gap-[12px] transition-all duration-300
       ${isActive ? "scale-100 opacity-100" : "scale-[0.85] opacity-80"}`}
     >
-      <div className="relative overflow-hidden rounded-[15px] shadow-lg">
+      <div className="relative overflow-hidden rounded-[8px] lg:rounded-[15px] shadow-lg">
         <img src={item.img} alt={item.title} className="w-full aspect-[549/413] object-cover" />
         <Link
-          to="#"
-          className="absolute bottom-0 left-0 w-full py-[15px] bg-[#6c645a] flex items-center justify-center gap-[15px]"
+          to="/popular-areas"
+          className="absolute bottom-0 left-0 w-full py-[8px] lg:py-[15px] bg-[#6c645a] flex items-center justify-center gap-[15px]"
         >
-          <p className="text-[#C6A45A] text-[20px]">Show more details</p>
-          <img src={arrow.veryLongGold} alt="" className="w-[50px] mt-[-5px]" />
+          <p className="text-[#C6A45A] text-[14px] lg:text-[20px]">Show more details</p>
+          <img src={arrow.veryLongGold} alt="" className="w-[35px] lg:w-[50px] mt-[-5px]" />
         </Link>
       </div>
     </div>
@@ -157,7 +163,7 @@ function TitleCell({ title }: { title: string }) {
   const { isActive } = useSwiperSlide();
   return (
     <div className="px-1">
-      <div className={`select-none text-[21px] text-[#353635] w-full`}>
+      <div className={`select-none text-[14px] lg:text-[21px] text-[#353635] w-full`}>
         <div className="flex flex-col items-start w-fit">
           {title}
           {isActive && (

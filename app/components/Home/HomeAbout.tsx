@@ -34,7 +34,7 @@ export default function HomeAbout() {
   return (
     <motion.div
       ref={ref}
-      className="flex flex-col items-start gap-[18px] w-full"
+      className="flex flex-col items-start gap-[12px] lg:gap-[18px] w-full"
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       variants={parent}
@@ -42,14 +42,14 @@ export default function HomeAbout() {
     >
       {/* Title */}
       <motion.div variants={child} transition={{ duration: 0.6, ease: "easeOut" }}>
-        <Header className="text-[34px]">WE’RE LOCAL, WE’RE GLOBAL</Header>
+        <Header className="text-[16px] lg:text-[34px]">WE’RE LOCAL, WE’RE GLOBAL</Header>
       </motion.div>
 
       {/* Text */}
       <motion.div
         variants={child}
         transition={{ duration: 0.8, ease: "easeOut", delay: 1 }}
-        className="text-[#353635] text-[22px] leading-[233.333%]"
+        className="text-[#353635] text-[12px] lg:text-[22px] leading-[233.333%]"
         style={{ willChange: "transform, opacity" }}
       >
         With four decades of experience, our luxury boutique real estate agency is dedicated to
@@ -66,7 +66,7 @@ export default function HomeAbout() {
         transition={{ duration: 1.0, ease: "easeOut", delay: 1.5 }}
         style={{ willChange: "transform, opacity" }}
       >
-        <Button className="w-[299px]">
+        <Button className="w-[166px] lg:w-[299px]">
           Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
         </Button>
       </motion.div>

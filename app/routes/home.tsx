@@ -34,20 +34,20 @@ export default function Home() {
       <PageLayout>
         <HomeAbout />
         <HomeOurData />
-        <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[99px] mb-[167px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] lg:gap-[37.5px] w-full mt-[31px] lg:mt-[99px] mb-[33px] lg:mb-[167px]">
           {/* <div className="w-full" data-aos="fade-right"> */}
           <HomeProperties />
           {/* </div> */}
-          <div className="flex flex-col items-end justify-end gap-[37px] w-full">
+          <div className="flex flex-col items-end justify-end gap-[24px] lg:gap-[37px] w-full">
             <NewsInsights />
-            <div className="w-full flex justify-end" data-aos="fade-left">
+            <div className="w-full flex justify-end">
               <GlobalProjects />
             </div>
           </div>
         </div>
 
         <GlobalAccess />
-        <div className="grid grid-cols-2 gap-[37.5px] w-full mt-[142px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[37.5px] w-full mt-[40px] lg:mt-[142px]">
           <Locations />
           <OurCustomers />
           <OffPlanProjects />

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
 type SidebarProps = {
@@ -25,7 +25,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   const items = [
     { title: "Off Plan", path: "/off-plan" },
     { title: "news", path: "/news" },
-    { title: "Popular Areas", path: "/popular-areas" },
+    // { title: "Popular Areas", path: "/popular-areas" },
     { title: "Our Blogs", path: "/blogs" },
     { title: "Contact Us", path: "/contact-us" },
     { title: "Our Team", path: "/our-team" },
@@ -46,7 +46,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
           "linear-gradient(180deg,rgba(198, 164, 90, 1) 0%, rgba(255, 255, 255, 1) 24%, rgba(255, 255, 255, 1) 100%)",
       }}
     >
-      <img src={icon.logo} alt="" className="w-[188.47px]" />
+      <Link to="/">
+        <img src={icon.logo} alt="" className="w-[188.47px]" />
+      </Link>
       <div className="flex flex-col items-center gap-[26.79px]">
         <div className="flex flex-col items-center gap-[21.15px]">
           {items.map((item, index) => (

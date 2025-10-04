@@ -121,7 +121,7 @@ export default function FilterPriceRange({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
             style={{ overflow: "hidden" }}
-            className="absolute flex flex-col items-start gap-[28px] px-[18px] py-[23px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[382px] top-[160%]"
+            className="absolute flex flex-col items-start gap-[28px] px-[18px] py-[23px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[307px] lg:w-[382px] top-[160%] left-[-161px] lg:left-auto z-10"
           >
             <div className="flex flex-col items-start gap-[12px]">
               <p className="text-white text-[18px] font-semibold">Price ({currency})</p>

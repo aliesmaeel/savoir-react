@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Sidebar from "./Sidebar";
+import { Link } from "react-router";
 
 export default function Header() {
   const icon = useIcons();
@@ -28,13 +29,15 @@ export default function Header() {
 
   return (
     <div
-      className={`flex items-center justify-between w-full px-[45px] py-[19px] 
+      className={`flex items-center justify-between w-full px-[16px] lg:px-[45px] py-[19px] 
         bg-[#0000005e] backdrop-blur-[10px] fixed z-30 transition-all duration-300
         shadow-[0_4px_54px_0_rgba(0,0,0,0.15),0_31.242px_62.484px_-15.621px_rgba(143,144,188,0.15)]
         ${show ? "top-0" : "top-[-90px]"}`}
     >
       <div className="flex items-center justify-between w-full max-w-[1226px] mx-auto">
-        <img src={icon.logo} alt="logo" className="w-[54px] lg:w-[141px]" />
+        <Link to="/">
+          <img src={icon.logo} alt="logo" className="w-[54px] lg:w-[141px]" />
+        </Link>
         <button onClick={() => setSidebar(true)}>
           <img src={icon.menu} alt="menu" className="w-[18px] lg:w-[43px]" />
         </button>
