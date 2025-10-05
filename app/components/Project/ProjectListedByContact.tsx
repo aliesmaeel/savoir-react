@@ -22,11 +22,11 @@ export default function ProjectListedByContact() {
         </div>
       </div>
       <div className="flex items-center gap-[19px] w-full">
-        <Button className="w-full gap-[6px] !py-[8px] !text-[18px">
+        <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
           <img src={icon.phoneWhite} alt="" className="w-[27px]" />
           Call
         </Button>
-        <Button className="w-full gap-[6px] !py-[8px] !text-[18px">
+        <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
           <img src={icon.whatsappWhite} alt="" className="w-[27px]" />
           Whatsapp
         </Button>

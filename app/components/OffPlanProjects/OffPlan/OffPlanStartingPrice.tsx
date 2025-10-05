@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
+import Popup from "~/UI/Popup";
+import OffPlanPopup from "./OffPlanPopup";
 
 export default function OffPlanStartingPrice() {
   const icon = useIcons();
+  const [openPopup, setOpenPopup] = useState(false);
   const features = [
     {
       title: "Developer :",
@@ -50,9 +53,20 @@ export default function OffPlanStartingPrice() {
         ))}
       </div>
       <div className="flex flex-col items-center gap-[24px] w-full">
-        <Button className="w-full gap-[6px] !py-[10px] !text-[21px]">Discover more</Button>
+        <Button
+          onClick={() => setOpenPopup(true)}
+          className="w-full gap-[6px] !py-[10px] !text-[21px]"
+        >
+          Discover more
+        </Button>
         <Button className="w-full gap-[6px] !py-[8px] !text-[21px]">Download brochure</Button>
       </div>
+
+      {openPopup && (
+        <Popup title="Get Faster Response!" onClose={() => setOpenPopup(false)}>
+          <OffPlanPopup />
+        </Popup>
+      )}
     </div>
   );
 }

@@ -9,8 +9,8 @@ export default function news() {
     <div className="relative">
       <NewsHero />
       <PageLayout>
-        <NewsAbout />
-        <div className="grid grid-cols-3 gap-[30px] w-full mt-[75px]">
+        {/* <NewsAbout /> */}
+        <div className="grid grid-cols-3 gap-[30px] w-full ">
           <NewsCard />
           <NewsCard />
           <NewsCard />

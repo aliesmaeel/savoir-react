@@ -12,7 +12,7 @@ export default function OffPlanCard({ project }: props) {
   const icon = useIcons();
   return (
     <Card className="!rounded-[46.534px]">
-      <div className="px-[23px] pt-[27px] pb-[30px] w-full">
+      <Link to={`/off-plan/${project.id}`} className="block px-[23px] pt-[27px] pb-[30px] w-full">
         <img
           src={project.image}
           alt=""
@@ -33,10 +33,8 @@ export default function OffPlanCard({ project }: props) {
         </div>
         <hr className="w-full border-[#00000080] mt-[23px]" />
         <p className="text-[#666] text-[22px] mt-[21px]">Handover in Q1 2029</p>
-        <Link to={`/off-plan/${project.id}`}>
-          <Button className="w-full text-[21px] !py-[6px] h-[45px] mt-[24px]">From AED 45 M</Button>
-        </Link>
-      </div>
+        <Button className="w-full text-[21px] !py-[6px] h-[45px] mt-[24px]">From AED 45 M</Button>
+      </Link>
     </Card>
   );
 }

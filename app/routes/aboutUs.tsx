@@ -3,6 +3,7 @@ import AboutCoreValues from "~/components/About/AboutCoreValues";
 import AboutHero from "~/components/About/AboutHero";
 import AboutWhoWeAre from "~/components/About/AboutWhoWeAre";
 import PageLayout from "~/layouts/PageLayout";
+import DontMissBeat from "~/UI/DontMissBeat";
 
 export default function aboutUs() {
   return (
@@ -25,6 +26,7 @@ export default function aboutUs() {
           </p>
           <p className="text-[31px] font-semibold">Anthony Hitt</p>
         </div>
+        <DontMissBeat />
       </PageLayout>
     </div>
   );

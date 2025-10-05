@@ -1,8 +1,10 @@
 import React from "react";
 import CareerCard from "./CareerCard";
+import ThreeSwiper from "~/UI/ThreeSwiper";
+import { SwiperSlide } from "swiper/react";
 
 export default function CareerCurrentVacancies() {
-  const vacancies = Array.from({ length: 3 }, (_, index) => ({
+  const vacancies = Array.from({ length: 6 }, (_, index) => ({
     id: index + 1,
     title: `Property Manger`,
     image: "/images/placeholders/career.jpg",
@@ -19,11 +21,13 @@ export default function CareerCurrentVacancies() {
           change, we want to hear from you.
         </p>
       </div>
-      <div className="grid grid-cols-3 gap-[30px] w-full">
+      <ThreeSwiper>
         {vacancies.map((job: any, index: number) => (
-          <CareerCard key={index} job={job} />
+          <SwiperSlide>
+            <CareerCard key={index} job={job} />
+          </SwiperSlide>
         ))}
-      </div>
+      </ThreeSwiper>
     </div>
   );
 }

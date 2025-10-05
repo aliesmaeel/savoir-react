@@ -21,9 +21,6 @@ export default function PopularAbout() {
         comfort and refinement. From panoramic views of the marina and the Gulf to sleek
         contemporary interiors, every aspect of life in Dubai Marina exudes luxury and elegance.
       </p>
-      <Button className="w-[299px]">
-        Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
-      </Button>
     </div>
   );
 }

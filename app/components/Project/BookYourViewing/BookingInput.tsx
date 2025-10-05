@@ -29,7 +29,7 @@ export default function BookingInput({
         }`}
       >
         <PhoneInput
-          defaultCountry="AE"
+          defaultCountry="ae"
           value={value}
           onChange={onChange}
           placeholder={placeholder || "Enter Phone number"}

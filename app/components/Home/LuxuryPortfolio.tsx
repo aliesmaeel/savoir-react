@@ -102,7 +102,7 @@ export default function LuxuryPortfolio() {
         <motion.img
           src={icon.Magazine}
           alt=""
-          className="absolute bottom-[-44px] right-[-30px] w-[158px] lg:w-[260px] rotate-[-27deg]"
+          className="absolute bottom-[-44px] right-[-30px] w-[158px] lg:w-[341px]"
           variants={imgVariants}
           initial="hidden"
           animate={isMobile ? "visible" : imgControls} // ✅ skip anim on mobile

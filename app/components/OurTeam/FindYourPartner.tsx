@@ -64,6 +64,10 @@ export default function FindYourPartner() {
           slidesPerView={3} // always 3
           centeredSlides={false} // active is LEFT
           loop={true}
+          autoplay={{
+            delay: 5000, // ⏱ autoplay every 5 seconds
+            disableOnInteraction: false, // keeps autoplay running even after user interacts
+          }}
           slidesOffsetBefore={0} // ensure far-left alignment
           slidesOffsetAfter={0}
           slideToClickedSlide
