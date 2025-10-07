@@ -29,7 +29,7 @@ export default function HomeOurData() {
 
   return (
     <motion.div
-      className="grid grid-cols-3 gap-[36px] w-full pt-[52px]"
+      className="grid grid-cols-3 gap-[33px] lg:gap-[36px] w-full pt-[37px] lg:pt-[52px]"
       variants={variants}
       initial="hidden"
       animate={controls}
@@ -53,17 +53,20 @@ export default function HomeOurData() {
       }}
     >
       {data.map((item, index) => (
-        <div key={index} className="flex flex-col items-center justify-between gap-[36px]">
+        <div
+          key={index}
+          className="flex flex-col items-center justify-between gap-[11px] lg:gap-[36px]"
+        >
           <img src={item.logo} alt={item.title} />
-          <div className="flex flex-col items-center gap-[22px]">
+          <div className="flex flex-col items-center gap-[7px] lg:gap-[22px]">
             <AnimatedInfo
               display={item.info}
               duration={500}
-              className={`text-[66px] ${styles.info}`}
+              className={`text-[23px] lg:text-[66px] ${styles.info}`}
               enabled={canCount} // ⬅️ use gate
               startDelayMs={index * 50} // ⬅️ optional stagger per item
             />
-            <p className="text-[#353635] text-[33px]">{item.title}</p>
+            <p className="text-[#353635] text-[11px] lg:text-[33px]">{item.title}</p>
           </div>
         </div>
       ))}

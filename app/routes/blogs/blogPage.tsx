@@ -1,11 +1,13 @@
 import React from "react";
+import { SwiperSlide } from "swiper/react";
 import BlogCard from "~/components/Blogs/BlogCard";
 import NewsBody from "~/components/News/NewsBody";
 import NewsPageHero from "~/components/News/NewsPageHero";
 import PageLayout from "~/layouts/PageLayout";
+import ThreeSwiper from "~/UI/ThreeSwiper";
 
 export default function blogPage() {
-  const blogs = Array.from({ length: 3 }, (_, index) => ({
+  const blogs = Array.from({ length: 6 }, (_, index) => ({
     id: index + 1,
     title: `Want to succeed in real estate? Focus on these habits`,
     subtitle:
@@ -23,11 +25,13 @@ export default function blogPage() {
 
         <div className="flex flex-col items-start gap-[37px] w-full mt-[75px]">
           <p className="text-black text-[31px] font-medium">You might also be interested in...</p>
-          <div className="grid grid-cols-3 gap-[30px] w-full ">
+          <ThreeSwiper>
             {blogs.map((blog: any, index: number) => (
-              <BlogCard key={index} blog={blog} />
+              <SwiperSlide>
+                <BlogCard key={index} blog={blog} />
+              </SwiperSlide>
             ))}
-          </div>
+          </ThreeSwiper>
         </div>
       </PageLayout>
     </div>

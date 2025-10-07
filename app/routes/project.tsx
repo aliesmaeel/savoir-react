@@ -9,6 +9,7 @@ import ProjectFeatures from "~/components/Project/ProjectFeatures";
 import ProjectPageSwiper from "~/components/Project/ProjectPageSwiper";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import PageLayout from "~/layouts/PageLayout";
+import DontMissBeat from "~/UI/DontMissBeat";
 
 export default function project() {
   const icon = useIcons();
@@ -37,6 +38,7 @@ export default function project() {
       <BookYourViewing />
       <AveragePrices />
       <SimilarListings />
+      <DontMissBeat />
     </PageLayout>
   );
 }

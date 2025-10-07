@@ -5,9 +5,11 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 import styles from "./GlobalAccess.module.css";
 import AnimatedInfo from "~/UI/AnimatedInfo";
 import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 export default function GlobalAccess() {
   const icon = useIcons();
+  const isMobile = useIsMobile();
 
   // --- In-view for the absolute pins (your original logic) ---
   const globeWrapRef = useRef<HTMLDivElement | null>(null);
@@ -57,8 +59,8 @@ export default function GlobalAccess() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-[52px] w-full relative">
-      <div className="flex flex-col items-start gap-[21px] w-full">
+    <div className="flex flex-col items-center gap-[24px] lg:gap-[52px] w-full relative">
+      <div className="flex flex-col items-start gap-[14px] lg:gap-[21px] w-full">
         {/* Title */}
         <motion.div
           variants={variants}
@@ -69,7 +71,7 @@ export default function GlobalAccess() {
           onViewportLeave={onLeave}
           style={{ willChange: "transform, opacity" }}
         >
-          <Title className="text-[#C6A45A] text-[31px]">
+          <Title className="text-[#C6A45A] text-[16px] lg:text-[31px]">
             UNLOCK ENDLESS REAL ESTATE OPPORTUNITIES WITH GLOBAL ACCESS
           </Title>
         </motion.div>
@@ -79,7 +81,7 @@ export default function GlobalAccess() {
           variants={variants}
           initial="hidden"
           animate={textCtrl}
-          className="text-[#353635] text-[23px] leading-[225.806%]"
+          className="text-[#353635] text-[12px] lg:text-[23px] leading-[166%] lg:leading-[225.806%]"
           style={{ willChange: "transform, opacity" }}
         >
           We unlock a world of real estate opportunities with leading agents and real estate
@@ -89,46 +91,78 @@ export default function GlobalAccess() {
       </div>
 
       {/* Globe + Stats (unchanged) */}
-      <div className="relative" ref={globeWrapRef}>
-        <img src={icon.globalAccessleft} alt="" className="absolute top-[-100%] left-0 z-10" />
-        <img src={icon.globalAccessRight} alt="" className="absolute bottom-[0] right-0 z-10" />
+      <div className="relative w-full lg:w-auto" ref={globeWrapRef}>
+        <img
+          src={icon.globalAccessleft}
+          alt=""
+          className="absolute top-[-100%] left-0 z-10 hidden lg:block"
+        />
+        <img
+          src={icon.globalAccessRight}
+          alt=""
+          className="absolute bottom-[0] right-0 z-10 hidden lg:block"
+        />
 
-        <StatPin inView={inView} top="top-[20%]" left="left-[21%]">
+        <StatPin inView={inView} top="top-[12%] lg:top-[20%]" left="left-[17%] lg:left-[21%]">
           <div className="flex flex-col items-center">
-            <AnimatedInfo display="1500" duration={500} className={`text-[60px] ${styles.info}`} />
-            <p className="text-[30px]">agents</p>
+            <AnimatedInfo
+              display="4600"
+              duration={500}
+              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+            />
+            <p className="text-[9px] lgtext-[30px]">offices</p>
           </div>
-          <img src={icon.globalAccessVictor} alt="" className="w-[166px]" />
+          <img src={icon.globalAccessVictor} alt="" className="w-[52px] lg:w-[166px]" />
         </StatPin>
 
         {/* Top-right */}
-        <StatPin inView={inView} top="top-[20%]" left="left-[79%]">
-          <img src={icon.globalAccessVictor} alt="" className="w-[166px] rotate-y-180" />
+        <StatPin inView={inView} top="top-[12%] lg:top-[20%]" left="left-[79%]">
+          <img
+            src={icon.globalAccessVictor}
+            alt=""
+            className="w-[52px] lg:w-[166px] rotate-y-180"
+          />
           <div className="flex flex-col items-center">
-            <AnimatedInfo display="1500" duration={500} className={`text-[60px] ${styles.info}`} />
-            <p className="text-[30px]">agents</p>
+            <AnimatedInfo
+              display="550"
+              duration={500}
+              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+            />
+            <p className="text-[9px] lgtext-[30px]">firms</p>
           </div>
         </StatPin>
 
         {/* Bottom-left */}
-        <StatPin inView={inView} top="top-[76%]" left="left-[23%]">
+        <StatPin inView={inView} top="top-[76%]" left="left-[16%] lg:left-[23%]">
           <div className="flex flex-col items-center">
-            <AnimatedInfo display="1500" duration={500} className={`text-[60px] ${styles.info}`} />
-            <p className="text-[30px]">agents</p>
+            <AnimatedInfo
+              display="70"
+              duration={500}
+              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+            />
+            <p className="text-[9px] lgtext-[30px]">countries</p>
           </div>
-          <img src={icon.globalAccessVictor} alt="" className="w-[166px] rotate-x-180" />
+          <img
+            src={icon.globalAccessVictor}
+            alt=""
+            className="w-[52px] lg:w-[166px] rotate-x-180"
+          />
         </StatPin>
 
         {/* Bottom-right */}
         <StatPin inView={inView} top="top-[76%]" left="left-[78%]">
-          <img src={icon.globalAccessVictor} alt="" className="w-[166px] rotate-180" />
+          <img src={icon.globalAccessVictor} alt="" className="w-[52px] lg:w-[166px] rotate-180" />
           <div className="flex flex-col items-center">
-            <AnimatedInfo display="1500" duration={500} className={`text-[60px] ${styles.info}`} />
-            <p className="text-[30px]">agents</p>
+            <AnimatedInfo
+              display="150000"
+              duration={500}
+              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+            />
+            <p className="text-[9px] lgtext-[30px] text-center">Sales Associates</p>
           </div>
         </StatPin>
 
-        <GlobeViewer />
+        <GlobeViewer height={isMobile ? 180 : 600} />
       </div>
     </div>
   );
@@ -149,7 +183,7 @@ function StatPin({
   children: React.ReactNode;
 }) {
   const base =
-    "flex items-end gap-[30px] absolute z-10 transition-all duration-700 ease-out will-change-transform will-change-opacity";
+    "flex items-end gap-[9px] lg:gap-[30px] absolute z-10 transition-all duration-700 ease-out will-change-transform will-change-opacity";
   const hidden = "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0";
   const shown = `${top} ${left} -translate-x-1/2 -translate-y-1/2 opacity-100`;
 

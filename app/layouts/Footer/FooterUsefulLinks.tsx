@@ -18,13 +18,13 @@ export default function FooterUsefulLinks() {
   ];
 
   return (
-    <div className="flex flex-col items-start gap-[20px] w-full max-w-[251px]">
-      <p className="text-[#C6A45A] text-[24px] font-semibold">USEFUL LINKS</p>
+    <div className="flex flex-col items-start gap-[8px] lg:gap-[20px] w-full max-w-[251px]">
+      <p className="text-[#C6A45A] text-[14px] lg:text-[24px] font-semibold">USEFUL LINKS</p>
       <ul className="flex flex-col items-start gap-[6px] w-full">
         {items.map((item: any, index: number) => (
           <li className="list-disc text-[21px] ml-[22px]">
             <Link to={item.link} key={index} className="">
-              <p className="text-[18px]">{item.title}</p>
+              <p className="text-[12px] lg:text-[18px]">{item.title}</p>
             </Link>
           </li>
         ))}

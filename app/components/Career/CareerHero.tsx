@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "~/UI/Button";
+import Popup from "~/UI/Popup";
+import CVPopup from "./CVPopup";
 
 export default function CareerHero() {
+  const [openPopup, setOpenPopup] = useState(false);
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
       <img
@@ -22,7 +26,9 @@ export default function CareerHero() {
           </div>
           <div className="flex items-center gap-[13px]">
             <Button type="white">View vacancies</Button>
-            <Button type="transparent">Send us your CV</Button>
+            <Button onClick={() => setOpenPopup(true)} type="transparent">
+              Send us your CV
+            </Button>
           </div>
         </div>
         <div
@@ -32,6 +38,12 @@ export default function CareerHero() {
           }}
         />
       </div>
+
+      {openPopup && (
+        <Popup onClose={() => setOpenPopup(false)}>
+          <CVPopup />
+        </Popup>
+      )}
     </div>
   );
 }

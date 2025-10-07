@@ -5,11 +5,13 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 
 type GlobalGlobeProps = {
   fullscreen?: boolean;
-  size?: number | string; // enforce square (default 400px)
+  size?: number | string;
   className?: string;
-  initialAltitude?: number; // default 1.2
-  enableZoom?: boolean; // default false
-  globeScale?: number; // default 0.8 for smaller globe
+  initialAltitude?: number;
+  enableZoom?: boolean;
+  globeScale?: number;
+  selectedCountry: string;
+  setSelectedCountry: (country: string) => void;
 };
 
 const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
@@ -19,11 +21,12 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   initialAltitude = 1.4,
   enableZoom = false,
   globeScale = 0.8,
+  selectedCountry,
+  setSelectedCountry,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<any>(null);
   const [labels, setLabels] = useState<any[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState("United Arab Emirates");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const selectedCountries = [
@@ -166,13 +169,10 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     <div className="flex items-center justify-between w-full relative z-50">
       <div className="flex flex-col items-start gap-[37px]">
         <div className="flex flex-col items-start">
-          <p className="text-[51px]">Real estate agents in Dubai</p>
-          <p className="text-[#353635B2] text-[31px]">Real estate agents in Dubai</p>
+          <p className="text-[51px]">Real estate agents in {selectedCountry}</p>
+          <p className="text-[#353635B2] text-[31px]">Explore properties in {selectedCountry}</p>
         </div>
-        <div
-          className="flex items-center justify-between w-full px-[45px] py-[20px] rounded-[20px] bg-[#ECE1C8] shadow-[0_31px_62px_-16px_rgba(143,144,188,0.15)] backdrop-blur-[10px]
-"
-        >
+        <div className="flex items-center justify-between w-full px-[45px] py-[20px] rounded-[20px] bg-[#ECE1C8] shadow-[0_31px_62px_-16px_rgba(143,144,188,0.15)] backdrop-blur-[10px]">
           <div className="flex flex-col items-start">
             <p className="text-[18px] font-semibold">Search </p>
             <div
@@ -184,7 +184,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <div className="flex items-center justify-between w-[270px]">
-                <p className="text-[16px]">{selectedCountry}</p>{" "}
+                <p className="text-[16px]">{selectedCountry}</p>
                 <span className={`${dropdownOpen && "rotate-180"}`}>▼</span>
               </div>
               {dropdownOpen && (
@@ -198,7 +198,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
                     top: "180%",
                     left: 0,
                     width: "100%",
-                    backgroundColor: "#FFFFFF40",
+                    backgroundColor: "#ece1c8",
                     color: "#000",
                     borderRadius: " 0 0 20px 20px",
                     maxHeight: 200,
@@ -208,12 +208,13 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
                     backdropFilter: "blur(10px)",
                   }}
                 >
-                  {/*  */}
                   {selectedCountries.map((c) => (
                     <li
                       key={c}
                       onClick={() => handleSelect(c)}
-                      className={`flex items-center gap-[20px] w-full py-[9px] px-[12px] border-l-[3px] ${c === selectedCountry ? " border-[#C6A45A]" : "border-transparent"}`}
+                      className={`flex items-center gap-[20px] w-full py-[9px] px-[12px] border-l-[3px] ${
+                        c === selectedCountry ? " border-[#C6A45A]" : "border-transparent"
+                      }`}
                       style={{
                         background:
                           c === selectedCountry
@@ -235,10 +236,8 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
           </div>
         </div>
       </div>
-      <div className={className} style={style}>
-        {/* Custom Dropdown */}
 
-        {/* Globe */}
+      <div className={className} style={style}>
         <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       </div>
     </div>

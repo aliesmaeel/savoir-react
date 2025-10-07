@@ -8,12 +8,8 @@ export default function BlogsHero() {
         <div className="flex flex-col items-center gap-[53.68px] w-full max-w-[1226px]">
           <div className="flex flex-col items-center gap-[17px] w-full">
             <h1 className="text-white text-[51.04px] text-center ">
-              Discover the Best Off-Plan Projects in Dubai
+              Savoir Blog: Ideas, Insights & Inspiration
             </h1>
-            <p className="text-white text-[22px]">
-              Explore Dubai’s Diverse Communities: Where Tradition Meets Innovation in Every
-              Neighborhood.
-            </p>
           </div>
         </div>
         <div

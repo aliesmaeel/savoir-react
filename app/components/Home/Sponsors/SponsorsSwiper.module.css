@@ -42,3 +42,9 @@
     transform: translateX(-50%);
   }
 }
+
+@media (max-width: 1024px) {
+  .item img {
+    height: 33px; /* h-12 approx */
+  }
+}

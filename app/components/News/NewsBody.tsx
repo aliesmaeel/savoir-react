@@ -4,7 +4,7 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 export default function NewsBody() {
   const icon = useIcons();
   return (
-    <div className="flex flex-col items-start gap-[53px] w-full">
+    <div className="flex flex-col items-start gap-[53px] w-full relative z-10">
       <p className="text-black text-[21px] leading-[214.286%]">
         Savoir Properties, a luxury boutique real estate agency based in Dubai, has partnered with
         Chas Everitt Luxury Winelands, a renowned name in South African real estate, to host an
@@ -40,6 +40,25 @@ export default function NewsBody() {
           and Chas Everitt is a testament to this mission, providing Dubai-based investors with
           direct access to South Africa’s most sought-after real estate opportunities.
         </p>
+      </div>
+      <div className="grid grid-cols-5 gap-[22px] w-full">
+        <img
+          src="/images/placeholders/newsPage.png"
+          alt=""
+          className="w-full aspect-[676/564] rounded-[15px] col-span-3 object-cover"
+        />
+        <div className="flex flex-col items-start gap-[22px] w-full col-span-2">
+          <img
+            src="/images/placeholders/newsPage.png"
+            alt=""
+            className="w-full aspect-[453/271] rounded-[15px] object-cover"
+          />
+          <img
+            src="/images/placeholders/newsPage.png"
+            alt=""
+            className="w-full aspect-[453/271] rounded-[15px] object-cover"
+          />
+        </div>
       </div>
       <div className="flex flex-col items-start gap-[9px] w-full">
         <div

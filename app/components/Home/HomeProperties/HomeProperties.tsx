@@ -38,7 +38,7 @@ export default function HomeProperties() {
       }}
     >
       <Card>
-        <div className="flex flex-col items-start gap-[60px] px-[45px] py-[87px] pb-[41px] w-full">
+        <div className="flex flex-col items-start gap-[30px] lg:gap-[60px] px-[24px] lg:px-[45px] py-[46px] lg:py-[87px] pb-[22px] lg:pb-[41px] w-full">
           <PropertiesSearch />
           <div className="flex flex-col items-center gap-[49px] w-full">
             <PropertiesTabs />

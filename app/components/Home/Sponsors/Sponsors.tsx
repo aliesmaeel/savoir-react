@@ -105,9 +105,9 @@ export default function Sponsors() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-[100px] w-full mb-[118px]">
+    <div className="flex flex-col items-center gap-[40px] lg:gap-[100px] w-full mb-[118px]">
       {/* ---------- Section 1 ---------- */}
-      <div className="flex flex-col items-center gap-[67px] w-full">
+      <div className="flex flex-col items-center gap-[20px] lg:gap-[67px] w-full">
         <motion.div
           variants={variants}
           initial="hidden"
@@ -117,7 +117,7 @@ export default function Sponsors() {
           onViewportLeave={onLeaveTitle1}
           style={{ willChange: "transform, opacity" }}
         >
-          <Title className="text-[45px]">MARKETING CHANNELS</Title>
+          <Title className="text-[15px] lg:text-[45px]">MARKETING CHANNELS</Title>
         </motion.div>
 
         <motion.div
@@ -131,7 +131,7 @@ export default function Sponsors() {
       </div>
 
       {/* ---------- Section 2 (unlocked after Title 1) ---------- */}
-      <div className="flex flex-col items-center gap-[67px] w-full">
+      <div className="flex flex-col items-center gap-[20px] lg:gap-[67px] w-full">
         <motion.div
           variants={variants}
           initial="hidden"
@@ -141,7 +141,9 @@ export default function Sponsors() {
           onViewportLeave={onLeaveTitle2}
           style={{ willChange: "transform, opacity" }}
         >
-          <Title className="text-[45px]">LISTING SYNDICATION AND AFFILIATED WEBSITES</Title>
+          <Title className="text-[15px] lg:text-[45px]">
+            LISTING SYNDICATION AND AFFILIATED WEBSITES
+          </Title>
         </motion.div>
 
         <motion.div

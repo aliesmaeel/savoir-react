@@ -21,10 +21,10 @@ export default function SearchFilter() {
 
   return (
     <div
-      className="flex items-center justify-end rounded-[17.6px] bg-[#FFFFFF40] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] py-[16.72px] px-[34.32px] w-full relative z-20 max-w-[1226px]"
+      className="flex flex-col lg:flex-row items-center justify-end gap-[8px] lg:gap-0 rounded-[17.6px] bg-[#FFFFFF40] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] py-[12px] lg:py-[16.72px] px-[24px] lg:px-[34.32px] w-full relative z-20 max-w-[1226px]"
       data-aos="fade-up"
     >
-      <div className="flex gap-[17.6px] justify-between w-full">
+      <div className="grid grid-cols-2 lg:flex gap-[17.6px] justify-between w-full">
         <FilterRent value={rentFilters} onChange={setRentFilters} />
 
         <FilterType

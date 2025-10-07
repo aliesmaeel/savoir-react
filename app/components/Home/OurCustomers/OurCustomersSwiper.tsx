@@ -67,7 +67,7 @@ export default function OurCustomersSwiper() {
         }}
         modules={[EffectCards, Autoplay]} // ⬅️ include Autoplay
         onSwiper={(swiper) => setSwiperInstance(swiper)}
-        className="mySwiper w-[307.059px] h-[413.25px]"
+        className="mySwiper w-[307.059px] h-[413.25px] scale-75 lg:scale-100"
       >
         {testimonials.map((item, index) => (
           <SwiperSlide key={index} className="rounded-[18px]">

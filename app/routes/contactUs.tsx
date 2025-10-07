@@ -3,6 +3,7 @@ import ContactUsForm from "~/components/ContactUs/ContactUsForm";
 import ContactUsHero from "~/components/ContactUs/ContactUsHero";
 import ContactUsItems from "~/components/ContactUs/ContactUsItems";
 import PageLayout from "~/layouts/PageLayout";
+import DontMissBeat from "~/UI/DontMissBeat";
 import Header from "~/UI/Header";
 import Title from "~/UI/Title";
 

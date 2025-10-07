@@ -7,7 +7,7 @@ export default function NewsHero() {
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[45px]">
         <div className="flex flex-col items-center gap-[53.68px] w-full max-w-[1226px]">
           <h1 className="text-white text-[51.04px] text-center ">
-            Savoir Properties: Exclusive Representative of Elounda Hills in the GCC
+            Savoir Newsroom: Shaping the Future of Real Estate
           </h1>
         </div>
         <div

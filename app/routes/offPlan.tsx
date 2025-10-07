@@ -3,38 +3,45 @@ import OffPlanDescription from "~/components/OffPlanProjects/OffPlan/OffPlanDesc
 import OffPlanLocation from "~/components/OffPlanProjects/OffPlan/OffPlanLocation";
 import OffPlanPaymentPlans from "~/components/OffPlanProjects/OffPlan/OffPlanPaymentPlans";
 import OffPlanStartingPrice from "~/components/OffPlanProjects/OffPlan/OffPlanStartingPrice";
+import OffPlanYoutube from "~/components/OffPlanProjects/OffPlan/OffplanYoutube";
 import ProjectFeatures from "~/components/Project/ProjectFeatures";
 import ProjectPageSwiper from "~/components/Project/ProjectPageSwiper";
+import useIcons from "~/hooks/imageHooks/useIcons";
 import PageLayout from "~/layouts/PageLayout";
 import FAQs from "~/UI/FAQs";
 
 export default function offPlan() {
+  const icon = useIcons();
   return (
     <div>
-      <div
-        className="flex flex-col items-center gap-[72px] w-full pt-[192px] px-[45px]"
-        style={{
-          background:
-            "linear-gradient(180deg,rgba(198, 164, 90, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)",
-        }}
-      >
-        <div className="flex flex-col items-center gap-[17px] w-full">
-          <p className="text-white text-[58px]">Discover the Best Off-Plan Projects in Dubai</p>
-          <p className="text-white text-[22px]">
-            Explore Dubai’s Diverse Communities: Where Tradition Meets Innovation in Every
-            Neighborhood.
-          </p>
-        </div>
-        <ProjectPageSwiper />
-      </div>
       <PageLayout>
-        <div className="flex items-start gap-[100px] w-full">
+        <div className="flex flex-col items-center">
+          <div className="flex items-center justify-between w-full mt-[90px]">
+            <div className="flex items-center gap-[13px]">
+              <p className="text-[24px] font-semibold">Seaside Serenity Villa</p>
+              <div className="flex items-center gap-[7px]">
+                <img src={icon.locationBlack} alt="" className="w-[16px]" />
+                <p className="text-[14px] font-medium">Malibu, California</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-start gap-[2px]">
+              <p className="text-[14px] font-medium">Price</p>
+              <p className="text-[#C6A45A] text-[27px] font-bold">$1,250,000</p>
+            </div>
+          </div>
+          <ProjectPageSwiper />
+        </div>
+
+        <div className="flex items-start gap-[100px] w-full mt-[34px]">
           <div>
             <OffPlanDescription />
             <OffPlanPaymentPlans />
-            <OffPlanLocation />
           </div>
           <OffPlanStartingPrice />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] w-full">
+          <OffPlanLocation />
+          <OffPlanYoutube />
         </div>
         <ProjectFeatures />
         <div className="flex flex-col items-start gap-[53px] w-full mt-[90px]">

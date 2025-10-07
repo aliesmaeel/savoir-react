@@ -3,7 +3,7 @@ import SearchSortBy from "../Search/SearchSortBy";
 import BlogCard from "./BlogCard";
 
 export default function BlogsList() {
-  const blogs = Array.from({ length: 24 }, (_, index) => ({
+  const blogs = Array.from({ length: 9 }, (_, index) => ({
     id: index + 1,
     title: `Want to succeed in real estate? Focus on these habits`,
     subtitle:
@@ -15,10 +15,13 @@ export default function BlogsList() {
 
   return (
     <div className="flex flex-col items-start gap-[50px] w-full">
-      <div className="flex items-center justify-between w-full">
+      <div className="flex items-start justify-between w-full">
         <div className="flex flex-col items-start gap-[15px] max-w-[835px]">
-          <p className="text-[27px] font-medium">
-            The articles page is an ideal platform for exploring new ideas and valuable information
+          <p className="text-[24px] font-medium">
+            From market insights and investment tips to luxury lifestyle trends and expert opinions,
+            our blog is your go-to source for knowledge, inspiration, and opportunities in one of
+            the world’s most dynamic property markets. Stay informed, stay inspired, and stay ahead
+            with Savoir.
           </p>
           <div className="flex flex-col items-start">
             <p className="text-[#505050] text-[21px]">

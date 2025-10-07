@@ -32,12 +32,15 @@ export default function ContactUsForm() {
   const social = [
     {
       icon: icon.contactFacebook,
+      link: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/",
     },
     {
       icon: icon.contactInstagram,
+      link: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==",
     },
     {
       icon: icon.contactTwitter,
+      link: "",
     },
   ];
 
@@ -65,7 +68,9 @@ export default function ContactUsForm() {
           </div>
           <div className="flex gap-[19px]">
             {social.map((icon: any, index: number) => (
-              <img key={index} src={icon.icon} alt="" />
+              <Link to={icon.link}>
+                <img key={index} src={icon.icon} alt="" />
+              </Link>
             ))}
           </div>
         </div>

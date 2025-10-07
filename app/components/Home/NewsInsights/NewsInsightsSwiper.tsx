@@ -77,7 +77,7 @@ function SlideCard({ item }: { item: any }) {
   return (
     <div
       className={[
-        "transition-all duration-300 ease-out flex flex-col items-start gap-[12px]",
+        "transition-all duration-300 ease-out flex flex-col items-start gap-[8px] lg:gap-[12px]",
         isActive ? "scale-100 opacity-100" : "scale-[0.85]",
       ].join(" ")}
     >
@@ -89,7 +89,7 @@ function SlideCard({ item }: { item: any }) {
         />
       </div>
 
-      <p className="text-[#353635] text-[15px] max-w-[353px] leading-[170%] ml-[10px]">
+      <p className="text-[#353635] text-[10px] lg:text-[15px] max-w-[353px] leading-[170%] ml-[10px]">
         {item.title}
       </p>
     </div>
