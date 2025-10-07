@@ -3,7 +3,7 @@ import OffPlanDescription from "~/components/OffPlanProjects/OffPlan/OffPlanDesc
 import OffPlanLocation from "~/components/OffPlanProjects/OffPlan/OffPlanLocation";
 import OffPlanPaymentPlans from "~/components/OffPlanProjects/OffPlan/OffPlanPaymentPlans";
 import OffPlanStartingPrice from "~/components/OffPlanProjects/OffPlan/OffPlanStartingPrice";
-import OffPlanYoutube from "~/components/OffPlanProjects/OffPlan/OffplanYoutube";
+import OffPlanYoutube from "~/components/OffPlanProjects/OffPlan/OffPlanYoutube";
 import ProjectFeatures from "~/components/Project/ProjectFeatures";
 import ProjectPageSwiper from "~/components/Project/ProjectPageSwiper";
 import useIcons from "~/hooks/imageHooks/useIcons";
