@@ -13,8 +13,8 @@ export default function contactUs() {
       <ContactUsHero />
       <PageLayout>
         <div className="flex flex-col items-center gap-[30px] w-full">
-          <Header className="text-center text-[52.5px]">Get Started</Header>
-          <p className="text-[27px] text-center">
+          <Header className="text-center text-[20px] lg:text-[52.5px]">Get Started</Header>
+          <p className="text-[15px] lg:text-[27px] text-center">
             Take the first step towards achieving your real estate goals by talking to our team.
             Whether you are involved in residential or commercial transactions or considering
             relocation, we have the support and systems for your success.

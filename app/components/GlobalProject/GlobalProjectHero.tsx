@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import GlobalGlobe from "./GlobalGlobe";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 export default function GlobalProjectHero() {
   const [selectedCountry, setSelectedCountry] = useState("United Arab Emirates");
+  const isMobile = useIsMobile();
 
   // Define your country background images here
   const countryBackgrounds: Record<string, string> = {
@@ -27,10 +29,10 @@ export default function GlobalProjectHero() {
         key={selectedCountry} // ensures smooth transition
       />
 
-      <div className="flex flex-col items-center justify-center w-full h-[100vh] absolute top-0 left-0 px-[45px]">
+      <div className="flex flex-col items-center justify-center w-full h-[100vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
         {/* Pass selectedCountry state & setter down */}
         <GlobalGlobe
-          size={559}
+          size={isMobile ? 300 : 559}
           globeScale={0.8}
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry}

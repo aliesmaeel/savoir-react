@@ -24,18 +24,20 @@ export default function ListGlobalPartners() {
 
   return (
     <div className="flex flex-col items-center gap-[46px] w-full mt-[108px]">
-      <p className="text-black text-[42px] font-medium">Why List With Us ?</p>
+      <p className="text-black text-[20px] lg:text-[42px] font-medium">Why List With Us ?</p>
       <div className="flex flex-col items-start gap-[52px] w-full">
         {items.map((item: any, index: number) => (
-          <Card key={index} className="!rounded-[67.5px] w-full group">
-            <div className="flex items-center gap-[35px] w-full px-[37px] py-[48px] group-even:flex-row-reverse">
+          <Card key={index} className="!rounded-[15px] lg:!rounded-[67.5px] w-full group">
+            <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full px-[37px] py-[48px] group-even:lg:flex-row-reverse">
               <div className="flex flex-col items-start gap-[24px] w-full">
                 <div className="flex flex-col items-start gap-[13px] w-full">
                   <img src={item.icon} alt="" />
-                  <p className="text-black text-[22px] leading-[200%]">{item.text}</p>
+                  <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">
+                    {item.text}
+                  </p>
                 </div>
                 <Link to={item.link}>
-                  <Button className="!rounded-[4px] !py-[15px] !px-[81px] text-[18px] h-[44px]">
+                  <Button className="!rounded-[4px] !py-[15px] lg:!px-[81px] text-[18px] h-[44px]">
                     visit the site
                   </Button>
                 </Link>

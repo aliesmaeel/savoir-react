@@ -11,7 +11,7 @@ export default function ContactMember() {
 
   const icon = useIcons();
   return (
-    <div className="flex flex-col items-start gap-[52px] px-[24px] py-[30px] border border-[#C6A45A] rounded-[15px] w-[439px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10">
+    <div className="flex flex-col items-start gap-[52px] px-[24px] py-[30px] border border-[#C6A45A] rounded-[15px] w-full lg:w-[439px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10">
       <div className="flex flex-col items-start gap-[20px] w-full">
         <div className="flex flex-col items-start w-full">
           <p className="text-[30px] font-semibold">Prompt consultation :</p>

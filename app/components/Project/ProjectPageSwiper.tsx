@@ -7,6 +7,7 @@ import { Link } from "react-router";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 const items = [
   { id: 1, img: "/images/placeholders/project1.webp", title: "Dubai Creek Harbour" },
@@ -26,6 +27,7 @@ export default function ProjectPageSwiper() {
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const isMobile = useIsMobile();
 
   const arrow = useArrow();
 
@@ -59,12 +61,12 @@ export default function ProjectPageSwiper() {
   return (
     <div className="flex flex-col items-start gap-[31px] w-full relative mt-[22px]">
       {/* -------- TITLES SWIPER -------- */}
-      <div className="w-full p-[17px] border border-[#353635] rounded-[10px] bg-white">
+      <div className="w-full p-[5px] lg:p-[17px] border border-[#353635] rounded-[3px] lg:rounded-[10px] bg-white">
         <Swiper
           modules={[Navigation]}
           onSwiper={(sw) => (titlesRef.current = sw)}
           slidesPerView={9}
-          spaceBetween={17}
+          spaceBetween={isMobile ? 5 : 17}
           watchSlidesProgress
           slideToClickedSlide
           loop
@@ -83,7 +85,7 @@ export default function ProjectPageSwiper() {
       </div>
 
       {/* -------- MAIN IMAGE SWIPER -------- */}
-      <div className="grid grid-cols-2 w-full gap-[26px] h-[519px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-[26px] lg:h-[519px]">
         <div
           className={`w-full transition-colors duration-200 rounded-[8px] overflow-hidden h-full ${
             isGrabbing ? "cursor-grabbing" : "cursor-grab"
@@ -125,7 +127,7 @@ export default function ProjectPageSwiper() {
         <img
           src="/images/placeholders/project9.webp"
           alt=""
-          className="rounded-[8px] w-full h-full object-cover"
+          className="rounded-[8px] w-full h-full object-cover hidden lg:block"
         />
       </div>
 
@@ -188,7 +190,7 @@ function TitleCell({ image }: { image: string }) {
       <img
         src={image}
         alt=""
-        className={`aspect-[128/83] object-cover rounded-[7px] transition-all duration-300 ${
+        className={`aspect-[128/83] object-cover rounded-[2px] lg:rounded-[7px] transition-all duration-300 ${
           isActive ? "brightness-100" : "brightness-50"
         }`}
       />

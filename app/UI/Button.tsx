@@ -54,7 +54,7 @@ const Button: React.FC<ButtonProps> = ({
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`flex items-center justify-center gap-[3.5px] px-[93px] py-[18px] rounded-[10.5px] text-[#C6A45A] text-[24px] font-semibold bg-[#FFFFFF] ${className}`}
+        className={`flex items-center justify-center gap-[3.5px] px-[20px] lg:px-[93px] py-[18px] rounded-[10.5px] text-[#C6A45A] text-[24px] font-semibold bg-[#FFFFFF] ${className}`}
       >
         {children}
       </button>
@@ -66,7 +66,7 @@ const Button: React.FC<ButtonProps> = ({
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`flex items-center justify-center gap-[3.5px] px-[93px] py-[18px] rounded-[10.5px] text-white text-[24px]  bg-[#FFFFFF40] backdrop-blur-[10px] ${className}`}
+        className={`flex items-center justify-center gap-[3.5px] px-[20px] lg:px-[93px] py-[18px] rounded-[10.5px] text-white text-[24px]  bg-[#FFFFFF40] backdrop-blur-[10px] ${className}`}
       >
         {children}
       </button>
