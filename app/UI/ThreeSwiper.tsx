@@ -1,15 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 // Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper } from "swiper/react";
 
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
-import { Navigation } from "swiper/modules";
+// Import required modules
+import { Navigation, Autoplay } from "swiper/modules";
+
 import useIcons from "~/hooks/imageHooks/useIcons";
-import { Link } from "react-router";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 type Props = {
   children: React.ReactNode;
@@ -19,13 +21,19 @@ type Props = {
 export default function ThreeSwiper({ children, spaceBetween = 30 }: Props) {
   const [swiperInstance, setSwiperInstance] = useState<any>(null);
   const icon = useIcons();
+  const isMobile = useIsMobile();
+
   return (
     <div className="w-full">
       <Swiper
-        slidesPerView={3}
+        slidesPerView={isMobile ? 1 : 3}
         loop={true}
         spaceBetween={spaceBetween}
-        modules={[Navigation]}
+        modules={[Navigation, Autoplay]}
+        autoplay={{
+          delay: 5000, // 5 seconds
+          disableOnInteraction: false, // keep autoplay even after manual swipe
+        }}
         onSwiper={(swiper) => setSwiperInstance(swiper)}
         className="w-full h-full"
       >

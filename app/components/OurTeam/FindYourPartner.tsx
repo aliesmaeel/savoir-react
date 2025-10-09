@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import TeamCard from "./TeamCard";
+import ThreeSwiper from "~/UI/ThreeSwiper";
 
 const team = [
   {
@@ -34,10 +35,10 @@ const team = [
 
 export default function FindYourPartner() {
   return (
-    <section className="flex items-center gap-[33px] w-full">
-      <div className="flex flex-col items-start gap-[15px] w-[447px] shrink-0">
-        <p className="text-black text-[52px] font-medium">FIND YOUR PARTNER</p>
-        <p className="text-[37px] leading-[170%]">
+    <section className="flex flex-col lg:flex-row items-center gap-[33px] w-full">
+      <div className="flex flex-col items-start gap-[15px] lg:w-[447px] shrink-0">
+        <p className="text-black text-[20px] lg:text-[52px] font-medium">FIND YOUR PARTNER</p>
+        <p className="text-[15px] lg:text-[37px] leading-[170%]">
           Our team is highly experienced and knowledgeable across all aspects of the real estate
           industry
         </p>
@@ -45,6 +46,7 @@ export default function FindYourPartner() {
 
       <div
         className="
+         hidden lg:block
           relative w-full
           [&_.swiper]:!overflow-hidden
           [&_.swiper-slide]:transition-all [&_.swiper-slide]:duration-500 [&_.swiper-slide]:will-change-transform
@@ -80,6 +82,13 @@ export default function FindYourPartner() {
           ))}
         </Swiper>
       </div>
+      <ThreeSwiper>
+        {team.map((member: any, index: number) => (
+          <SwiperSlide key={index} className="cursor-grab select-none">
+            <TeamCard member={member} />
+          </SwiperSlide>
+        ))}
+      </ThreeSwiper>
     </section>
   );
 }

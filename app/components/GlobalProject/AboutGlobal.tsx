@@ -4,8 +4,8 @@ import GoldTitle from "~/UI/GoldTitle";
 export default function AboutGlobal() {
   return (
     <div className="flex flex-col items-start gap-[33px] w-full">
-      <GoldTitle className="text-[34px]">About BULGARIA</GoldTitle>
-      <p className="text-[27px] ">
+      <GoldTitle className="!text-[34px]">About BULGARIA</GoldTitle>
+      <p className="text-[15px] lg:text-[27px] ">
         Doctor of Science in International Law, an excellent negotiator and diplomat, Dimitry is
         able to gently but confidently defend the interests of clients. Dimitry has over 10 years of
         international experience in the real estate industry. He worked for the Parliamentary

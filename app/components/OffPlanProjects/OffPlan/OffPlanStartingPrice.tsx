@@ -26,7 +26,7 @@ export default function OffPlanStartingPrice() {
     },
   ];
   return (
-    <div className="flex flex-col gap-[40px] px-[30px] py-[45px] border border-[#C6A45A] rounded-[15px] w-[439px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10">
+    <div className="flex flex-col gap-[40px] px-[30px] py-[45px] border border-[#C6A45A] rounded-[15px] w-full lg:w-[439px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10">
       <img src={icon.Ellipse9} alt="" className="absolute top-0 left-0 z-[-1]" />
       <img src={icon.Ellipse8} alt="" className="absolute bottom-0 right-0 z-[-1]" />
 

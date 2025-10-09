@@ -3,10 +3,12 @@ import useArrow from "~/hooks/imageHooks/useArrow";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import SearchSortBy from "../Search/SearchSortBy";
 import OffPlanCard from "../Cards/OffPlanCard";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 export default function OffPlanResults() {
   const arrow = useArrow();
   const icon = useIcons();
+  const isMobile = useIsMobile();
   const projects = [
     {
       id: 1,
@@ -61,18 +63,22 @@ export default function OffPlanResults() {
   return (
     <div className="flex flex-col items-start gap-[50px] w-full">
       <div className="flex items-center justify-between w-full">
-        <div className="flex flex-col items-start gap-[15px]">
-          <p className="text-[27px] font-medium">Properties off-plan in Dubai</p>
+        <div className="flex flex-col items-start gap-[9px] lg:gap-[15px] w-full">
+          <div className="flex items-center justify-between w-full">
+            <p className="text-[16px] lg:text-[27px] font-medium">Properties off-plan in Dubai</p>
+
+            {isMobile && <SearchSortBy />}
+          </div>
           <div className="flex flex-col items-start">
-            <p className="text-[#505050] text-[21px]">
+            <p className="text-[#505050] text-[12px] lg:text-[21px]">
               Dubai’s property market offers an exceptional variety of homes suited...
             </p>
-            <p className="text-[21px] font-semibold">1094 results</p>
+            <p className="text-[12px] lg:text-[21px] font-semibold">1094 results</p>
           </div>
         </div>
-        <SearchSortBy />
+        {!isMobile && <SearchSortBy />}
       </div>
-      <div className="grid grid-cols-3 w-full gap-[37px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-[37px]">
         {projects.map((project: any, index: number) => (
           <OffPlanCard key={index} project={project} />
         ))}

@@ -38,10 +38,10 @@ export default function ContactUsItems() {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-[23px] w-full mt-[74px]">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-[23px] w-full mt-[74px]">
       {items.map((item: any, index: number) => (
         <Card key={index} className="!rounded-[44px]">
-          <div className="flex flex-col items-center justify-between w-full aspect-[318/465] px-[12px] py-[54px]">
+          <div className="flex flex-col items-center justify-between gap-[50px] lg:gap-0 lg:w-full lg:aspect-[318/465] px-[12px] py-[54px]">
             <div className="flex flex-col items-center gap-[14px]">
               <img src={item.icon} alt="" />
               <p className="text-[24px] font-semibold">{item.title}</p>

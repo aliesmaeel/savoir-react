@@ -17,8 +17,7 @@ export default function newsPage() {
 
       <NewsPageHero />
       <PageLayout>
-
-        <div className="flex items-start gap-[33px] w-full">
+        <div className="flex flex-col lg:flex-row items-start gap-[33px] w-full">
           <NewsShare />
           <NewsBody />
         </div>

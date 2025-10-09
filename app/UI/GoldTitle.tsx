@@ -17,7 +17,7 @@ export default function GoldTitle({ children, className }: props) {
       }}
     >
       <img src={icon.zap} alt="" className="w-[18px]" />
-      <p className={`text-[22px] font-semibold ${className}`}>{children}</p>
+      <p className={`text-[15px] lg:text-[22px] font-semibold ${className}`}>{children}</p>
     </div>
   );
 }

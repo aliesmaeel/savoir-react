@@ -24,7 +24,7 @@ export default function ProjectFeatures() {
   return (
     <div className="flex flex-col items-start gap-[23px] w-full mt-[45px]">
       <p className="text-[27px] font-semibold">Features & amenities</p>
-      <div className="grid grid-cols-3 w-full gap-x-[45px] gap-y-[22px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-x-[45px] gap-y-[22px]">
         {features.map((feature: any, index: number) => (
           <div
             key={index}

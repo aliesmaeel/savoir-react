@@ -7,6 +7,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Link } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
+import ThreeSwiper from "~/UI/ThreeSwiper";
 
 const items = [
   {
@@ -56,25 +58,27 @@ const items = [
 export default function MemberReviewSwiper() {
   const [isGrabbing, setIsGrabbing] = useState(false);
   const arrow = useArrow();
+  const isMobile = useIsMobile();
 
   return (
-    <div className="flex flex-col items-center gap-[37px] w-full mt-[112px]">
-      <p className="text-black text-[42px] font-medium">The Reviews</p>
-      <div
-        className={`w-full transition-colors duration-200  max-w-[1150px] mx-auto ${
-          isGrabbing ? "cursor-grabbing" : "cursor-grab"
-        }`}
-      >
-        <Swiper
-          slidesPerView="auto"
-          centeredSlides
-          loop
-          spaceBetween={-60} // overlap
-          slidesOffsetBefore={8}
-          slidesOffsetAfter={8}
-          modules={[Navigation, Autoplay]}
-          autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
-          className="
+    <>
+      <div className="hidden lg:flex flex-col items-center gap-[37px] w-full mt-[112px]">
+        <p className="text-black text-[42px] font-medium">The Reviews</p>
+        <div
+          className={`w-full transition-colors duration-200  max-w-[1150px] mx-auto ${
+            isGrabbing ? "cursor-grabbing" : "cursor-grab"
+          }`}
+        >
+          <Swiper
+            slidesPerView="auto"
+            centeredSlides
+            loop
+            spaceBetween={-60} // overlap
+            slidesOffsetBefore={8}
+            slidesOffsetAfter={8}
+            modules={[Navigation, Autoplay]}
+            autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+            className="
     w-full
     [&_.swiper-wrapper]:overflow-visible
     [&_.swiper-slide]:transition-[transform,opacity] [&_.swiper-slide]:duration-300
@@ -82,19 +86,34 @@ export default function MemberReviewSwiper() {
     [&_.swiper-slide-next]:z-10              /* both sides below */
     [&_.swiper-slide-prev]:z-10
   "
-          onTouchStart={() => setIsGrabbing(true)}
-          onTouchEnd={() => setIsGrabbing(false)}
-          onSliderFirstMove={() => setIsGrabbing(true)}
-          onTransitionEnd={() => setIsGrabbing(false)}
-        >
-          {items.map((item, index) => (
-            <SwiperSlide key={index} className="!w-[45%]">
-              <SlideCard data={item} />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+            onTouchStart={() => setIsGrabbing(true)}
+            onTouchEnd={() => setIsGrabbing(false)}
+            onSliderFirstMove={() => setIsGrabbing(true)}
+            onTransitionEnd={() => setIsGrabbing(false)}
+          >
+            {items.map((item, index) => (
+              <SwiperSlide key={index} className="!w-[45%]">
+                <SlideCard data={item} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </div>
-    </div>
+
+      {isMobile && (
+        <div className="flex flex-col items-center gap-[37px] w-full mt-[112px]">
+          <p className="text-black text-[42px] font-medium">The Reviews</p>
+
+          <ThreeSwiper>
+            {items.map((item, index) => (
+              <SwiperSlide key={index}>
+                <SlideCard data={item} />
+              </SwiperSlide>
+            ))}
+          </ThreeSwiper>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -104,7 +123,7 @@ function SlideCard({ data }: { data: any }) {
 
   return (
     <div
-      className={`relative flex flex-col gap-[12px] transition-all duration-300 aspect-[517/453] backdrop-blur-[60px] rounded-[44px] px-[39px] py-[29px]
+      className={`relative flex flex-col gap-[12px] transition-all duration-300 lg:aspect-[517/453] backdrop-blur-[60px] rounded-[44px] px-[39px] py-[29px]
       ${isActive ? "scale-100 opacity-100" : "scale-[0.85] opacity-80"}`}
       style={{
         background:

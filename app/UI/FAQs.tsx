@@ -49,30 +49,30 @@ export default function FAQs() {
   );
 
   return (
-    <div className="flex flex-col items-start gap-[28px] w-full">
+    <div className="flex flex-col items-start gap-[14px] lg:gap-[28px] w-full">
       {questions.map((item, idx) => {
         const isOpen = openIndex === idx;
 
         return (
           <div
             key={idx}
-            className="flex flex-col items-start w-full border border-[#C6A45A] rounded-[10px] overflow-hidden"
+            className="flex flex-col items-start w-full border border-[#C6A45A] rounded-[4px] lg:rounded-[10px] overflow-hidden"
           >
             {/* Header (fixed 99px height) */}
             <div
-              className="flex items-center justify-between px-[27px] py-[22px] h-[99px] rounded-[10px]  w-full"
+              className="flex items-center justify-between px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] h-[46px] lg:h-[99px] rounded-[4px] lg:rounded-[10px]  w-full"
               style={{
                 background: isOpen ? "linear-gradient(90deg, #C6A45A 0.09%, #FFF 112.46%)" : "",
               }}
             >
-              <p className="text-[24px] font-medium pr-4">{item.question}</p>
+              <p className="text-[10px] lg:text-[24px] font-medium pr-4">{item.question}</p>
 
               <button
                 type="button"
                 onClick={() => toggle(idx)}
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${idx}`}
-                className={`flex items-center justify-center rounded-[10px] h-[45px] w-[82px] transition ${isOpen ? "border border-[#353635] bg-white " : ""}`}
+                className={`flex items-center justify-center rounded-[4px] lg:rounded-[10px] h-[20px] lg:h-[45px] w-[28px] lg:w-[82px] transition ${isOpen ? "border border-[#353635] bg-white " : ""}`}
                 style={{
                   background: isOpen
                     ? ""
@@ -95,8 +95,8 @@ export default function FAQs() {
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   style={{ overflow: "hidden" }}
                 >
-                  <div className="px-[27px] pb-[28px] pt-4">
-                    <p className="text-[23px] leading-[1.9]">{item.answer}</p>
+                  <div className="px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] pt-4">
+                    <p className="text-[10px] lg:text-[23px] leading-[1.9]">{item.answer}</p>
                   </div>
                 </motion.div>
               )}

@@ -32,9 +32,9 @@ export default function realEstateAdvisory() {
           {items.map((item: any, index: number) => (
             <div key={index} className="flex flex-col items-start gap-[35px] w-full">
               <GoldTitle className="font-[34px]">{item.title}</GoldTitle>
-              <p className="text-[27px] leading-[180%]">{item.text}</p>
+              <p className="text-[15px] lg:text-[27px] leading-[180%]">{item.text}</p>
               <Link to={item.link}>
-                <Button className="!rounded-[4px] !py-[15px] !px-[81px] text-[18px] h-[44px]">
+                <Button className="!rounded-[4px] !py-[15px] lg:!px-[81px] text-[18px] h-[44px]">
                   visit the site
                 </Button>
               </Link>

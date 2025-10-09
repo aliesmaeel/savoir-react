@@ -8,9 +8,9 @@ export default function NewsPageHero() {
         alt=""
         className="w-full h-screen object-cover"
       />
-      <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[45px]">
+      <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[53.68px] w-full max-w-[1226px]">
-          <h1 className="text-white text-[51.04px] text-center ">
+          <h1 className="text-white text-[16px] lg:text-[51.04px] text-center ">
             Bringing South African Luxury to Dubai: Savoir Properties x Chas Everitt
           </h1>
         </div>
