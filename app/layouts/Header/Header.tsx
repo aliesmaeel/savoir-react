@@ -36,10 +36,10 @@ export default function Header() {
     >
       <div className="flex items-center justify-between w-full max-w-[1226px] mx-auto">
         <Link to="/">
-          <img src={icon.logo} alt="logo" className="w-[54px] lg:w-[141px]" />
+          <img loading="lazy" src={icon.logo} alt="logo" className="w-[54px] lg:w-[141px]" />
         </Link>
         <button onClick={() => setSidebar(true)}>
-          <img src={icon.menu} alt="menu" className="w-[18px] lg:w-[43px]" />
+          <img loading="lazy" src={icon.menu} alt="menu" className="w-[18px] lg:w-[43px]" />
         </button>
       </div>
       <AnimatePresence>{sidebar && <Sidebar onClose={() => setSidebar(false)} />}</AnimatePresence>

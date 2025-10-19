@@ -79,7 +79,7 @@ export default function FAQs() {
                     : "linear-gradient(94deg, #C6A45A 3.17%, rgba(255, 255, 255, 0.60) 224.54%)",
                 }}
               >
-                <img src={isOpen ? icon.minusGold : icon.plusWhite} alt="" />
+                <img loading="lazy" src={isOpen ? icon.minusGold : icon.plusWhite} alt="" />
               </button>
             </div>
 

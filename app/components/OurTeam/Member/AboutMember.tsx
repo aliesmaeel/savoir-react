@@ -13,7 +13,7 @@ export default function AboutMember() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[24px]" />
+          <img loading="lazy" src={icon.zap} alt="" className="w-[24px]" />
           <p className="text-[23px] lg:text-[34px] font-semibold">About wade warren</p>
         </div>
         <p className="text-[15px] lg:text-[27px] leading-[170%]">

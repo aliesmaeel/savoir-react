@@ -4,6 +4,7 @@ export default function ListHero() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-[150vh] relative">
       <img
+        loading="lazy"
         src="/images/placeholders/memberBg.svg"
         alt=""
         className="w-full h-[150vh]  object-cover"
@@ -19,7 +20,7 @@ export default function ListHero() {
               Neighborhood.
             </p>
           </div>
-          <img src="/images/placeholders/list-with-us.png" alt="" />
+          <img loading="lazy" src="/images/placeholders/list-with-us.png" alt="" />
         </div>
         <div
           className="absolute bottom-0 left-0 w-full h-[176px] z-10"

@@ -83,6 +83,7 @@ function SlideCard({ item }: { item: any }) {
     >
       <div className="relative overflow-hidden">
         <img
+          loading="lazy"
           src={item.img}
           alt={item.title}
           className="w-full aspect-[438/365] rounded-[16px] object-cover"

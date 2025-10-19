@@ -16,6 +16,7 @@ export default function CareerEnduringLegacy() {
           </p>
         </div>
         <img
+          loading="lazy"
           src="/images/placeholders/CareerEnduringLegacy.png"
           alt=""
           className="w-[502px] aspect-[502/385] rounded-[7.5px] object-cover"

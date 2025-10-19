@@ -21,6 +21,7 @@ export default function OurTeamContact() {
     <div className="flex flex-col items-start gap-[22px] w-full mt-[142px]">
       <div className="flex items-center gap-[28px] w-full px-[24px] pt-[40px] pb-[22px] rounded-[9px] border border-[#C6A45A] overflow-hidden relative z-10">
         <img
+          loading="lazy"
           src={icon.Ellipse8}
           alt=""
           className="absolute bottom-0 right-0 z-[-1] hidden lg:block"
@@ -28,11 +29,13 @@ export default function OurTeamContact() {
         <div className="hidden lg:flex flex-col items-center gap-[12px] w-full max-w-[347px]">
           <div className="relative z-10">
             <img
+              loading="lazy"
               src="/images/placeholders/user.webp"
               alt=""
               className="w-full aspect-[328/482] rounded-[9px] object-cover"
             />
             <img
+              loading="lazy"
               src="/images/placeholders/user.webp"
               alt=""
               className="w-full aspect-[328/482] rounded-[9px] object-cover rotate-x-180 blur-[50px] absolute left-0 top-[75%]"
@@ -75,7 +78,7 @@ export default function OurTeamContact() {
           <div className="flex flex-col lg:flex-row items-center gap-[17px]">
             <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
             <Link to="#" className="flex items-center gap-[9px]">
-              <img src={icon.whatsappGold} alt="" className="w-[27px]" />
+              <img loading="lazy" src={icon.whatsappGold} alt="" className="w-[27px]" />
               <p className="text-[#C6A45A] text-[18px] font-medium">Whatsapp</p>
             </Link>
           </div>

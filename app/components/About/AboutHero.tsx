@@ -4,7 +4,12 @@ import SearchFilter from "~/layouts/Filter/SearchFilter";
 export default function AboutHero() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
-      <img src="/images/placeholders/aboutUs.png" alt="" className="w-full h-screen object-cover" />
+      <img
+        loading="lazy"
+        src="/images/placeholders/aboutUs.png"
+        alt=""
+        className="w-full h-screen object-cover"
+      />
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[61px] w-full">
           <div className="flex flex-col items-center gap-[9px]">

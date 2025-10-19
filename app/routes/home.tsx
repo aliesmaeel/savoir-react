@@ -12,17 +12,40 @@ import OffPlanProjects from "~/components/Home/OffPlanProjects/OffPlanProjects";
 import OurCustomers from "~/components/Home/OurCustomers/OurCustomers";
 import LuxuryPortfolio from "~/components/Home/LuxuryPortfolio";
 import Sponsors from "~/components/Home/Sponsors/Sponsors";
+import { getHomeInfo, getSuggestionSearch } from "~/api/home.service";
+import { useLoaderData } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Savoir" }];
 }
 
+export async function clientLoader({ request }: { request: Request }) {
+  try {
+    const res: any = await getHomeInfo();
+    const searchRes: any = await getSuggestionSearch();
+
+    const home = res;
+    const search = searchRes;
+
+    return { home, search };
+  } catch (error) {
+    return { home: [], search: [] };
+  }
+}
+
 export default function Home() {
+  const { home, search } = useLoaderData() as { home: any; search: any };
+
   return (
     <div className="relative ">
       <HeroSection />
       <div className="absolute w-full  top-[calc(100vh+100px)] z-[-1]">
-        <img src="/images/placeholders/homeBackground.webp" alt="" className="w-full opacity-25" />
+        <img
+          loading="lazy"
+          src="/images/placeholders/homeBackground.webp"
+          alt=""
+          className="w-full opacity-25"
+        />
         <div
           className="absolute bottom-0 left-0 w-full h-[250px]"
           style={{

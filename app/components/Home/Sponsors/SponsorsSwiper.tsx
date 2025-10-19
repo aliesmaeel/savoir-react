@@ -24,7 +24,7 @@ export default function SponsorsSwiper({ speedSeconds = 20 }: Props) {
       <div className={styles.track} style={{ ["--speed" as any]: `${speedSeconds}s` }}>
         {loop.map((src, i) => (
           <div className={styles.item} key={i}>
-            <img src={src} alt={`sponsor-${i}`} draggable={false} loading="lazy" />
+            <img loading="lazy" src={src} alt={`sponsor-${i}`} draggable={false} />
           </div>
         ))}
       </div>

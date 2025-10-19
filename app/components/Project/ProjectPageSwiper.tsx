@@ -125,6 +125,7 @@ export default function ProjectPageSwiper() {
         </div>
 
         <img
+          loading="lazy"
           src="/images/placeholders/project9.webp"
           alt=""
           className="rounded-[8px] w-full h-full object-cover hidden lg:block"
@@ -148,6 +149,7 @@ export default function ProjectPageSwiper() {
             aria-label="Previous"
           >
             <img
+              loading="lazy"
               src={atStart ? arrow.longBlack : arrow.longWhite}
               alt="prev"
               className="w-[22px] h-[22px] rotate-180"
@@ -161,6 +163,7 @@ export default function ProjectPageSwiper() {
             aria-label="Next"
           >
             <img
+              loading="lazy"
               src={atEnd ? arrow.longBlack : arrow.longWhite}
               alt="next"
               className="w-[22px] h-[22px]"
@@ -178,7 +181,7 @@ function SlideCard({ item, arrow }: { item: any; arrow: ReturnType<typeof useArr
   const { isActive } = useSwiperSlide();
   return (
     <div className="h-full">
-      <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
+      <img loading="lazy" src={item.img} alt={item.title} className="w-full h-full object-cover" />
     </div>
   );
 }
@@ -188,6 +191,7 @@ function TitleCell({ image }: { image: string }) {
   return (
     <div className="cursor-pointer">
       <img
+        loading="lazy"
         src={image}
         alt=""
         className={`aspect-[128/83] object-cover rounded-[2px] lg:rounded-[7px] transition-all duration-300 ${

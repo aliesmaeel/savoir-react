@@ -36,12 +36,17 @@ export default function SearchFIlterItems() {
             className="flex items-center justify-between w-full p-[8px] lg:p-[16px] rounded-[4px] lg:rounded-[10px] bg-[#EEE]"
           >
             <div className="flex items-center gap-[4px] lg:gap-[8px]">
-              <img src={item.icon} alt="" className="w-[9px] lg:w-[19px]" />
+              <img loading="lazy" src={item.icon} alt="" className="w-[9px] lg:w-[19px]" />
               <hr className="border-0 w-[1px] h-[11px] lg:h-[22px] bg-[#262626]" />
               <p className="text-[7px] lg:text-[14px] font-medium">{item.value}</p>
             </div>
             <button>
-              <img src={icon.searchCloseButton} alt="" className="w-[12px] lg:w-[26px]" />
+              <img
+                loading="lazy"
+                src={icon.searchCloseButton}
+                alt=""
+                className="w-[12px] lg:w-[26px]"
+              />
             </button>
           </div>
         ))}

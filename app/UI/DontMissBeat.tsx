@@ -25,7 +25,7 @@ export default function DontMissBeat() {
       </div>
       <div className="flex w-full max-w-[310px] lg:max-w-[800px] h-[28px] lg:h-[84px] rounded-[4px] lg:rounded-[10px] overflow-hidden bg-white">
         <div className="flex items-center gap-[18px] w-full px-[10px] lg:px-[30px] py-[7px] lg:py-[19px] ">
-          <img src={icon.dontMissEmail} alt="" className="w-[13px] lg:w-[39px]" />
+          <img loading="lazy" src={icon.dontMissEmail} alt="" className="w-[13px] lg:w-[39px]" />
           <input
             type="text"
             placeholder="Enter Your Email"
@@ -34,16 +34,27 @@ export default function DontMissBeat() {
         </div>
         <Button className="px-[9px] lg: lg:!px-[29px] !py-[5px] lg:!py-[18px] h-[28px] lg:h-[84px] !text-[9px] lg:!text-[29px] !rounded-[4px] lg:!rounded-[10px] shrink-0">
           Subscribe
-          <img src={icon.dontMissSubsicribe} alt="" className="w-[16px] lg:w-[40px]" />
+          <img
+            loading="lazy"
+            src={icon.dontMissSubsicribe}
+            alt=""
+            className="w-[16px] lg:w-[40px]"
+          />
         </Button>
       </div>
 
       <img
+        loading="lazy"
         src={icon.Magazine}
         alt=""
         className="w-[104px] lg:w-[291px] absolute bottom-0 right-0"
       />
-      <img src={icon.dontMissPatern} alt="" className="absolute top-0 left-0 z-[-1]" />
+      <img
+        loading="lazy"
+        src={icon.dontMissPatern}
+        alt=""
+        className="absolute top-0 left-0 z-[-1]"
+      />
     </div>
   );
 }

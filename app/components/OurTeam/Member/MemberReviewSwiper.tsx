@@ -139,18 +139,19 @@ function SlideCard({ data }: { data: any }) {
           <div className="flex items-center gap-2 ml-[12px]">
             <span className="bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
               {data.rating}
-              <img src={icon.startWhite} alt="" />
+              <img loading="lazy" src={icon.startWhite} alt="" />
             </span>
           </div>
 
           <div className="flex flex-col items-start gap-[6px]">
-            <img src={icon.quotes} alt="" />
+            <img loading="lazy" src={icon.quotes} alt="" />
             <p className="text-[#232222] text-[15px] leading-[166.667%] px-[7px]">{data.text}</p>
           </div>
           <hr className="w-[85%] border-2 border-[#3536354D] mx-auto" />
         </div>
         <div className="flex items-center gap-3 mt-6">
           <img
+            loading="lazy"
             src={data.avatar}
             alt={data.author}
             className="w-10 h-10 rounded-full object-cover"

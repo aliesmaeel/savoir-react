@@ -19,7 +19,8 @@ export default function NewsAbout() {
         one of the most beautiful and sought-after locations in...
       </p>
       <Button className="w-[299px]">
-        Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
+        Read more{" "}
+        <img loading="lazy" src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
       </Button>
     </div>
   );

@@ -32,7 +32,7 @@ export default function OffPlanPaymentPlans() {
             key={index}
             className="flex items-start gap-[12px] px-[30px] py-[24px] w-full border border-[#C6A45A] rounded-[7px]"
           >
-            <img src={plan.icon} alt="" className="w-[45px]" />
+            <img loading="lazy" src={plan.icon} alt="" className="w-[45px]" />
             <div className="flex flex-col items-start gap-[7px] mt-[5px]">
               <p className="text-[15px] font-semibold">{plan.title}</p>
               <p className="text-[#C6A45A] text-[24px] font-medium">{plan.value}</p>

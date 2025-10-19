@@ -47,7 +47,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
       }}
     >
       <Link to="/">
-        <img src={icon.logo} alt="" className="w-[188.47px]" />
+        <img loading="lazy" src={icon.logo} alt="" className="w-[188.47px]" />
       </Link>
       <div className="flex flex-col items-center gap-[26.79px]">
         <div className="flex flex-col items-center gap-[21.15px]">
@@ -64,10 +64,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
         </div>
         <div className="flex flex-col items-center gap-[12.22px]">
           <NavLink to={`#`} onClick={onClose}>
-            <img src={icon.luxuryPortfolio} alt="" className="w-[122.67px]" />
+            <img loading="lazy" src={icon.luxuryPortfolio} alt="" className="w-[122.67px]" />
           </NavLink>
           <NavLink to={`#`} onClick={onClose}>
-            <img src={icon.leading} alt="" className="w-[96.35px]" />
+            <img loading="lazy" src={icon.leading} alt="" className="w-[96.35px]" />
           </NavLink>
         </div>
       </div>

@@ -4,7 +4,12 @@ import SearchFilter from "~/layouts/Filter/SearchFilter";
 export default function OffPlanHero() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
-      <img src="/images/placeholders/hero.webp" alt="" className="w-full h-screen object-cover" />
+      <img
+        loading="lazy"
+        src="/images/placeholders/hero.webp"
+        alt=""
+        className="w-full h-screen object-cover"
+      />
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[12px] lg:gap-[61px] w-full">
           <div className="flex flex-col items-center gap-[7.92px] lg:gap-[17px] w-full">

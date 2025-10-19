@@ -14,6 +14,7 @@ export default function BlogCard({ blog }: Props) {
     <Card className="!rounded-[46px] p-[27px] pt-[24px]">
       <div className="flex flex-col items-start gap-[21px] w-full">
         <img
+          loading="lazy"
           src={blog.image}
           alt=""
           className="w-full aspect-[369/190] rounded-[10px] object-cover"
@@ -23,11 +24,11 @@ export default function BlogCard({ blog }: Props) {
             <p className="text-[#1C1C1B] text-[21px] font-medium">{blog.title}</p>
             <div className="flex items-center gap-[15px] w-full">
               <div className="flex items-center gap-[4px]">
-                <img src={icon.calendarGray} alt="" />
+                <img loading="lazy" src={icon.calendarGray} alt="" />
                 <p className="text-[#636366] text-[12px]">{blog.createdAt}</p>
               </div>
               <div className="flex items-center gap-[4px]">
-                <img src={icon.folderGray} alt="" />
+                <img loading="lazy" src={icon.folderGray} alt="" />
                 <p className="text-[#636366] text-[12px]">{blog.category}</p>
               </div>
             </div>

@@ -3,13 +3,18 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import useArrow from "~/hooks/imageHooks/useArrow";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
+export type TypeOption = {
+  code: string;
+  label: string;
+};
+
 type Props = {
-  options: string[];
-  selected: string[];
+  options: TypeOption[];
+  selected: string[]; // will hold codes
   onChange: (next: string[]) => void;
   label?: string;
   placeholder?: string;
-  maxWidthClass?: string; // e.g., "max-w-[211px]"
+  maxWidthClass?: string;
 };
 
 export default function FilterType({
@@ -25,7 +30,6 @@ export default function FilterType({
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  // Close when clicking outside
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (!wrapperRef.current) return;
@@ -35,21 +39,21 @@ export default function FilterType({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  const toggleValue = (val: string) => {
-    const exists = selected.includes(val);
-    const next = exists ? selected.filter((v) => v !== val) : [...selected, val];
+  const toggleValue = (code: string) => {
+    const exists = selected.includes(code);
+    const next = exists ? selected.filter((v) => v !== code) : [...selected, code];
     onChange(next);
   };
 
   const summaryText = useMemo(() => {
     if (selected.length === 0) return placeholder;
-    if (selected.length <= 2) return selected.join(", ");
-    return `${selected.length} selected`;
-  }, [selected, placeholder]);
+    const labels = options.filter((opt) => selected.includes(opt.code)).map((opt) => opt.label);
+    if (labels.length <= 2) return labels.join(", ");
+    return `${labels.length} selected`;
+  }, [selected, options, placeholder]);
 
   return (
     <div className={`relative w-full ${maxWidthClass}`} ref={wrapperRef}>
-      {/* Trigger */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -62,6 +66,7 @@ export default function FilterType({
           <div className="flex items-center gap-[12px]">
             <p className="text-white text-[14.08px] truncate">{summaryText}</p>
             <img
+              loading="lazy"
               src={arrow.smallBoldWhite}
               alt=""
               className={`transition-transform ${open ? "rotate-180" : ""}`}
@@ -70,7 +75,6 @@ export default function FilterType({
         </div>
       </button>
 
-      {/* Dropdown */}
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
@@ -81,27 +85,25 @@ export default function FilterType({
             style={{ overflow: "hidden" }}
             role="listbox"
             aria-multiselectable="true"
-            className="absolute  py-[19px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[307px] lg:w-[382px] top-[160%] z-10 left-[-161px] lg:left-auto"
+            className="absolute py-[19px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[307px] lg:w-[382px] top-[160%] z-10 left-[-161px] lg:left-auto"
           >
             <div className="flex flex-col items-start gap-[14px] w-full h-[272px] overflow-y-scroll small-scroll">
               {options.map((opt, idx) => {
-                const active = selected.includes(opt);
+                const active = selected.includes(opt.code);
                 return (
                   <button
-                    key={opt}
+                    key={opt.code}
                     type="button"
                     role="option"
                     aria-selected={active}
-                    onClick={() => toggleValue(opt)}
+                    onClick={() => toggleValue(opt.code)}
                     className="w-full text-left px-[32px]"
                   >
                     <div className="flex items-center justify-between pb-[14px]">
-                      <p className="text-white text-[18px] leading-[22px]">{opt}</p>
-                      {/* Check mark bubble when selected */}
-                      {active && <img src={icon.checkGold} alt="" />}
+                      <p className="text-white text-[18px] leading-[22px]">{opt.label}</p>
+                      {active && <img loading="lazy" src={icon.checkGold} alt="" />}
                     </div>
-                    {/* Divider line (skip after last item) */}
-                    {idx < options.length - 1 && <div className=" h-px bg-white/10" />}
+                    {idx < options.length - 1 && <div className="h-px bg-white/10" />}
                   </button>
                 );
               })}

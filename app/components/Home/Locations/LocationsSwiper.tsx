@@ -54,7 +54,7 @@ export default function LocationsSwiper() {
           ref={prevRef}
           className="flex items-center justify-center w-[35px] lg:w-[65px] aspect-square"
         >
-          <img src={arrow.smallGold} alt="prev" className="w-6 h-6 rotate-180" />
+          <img loading="lazy" src={arrow.smallGold} alt="prev" className="w-6 h-6 rotate-180" />
         </button>
         {/* -------- TITLES SWIPER -------- */}
         <Swiper
@@ -80,7 +80,7 @@ export default function LocationsSwiper() {
           ref={nextRef}
           className="flex items-center justify-center w-[35px] lg:w-[65px] aspect-square"
         >
-          <img src={arrow.smallGold} alt="next" className="w-6 h-6" />
+          <img loading="lazy" src={arrow.smallGold} alt="next" className="w-6 h-6" />
         </button>
       </div>
       {/* -------- MAIN IMAGE SWIPER -------- */}
@@ -146,13 +146,23 @@ function SlideCard({ item, arrow }: { item: any; arrow: ReturnType<typeof useArr
       ${isActive ? "scale-100 opacity-100" : "scale-[0.85] opacity-80"}`}
     >
       <div className="relative overflow-hidden rounded-[8px] lg:rounded-[15px] shadow-lg">
-        <img src={item.img} alt={item.title} className="w-full aspect-[549/413] object-cover" />
+        <img
+          loading="lazy"
+          src={item.img}
+          alt={item.title}
+          className="w-full aspect-[549/413] object-cover"
+        />
         <Link
           to="/popular-areas"
           className="absolute bottom-0 left-0 w-full py-[8px] lg:py-[15px] bg-[#6c645a] flex items-center justify-center gap-[15px]"
         >
           <p className="text-[#C6A45A] text-[14px] lg:text-[20px]">Show more details</p>
-          <img src={arrow.veryLongGold} alt="" className="w-[35px] lg:w-[50px] mt-[-5px]" />
+          <img
+            loading="lazy"
+            src={arrow.veryLongGold}
+            alt=""
+            className="w-[35px] lg:w-[50px] mt-[-5px]"
+          />
         </Link>
       </div>
     </div>

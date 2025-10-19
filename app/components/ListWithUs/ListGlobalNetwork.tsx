@@ -16,6 +16,7 @@ export default function ListGlobalNetwork() {
         </p>
       </div>
       <img
+        loading="lazy"
         src="/images/placeholders/CareerFamilyCenter.png"
         alt=""
         className="w-[576px] aspect-[576/336] object-cover"

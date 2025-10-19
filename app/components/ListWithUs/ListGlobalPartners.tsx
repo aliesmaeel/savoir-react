@@ -31,7 +31,7 @@ export default function ListGlobalPartners() {
             <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full px-[37px] py-[48px] group-even:lg:flex-row-reverse">
               <div className="flex flex-col items-start gap-[24px] w-full">
                 <div className="flex flex-col items-start gap-[13px] w-full">
-                  <img src={item.icon} alt="" />
+                  <img loading="lazy" src={item.icon} alt="" />
                   <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">
                     {item.text}
                   </p>
@@ -42,7 +42,7 @@ export default function ListGlobalPartners() {
                   </Button>
                 </Link>
               </div>
-              <img src={item.image} alt="" className="w-full max-w-[539px]" />
+              <img loading="lazy" src={item.image} alt="" className="w-full max-w-[539px]" />
             </div>
           </Card>
         ))}
