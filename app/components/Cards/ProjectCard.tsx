@@ -11,15 +11,15 @@ type props = {
 export default function ProjectCard({ project }: props) {
   const icon = useIcons();
   return (
-    <Card luxury={project.isLuxury} className="!rounded-[46.534px]">
+    <Card luxury={project.featured === 1} className="!rounded-[46.534px]">
       <Link to={`/project/${project.slug}`} className="block px-[24px] pb-[28px] pt-[21px]">
         <div className="flex items-center justify-between w-full py-[8px]">
           <p
-            className={`text-[21px] font-semibold ${project.isLuxury ? styles.priceLuxury : styles.price}`}
+            className={`text-[21px] font-semibold ${project.featured === 1 ? styles.priceLuxury : styles.price}`}
           >
-            {project.price}
+            {project.price} {project.currency}
           </p>
-          {project.isLuxury ? (
+          {project.featured === 1 ? (
             <div className="flex items-center justify-center px-[7px] py-[3px] rounded-[6px] h-[22px] bg-[#C6A45A] w-[81px]">
               <p className="text-white text-[10px] Jakarta font-bold">LUXURY</p>
             </div>
@@ -41,22 +41,26 @@ export default function ProjectCard({ project }: props) {
           <div className="flex items-center gap-[4px]">
             <img
               loading="lazy"
-              src={project.isLuxury ? icon.locationWhite : icon.locationBlack}
+              src={project.featured === 1 ? icon.locationWhite : icon.locationBlack}
               alt=""
               className="w-[18px]"
             />
-            <p className={`text-[13px] font-medium Jakarta ${project.isLuxury && "text-white"}`}>
+            <p
+              className={`text-[13px] font-medium Jakarta ${project.featured === 1 && "text-white"}`}
+            >
               {project.location}
             </p>
           </div>
           <div className="flex items-center gap-[4px]">
             <img
               loading="lazy"
-              src={project.isLuxury ? icon.ClockWhite : icon.Clock}
+              src={project.featured === 1 ? icon.ClockWhite : icon.Clock}
               alt=""
               className="w-[14px]"
             />
-            <p className={`text-[12px] font-medium Jakarta ${project.isLuxury && "text-white"}`}>
+            <p
+              className={`text-[12px] font-medium Jakarta ${project.featured === 1 && "text-white"}`}
+            >
               {project.updated_at}
             </p>
           </div>
@@ -68,7 +72,7 @@ export default function ProjectCard({ project }: props) {
           className="w-full aspect-[375.733/242.119] object-cover rounded-[10px] mt-[22px]"
         />
         <p
-          className={`text-[#C6A45A] text-[14px] Jakarta font-medium leading-[150%] max-w-[227px] mt-[17px] ${project.isLuxury && "text-white"} `}
+          className={`text-[#C6A45A] text-[14px] Jakarta font-medium leading-[150%] max-w-[227px] mt-[17px] ${project.featured === 1 && "text-white"} `}
         >
           {project.title_en}
         </p>
@@ -76,18 +80,20 @@ export default function ProjectCard({ project }: props) {
           <div className="flex items-center gap-[8px]">
             <img
               loading="lazy"
-              src={project.isLuxury ? icon.bedroomWhite : icon.searchBedroom}
+              src={project.featured === 1 ? icon.bedroomWhite : icon.searchBedroom}
               alt=""
               className="w-[22px]"
             />
-            <p className={`text-black text-[14px] shrink-0 ${project.isLuxury && "text-white"}`}>
+            <p
+              className={`text-black text-[14px] shrink-0 ${project.featured === 1 && "text-white"}`}
+            >
               {project.bedroom} Beds
             </p>
           </div>
           <div className="flex items-center gap-[8px]">
             <img
               loading="lazy"
-              src={project.isLuxury ? icon.bathroomWhite : icon.searchBathRoom}
+              src={project.featured === 1 ? icon.bathroomWhite : icon.searchBathRoom}
               alt=""
               className="w-[22px]"
             />
@@ -100,11 +106,13 @@ export default function ProjectCard({ project }: props) {
           <div className="flex items-center gap-[8px]">
             <img
               loading="lazy"
-              src={project.isLuxury ? icon.squareWhite : icon.searchSquare}
+              src={project.featured === 1 ? icon.squareWhite : icon.searchSquare}
               alt=""
               className="w-[22px]"
             />
-            <p className={`text-black text-[14px] shrink-0 ${project.isLuxury && "text-white"}`}>
+            <p
+              className={`text-black text-[14px] shrink-0 ${project.featured === 1 && "text-white"}`}
+            >
               {project.size}
             </p>
           </div>
