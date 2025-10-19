@@ -69,6 +69,7 @@ export default function Search() {
 
     try {
       const res: any = await searchApi(page, 5, body);
+      console.log(res);
       setProjects(res.data);
       setTotalPages(res.count || 1); // Assuming API returns totalPages
     } catch (err) {
