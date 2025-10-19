@@ -18,6 +18,7 @@ export default function TeamCard({ member }: Props) {
       }}
     >
       <img
+        loading="lazy"
         src={member.img}
         alt={member.name}
         className="aspect-square w-full rounded-[8px] object-cover"

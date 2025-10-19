@@ -14,6 +14,7 @@ export default function OffPlanCard({ project }: props) {
     <Card className="!rounded-[46.534px]">
       <Link to={`/off-plan/${project.id}`} className="block px-[23px] pt-[27px] pb-[30px] w-full">
         <img
+          loading="lazy"
           src={project.image}
           alt=""
           className="w-full aspect-[375/277] rounded-[10px] object-cover"
@@ -23,11 +24,11 @@ export default function OffPlanCard({ project }: props) {
         </p>
         <div className="flex flex-col items-start gap-[11px] mt-[11px]">
           <div className="flex items-center gap-[7px]">
-            <img src={icon.locationBlack} alt="" className="w-[30px]" />
+            <img loading="lazy" src={icon.locationBlack} alt="" className="w-[30px]" />
             <p className="text-[22px] font-medium">{project.location}</p>
           </div>
           <div className="flex items-center gap-[7px]">
-            <img src={icon.maintain} alt="" className="w-[30px]" />
+            <img loading="lazy" src={icon.maintain} alt="" className="w-[30px]" />
             <p className="text-[22px] font-medium">Meraas</p>
           </div>
         </div>

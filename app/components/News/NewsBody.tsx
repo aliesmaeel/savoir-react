@@ -24,7 +24,7 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
           <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>
@@ -43,17 +43,20 @@ export default function NewsBody() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-[22px] w-full">
         <img
+          loading="lazy"
           src="/images/placeholders/newsPage.png"
           alt=""
           className="w-full aspect-[676/564] rounded-[15px] lg:col-span-3 object-cover"
         />
         <div className="flex flex-col items-start gap-[22px] w-full lg:col-span-2">
           <img
+            loading="lazy"
             src="/images/placeholders/newsPage.png"
             alt=""
             className="w-full aspect-[453/271] rounded-[15px] object-cover"
           />
           <img
+            loading="lazy"
             src="/images/placeholders/newsPage.png"
             alt=""
             className="w-full aspect-[453/271] rounded-[15px] object-cover"
@@ -68,7 +71,7 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
           <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>
@@ -93,7 +96,7 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
           <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>
@@ -118,7 +121,7 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
           <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>

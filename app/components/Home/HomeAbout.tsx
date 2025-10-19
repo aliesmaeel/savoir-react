@@ -67,7 +67,8 @@ export default function HomeAbout() {
         style={{ willChange: "transform, opacity" }}
       >
         <Button className="w-[166px] lg:w-[299px]">
-          Read more <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
+          Read more{" "}
+          <img loading="lazy" src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
         </Button>
       </motion.div>
     </motion.div>

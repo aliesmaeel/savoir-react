@@ -4,6 +4,7 @@ import { Navigation, Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { useLoaderData } from "react-router";
 
 const items = [
   {
@@ -35,6 +36,7 @@ const items = [
 
 export default function NewsInsightsSwiper() {
   const [isGrabbing, setIsGrabbing] = useState(false);
+  const { home } = useLoaderData() as { home: any };
 
   return (
     <div
@@ -83,6 +85,7 @@ function SlideCard({ item }: { item: any }) {
     >
       <div className="relative w-full">
         <img
+          loading="lazy"
           src={item.img}
           alt={item.title}
           className="w-full aspect-[396/330] rounded-[16px] object-cover"

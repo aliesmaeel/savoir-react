@@ -23,6 +23,7 @@ export default function GlobalProjectHero() {
     <div className="flex flex-col items-center justify-center w-full h-[100vh] relative">
       {/* Dynamic background image */}
       <img
+        loading="lazy"
         src={backgroundImage}
         alt={selectedCountry}
         className="w-full h-[100vh] object-cover transition-all duration-700"

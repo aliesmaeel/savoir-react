@@ -23,7 +23,7 @@ export default function FooterAbout() {
 
   return (
     <div className="flex flex-col items-start gap-[23px] lg:gap-[30px] w-full max-w-[456px]">
-      <img src={icon.logoFooter} alt="" className="w-[183px] brightness-[0.7]" />
+      <img loading="lazy" src={icon.logoFooter} alt="" className="w-[183px] brightness-[0.7]" />
       <p className="text-[13px] lg:text-[18.7px] leading-[200%]">
         Savoir Properties is committed to delivering a high level of expertise, customer service,
         and attention to detail to the marketing and sales of luxury real estate and rental
@@ -42,7 +42,7 @@ export default function FooterAbout() {
       <div className="flex items-center gap-[14px] lg:gap-[19px]">
         {icons.map((icon: any, index: number) => (
           <Link key={index} to={icon.path}>
-            <img src={icon.icon} alt="" className="w-[35px] lg:w-[48px]" />
+            <img loading="lazy" src={icon.icon} alt="" className="w-[35px] lg:w-[48px]" />
           </Link>
         ))}
       </div>

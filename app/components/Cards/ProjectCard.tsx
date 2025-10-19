@@ -12,7 +12,7 @@ export default function ProjectCard({ project }: props) {
   const icon = useIcons();
   return (
     <Card luxury={project.isLuxury} className="!rounded-[46.534px]">
-      <Link to={`/project/${project.id}`} className="block px-[24px] pb-[28px] pt-[21px]">
+      <Link to={`/project/${project.slug}`} className="block px-[24px] pb-[28px] pt-[21px]">
         <div className="flex items-center justify-between w-full py-[8px]">
           <p
             className={`text-[21px] font-semibold ${project.isLuxury ? styles.priceLuxury : styles.price}`}
@@ -31,13 +31,16 @@ export default function ProjectCard({ project }: props) {
                   "linear-gradient(90deg, rgba(53, 54, 53, 0.40) 0.02%, rgba(255, 255, 255, 0.00) 180.22%)",
               }}
             >
-              <p className="Text-[#353635] text-[10px] Jakarta font-bold">For SALE</p>
+              <p className="Text-[#353635] text-[10px] Jakarta font-bold">
+                For {project.offering_type === "RS" ? "SALE" : "RENT"}
+              </p>
             </div>
           )}
         </div>
         <div className="flex items-center justify-between w-full mt-[6px]">
           <div className="flex items-center gap-[4px]">
             <img
+              loading="lazy"
               src={project.isLuxury ? icon.locationWhite : icon.locationBlack}
               alt=""
               className="w-[18px]"
@@ -48,54 +51,61 @@ export default function ProjectCard({ project }: props) {
           </div>
           <div className="flex items-center gap-[4px]">
             <img
+              loading="lazy"
               src={project.isLuxury ? icon.ClockWhite : icon.Clock}
               alt=""
               className="w-[14px]"
             />
             <p className={`text-[12px] font-medium Jakarta ${project.isLuxury && "text-white"}`}>
-              {project.date}
+              {project.updated_at}
             </p>
           </div>
         </div>
         <img
-          src={project.image}
+          loading="lazy"
+          src={project.photo}
           alt=""
           className="w-full aspect-[375.733/242.119] object-cover rounded-[10px] mt-[22px]"
         />
         <p
           className={`text-[#C6A45A] text-[14px] Jakarta font-medium leading-[150%] max-w-[227px] mt-[17px] ${project.isLuxury && "text-white"} `}
         >
-          {project.title}
+          {project.title_en}
         </p>
         <div className="flex items-center justify-between w-full mt-[18px]">
           <div className="flex items-center gap-[8px]">
             <img
+              loading="lazy"
               src={project.isLuxury ? icon.bedroomWhite : icon.searchBedroom}
               alt=""
               className="w-[22px]"
             />
             <p className={`text-black text-[14px] shrink-0 ${project.isLuxury && "text-white"}`}>
-              {project.beds} Beds
+              {project.bedroom} Beds
             </p>
           </div>
           <div className="flex items-center gap-[8px]">
             <img
+              loading="lazy"
               src={project.isLuxury ? icon.bathroomWhite : icon.searchBathRoom}
               alt=""
               className="w-[22px]"
             />
-            <p className={`text-black text-[14px] shrink-0 ${project.isLuxury && "text-white"}`}>
-              {project.bathrooms} Bathroom
+            <p
+              className={`text-black text-[14px] shrink-0 ${project.featured === 1 && "text-white"}`}
+            >
+              {project.bathroom} Bathroom
             </p>
           </div>
           <div className="flex items-center gap-[8px]">
             <img
+              loading="lazy"
               src={project.isLuxury ? icon.squareWhite : icon.searchSquare}
               alt=""
               className="w-[22px]"
             />
             <p className={`text-black text-[14px] shrink-0 ${project.isLuxury && "text-white"}`}>
-              {project.square}
+              {project.size}
             </p>
           </div>
         </div>
@@ -103,6 +113,7 @@ export default function ProjectCard({ project }: props) {
         <div className="flex items-center justify-between w-full mt-[18px]">
           <div className="flex items-center gap-[9px]">
             <img
+              loading="lazy"
               src={project.listedByImage}
               alt=""
               className="w-[46px] aspect-square object-cover"
@@ -114,10 +125,10 @@ export default function ProjectCard({ project }: props) {
           </div>
           <div className="flex items-center gap-[14px]">
             <button>
-              <img src={icon.whatsapp} alt="" className="w-[34px]" />
+              <img loading="lazy" src={icon.whatsapp} alt="" className="w-[34px]" />
             </button>
             <button>
-              <img src={icon.callProjectCard} alt="" className="w-[39px]" />
+              <img loading="lazy" src={icon.callProjectCard} alt="" className="w-[39px]" />
             </button>
           </div>
         </div>

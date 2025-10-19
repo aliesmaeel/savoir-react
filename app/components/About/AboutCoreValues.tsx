@@ -41,7 +41,7 @@ export default function AboutCoreValues() {
                 <GoldTitle>{item.title}</GoldTitle>
                 <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">{item.text}</p>
               </div>
-              {item.image && <img src={item.image} alt="" />}
+              {item.image && <img loading="lazy" src={item.image} alt="" />}
             </div>
           </Card>
         ))}

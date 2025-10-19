@@ -47,7 +47,7 @@ export default function ProjectDescription() {
               className="flex flex-col items-start gap-[4px] lg:gap-[8px] pr-[26px] lg:pr-[52px] border-r border-[#353635]"
             >
               <div className="flex items-center gap-[3px] lg:gap-[7px]">
-                <img src={item.icon} alt="" className="w-[12px] lg:w-[25px]" />
+                <img loading="lazy" src={item.icon} alt="" className="w-[12px] lg:w-[25px]" />
                 <p className="text-[#505050] text-[8px] lg:text-[16px] font-medium">{item.title}</p>
               </div>
               <p className="text-[10px] lg:text-[18px] font-semibold">{item.value}</p>

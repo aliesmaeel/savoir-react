@@ -142,6 +142,7 @@ export default function FilterBedroom({
           <div className="flex items-center gap-[13.2px]">
             <p className="text-white text-[14.08px] truncate">{triggerSummary || placeholder}</p>
             <img
+              loading="lazy"
               src={arrow.smallBoldWhite}
               alt=""
               className={`transition-transform ${open ? "rotate-180" : ""}`}

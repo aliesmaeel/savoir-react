@@ -14,6 +14,7 @@ export default function CareerCard({ job }: Props) {
     <Card className="!rounded-[46px] px-[22px] pb-[40px] pt-[30px]">
       <div className="flex flex-col items-start gap-[21px] w-full">
         <img
+          loading="lazy"
           src={job.image}
           alt=""
           className="w-full aspect-[375/277] rounded-[10px] object-cover"
@@ -22,7 +23,7 @@ export default function CareerCard({ job }: Props) {
           <div className="flex flex-col items-start gap-[20px] w-full">
             <p className="text-[#C6A45A] text-[21px] font-semibold">{job.title}</p>
             <div className="flex items-center gap-[4px]">
-              <img src={icon.locationBlack} alt="" className="w-[30px]" />
+              <img loading="lazy" src={icon.locationBlack} alt="" className="w-[30px]" />
               <p className="text-[#353635] text-[22px] font-medium">{job.location}</p>
             </div>
           </div>

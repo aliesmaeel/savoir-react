@@ -18,7 +18,7 @@ export default function WhyListWithUs() {
         {items.map((item: any, index: number) => (
           <Card className="!rounded-[52.5px]">
             <div className="flex flex-col items-start gap-[24px] w-full px-[27px] pt-[31px] pb-[37px]">
-              <img src={icon.quotes} alt="" className="w-[100px]" />
+              <img loading="lazy" src={icon.quotes} alt="" className="w-[100px]" />
               <p className="text-black text-[24px]">{item}</p>
             </div>
           </Card>

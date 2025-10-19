@@ -14,16 +14,16 @@ export default function NewsShare() {
       </div>
       <div className="flex flex-row lg:flex-col items-start gap-[11px]">
         <button>
-          <img src={icon.facebookShare} alt="" />
+          <img loading="lazy" src={icon.facebookShare} alt="" />
         </button>
         <button>
-          <img src={icon.instagramShare} alt="" />
+          <img loading="lazy" src={icon.instagramShare} alt="" />
         </button>
         <button>
-          <img src={icon.linkedinShare} alt="" />
+          <img loading="lazy" src={icon.linkedinShare} alt="" />
         </button>
         <button>
-          <img src={icon.bodyShare} alt="" />
+          <img loading="lazy" src={icon.bodyShare} alt="" />
         </button>
       </div>
     </div>

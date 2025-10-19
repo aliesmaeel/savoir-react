@@ -3,7 +3,12 @@ import React from "react";
 export default function BlogsHero() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
-      <img src="/images/placeholders/hero.webp" alt="" className="w-full h-screen object-cover" />
+      <img
+        loading="lazy"
+        src="/images/placeholders/hero.webp"
+        alt=""
+        className="w-full h-screen object-cover"
+      />
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[53.68px] w-full max-w-[1226px]">
           <div className="flex flex-col items-center gap-[17px] w-full">

@@ -13,7 +13,7 @@ export default function newsPage() {
 
   return (
     <div className="relative overflow-y-hidden">
-      <img src={icon.vLetter} alt="" className="absolute left-0 top-[30%] z-[-1]" />
+      <img loading="lazy" src={icon.vLetter} alt="" className="absolute left-0 top-[30%] z-[-1]" />
 
       <NewsPageHero />
       <PageLayout>

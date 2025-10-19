@@ -43,7 +43,7 @@ export default function ContactUsItems() {
         <Card key={index} className="!rounded-[44px]">
           <div className="flex flex-col items-center justify-between gap-[50px] lg:gap-0 lg:w-full lg:aspect-[318/465] px-[12px] py-[54px]">
             <div className="flex flex-col items-center gap-[14px]">
-              <img src={item.icon} alt="" />
+              <img loading="lazy" src={item.icon} alt="" />
               <p className="text-[24px] font-semibold">{item.title}</p>
               <p className="text-[18px] text-center">{item.subtitle}</p>
             </div>

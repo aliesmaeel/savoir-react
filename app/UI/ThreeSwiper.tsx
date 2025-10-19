@@ -46,7 +46,7 @@ export default function ThreeSwiper({ children, spaceBetween = 30 }: Props) {
           className="cursor-pointer focus:outline-none"
           onClick={() => swiperInstance?.slidePrev()}
         >
-          <img src={icon.propertiesPrev} alt="Previous" />
+          <img loading="lazy" src={icon.propertiesPrev} alt="Previous" />
         </button>
 
         <button
@@ -54,7 +54,7 @@ export default function ThreeSwiper({ children, spaceBetween = 30 }: Props) {
           className="cursor-pointer focus:outline-none"
           onClick={() => swiperInstance?.slideNext()}
         >
-          <img src={icon.propertiesNext} alt="Next" />
+          <img loading="lazy" src={icon.propertiesNext} alt="Next" />
         </button>
       </div>
     </div>

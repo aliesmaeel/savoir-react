@@ -11,8 +11,8 @@ export type RentFilters = {
 };
 
 type Props = {
-  value?: RentFilters; // Controlled (optional)
-  onChange?: (next: RentFilters) => void; // Fires on Filter button
+  value?: RentFilters; // Controlled
+  onChange?: (next: RentFilters) => void; // Fires on selection
   label?: string;
   placeholder?: string;
   maxWidthClass?: string;
@@ -31,15 +31,15 @@ export default function FilterRent({
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  // Local draft state (for dropdown selection before Apply)
-  const [draft, setDraft] = useState<RentFilters>(value ?? DEFAULT_VALUE);
+  // Local draft state for dropdown
+  const [draft, setDraft] = useState<RentFilters>({ ...DEFAULT_VALUE, ...value });
 
-  // Sync local draft when parent changes
+  // Sync draft when parent value changes
   useEffect(() => {
     if (value) setDraft(value);
   }, [value]);
 
-  // Close on outside click
+  // Outside click
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (!wrapperRef.current) return;
@@ -49,20 +49,26 @@ export default function FilterRent({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  const triggerSummary = useMemo(() => {
-    return `${draft.interested} • ${draft.status}`;
-  }, [draft]);
+  const triggerSummary = useMemo(() => `${draft.interested} • ${draft.status}`, [draft]);
 
-  const setInterested = (v: Interested) => setDraft((d) => ({ ...d, interested: v }));
-  const setStatus = (v: Status) => setDraft((d) => ({ ...d, status: v }));
-
-  const resetAll = () => setDraft(DEFAULT_VALUE);
-  const apply = () => {
-    onChange?.(draft);
-    setOpen(false);
+  // Update draft and notify parent immediately
+  const setInterested = (v: Interested) => {
+    const next = { ...draft, interested: v };
+    setDraft(next);
+    onChange?.(next);
   };
 
-  // Button style helpers (gold fill vs outline)
+  const setStatus = (v: Status) => {
+    const next = { ...draft, status: v };
+    setDraft(next);
+    onChange?.(next);
+  };
+
+  const resetAll = () => {
+    setDraft(DEFAULT_VALUE);
+    onChange?.(DEFAULT_VALUE);
+  };
+
   const filled =
     "bg-[#B59B62] text-[16px] text-white font-medium py-[6px] w-full border border-white rounded-[9px] h-[43px]";
   const outline =
@@ -83,6 +89,7 @@ export default function FilterRent({
           <div className="flex items-center gap-[13.2px]">
             <p className="text-white text-[14.08px] truncate">{triggerSummary || placeholder}</p>
             <img
+              loading="lazy"
               src={arrow.smallBoldWhite}
               alt=""
               className={`transition-transform ${open ? "rotate-180" : ""}`}
@@ -91,7 +98,7 @@ export default function FilterRent({
         </div>
       </button>
 
-      {/* Dropdown panel with height animation */}
+      {/* Dropdown */}
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
@@ -102,9 +109,8 @@ export default function FilterRent({
             style={{ overflow: "hidden" }}
             className="absolute w-[307px] lg:w-[382px] top-[160%] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] z-10"
           >
-            {/* inner content can also have a subtle slide */}
             <div className="flex flex-col items-start gap-[28px] px-[18px] py-[23px]">
-              {/* Interested to */}
+              {/* Interested */}
               <div className="flex flex-col items-start gap-[12px] w-full">
                 <p className="text-white text-[18px] font-semibold">Interested to :</p>
                 <div className="flex items-center gap-[11px] w-full">
@@ -125,7 +131,7 @@ export default function FilterRent({
                 </div>
               </div>
 
-              {/* Property status */}
+              {/* Status */}
               <div className="flex flex-col items-start gap-[12px] w-full">
                 <p className="text-white text-[18px] font-semibold">Property status :</p>
                 <div className="flex items-center gap-[7px] w-full">
@@ -148,7 +154,7 @@ export default function FilterRent({
                     onClick={() => setStatus("Off-plan")}
                     className={draft.status === "Off-plan" ? filled : outline}
                   >
-                    Off -plan
+                    Off-plan
                   </button>
                 </div>
               </div>
@@ -161,13 +167,6 @@ export default function FilterRent({
                   className="text-white underline text-[16px] font-medium"
                 >
                   Reset
-                </button>
-                <button
-                  type="button"
-                  onClick={apply}
-                  className="bg-[#B59B62] text-[16px] text-white font-medium border border-white rounded-[9px] w-[110px] h-[34px]"
-                >
-                  Filter
                 </button>
               </div>
             </div>

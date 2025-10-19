@@ -16,6 +16,7 @@ export default function CareerGlobalExposure() {
           </p>
         </div>
         <img
+          loading="lazy"
           src="/images/placeholders/CareerGlobalExposure.png"
           alt=""
           className="w-[396px] aspect-[396/336] rounded-[15px] object-cover"

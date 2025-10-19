@@ -47,7 +47,12 @@ export default function ContactUsForm() {
   return (
     <div className="flex flex-col items-start gap-[22px] w-full mt-[112px]">
       <div className="flex flex-col lg:flex-row items-center gap-[39px] w-full p-[11px] rounded-[9px] border border-[#C6A45A] overflow-hidden relative z-10">
-        <img src={icon.Ellipse8} alt="" className="absolute bottom-0 right-0 z-[-1]" />
+        <img
+          loading="lazy"
+          src={icon.Ellipse8}
+          alt=""
+          className="absolute bottom-0 right-0 z-[-1]"
+        />
         <div
           className="flex flex-col items-start justify-between gap-[20px] p-[16px] lg:p-[44px] w-full lg:max-w-[490px] lg:aspect-[490/727] rounded-[11px] text-white"
           style={{ background: "linear-gradient(170deg, #C6A45A 7.6%, #FFF 168.8%)" }}
@@ -60,7 +65,7 @@ export default function ContactUsForm() {
             <div className="flex flex-col items-start gap-[20px] lg:gap-[48px]">
               {items.map((item: any, index: number) => (
                 <div key={index} className="flex items-start gap-[24px]">
-                  <img src={item.icon} alt="" />
+                  <img loading="lazy" src={item.icon} alt="" />
                   <div className="text-[17px]">{item.text}</div>
                 </div>
               ))}
@@ -69,7 +74,7 @@ export default function ContactUsForm() {
           <div className="flex gap-[19px]">
             {social.map((icon: any, index: number) => (
               <Link to={icon.link}>
-                <img key={index} src={icon.icon} alt="" />
+                <img loading="lazy" key={index} src={icon.icon} alt="" />
               </Link>
             ))}
           </div>
@@ -97,7 +102,7 @@ export default function ContactUsForm() {
           <div className="flex flex-col lg:flex-row items-center gap-[17px]">
             <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
             <Link to="#" className="flex items-center gap-[9px]">
-              <img src={icon.whatsappGold} alt="" className="w-[27px]" />
+              <img loading="lazy" src={icon.whatsappGold} alt="" className="w-[27px]" />
               <p className="text-[#C6A45A] text-[18px] font-medium">Whatsapp</p>
             </Link>
           </div>

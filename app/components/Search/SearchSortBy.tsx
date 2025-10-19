@@ -6,10 +6,10 @@ export default function SearchSortBy() {
   const icon = useIcons();
   const arrow = useArrow();
 
-  const items = ["popularity", "Name", "Date", "Price"];
+  const items = ["Name", "Date", "Price"];
 
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<string>("popularity");
+  const [selected, setSelected] = useState<string>("Name");
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -39,13 +39,14 @@ export default function SearchSortBy() {
       >
         <div className="flex items-center gap-[2px] lg:gap-[8px]">
           <button>
-            <img src={icon.sortOrder} alt="" className="w-[12px] lg:w-[30px]" />
+            <img loading="lazy" src={icon.sortOrder} alt="" className="w-[12px] lg:w-[30px]" />
           </button>
           <hr className="border-0 w-[1px] h-[9px] lg:h-[22px] bg-[#262626]" />
           <p className="text-[6px] lg:text-[14px] font-medium">Sort by : {selected}</p>
         </div>
         <div>
           <img
+            loading="lazy"
             src={arrow.circleShortGold}
             alt=""
             className={`w-[11px] lg:w-[26px] duration-100 ${open && "rotate-180"}`}
@@ -62,7 +63,7 @@ export default function SearchSortBy() {
               onClick={() => handleSelect(item)}
               className="flex p-[5px] rounded-[5px] w-full hover:bg-[#c3c3c3] text-left"
             >
-              <p className="text-[6px] lg:font-medium">{item}</p>
+              <p className="text-[6px] lg:text-[14px] font-medium">{item}</p>
             </button>
           ))}
         </div>

@@ -49,7 +49,7 @@ export default function OffPlanPopup() {
         />
       </div>
       <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
-        <img src={icon.whatsappWhite} alt="" className="w-[27px]" />
+        <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[27px]" />
         Whatsapp
       </Button>
     </div>

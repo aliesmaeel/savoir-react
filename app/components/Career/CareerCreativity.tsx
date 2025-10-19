@@ -8,6 +8,7 @@ export default function CareerCreativity() {
     <Card className="!rounded-[15px] lg:!rounded-[67px] py-[30px] lg:py-[59px] px-[16px] lg:px-[45px]">
       <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full">
         <img
+          loading="lazy"
           src="/images/placeholders/CareerCreativity.png"
           alt=""
           className="w-[396px] aspect-[396/336] rounded-[15px] object-cover"

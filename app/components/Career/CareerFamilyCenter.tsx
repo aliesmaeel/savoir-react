@@ -26,12 +26,13 @@ export default function CareerFamilyCenter() {
           <div className="flex flex-col items-start gap-[11px] lg:gap-[37px] w-full">
             {items.map((item: string, index: number) => (
               <div className="flex items-start gap-[18px] w-full">
-                <img src={icon.dotGold} alt="" />
+                <img loading="lazy" src={icon.dotGold} alt="" />
                 <p className="text-black text-[12px] lg:text-[19px] leading-[192%]">{item}</p>
               </div>
             ))}
           </div>
           <img
+            loading="lazy"
             src="/images/placeholders/CareerFamilyCenter.png"
             alt=""
             className="w-[576px] aspect-[576/336] object-cover"

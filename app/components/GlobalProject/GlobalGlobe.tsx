@@ -227,6 +227,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
                       }}
                     >
                       <img
+                        loading="lazy"
                         src={c === selectedCountry ? icon.zap : ""}
                         alt=""
                         className="w-[12px]"

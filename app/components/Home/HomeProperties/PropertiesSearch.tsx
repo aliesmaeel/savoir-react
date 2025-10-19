@@ -5,7 +5,7 @@ export default function PropertiesSearch() {
   const icon = useIcons();
   return (
     <div className="flex items-center gap-[9px] lg:gap-[18px] w-full rounded-full px-[27px] lg:px-[50px] py-[11px] lg:py-[20px] border border-[#C6A45A] bg-[#f2f2f2] h-[42px] lg:h-[79px]">
-      <img src={icon.propertiesSearch} alt="" className="w-[20px] lg:w-[38px]" />
+      <img loading="lazy" src={icon.propertiesSearch} alt="" className="w-[20px] lg:w-[38px]" />
       <input
         type="text"
         placeholder="Search here"
