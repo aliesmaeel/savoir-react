@@ -43,6 +43,7 @@ jobs:
             cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
             git pull origin main --rebase
             npm install --production
+            
             npm run build          
             pm2 restart savoir-react --update-env
             
