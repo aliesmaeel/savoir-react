@@ -3,7 +3,12 @@ import React from "react";
 export default function AdvisoryHero() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
-      <img src="/images/placeholders/hero.webp" alt="" className="w-full h-screen object-cover" />
+      <img
+        loading="lazy"
+        src="/images/placeholders/hero.webp"
+        alt=""
+        className="w-full h-screen object-cover"
+      />
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[45px]">
         <div
           className="absolute bottom-0 left-0 w-full h-[176px] z-10"

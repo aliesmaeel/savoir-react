@@ -13,12 +13,11 @@ export default function newsPage() {
 
   return (
     <div className="relative overflow-y-hidden">
-      <img src={icon.vLetter} alt="" className="absolute left-0 top-[30%] z-[-1]" />
+      <img loading="lazy" src={icon.vLetter} alt="" className="absolute left-0 top-[30%] z-[-1]" />
 
       <NewsPageHero />
       <PageLayout>
-
-        <div className="flex items-start gap-[33px] w-full">
+        <div className="flex flex-col lg:flex-row items-start gap-[33px] w-full">
           <NewsShare />
           <NewsBody />
         </div>

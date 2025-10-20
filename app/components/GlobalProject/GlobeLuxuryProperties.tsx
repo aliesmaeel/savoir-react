@@ -1,5 +1,7 @@
 import React from "react";
+import { SwiperSlide } from "swiper/react";
 import ProjectCard from "~/components/Cards/ProjectCard";
+import ThreeSwiper from "~/UI/ThreeSwiper";
 
 export default function GlobeLuxuryProperties() {
   const projects = [
@@ -49,11 +51,13 @@ export default function GlobeLuxuryProperties() {
   return (
     <div className="flex flex-col items-start gap-[33px] w-full mt-[90px]">
       <p className="text-[36px] font-semibold">LUXURY Properties</p>
-      <div className="grid grid-cols-3 w-full gap-x-[48px] gap-y-[45px]">
+      <ThreeSwiper>
         {projects.map((project: any, index: number) => (
-          <ProjectCard key={index} project={project} />
+          <SwiperSlide key={index}>
+            <ProjectCard project={project} />
+          </SwiperSlide>
         ))}
-      </div>
+      </ThreeSwiper>
     </div>
   );
 }

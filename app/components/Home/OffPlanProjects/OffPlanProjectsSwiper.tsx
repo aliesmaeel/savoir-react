@@ -66,13 +66,23 @@ function SlideCard({ item }: { item: any }) {
       ${isActive ? "scale-100 opacity-100" : "scale-[0.85] opacity-80"}`}
     >
       <div className="relative overflow-hidden rounded-[8px] lg:rounded-[15px] shadow-lg">
-        <img src={item.img} alt={item.title} className="w-full aspect-[549/413] object-cover" />
+        <img
+          loading="lazy"
+          src={item.img}
+          alt={item.title}
+          className="w-full aspect-[549/413] object-cover"
+        />
         <Link
           to="#"
           className="absolute bottom-0 left-0 w-full py-[8px] lg:py-[15px] bg-[#6c645a] flex items-center justify-center gap-[6px] lg:gap-[15px]"
         >
           <p className="text-[#C6A45A] text-[14px] lg:text-[20px]">Show more details</p>
-          <img src={useArrow().veryLongGold} alt="" className="w-[35px] lg:w-[50px] mt-[-5px]" />
+          <img
+            loading="lazy"
+            src={useArrow().veryLongGold}
+            alt=""
+            className="w-[35px] lg:w-[50px] mt-[-5px]"
+          />
         </Link>
       </div>
     </div>

@@ -94,7 +94,8 @@ export default function LuxuryPortfolio() {
             </p>
           </div>
           <Button className="w-[299px]">
-            View all <img src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
+            View all{" "}
+            <img loading="lazy" src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
           </Button>
         </div>
 

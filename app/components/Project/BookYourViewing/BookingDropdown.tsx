@@ -46,6 +46,7 @@ export default function BookingDropdown({ placeholder }: props) {
           {selected ? selected : placeholder}
         </p>
         <img
+          loading="lazy"
           src={arrow.shortBlack}
           alt=""
           className={`w-[13px] duration-100 ${open && "rotate-180"}`}

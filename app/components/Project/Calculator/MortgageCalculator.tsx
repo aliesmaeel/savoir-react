@@ -6,7 +6,7 @@ import Button from "~/UI/Button";
 export default function MortgageCalculator() {
   return (
     <Card>
-      <div className="flex flex-col items-start gap-[30px] w-full p-[45px] pt-[41px]">
+      <div className="flex flex-col items-start gap-[30px] w-full p-[24px] lg:p-[45px] pt-[24px] lg:pt-[41px]">
         <div className="flex flex-col items-start gap-[8px]">
           <p className="text-[27px] font-semibold">Mortgage Calculator</p>
           <p className="text-[#999999] text-[18px]">Estimate your monthly mortgage payments</p>

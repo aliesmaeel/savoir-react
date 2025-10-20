@@ -4,6 +4,7 @@ export default function ContactUsHero() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
       <img
+        loading="lazy"
         src="/images/placeholders/contactUs.png"
         alt=""
         className="w-full h-screen object-cover"

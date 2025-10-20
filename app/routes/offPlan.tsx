@@ -16,11 +16,11 @@ export default function offPlan() {
     <div>
       <PageLayout>
         <div className="flex flex-col items-center">
-          <div className="flex items-center justify-between w-full mt-[90px]">
-            <div className="flex items-center gap-[13px]">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[13px] w-full mt-[90px]">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-[13px]">
               <p className="text-[24px] font-semibold">Seaside Serenity Villa</p>
               <div className="flex items-center gap-[7px]">
-                <img src={icon.locationBlack} alt="" className="w-[16px]" />
+                <img loading="lazy" src={icon.locationBlack} alt="" className="w-[16px]" />
                 <p className="text-[14px] font-medium">Malibu, California</p>
               </div>
             </div>
@@ -32,7 +32,7 @@ export default function offPlan() {
           <ProjectPageSwiper />
         </div>
 
-        <div className="flex items-start gap-[100px] w-full mt-[34px]">
+        <div className="flex flex-col lg:flex-row items-start gap-[100px] w-full mt-[34px]">
           <div>
             <OffPlanDescription />
             <OffPlanPaymentPlans />

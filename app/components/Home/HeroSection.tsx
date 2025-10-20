@@ -15,7 +15,7 @@ export default function HeroSection() {
       >
         <source src="/images/placeholders/header.mp4" type="video/mp4" />
         {/* Fallback for very old browsers */}
-        <img src="/images/placeholders/hero.webp" alt="" />
+        <img loading="lazy" src="/images/placeholders/hero.webp" alt="" />
       </video>
 
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">

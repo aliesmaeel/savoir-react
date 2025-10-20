@@ -57,7 +57,7 @@ export default function HomeOurData() {
           key={index}
           className="flex flex-col items-center justify-between gap-[11px] lg:gap-[36px]"
         >
-          <img src={item.logo} alt={item.title} />
+          <img loading="lazy" src={item.logo} alt={item.title} />
           <div className="flex flex-col items-center gap-[7px] lg:gap-[22px]">
             <AnimatedInfo
               display={item.info}

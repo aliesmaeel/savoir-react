@@ -66,7 +66,7 @@ export default function GlobalProjects() {
             <Title className="text-[22px] lg:text-[34px]">Global Projects</Title>
             <Link to="#" className="flex items-center gap-[6px] lg:gap-[9px]">
               <p className="text-[11px] lg:text-[18px] underline">See all</p>
-              <img src={arrow.smallGold} alt="" className="w-[7px] lg:w-[8px]" />
+              <img loading="lazy" src={arrow.smallGold} alt="" className="w-[7px] lg:w-[8px]" />
             </Link>
           </div>
           <GlobalProjectsSwiper />

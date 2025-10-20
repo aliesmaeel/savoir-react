@@ -27,6 +27,7 @@ export default function FooterLatestListings() {
         {items.map((item: any, index: number) => (
           <Link to={`/projects/1`} key={index} className="flex items-center gap-[10px] w-full">
             <img
+              loading="lazy"
               src={item.image}
               alt=""
               className=" w-[57px] lg:w-[99px] h-[49px] lg:h-[84px] rounded-[7px] lg:rounded-[12px] object-cover"

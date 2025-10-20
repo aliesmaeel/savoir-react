@@ -15,11 +15,11 @@ export default function project() {
   const icon = useIcons();
   return (
     <PageLayout>
-      <div className="flex items-center justify-between w-full mt-[90px]">
-        <div className="flex items-center gap-[13px]">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[13px] w-full mt-[90px]">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-[13px]">
           <p className="text-[24px] font-semibold">Seaside Serenity Villa</p>
           <div className="flex items-center gap-[7px]">
-            <img src={icon.locationBlack} alt="" className="w-[16px]" />
+            <img loading="lazy" src={icon.locationBlack} alt="" className="w-[16px]" />
             <p className="text-[14px] font-medium">Malibu, California</p>
           </div>
         </div>
@@ -31,7 +31,7 @@ export default function project() {
       <ProjectPageSwiper />
       <ProjectDescription />
       <ProjectFeatures />
-      <div className="grid grid-cols-2 gap-[35px] w-full mt-[90px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[35px] w-full mt-[90px]">
         <MortgageCalculator />
         <RentalYieldCalculator />
       </div>

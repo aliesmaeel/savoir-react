@@ -54,12 +54,13 @@ export default function PropertiesSwiper() {
                   <p>Eco-friendly</p>
                 </div>
                 <div className="flex items-center gap-[4px] lg:gap-[8px]">
-                  <img src={icon.Clock} alt="" className="w-[12px] lg:w-[23px]" />
+                  <img loading="lazy" src={icon.Clock} alt="" className="w-[12px] lg:w-[23px]" />
                   <p className="text-[11px] lg:text-[17px] font-medium Jakarta">2years ago</p>
                 </div>
               </div>
             </div>
             <img
+              loading="lazy"
               src="/images/placeholders/properties.webp"
               alt=""
               className="w-full aspect-[618/398] rounded-[9px] lg:rounded-[18px] object-cover"
@@ -102,12 +103,13 @@ export default function PropertiesSwiper() {
                   <p>Eco-friendly</p>
                 </div>
                 <div className="flex items-center gap-[4px] lg:gap-[8px]">
-                  <img src={icon.Clock} alt="" className="w-[12px] lg:w-[23px]" />
+                  <img loading="lazy" src={icon.Clock} alt="" className="w-[12px] lg:w-[23px]" />
                   <p className="text-[11px] lg:text-[17px] font-medium Jakarta">2years ago</p>
                 </div>
               </div>
             </div>
             <img
+              loading="lazy"
               src="/images/placeholders/properties.webp"
               alt=""
               className="w-full aspect-[618/398] rounded-[9px] lg:rounded-[18px] object-cover"
@@ -128,7 +130,7 @@ export default function PropertiesSwiper() {
           className="cursor-pointer focus:outline-none"
           onClick={() => swiperInstance?.slidePrev()}
         >
-          <img src={icon.propertiesPrev} alt="Previous" />
+          <img loading="lazy" src={icon.propertiesPrev} alt="Previous" />
         </button>
 
         <button
@@ -136,7 +138,7 @@ export default function PropertiesSwiper() {
           className="cursor-pointer focus:outline-none"
           onClick={() => swiperInstance?.slideNext()}
         >
-          <img src={icon.propertiesNext} alt="Next" />
+          <img loading="lazy" src={icon.propertiesNext} alt="Next" />
         </button>
       </div>
     </div>

@@ -10,7 +10,7 @@ export default function news() {
       <NewsHero />
       <PageLayout>
         {/* <NewsAbout /> */}
-        <div className="grid grid-cols-3 gap-[30px] w-full ">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-[30px] w-full ">
           <NewsCard />
           <NewsCard />
           <NewsCard />

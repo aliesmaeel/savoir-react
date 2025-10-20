@@ -27,15 +27,22 @@ export default function BookYourViewing() {
         </p>
       </div>
       <div className="flex items-center gap-[28px] w-full px-[24px] pt-[40px] pb-[22px] rounded-[9px] border border-[#C6A45A] overflow-hidden relative z-10">
-        <img src={icon.Ellipse8} alt="" className="absolute bottom-0 right-0 z-[-1]" />
-        <div className="flex flex-col items-center gap-[12px] w-full max-w-[347px]">
+        <img
+          loading="lazy"
+          src={icon.Ellipse8}
+          alt=""
+          className="absolute bottom-0 right-0 z-[-1] hidden lg:block"
+        />
+        <div className="hidden lg:flex flex-col items-center gap-[12px] w-full max-w-[347px]">
           <div className="relative z-10">
             <img
+              loading="lazy"
               src="/images/placeholders/user.webp"
               alt=""
               className="w-full aspect-[347/429] rounded-[9px] object-cover"
             />
             <img
+              loading="lazy"
               src="/images/placeholders/user.webp"
               alt=""
               className="w-full aspect-[347/429] rounded-[9px] object-cover rotate-x-180 blur-[50px] absolute left-0 top-[75%]"
@@ -48,7 +55,7 @@ export default function BookYourViewing() {
         </div>
         <div className="flex flex-col items-center gap-[64px] w-full">
           <div className="flex flex-col items-start gap-[67px] w-full">
-            <div className="grid grid-cols-3 gap-x-[28px] gap-y-[75px] w-full">
+            <div className="grid grid-cols-1  lg:grid-cols-3 gap-x-[28px] gap-[20px] lg:gap-y-[75px] w-full">
               <BookingInput placeholder="Enter Full Name" value={name} onChange={setName} />
               <BookingInput placeholder="Enter your Email" value={email} onChange={setEmail} />
               <BookingDropdown placeholder="Select Inquiry Type" />
@@ -66,7 +73,7 @@ export default function BookYourViewing() {
                 onChange={setTime}
               />
 
-              <div className="col-span-3">
+              <div className="lg:col-span-3">
                 <BookingInput
                   type="textAria"
                   placeholder="Enter your Message here.."
@@ -75,7 +82,7 @@ export default function BookYourViewing() {
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between w-full">
+            <div className="flex flex-col lg:flex-row  items-center justify-between gap-[10px] w-full">
               <BookingCheckbox
                 checked={checked}
                 onChange={(n) => {
@@ -86,15 +93,15 @@ export default function BookYourViewing() {
                 label="I agree with Terms of Use and Privacy Policy"
                 size={20}
               />
-              <Button className="!rounded-[4px] !px-[78px] !py-[15px] h-[44px] text-[18px]">
+              <Button className="!rounded-[4px] lg:!px-[78px] !py-[15px] h-[44px] text-[18px]">
                 Send Your Message
               </Button>
             </div>
           </div>
-          <div className="flex items-center gap-[17px]">
+          <div className="flex flex-col lg:flex-row items-center gap-[17px]">
             <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
             <Link to="#" className="flex items-center gap-[9px]">
-              <img src={icon.whatsappGold} alt="" className="w-[27px]" />
+              <img loading="lazy" src={icon.whatsappGold} alt="" className="w-[27px]" />
               <p className="text-[#C6A45A] text-[18px] font-medium">Whatsapp</p>
             </Link>
           </div>

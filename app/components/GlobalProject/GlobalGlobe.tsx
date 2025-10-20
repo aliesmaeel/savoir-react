@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import * as turf from "@turf/turf";
 import useIcons from "~/hooks/imageHooks/useIcons";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 type GlobalGlobeProps = {
   fullscreen?: boolean;
@@ -24,10 +25,11 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   selectedCountry,
   setSelectedCountry,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef: any = useRef<HTMLDivElement>(null);
   const worldRef = useRef<any>(null);
   const [labels, setLabels] = useState<any[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const selectedCountries = [
     "United Arab Emirates",
@@ -118,7 +120,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       setLabels(labelsData);
       world.labelsData(labelsData).labelText((d: any) => d.name);
 
-      const uae = labelsData.find((d) => d.name === "United Arab Emirates");
+      const uae = labelsData.find((d: any) => d.name === "United Arab Emirates");
       if (uae) {
         world.pointOfView({ lat: uae.lat, lng: uae.lng, altitude: initialAltitude }, 2000);
       }
@@ -166,11 +168,13 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const icon = useIcons();
 
   return (
-    <div className="flex items-center justify-between w-full relative z-50">
-      <div className="flex flex-col items-start gap-[37px]">
+    <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-50">
+      <div className="flex flex-col items-start gap-[15px] lg:gap-[37px]">
         <div className="flex flex-col items-start">
-          <p className="text-[51px]">Real estate agents in {selectedCountry}</p>
-          <p className="text-[#353635B2] text-[31px]">Explore properties in {selectedCountry}</p>
+          <p className="text-[20px] lg:text-[51px]">Real estate agents in {selectedCountry}</p>
+          <p className="text-[#353635B2] text-[15px] lg:text-[31px]">
+            Explore properties in {selectedCountry}
+          </p>
         </div>
         <div className="flex items-center justify-between w-full px-[45px] py-[20px] rounded-[20px] bg-[#ECE1C8] shadow-[0_31px_62px_-16px_rgba(143,144,188,0.15)] backdrop-blur-[10px]">
           <div className="flex flex-col items-start">
@@ -223,6 +227,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
                       }}
                     >
                       <img
+                        loading="lazy"
                         src={c === selectedCountry ? icon.zap : ""}
                         alt=""
                         className="w-[12px]"

@@ -28,10 +28,11 @@ export default function Popup({ children, title, onClose }: Props) {
         >
           <p className="text-[15px] lg:text-[29px] font-bold">{title}</p>
           <button onClick={onClose}>
-            <img src={icon.popupClose} alt="" className="w-[12px] lg:w-[24px]" />
+            <img loading="lazy" src={icon.popupClose} alt="" className="w-[12px] lg:w-[24px]" />
           </button>
         </div>
         <img
+          loading="lazy"
           src={icon.popupPaterrn}
           alt=""
           className="absolute bottom-0 right-0 z-[-1] w-[187px] lg:w-[358px]"

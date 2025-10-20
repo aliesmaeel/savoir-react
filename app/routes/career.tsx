@@ -16,7 +16,7 @@ export default function career() {
       <PageLayout>
         <CareerAbout />
         <div className="flex flex-col items-start gap-[18px] w-full mt-[51px]">
-          <p className="text-[#C6A45A] text-[45px]">why choose us</p>
+          <p className="text-[#C6A45A] text-[20px] lg:text-[45px]">why choose us</p>
           <div className="flex flex-col items-start gap-[52px] w-full">
             <CareerGlobalExposure />
             <CareerCreativity />

@@ -10,7 +10,7 @@ export default function globalProject() {
     <div>
       <GlobalProjectHero />
       <PageLayout>
-        <div className="flex items-start gap-[50px] w-full">
+        <div className="flex flex-col lg:flex-row items-start gap-[50px] w-full">
           <AboutGlobal />
           <OffPlanStartingPrice />
         </div>

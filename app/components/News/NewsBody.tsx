@@ -5,7 +5,7 @@ export default function NewsBody() {
   const icon = useIcons();
   return (
     <div className="flex flex-col items-start gap-[53px] w-full relative z-10">
-      <p className="text-black text-[21px] leading-[214.286%]">
+      <p className="text-black text-[14px] lg:text-[21px] leading-[214.286%]">
         Savoir Properties, a luxury boutique real estate agency based in Dubai, has partnered with
         Chas Everitt Luxury Winelands, a renowned name in South African real estate, to host an
         exclusive real estate event in Dubai. As a proud member of Leading Real Estate Companies of
@@ -24,12 +24,12 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
-          <p className="text-[22px] font-semibold">
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
+          <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>
         </div>
-        <p className="text-black text-[21px] leading-[214.286%]">
+        <p className="text-black text-[14px] lg:text-[21px] leading-[214.286%]">
           Savoir Properties, a luxury boutique real estate agency based in Dubai, has partnered with
           Chas Everitt Luxury Winelands, a renowned name in South African real estate, to host an
           exclusive real estate event in Dubai. As a proud member of Leading Real Estate Companies
@@ -41,19 +41,22 @@ export default function NewsBody() {
           direct access to South Africa’s most sought-after real estate opportunities.
         </p>
       </div>
-      <div className="grid grid-cols-5 gap-[22px] w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-[22px] w-full">
         <img
+          loading="lazy"
           src="/images/placeholders/newsPage.png"
           alt=""
-          className="w-full aspect-[676/564] rounded-[15px] col-span-3 object-cover"
+          className="w-full aspect-[676/564] rounded-[15px] lg:col-span-3 object-cover"
         />
-        <div className="flex flex-col items-start gap-[22px] w-full col-span-2">
+        <div className="flex flex-col items-start gap-[22px] w-full lg:col-span-2">
           <img
+            loading="lazy"
             src="/images/placeholders/newsPage.png"
             alt=""
             className="w-full aspect-[453/271] rounded-[15px] object-cover"
           />
           <img
+            loading="lazy"
             src="/images/placeholders/newsPage.png"
             alt=""
             className="w-full aspect-[453/271] rounded-[15px] object-cover"
@@ -68,12 +71,12 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
-          <p className="text-[22px] font-semibold">
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
+          <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>
         </div>
-        <p className="text-black text-[21px] leading-[214.286%]">
+        <p className="text-black text-[14px] lg:text-[21px] leading-[214.286%]">
           Savoir Properties, a luxury boutique real estate agency based in Dubai, has partnered with
           Chas Everitt Luxury Winelands, a renowned name in South African real estate, to host an
           exclusive real estate event in Dubai. As a proud member of Leading Real Estate Companies
@@ -93,12 +96,12 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
-          <p className="text-[22px] font-semibold">
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
+          <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>
         </div>
-        <p className="text-black text-[21px] leading-[214.286%]">
+        <p className="text-black text-[14px] lg:text-[21px] leading-[214.286%]">
           Savoir Properties, a luxury boutique real estate agency based in Dubai, has partnered with
           Chas Everitt Luxury Winelands, a renowned name in South African real estate, to host an
           exclusive real estate event in Dubai. As a proud member of Leading Real Estate Companies
@@ -118,12 +121,12 @@ export default function NewsBody() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[18px]" />
-          <p className="text-[22px] font-semibold">
+          <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
+          <p className="text-[18px] lg:text-[22px] font-semibold">
             Engaging with the South African Business Community in Dubai
           </p>
         </div>
-        <p className="text-black text-[21px] leading-[214.286%]">
+        <p className="text-black text-[14px] lg:text-[21px] leading-[214.286%]">
           Savoir Properties, a luxury boutique real estate agency based in Dubai, has partnered with
           Chas Everitt Luxury Winelands, a renowned name in South African real estate, to host an
           exclusive real estate event in Dubai. As a proud member of Leading Real Estate Companies

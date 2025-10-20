@@ -93,11 +93,13 @@ export default function GlobalAccess() {
       {/* Globe + Stats (unchanged) */}
       <div className="relative w-full lg:w-auto" ref={globeWrapRef}>
         <img
+          loading="lazy"
           src={icon.globalAccessleft}
           alt=""
           className="absolute top-[-100%] left-0 z-10 hidden lg:block"
         />
         <img
+          loading="lazy"
           src={icon.globalAccessRight}
           alt=""
           className="absolute bottom-[0] right-0 z-10 hidden lg:block"
@@ -112,12 +114,18 @@ export default function GlobalAccess() {
             />
             <p className="text-[9px] lgtext-[30px]">offices</p>
           </div>
-          <img src={icon.globalAccessVictor} alt="" className="w-[52px] lg:w-[166px]" />
+          <img
+            loading="lazy"
+            src={icon.globalAccessVictor}
+            alt=""
+            className="w-[52px] lg:w-[166px]"
+          />
         </StatPin>
 
         {/* Top-right */}
         <StatPin inView={inView} top="top-[12%] lg:top-[20%]" left="left-[79%]">
           <img
+            loading="lazy"
             src={icon.globalAccessVictor}
             alt=""
             className="w-[52px] lg:w-[166px] rotate-y-180"
@@ -143,6 +151,7 @@ export default function GlobalAccess() {
             <p className="text-[9px] lgtext-[30px]">countries</p>
           </div>
           <img
+            loading="lazy"
             src={icon.globalAccessVictor}
             alt=""
             className="w-[52px] lg:w-[166px] rotate-x-180"
@@ -151,7 +160,12 @@ export default function GlobalAccess() {
 
         {/* Bottom-right */}
         <StatPin inView={inView} top="top-[76%]" left="left-[78%]">
-          <img src={icon.globalAccessVictor} alt="" className="w-[52px] lg:w-[166px] rotate-180" />
+          <img
+            loading="lazy"
+            src={icon.globalAccessVictor}
+            alt=""
+            className="w-[52px] lg:w-[166px] rotate-180"
+          />
           <div className="flex flex-col items-center">
             <AnimatedInfo
               display="150000"

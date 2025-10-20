@@ -29,16 +29,19 @@ export default function AboutCoreValues() {
 
   return (
     <div className="flex flex-col items-start gap-[52px] w-full mt-[82px]">
-      <Header className="text-[34.5px]">Our Core Values</Header>
-      <div className="grid grid-cols-2 gap-[34px] w-full">
+      <Header className="text-[20px] lg:text-[34.5px]">Our Core Values</Header>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[34px] w-full">
         {items.map((item: any, index: number) => (
-          <Card key={index} className="!rounded-[67.5px] px-[37px] py-[45px]">
+          <Card
+            key={index}
+            className="!rounded-[15px] lg:!rounded-[67.5px] px-[16px] lg:px-[37px] py-[45px]"
+          >
             <div className="flex flex-col items-start gap-[32px]">
               <div className="flex flex-col items-start gap-[27px]">
                 <GoldTitle>{item.title}</GoldTitle>
-                <p className="text-black text-[22px] leading-[200%]">{item.text}</p>
+                <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">{item.text}</p>
               </div>
-              {item.image && <img src={item.image} alt="" />}
+              {item.image && <img loading="lazy" src={item.image} alt="" />}
             </div>
           </Card>
         ))}

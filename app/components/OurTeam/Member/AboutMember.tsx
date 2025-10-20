@@ -4,7 +4,7 @@ import ContactMember from "./ContactMember";
 export default function AboutMember() {
   const icon = useIcons();
   return (
-    <div className="flex items-start gap-[22px] w-full">
+    <div className="flex flex-col lg:flex-row items-start gap-[22px] w-full">
       <div className="flex flex-col items-start gap-[33px] w-full">
         <div
           className="flex items-center gap-[38px] px-[24px] py-[10px] w-full h-[65px] border-l border-[#C6A45A]"
@@ -13,10 +13,10 @@ export default function AboutMember() {
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
           }}
         >
-          <img src={icon.zap} alt="" className="w-[24px]" />
-          <p className="text-[34px] font-semibold">About wade warren</p>
+          <img loading="lazy" src={icon.zap} alt="" className="w-[24px]" />
+          <p className="text-[23px] lg:text-[34px] font-semibold">About wade warren</p>
         </div>
-        <p className="text-[27px] leading-[170%]">
+        <p className="text-[15px] lg:text-[27px] leading-[170%]">
           Doctor of Science in International Law, an excellent negotiator and diplomat, Dimitry is
           able to gently but confidently defend the interests of clients. Dimitry has over 10 years
           of international experience in the real estate industry. He worked for the Parliamentary
