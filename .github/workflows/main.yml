@@ -24,13 +24,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: 'pnpm'
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9 # latest stable pnpm version
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build app
-        run: npm run build
+        run: pnpm run build
 
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.7
@@ -42,10 +47,6 @@ jobs:
           script: |
             cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
             git pull origin main --rebase
-            npm install --production
-            
-            npm run build          
+            pnpm install --prod --frozen-lockfile
+            pnpm run build
             pm2 restart savoir-react --update-env
-            
-    
-          
