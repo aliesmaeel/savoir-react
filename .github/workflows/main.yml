@@ -1,11 +1,11 @@
 name: Build and Deploy React SSR App
 
 on:
-  pull_request:
+  push:
     branches:
       - main
       - develop
-  push:
+  pull_request:
     branches:
       - main
       - develop
@@ -15,28 +15,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ✅ Step 1: Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref_name }}
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v3
+      # ✅ Step 2: Setup Node.js and enable caching for pnpm
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
 
+      # ✅ Step 3: Setup pnpm (official way)
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9 # latest stable pnpm version
+          version: 9 # use latest stable pnpm version
 
+      # ✅ Step 4: Verify pnpm installed correctly
+      - name: Verify pnpm version
+        run: pnpm -v
+
+      # ✅ Step 5: Install dependencies (CI-optimized)
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # ✅ Step 6: Build the React app
       - name: Build app
         run: pnpm run build
 
+      # ✅ Step 7: Deploy via SSH
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -46,7 +56,21 @@ jobs:
           port: 22
           script: |
             cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
-            git pull origin main --rebase
+
+            # Pull latest code
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Ensure pnpm is available
+            if ! command -v pnpm &> /dev/null
+            then
+              echo "Installing pnpm on server..."
+              npm install -g pnpm
+            fi
+
+            # Install only production deps and rebuild
             pnpm install --prod --frozen-lockfile
             pnpm run build
+
+            # Restart app
             pm2 restart savoir-react --update-env
