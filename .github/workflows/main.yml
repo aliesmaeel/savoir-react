@@ -21,28 +21,29 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref_name }}
 
-      # ✅ Step 2: Setup Node.js and enable caching for pnpm
+      # ✅ Step 2: Setup pnpm first (so setup-node knows how to cache it)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: false
+
+      # ✅ Step 3: Setup Node.js and enable pnpm cache
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
 
-      # ✅ Step 3: Setup pnpm (official way)
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9 # use latest stable pnpm version
-
-      # ✅ Step 4: Verify pnpm installed correctly
+      # ✅ Step 4: Verify pnpm is installed
       - name: Verify pnpm version
         run: pnpm -v
 
-      # ✅ Step 5: Install dependencies (CI-optimized)
+      # ✅ Step 5: Install dependencies (lockfile optional)
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
-      # ✅ Step 6: Build the React app
+      # ✅ Step 6: Build app
       - name: Build app
         run: pnpm run build
 
@@ -56,21 +57,14 @@ jobs:
           port: 22
           script: |
             cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
-
-            # Pull latest code
             git fetch origin main
             git reset --hard origin/main
 
-            # Ensure pnpm is available
-            if ! command -v pnpm &> /dev/null
-            then
-              echo "Installing pnpm on server..."
+            if ! command -v pnpm &> /dev/null; then
+              echo "Installing pnpm..."
               npm install -g pnpm
             fi
 
-            # Install only production deps and rebuild
-            pnpm install --prod --frozen-lockfile
+            pnpm install --prod
             pnpm run build
-
-            # Restart app
             pm2 restart savoir-react --update-env
