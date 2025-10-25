@@ -1,11 +1,11 @@
 name: Build and Deploy React SSR App
 
 on:
-  pull_request:
+  push:
     branches:
       - main
       - develop
-  push:
+  pull_request:
     branches:
       - main
       - develop
@@ -15,23 +15,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ✅ Step 1: Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref_name }}
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v3
+      # ✅ Step 2: Setup pnpm first (so setup-node knows how to cache it)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: false
+
+      # ✅ Step 3: Setup Node.js and enable pnpm cache
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
+      # ✅ Step 4: Verify pnpm is installed
+      - name: Verify pnpm version
+        run: pnpm -v
 
+      # ✅ Step 5: Install dependencies (lockfile optional)
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
+      # ✅ Step 6: Build app
       - name: Build app
-        run: npm run build
+        run: pnpm run build
 
+      # ✅ Step 7: Deploy via SSH
       - name: Deploy to server via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -41,10 +57,14 @@ jobs:
           port: 22
           script: |
             cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
-            git pull origin main --rebase
-            npm install --production
-            npm run build          
+            git fetch origin main
+            git reset --hard origin/main
+
+            if ! command -v pnpm &> /dev/null; then
+              echo "Installing pnpm..."
+              npm install -g pnpm
+            fi
+
+            pnpm install --prod
+            pnpm run build
             pm2 restart savoir-react --update-env
-            
-    
-          
