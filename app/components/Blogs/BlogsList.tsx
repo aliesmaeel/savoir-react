@@ -1,17 +1,10 @@
 import React from "react";
 import SearchSortBy from "../Search/SearchSortBy";
 import BlogCard from "./BlogCard";
+import { useLoaderData } from "react-router";
 
 export default function BlogsList() {
-  const blogs = Array.from({ length: 9 }, (_, index) => ({
-    id: index + 1,
-    title: `Want to succeed in real estate? Focus on these habits`,
-    subtitle:
-      "A fairy tale (alternative names include fairytale, fairy story, magic tale, or wonder tale) is a short story that belongs to the folklore genre..",
-    image: "/images/placeholders/blogImage.jpg",
-    category: "Technology",
-    createdAt: "January 10, 2022",
-  }));
+  const { blogs } = useLoaderData() as { blogs: any };
 
   return (
     <div className="flex flex-col items-start gap-[50px] w-full">

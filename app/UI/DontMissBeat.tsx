@@ -1,9 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "./Button";
+import { subscribe } from "~/api/form.service";
+import { useNotify } from "~/components/notifications/NotificationsProvider";
 
 export default function DontMissBeat() {
   const icon = useIcons();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [note, setNote] = useState<null | { type: "ok" | "err"; text: string }>(null);
+  const notify = useNotify();
+
+  const validEmail = (v: string) => /^\S+@\S+\.\S+$/.test(v);
+
+  const onSubmit = async () => {
+    setNote(null); // if you keep local note, or remove it entirely
+    if (!validEmail(email)) {
+      notify.error("Enter a valid email.");
+      return;
+    }
+    try {
+      setLoading(true);
+      await subscribe({ email }); // body: { "email": "<value>" }
+      setEmail("");
+      notify.success("Subscribed.");
+    } catch (e: any) {
+      notify.error(e?.response?.data?.message || e?.message || "Subscription failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === "Enter") onSubmit();
+  };
+
   return (
     <div
       className="flex flex-col items-start gap-[15px] lg:gap-[55px] w-full px-[15px] lg:px-[37px] pt-[15px] lg:pt-[45px] pb-[80px] lg:pb-[53px] rounded-[14px] lg:rounded-[46px] relative z-10 mt-[97px]"
@@ -23,17 +54,26 @@ export default function DontMissBeat() {
           justo eget elit. Augue montes in eu mollis dictum risus blan eget commodo amet
         </p>
       </div>
+
       <div className="flex w-full max-w-[310px] lg:max-w-[800px] h-[28px] lg:h-[84px] rounded-[4px] lg:rounded-[10px] overflow-hidden bg-white">
-        <div className="flex items-center gap-[18px] w-full px-[10px] lg:px-[30px] py-[7px] lg:py-[19px] ">
+        <div className="flex items-center gap-[18px] w-full px-[10px] lg:px-[30px] py-[7px] lg:py-[19px]">
           <img loading="lazy" src={icon.dontMissEmail} alt="" className="w-[13px] lg:w-[39px]" />
           <input
-            type="text"
+            type="email"
             placeholder="Enter Your Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={onKeyDown}
             className="w-full border-0 outline-0 bg-white text-[12px] lg:text-[29px]"
+            aria-label="Email address"
           />
         </div>
-        <Button className="px-[9px] lg: lg:!px-[29px] !py-[5px] lg:!py-[18px] h-[28px] lg:h-[84px] !text-[9px] lg:!text-[29px] !rounded-[4px] lg:!rounded-[10px] shrink-0">
-          Subscribe
+        <Button
+          onClick={onSubmit}
+          disabled={loading}
+          className="px-[9px] lg: lg:!px-[29px] !py-[5px] lg:!py-[18px] h-[28px] lg:h-[84px] !text-[9px] lg:!text-[29px] !rounded-[4px] lg:!rounded-[10px] shrink-0"
+        >
+          {loading ? "..." : "Subscribe"}
           <img
             loading="lazy"
             src={icon.dontMissSubsicribe}
@@ -42,6 +82,17 @@ export default function DontMissBeat() {
           />
         </Button>
       </div>
+
+      {note && (
+        <p
+          className={`mt-2 text-[11px] lg:text-[16px] ${
+            note.type === "ok" ? "text-green-200" : "text-red-200"
+          }`}
+          aria-live="polite"
+        >
+          {note.text}
+        </p>
+      )}
 
       <img
         loading="lazy"

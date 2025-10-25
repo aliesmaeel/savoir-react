@@ -1,20 +1,21 @@
 import React from "react";
+import { useLoaderData } from "react-router";
 
 export default function BlogsHero() {
+  const { blog } = useLoaderData() as { blog: any };
+
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
       <img
         loading="lazy"
-        src="/images/placeholders/hero.webp"
+        src={blog.blog_image.url}
         alt=""
         className="w-full h-screen object-cover"
       />
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[53.68px] w-full max-w-[1226px]">
           <div className="flex flex-col items-center gap-[17px] w-full">
-            <h1 className="text-white text-[16px] lg:text-[51.04px] text-center ">
-              Savoir Blog: Ideas, Insights & Inspiration
-            </h1>
+            <h1 className="text-white text-[16px] lg:text-[51.04px] text-center ">{blog.title}</h1>
           </div>
         </div>
         <div

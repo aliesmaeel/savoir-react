@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
+import { useFormattedDate } from "~/hooks/functionHooks/useFormattedDate";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Card from "~/UI/Card";
 
@@ -15,7 +16,7 @@ export default function BlogCard({ blog }: Props) {
       <div className="flex flex-col items-start gap-[21px] w-full">
         <img
           loading="lazy"
-          src={blog.image}
+          src={blog.blog_image.url}
           alt=""
           className="w-full aspect-[369/190] rounded-[10px] object-cover"
         />
@@ -25,17 +26,17 @@ export default function BlogCard({ blog }: Props) {
             <div className="flex items-center gap-[15px] w-full">
               <div className="flex items-center gap-[4px]">
                 <img loading="lazy" src={icon.calendarGray} alt="" />
-                <p className="text-[#636366] text-[12px]">{blog.createdAt}</p>
+                <p className="text-[#636366] text-[12px]">{useFormattedDate(blog.created_at)}</p>
               </div>
-              <div className="flex items-center gap-[4px]">
+              {/* <div className="flex items-center gap-[4px]">
                 <img loading="lazy" src={icon.folderGray} alt="" />
                 <p className="text-[#636366] text-[12px]">{blog.category}</p>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="flex flex-col items-start gap-[6px] w-full">
-            <p className="text-[#636366] text-[15px]">{blog.subtitle}</p>
-            <Link to={`/blogs/${blog.id}`} className="text-[15px] font-semibold underline">
+            <p className="text-[#636366] text-[15px]">{blog.title_details}</p>
+            <Link to={`/blogs/${blog.slug}`} className="text-[15px] font-semibold underline">
               Read more
             </Link>
           </div>

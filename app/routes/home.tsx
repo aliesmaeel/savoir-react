@@ -27,8 +27,6 @@ export async function clientLoader({ request }: { request: Request }) {
     const home = res;
     const search = searchRes;
 
-    console.log(home);
-
     return { home, search };
   } catch (error) {
     return { home: [], search: [] };
