@@ -30,7 +30,7 @@ export default function BlogCard({ blog }: Props) {
               <div className="flex items-center gap-[4px]">
                 <img src={icon.folderGray} alt="" />
                 <p className="text-[#636366] text-[12px]">{blog.category}</p>
-              </div> */}
+              </div>
             </div>
           </div>
           <div className="flex flex-col items-start gap-[6px] w-full">
