@@ -11,7 +11,7 @@ export default [
 
     // News
     route("/news", "routes/news/news.tsx"),
-    route("/news/:newsid", "routes/news/newsPage.tsx"),
+    route("/news/:newsSlug", "routes/news/newsPage.tsx"),
 
     // Our Team
     route("/our-team", "routes/ourTeam/ourTeam.tsx"),
@@ -23,7 +23,7 @@ export default [
 
     // Bogs
     route("/blogs", "routes/blogs/blogs.tsx"),
-    route("/blogs/:blogid", "routes/blogs/blogPage.tsx"),
+    route("/blogs/:blogSlug", "routes/blogs/blogPage.tsx"),
 
     route("/career", "routes/career.tsx"),
 

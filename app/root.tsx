@@ -13,6 +13,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import "./app.css";
 import { useEffect } from "react";
+import { NotificationsProvider } from "./components/notifications/NotificationsProvider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -70,7 +71,11 @@ export default function App() {
   useEffect(() => {
     requestAnimationFrame(() => AOS.refreshHard());
   }, [pathname]);
-  return <Outlet />;
+  return (
+    <NotificationsProvider>
+      <Outlet />
+    </NotificationsProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

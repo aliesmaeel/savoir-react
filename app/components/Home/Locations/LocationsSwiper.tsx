@@ -3,22 +3,15 @@ import { Swiper, SwiperSlide, useSwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import useArrow from "~/hooks/imageHooks/useArrow";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 
 import "swiper/css";
 import "swiper/css/navigation";
 
-const items = [
-  { id: 1, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
-  { id: 2, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Marina" },
-  { id: 3, img: "/images/placeholders/imagePlaceholder.webp", title: "JBR" },
-  { id: 4, img: "/images/placeholders/imagePlaceholder.webp", title: "Business Bay" },
-  { id: 5, img: "/images/placeholders/imagePlaceholder.webp", title: "Downtown Dubai" },
-];
-
 export default function LocationsSwiper() {
   const [isGrabbing, setIsGrabbing] = useState(false);
   const arrow = useArrow();
+  const { home } = useLoaderData() as { home: any };
 
   const mainRef = useRef<SwiperType | null>(null);
   const titlesRef = useRef<SwiperType | null>(null);
@@ -70,7 +63,7 @@ export default function LocationsSwiper() {
           onSlideChange={onTitlesChange}
           onClick={onTitlesChange}
         >
-          {items.map((item) => (
+          {home.areas.map((item: any) => (
             <SwiperSlide key={`title-${item.id}`}>
               <TitleCell title={item.title} />
             </SwiperSlide>
@@ -124,7 +117,7 @@ export default function LocationsSwiper() {
           onTransitionEnd={() => setIsGrabbing(false)}
           onSlideChange={onMainChange}
         >
-          {items.map((item) => (
+          {home.areas.map((item: any) => (
             <SwiperSlide key={item.id} className="!w-[76.5%] ">
               <SlideCard item={item} arrow={arrow} />
             </SwiperSlide>
@@ -148,7 +141,7 @@ function SlideCard({ item, arrow }: { item: any; arrow: ReturnType<typeof useArr
       <div className="relative overflow-hidden rounded-[8px] lg:rounded-[15px] shadow-lg">
         <img
           loading="lazy"
-          src={item.img}
+          src={item.image}
           alt={item.title}
           className="w-full aspect-[549/413] object-cover"
         />

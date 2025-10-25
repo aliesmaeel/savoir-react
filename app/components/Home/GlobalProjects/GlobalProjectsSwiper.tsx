@@ -4,6 +4,7 @@ import { Navigation, Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { useLoaderData } from "react-router";
 
 const items = [
   {
@@ -35,6 +36,7 @@ const items = [
 
 export default function GlobalProjectsSwiper() {
   const [isGrabbing, setIsGrabbing] = useState(false);
+  const { home } = useLoaderData() as { home: any };
 
   return (
     <div
@@ -61,7 +63,7 @@ export default function GlobalProjectsSwiper() {
         onSliderFirstMove={() => setIsGrabbing(true)}
         onTransitionEnd={() => setIsGrabbing(false)}
       >
-        {items.map((item) => (
+        {home.countries.map((item: any) => (
           <SwiperSlide key={item.id} className="!w-[88%] md:!w-[82%] lg:!w-[72%] xl:!w-[66%]">
             <SlideCard item={item} />
           </SwiperSlide>
@@ -84,15 +86,15 @@ function SlideCard({ item }: { item: any }) {
       <div className="relative overflow-hidden">
         <img
           loading="lazy"
-          src={item.img}
-          alt={item.title}
+          src={item.image}
+          alt={item.name}
           className="w-full aspect-[438/365] rounded-[16px] object-cover"
         />
         <div
           className="py-[10px] px-[44px] rounded-[9px] absolute bottom-[64px] right-[-18px]"
           style={{ background: "linear-gradient(91deg, #C6A45A 1.09%, #FFF 188.49%)" }}
         >
-          <p className="text-[24px] font-medium">{item.title}</p>
+          <p className="text-[24px] font-medium">{item.name}</p>
         </div>
       </div>
     </div>
