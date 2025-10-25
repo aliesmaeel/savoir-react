@@ -5,7 +5,7 @@ type Notice = {
   id: string;
   type: "error" | "success";
   message: string;
-  timeout?: number;
+  timeout?: number; // ms
 };
 
 type Ctx = {
@@ -29,9 +29,16 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
   const push = useCallback(
     (n: Omit<Notice, "id">) => {
-      const id = crypto.randomUUID();
-      const notice: Notice = { id, timeout: 3500, ...n };
+      const id =
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).slice(2);
+
+      // spread first, then set the final timeout
+      const notice: Notice = { id, ...n, timeout: n.timeout ?? 5000 };
+
       setItems((arr) => [notice, ...arr]);
+
       if (notice.timeout && notice.timeout > 0) {
         timers.current[id] = setTimeout(() => remove(id), notice.timeout);
       }
@@ -54,10 +61,16 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   return (
     <NotificationsCtx.Provider value={value}>
       {children}
-      {/* Container: top-right stack */}
       <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3">
         {items.map((n) => (
-          <Toast key={n.id} id={n.id} type={n.type} message={n.message} onClose={remove} />
+          <Toast
+            key={n.id}
+            id={n.id}
+            type={n.type}
+            message={n.message}
+            onClose={remove}
+            timeoutMs={n.timeout ?? 5000}
+          />
         ))}
       </div>
     </NotificationsCtx.Provider>
