@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import Title from "~/UI/Title";
 import SponsorsSwiper from "./SponsorsSwiper";
 import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
+import { useLoaderData } from "react-router";
 
 export default function Sponsors() {
+  const { home } = useLoaderData() as { home: any };
   // Controls for each step
   const title1Ctrl = useAnimation();
   const body1Ctrl = useAnimation();
@@ -126,7 +128,7 @@ export default function Sponsors() {
           animate={body1Ctrl}
           style={{ willChange: "transform, opacity" }}
         >
-          <SponsorsSwiper />
+          <SponsorsSwiper logos={home.marketChannels} />
         </motion.div>
       </div>
 
@@ -152,7 +154,7 @@ export default function Sponsors() {
           animate={body2Ctrl}
           style={{ willChange: "transform, opacity" }}
         >
-          <SponsorsSwiper />
+          <SponsorsSwiper logos={home.listingSyndications} />
         </motion.div>
       </div>
     </div>

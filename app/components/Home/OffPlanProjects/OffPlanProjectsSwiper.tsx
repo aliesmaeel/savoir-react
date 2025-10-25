@@ -5,19 +5,12 @@ import useArrow from "~/hooks/imageHooks/useArrow";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import { Link } from "react-router";
-
-const items = [
-  { id: 1, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
-  { id: 2, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
-  { id: 3, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
-  { id: 4, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
-  { id: 5, img: "/images/placeholders/imagePlaceholder.webp", title: "Dubai Creek Harbour" },
-];
+import { Link, useLoaderData } from "react-router";
 
 export default function OffPlanProjectsSwiper() {
   const [isGrabbing, setIsGrabbing] = useState(false);
   const arrow = useArrow();
+  const { home } = useLoaderData() as { home: any };
 
   return (
     <div
@@ -47,7 +40,7 @@ export default function OffPlanProjectsSwiper() {
         onSliderFirstMove={() => setIsGrabbing(true)}
         onTransitionEnd={() => setIsGrabbing(false)}
       >
-        {items.map((item) => (
+        {home.offplan_projects.map((item: any) => (
           <SwiperSlide key={item.id} className="!w-[76.5%]">
             <SlideCard item={item} />
           </SwiperSlide>
@@ -66,14 +59,9 @@ function SlideCard({ item }: { item: any }) {
       ${isActive ? "scale-100 opacity-100" : "scale-[0.85] opacity-80"}`}
     >
       <div className="relative overflow-hidden rounded-[8px] lg:rounded-[15px] shadow-lg">
-        <img
-          loading="lazy"
-          src={item.img}
-          alt={item.title}
-          className="w-full aspect-[549/413] object-cover"
-        />
+        <img loading="lazy" src={item.image} className="w-full aspect-[549/413] object-cover" />
         <Link
-          to="#"
+          to={`/off-plan/${item.link}`}
           className="absolute bottom-0 left-0 w-full py-[8px] lg:py-[15px] bg-[#6c645a] flex items-center justify-center gap-[6px] lg:gap-[15px]"
         >
           <p className="text-[#C6A45A] text-[14px] lg:text-[20px]">Show more details</p>

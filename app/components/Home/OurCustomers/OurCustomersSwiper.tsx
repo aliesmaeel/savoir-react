@@ -9,6 +9,7 @@ import "swiper/css/effect-cards";
 import { EffectCards, Autoplay } from "swiper/modules"; // ⬅️ add Autoplay
 import useIcons from "~/hooks/imageHooks/useIcons";
 import useArrow from "~/hooks/imageHooks/useArrow";
+import { useLoaderData } from "react-router";
 
 const testimonials = [
   {
@@ -37,6 +38,7 @@ const testimonials = [
 export default function OurCustomersSwiper() {
   const [swiperInstance, setSwiperInstance] = useState<any>(null);
   const arrow = useArrow();
+  const { home } = useLoaderData() as { home: any };
 
   return (
     <div className="w-full relative">
@@ -69,17 +71,7 @@ export default function OurCustomersSwiper() {
         onSwiper={(swiper) => setSwiperInstance(swiper)}
         className="mySwiper w-[307.059px] h-[413.25px] scale-75 lg:scale-100"
       >
-        {testimonials.map((item, index) => (
-          <SwiperSlide key={index} className="rounded-[18px]">
-            <TestimonialCard data={item} />
-          </SwiperSlide>
-        ))}
-        {testimonials.map((item, index) => (
-          <SwiperSlide key={index} className="rounded-[18px]">
-            <TestimonialCard data={item} />
-          </SwiperSlide>
-        ))}
-        {testimonials.map((item, index) => (
+        {home.testimonials.map((item: any, index: number) => (
           <SwiperSlide key={index} className="rounded-[18px]">
             <TestimonialCard data={item} />
           </SwiperSlide>
@@ -104,28 +96,28 @@ function TestimonialCard({ data }: { data: any }) {
       >
         <div className="flex flex-col items-start gap-[10px]">
           <div className="flex items-center gap-2 ml-[12px]">
-            <span className="bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
+            {/* <span className="bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
               {data.rating}
               <img loading="lazy" src={icon.startWhite} alt="" />
-            </span>
+            </span> */}
           </div>
 
           <div className="flex flex-col items-start">
             <img loading="lazy" src={icon.quotes} alt="" />
-            <p className="text-[#232222] text-[15px] leading-[166.667%] px-[7px]">{data.text}</p>
+            <p className="text-[#232222] text-[15px] leading-[166.667%] px-[7px]">{data.message}</p>
           </div>
           <hr className="w-[85%] border-2 border-[#3536354D] mx-auto" />
         </div>
         <div className="flex items-center gap-3 mt-6">
           <img
             loading="lazy"
-            src={data.avatar}
+            src={data.image}
             alt={data.author}
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <p className="font-semibold text-gray-900">{data.author}</p>
-            <p className="text-sm text-gray-500">{data.role}</p>
+            <p className="font-semibold text-gray-900">{data.name}</p>
+            <p className="text-sm text-gray-500">{data.position}</p>
           </div>
         </div>
       </div>

@@ -3,19 +3,10 @@ import styles from "./SponsorsSwiper.module.css";
 
 type Props = {
   speedSeconds?: number; // tweak speed if you want
+  logos: any;
 };
 
-export default function SponsorsSwiper({ speedSeconds = 20 }: Props) {
-  const logos = [
-    "/images/placeholders/sponsorLogo.svg",
-    "/images/placeholders/sponsorLogo.svg",
-    "/images/placeholders/sponsorLogo.svg",
-    "/images/placeholders/sponsorLogo.svg",
-    "/images/placeholders/sponsorLogo.svg",
-    "/images/placeholders/sponsorLogo.svg",
-    "/images/placeholders/sponsorLogo.svg",
-  ];
-
+export default function SponsorsSwiper({ speedSeconds = 20, logos }: Props) {
   // Duplicate once to create a seamless loop
   const loop = [...logos, ...logos];
 
@@ -24,7 +15,7 @@ export default function SponsorsSwiper({ speedSeconds = 20 }: Props) {
       <div className={styles.track} style={{ ["--speed" as any]: `${speedSeconds}s` }}>
         {loop.map((src, i) => (
           <div className={styles.item} key={i}>
-            <img loading="lazy" src={src} alt={`sponsor-${i}`} draggable={false} />
+            <img loading="lazy" src={src.image} alt={`sponsor-${i}`} draggable={false} />
           </div>
         ))}
       </div>
