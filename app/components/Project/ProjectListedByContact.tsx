@@ -1,8 +1,11 @@
 import React from "react";
+import { Link, useLoaderData } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
 
 export default function ProjectListedByContact() {
+  const { property } = useLoaderData() as { property: any };
+
   const icon = useIcons();
 
   return (
@@ -13,24 +16,28 @@ export default function ProjectListedByContact() {
       <div className="flex items-center gap-[16px]">
         <img
           loading="lazy"
-          src="/images/placeholders/listedBy.svg"
+          src={property.user.image}
           alt=""
           className="w-[85px] aspect-square object-cover"
         />
         <div className="flex flex-col items-start gap-[4px]">
           <p className="text-[#353635B2] text-[24px]">Listed By</p>
-          <p className="text-[27px]">Wade Warren</p>
+          <p className="text-[27px]">{property.user.name}</p>
         </div>
       </div>
       <div className="flex items-center gap-[19px] w-full">
-        <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
-          <img loading="lazy" src={icon.phoneWhite} alt="" className="w-[27px]" />
-          Call
-        </Button>
-        <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
-          <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[27px]" />
-          Whatsapp
-        </Button>
+        <Link to={`tel:${property.user.phone}`} className="w-full">
+          <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
+            <img loading="lazy" src={icon.phoneWhite} alt="" className="w-[27px]" />
+            Call
+          </Button>
+        </Link>
+        <Link to={`https://wa.me/${property.user.phone}`} className="w-full">
+          <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
+            <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[27px]" />
+            Whatsapp
+          </Button>
+        </Link>
       </div>
       <div className="flex flex-col items-center gap-[21px] w-full">
         <Button type="border" className="w-full gap-[9px] !py-[9px] !text-[18px]">

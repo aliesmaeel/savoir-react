@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide, useSwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import useArrow from "~/hooks/imageHooks/useArrow";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -23,6 +23,8 @@ const items = [
 ];
 
 export default function ProjectPageSwiper() {
+  const { property } = useLoaderData() as { property: any };
+
   const [isGrabbing, setIsGrabbing] = useState(false);
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
@@ -76,9 +78,9 @@ export default function ProjectPageSwiper() {
           // optional arrows for titles (using selectors avoids ref timing issues)
           navigation={{ prevEl: ".titles-prev", nextEl: ".titles-next" }}
         >
-          {items.map((item, idx) => (
+          {property.property_images.map((item: any, idx: number) => (
             <SwiperSlide key={`title-${idx}`}>
-              <TitleCell image={item.img} />
+              <TitleCell image={item.url} />
             </SwiperSlide>
           ))}
         </Swiper>
@@ -116,7 +118,7 @@ export default function ProjectPageSwiper() {
             onSliderFirstMove={() => setIsGrabbing(true)}
             onTransitionEnd={() => setIsGrabbing(false)}
           >
-            {items.map((item, idx) => (
+            {property.property_images.map((item: any, idx: number) => (
               <SwiperSlide key={idx} className="!w-full">
                 <SlideCard item={item} arrow={arrow} />
               </SwiperSlide>
@@ -126,7 +128,7 @@ export default function ProjectPageSwiper() {
 
         <img
           loading="lazy"
-          src="/images/placeholders/project9.webp"
+          src={property.photo}
           alt=""
           className="rounded-[8px] w-full h-full object-cover hidden lg:block"
         />
@@ -137,7 +139,7 @@ export default function ProjectPageSwiper() {
           <span className="text-[#C6A45A] font-semibold">
             {String(currentIndex + 1).padStart(2, "0")}
           </span>{" "}
-          of {String(items.length).padStart(2, "0")}
+          of {String(property.property_images.length).padStart(2, "0")}
         </p>
 
         {/* Custom Navigation Buttons (selectors so they bind on first paint) */}
@@ -181,7 +183,7 @@ function SlideCard({ item, arrow }: { item: any; arrow: ReturnType<typeof useArr
   const { isActive } = useSwiperSlide();
   return (
     <div className="h-full">
-      <img loading="lazy" src={item.img} alt={item.title} className="w-full h-full object-cover" />
+      <img loading="lazy" src={item.url} alt={item.id} className="w-full h-full object-cover" />
     </div>
   );
 }

@@ -21,7 +21,7 @@ export default function OffPlanHero() {
               Neighborhood.
             </p>
           </div>
-          <SearchFilter />
+          {/* <SearchFilter /> */}
         </div>
         <div
           className="absolute bottom-0 left-0 w-full h-[200px]"

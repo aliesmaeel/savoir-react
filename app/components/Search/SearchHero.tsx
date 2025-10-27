@@ -3,14 +3,14 @@ import SearchFilter from "~/layouts/Filter/SearchFilter";
 
 export default function SearchHero() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[90vh] relative">
+    <div className="flex flex-col items-center justify-center w-full h-[45vh] relative">
       <img
         loading="lazy"
         src="/images/placeholders/hero.webp"
         alt=""
-        className="w-full h-[90vh] object-cover"
+        className="w-full h-[45vh] object-cover"
       />
-      <div className="flex flex-col items-center justify-center w-full h-[90vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
+      <div className="flex flex-col items-center justify-center w-full h-[45vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[61px] w-full">
           <SearchFilter />
         </div>

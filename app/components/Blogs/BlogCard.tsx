@@ -15,7 +15,7 @@ export default function BlogCard({ blog }: Props) {
     <Card className="!rounded-[46px] p-[27px] pt-[24px]">
       <div className="flex flex-col items-start gap-[21px] w-full">
         <img
-          src={blog.image}
+          src={blog.blog_image[0].url}
           alt=""
           className="w-full aspect-[369/190] rounded-[10px] object-cover"
         />
