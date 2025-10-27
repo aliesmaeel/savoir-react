@@ -5,7 +5,7 @@ export default [
     index("routes/home.tsx"),
     route("/about", "routes/about.tsx"),
     route("/search", "routes/search.tsx"),
-    route("/project/:projectid", "routes/project.tsx"),
+    route("/project/:projectSlug", "routes/project.tsx"),
     route("/off-plan", "routes/offPlanProjects.tsx"),
     route("/off-plan/:projectid", "routes/offPlan.tsx"),
 

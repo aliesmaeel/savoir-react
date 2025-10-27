@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useLoaderData, useLocation } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import { getNewsShare } from "~/api/news.service";
@@ -6,24 +6,27 @@ import { getNewsShare } from "~/api/news.service";
 export default function NewsShare() {
   const icon = useIcons();
   const { newsItem } = useLoaderData() as { newsItem: any };
-  const [shares, setShares] = useState<number>(newsItem.shares ?? 0);
-  const [pending, setPending] = useState(false);
   const location = useLocation();
 
-  const shareUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}${location.pathname}`
-      : location.pathname;
+  const [shares, setShares] = useState<number>(newsItem.shares ?? 0);
+  const [pending, setPending] = useState(false);
+  const [hasShared, setHasShared] = useState(false);
+
+  const isClient = typeof window !== "undefined";
+  const shareUrl = isClient ? `${window.location.origin}${location.pathname}` : location.pathname;
+  const STORAGE_KEY = isClient ? `news_shared_${newsItem.id}` : "";
+
+  useEffect(() => {
+    if (!isClient) return;
+    setHasShared(localStorage.getItem(STORAGE_KEY) === "1");
+  }, [STORAGE_KEY, isClient]);
 
   const copyToClipboard = useCallback(async () => {
     if (pending) return;
     setPending(true);
 
-    const prev = shares;
-    setShares(prev + 1); // optimistic
-
+    // Always copy link
     try {
-      // 1) copy link
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareUrl);
       } else {
@@ -37,16 +40,31 @@ export default function NewsShare() {
         document.execCommand("copy");
         document.body.removeChild(el);
       }
-
-      // 2) hit API to persist share increment
-      await getNewsShare(newsItem.id);
     } catch {
-      // rollback if API fails
-      setShares(prev);
+      // ignore copy failures
+    }
+
+    // Prevent duplicate server increments
+    if (hasShared) {
+      setPending(false);
+      return;
+    }
+
+    const prev = shares;
+    setShares(prev + 1); // optimistic
+
+    try {
+      await getNewsShare(newsItem.id); // call only once
+      if (isClient) {
+        localStorage.setItem(STORAGE_KEY, "1");
+      }
+      setHasShared(true);
+    } catch {
+      setShares(prev); // rollback on failure
     } finally {
       setPending(false);
     }
-  }, [pending, shares, shareUrl, newsItem?.id]);
+  }, [pending, hasShared, shares, shareUrl, newsItem?.id, isClient, STORAGE_KEY]);
 
   return (
     <div className="flex flex-row lg:flex-col items-start gap-[33.6px]">
@@ -67,6 +85,7 @@ export default function NewsShare() {
         >
           <img loading="lazy" src={icon.facebookShare} alt="Facebook" />
         </Link>
+
         <Link
           to="https://www.instagram.com/"
           onClick={copyToClipboard}
@@ -75,6 +94,7 @@ export default function NewsShare() {
         >
           <img loading="lazy" src={icon.instagramShare} alt="Instagram" />
         </Link>
+
         <Link
           to="https://www.linkedin.com/"
           onClick={copyToClipboard}
@@ -89,7 +109,7 @@ export default function NewsShare() {
           onClick={copyToClipboard}
           disabled={pending}
           aria-label="Copy link"
-          title={pending ? "Working..." : "Copy link"}
+          title={pending ? "Working..." : hasShared ? "Link copied. Already counted." : "Copy link"}
           className={pending ? "opacity-60 cursor-not-allowed" : ""}
         >
           <img loading="lazy" src={icon.bodyShare} alt="Copy link" />

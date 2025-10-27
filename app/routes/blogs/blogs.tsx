@@ -1,7 +1,7 @@
 import React from "react";
 import { getAllBlogs } from "~/api/blogs.service";
-import BlogsHero from "~/components/Blogs/BlogsHero";
 import BlogsList from "~/components/Blogs/BlogsList";
+import MainBlogsHero from "~/components/Blogs/MainBlogsHero";
 import PageLayout from "~/layouts/PageLayout";
 
 export async function clientLoader({ request }: { request: Request }) {
@@ -19,7 +19,7 @@ export async function clientLoader({ request }: { request: Request }) {
 export default function blogs() {
   return (
     <div>
-      <BlogsHero />
+      <MainBlogsHero />
       <PageLayout>
         <BlogsList />
       </PageLayout>

@@ -3,6 +3,7 @@ import * as THREE from "three";
 import * as turf from "@turf/turf";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
+import { useSearchParams } from "react-router";
 
 type GlobalGlobeProps = {
   fullscreen?: boolean;
@@ -13,7 +14,15 @@ type GlobalGlobeProps = {
   globeScale?: number;
   selectedCountry: string;
   setSelectedCountry: (country: string) => void;
+
+  /** Sync selection to URL, e.g., ?country=united%20arab%20emirates */
+  syncSelectedToUrl?: boolean; // default true
+  selectedParamKey?: string; // default "country"
 };
+
+const norm = (s: string) => s.toLowerCase();
+const findCanonical = (name: string, list: string[]) =>
+  list.find((c) => norm(c) === norm(name)) ?? null;
 
 const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   fullscreen = false,
@@ -24,12 +33,15 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   globeScale = 0.8,
   selectedCountry,
   setSelectedCountry,
+  syncSelectedToUrl = true,
+  selectedParamKey = "country",
 }) => {
   const containerRef: any = useRef<HTMLDivElement>(null);
   const worldRef = useRef<any>(null);
   const [labels, setLabels] = useState<any[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedCountries = [
     "United Arab Emirates",
@@ -38,7 +50,26 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     "Greece",
     "Cyprus",
     "South Africa",
+    "Malta",
   ];
+
+  // Read initial country from URL once (case-insensitive). Keep canonical Title Case in state.
+  useEffect(() => {
+    if (!syncSelectedToUrl) return;
+    const fromUrl = searchParams.get(selectedParamKey);
+    if (!fromUrl) return;
+    const canonical = findCanonical(fromUrl, selectedCountries);
+    if (canonical && canonical !== selectedCountry) setSelectedCountry(canonical);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Write current selection to URL as lowercase
+  useEffect(() => {
+    if (!syncSelectedToUrl) return;
+    const next = new URLSearchParams(searchParams);
+    next.set(selectedParamKey, norm(selectedCountry));
+    setSearchParams(next, { replace: true });
+  }, [selectedCountry, syncSelectedToUrl, selectedParamKey, searchParams, setSearchParams]);
 
   // Resize handling
   useEffect(() => {
@@ -98,7 +129,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       if (cancelled) return;
 
       const filtered = countries.features.filter((f: any) =>
-        selectedCountries.includes(f.properties.name)
+        selectedCountries.some((c) => norm(c) === norm(f.properties.name))
       );
 
       world
@@ -117,12 +148,19 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
         return { lat, lng, name: f.properties.name, feature: f };
       });
 
+      // Ensure Malta label exists with manual coords
+      if (!labelsData.some((d: any) => d.name === "Malta")) {
+        labelsData.push({ name: "Malta", lat: 35.9375, lng: 14.3754, feature: null });
+      }
+
       setLabels(labelsData);
       world.labelsData(labelsData).labelText((d: any) => d.name);
 
-      const uae = labelsData.find((d: any) => d.name === "United Arab Emirates");
-      if (uae) {
-        world.pointOfView({ lat: uae.lat, lng: uae.lng, altitude: initialAltitude }, 2000);
+      const target =
+        labelsData.find((d: any) => d.name === selectedCountry) ??
+        labelsData.find((d: any) => d.name === "United Arab Emirates");
+      if (target) {
+        world.pointOfView({ lat: target.lat, lng: target.lng, altitude: initialAltitude }, 2000);
       }
     })();
 
@@ -131,9 +169,9 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       worldRef.current = null;
       if (containerRef.current) containerRef.current.innerHTML = "";
     };
-  }, [enableZoom, globeScale, initialAltitude]);
+  }, [enableZoom, globeScale, initialAltitude, selectedCountry]);
 
-  // Update highlighting
+  // Update highlighting when selection changes
   useEffect(() => {
     if (!worldRef.current) return;
     worldRef.current
@@ -147,13 +185,10 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const handleSelect = (countryName: string) => {
     setSelectedCountry(countryName);
     setDropdownOpen(false);
-
     const country = labels.find((d) => d.name === countryName);
     if (country && worldRef.current) {
-      worldRef.current.pointOfView(
-        { lat: country.lat, lng: country.lng, altitude: initialAltitude },
-        2000
-      );
+      const alt = countryName === "Malta" ? Math.min(initialAltitude, 0.9) : initialAltitude;
+      worldRef.current.pointOfView({ lat: country.lat, lng: country.lng, altitude: alt }, 2000);
     }
   };
 
@@ -171,8 +206,10 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-50">
       <div className="flex flex-col items-start gap-[15px] lg:gap-[37px]">
         <div className="flex flex-col items-start">
-          <p className="text-[20px] lg:text-[51px]">Real estate agents in {selectedCountry}</p>
-          <p className="text-[#353635B2] text-[15px] lg:text-[31px]">
+          <p className="text-[20px] lg:text-[51px] text-white">
+            Real estate agents in {selectedCountry}
+          </p>
+          <p className="text-white/60 text-[15px] lg:text-[31px]">
             Explore properties in {selectedCountry}
           </p>
         </div>
@@ -180,11 +217,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
           <div className="flex flex-col items-start">
             <p className="text-[18px] font-semibold">Search </p>
             <div
-              style={{
-                cursor: "pointer",
-                position: "relative",
-                userSelect: "none",
-              }}
+              style={{ cursor: "pointer", position: "relative", userSelect: "none" }}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <div className="flex items-center justify-between w-[270px]">

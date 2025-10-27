@@ -6,6 +6,8 @@ import BookingCheckbox from "./BookingCheckbox";
 import Button from "~/UI/Button";
 import { Link } from "react-router";
 
+const TO_EMAIL = "info@savoirproperties.com"; // <-- set your recipient address
+
 export default function BookYourViewing() {
   const icon = useIcons();
 
@@ -15,8 +17,53 @@ export default function BookYourViewing() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [message, setMessage] = useState("");
+  const [inquiryType, setInquiryType] = useState(""); // from dropdown
   const [checked, setChecked] = useState(false);
   const [mixed, setMixed] = useState(true);
+
+  function handleSubmit() {
+    // basic guards
+    if (!checked) {
+      alert("Please agree to the Terms and Privacy Policy.");
+      return;
+    }
+    if (!name || !email) {
+      alert("Full Name and Email are required.");
+      return;
+    }
+
+    const subject = `Property Inquiry — ${name}`;
+    const body = [
+      "Dear Savoir Properties Team,",
+      "",
+      "I hope this message finds you well.",
+      "",
+      `My name is ${name}, and I would like to inquire about one of your properties.`,
+      "",
+      "Here are my details:",
+      `- Full Name: ${name}`,
+      `- Email: ${email}`,
+      `- Phone: ${phone || "-"}`,
+      `- Inquiry Type: ${inquiryType || "-"}`,
+      `- Date: ${date || "-"}`,
+      `- Time: ${time || "-"}`,
+      "",
+      "Message:",
+      message || "I am interested in scheduling a viewing. Please let me know available slots.",
+      "",
+      "Thank you for your time and assistance. I look forward to hearing from you soon.",
+      "",
+      "Best regards,",
+      name,
+    ].join("\n");
+
+    const mailto = `mailto:${TO_EMAIL}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
+    // open default email client with prefilled draft
+    window.location.href = mailto;
+  }
 
   return (
     <div className="flex flex-col items-start gap-[22px] w-full mt-[75px]">
@@ -53,26 +100,24 @@ export default function BookYourViewing() {
             <p className="text-[#505050] text-[27px]">Property Consultant</p>
           </div>
         </div>
+
         <div className="flex flex-col items-center gap-[64px] w-full">
           <div className="flex flex-col items-start gap-[67px] w-full">
-            <div className="grid grid-cols-1  lg:grid-cols-3 gap-x-[28px] gap-[20px] lg:gap-y-[75px] w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-[28px] gap-[20px] lg:gap-y-[75px] w-full">
               <BookingInput placeholder="Enter Full Name" value={name} onChange={setName} />
               <BookingInput placeholder="Enter your Email" value={email} onChange={setEmail} />
-              <BookingDropdown placeholder="Select Inquiry Type" />
+              <BookingDropdown
+                placeholder="Select Inquiry Type"
+                value={inquiryType}
+                onChange={setInquiryType}
+                options={[
+                  { label: "Request for Viewing", value: "Request for Viewing" },
+                  { label: "More Information", value: "More Information" },
+                ]}
+              />
               <BookingInput placeholder="Enter Phone Number" value={phone} onChange={setPhone} />
-              <BookingInput
-                type="date"
-                placeholder="Enter Phone Number"
-                value={date}
-                onChange={setDate}
-              />
-              <BookingInput
-                type="time"
-                placeholder="Enter Phone Number"
-                value={time}
-                onChange={setTime}
-              />
-
+              <BookingInput type="date" placeholder="Select Date" value={date} onChange={setDate} />
+              <BookingInput type="time" placeholder="Select Time" value={time} onChange={setTime} />
               <div className="lg:col-span-3">
                 <BookingInput
                   type="textAria"
@@ -82,7 +127,8 @@ export default function BookYourViewing() {
                 />
               </div>
             </div>
-            <div className="flex flex-col lg:flex-row  items-center justify-between gap-[10px] w-full">
+
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-[10px] w-full">
               <BookingCheckbox
                 checked={checked}
                 onChange={(n) => {
@@ -93,11 +139,15 @@ export default function BookYourViewing() {
                 label="I agree with Terms of Use and Privacy Policy"
                 size={20}
               />
-              <Button className="!rounded-[4px] lg:!px-[78px] !py-[15px] h-[44px] text-[18px]">
+              <Button
+                className="!rounded-[4px] lg:!px-[78px] !py-[15px] h-[44px] text-[18px]"
+                onClick={handleSubmit}
+              >
                 Send Your Message
               </Button>
             </div>
           </div>
+
           <div className="flex flex-col lg:flex-row items-center gap-[17px]">
             <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
             <Link to="#" className="flex items-center gap-[9px]">

@@ -1,25 +1,28 @@
 import React from "react";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import ProjectListedByContact from "./ProjectListedByContact";
+import { useLoaderData } from "react-router";
 
 export default function ProjectDescription() {
+  const { property } = useLoaderData() as { property: any };
+
   const icon = useIcons();
 
   const items = [
     {
       title: "Bedrooms",
       icon: icon.searchBedroom,
-      value: "04",
+      value: property.bedroom,
     },
     {
       title: "Bathrooms",
       icon: icon.searchBathRoom,
-      value: "03",
+      value: property.bathroom,
     },
     {
       title: "Area",
       icon: icon.searchSquare,
-      value: "2,500 Square Feet",
+      value: `${property.size?.toLocaleString()} Square Feet`,
     },
   ];
 
@@ -27,17 +30,13 @@ export default function ProjectDescription() {
     <div className="flex flex-col lg:flex-row items-start gap-[53px] w-full mt-[34px]">
       <div className="flex flex-col items-start gap-[31px] w-full">
         <div className="flex flex-col items-start gap-[17px] w-full">
-          <p className="text-black text-[21px]">April 2026 | Single Row | Area Specialist</p>
+          <p className="text-black text-[21px]">{property.title_en}</p>
           <div className="flex flex-col items-start gap-[4px] w-full">
             <p className="text--[27px] font-semibold">Description</p>
-            <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
-              Discover your own piece of paradise with the Seaside Serenity Villa. T With an open
-              floor plan, breathtaking ocean views from every room, and direct access to a pristine
-              sandy beach, this property is the epitome of coastal living.Discover your own piece of
-              paradise with the Seaside Serenity Villa. T With an open floor plan, breathtaking
-              ocean views from every room, and direct access to a pristine sandy beach, this
-              property is the epitome of coastal living.
-            </p>
+            <div
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              dangerouslySetInnerHTML={{ __html: property.description_en }}
+            />
           </div>
         </div>
         <div className="flex items-start gap-[17px]">

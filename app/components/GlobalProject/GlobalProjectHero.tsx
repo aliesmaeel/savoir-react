@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import GlobalGlobe from "./GlobalGlobe";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
+import { useLoaderData } from "react-router";
 
 export default function GlobalProjectHero() {
   const [selectedCountry, setSelectedCountry] = useState("United Arab Emirates");
   const isMobile = useIsMobile();
+  const { global, country } = useLoaderData() as { global: any; country: string };
 
   // Define your country background images here
   const countryBackgrounds: Record<string, string> = {
@@ -14,21 +16,24 @@ export default function GlobalProjectHero() {
     Greece: "/images/countries/greece-bg.jpeg",
     Cyprus: "/images/countries/cyprus-bg.webp",
     "South Africa": "/images/countries/southafrica-bg.jpeg",
+    Malta: "/images/countries/southafrica-bg.jpeg",
   };
 
-  const backgroundImage =
-    countryBackgrounds[selectedCountry] || "/images/placeholders/memberBg.svg";
+  const backgroundImage = global.project.image || "/images/placeholders/memberBg.svg";
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-[100vh] relative">
       {/* Dynamic background image */}
-      <img
-        loading="lazy"
-        src={backgroundImage}
-        alt={selectedCountry}
-        className="w-full h-[100vh] object-cover transition-all duration-700"
-        key={selectedCountry} // ensures smooth transition
-      />
+      <div className="relative w-full">
+        <img
+          loading="lazy"
+          src={backgroundImage}
+          alt={selectedCountry}
+          className="w-full h-[100vh] object-cover transition-all duration-700 grayscale-25"
+          key={selectedCountry} // ensures smooth transition
+        />
+        <div className="w-full h-full bg-[#00000026] absolute top-0 left-0"></div>
+      </div>
 
       <div className="flex flex-col items-center justify-center w-full h-[100vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
         {/* Pass selectedCountry state & setter down */}

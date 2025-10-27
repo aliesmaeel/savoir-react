@@ -64,7 +64,7 @@ export default function OffPlanStartingPrice() {
 
       {openPopup && (
         <Popup title="Get Faster Response!" onClose={() => setOpenPopup(false)}>
-          <OffPlanPopup />
+          <OffPlanPopup recipientNumber="+971505074686" />
         </Popup>
       )}
     </div>
