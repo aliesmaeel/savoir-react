@@ -1,4 +1,5 @@
 import React from "react";
+import { getOffPlanPage } from "~/api/offPlan.service";
 import OffPlanDescription from "~/components/OffPlanProjects/OffPlan/OffPlanDescription";
 import OffPlanLocation from "~/components/OffPlanProjects/OffPlan/OffPlanLocation";
 import OffPlanPaymentPlans from "~/components/OffPlanProjects/OffPlan/OffPlanPaymentPlans";
@@ -9,6 +10,20 @@ import ProjectPageSwiper from "~/components/Project/ProjectPageSwiper";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import PageLayout from "~/layouts/PageLayout";
 import FAQs from "~/UI/FAQs";
+
+export async function clientLoader({ params }: { params: { offPlanSlug: string } }) {
+  const offPlanSlug = params.offPlanSlug;
+  try {
+    const res: any = await getOffPlanPage(offPlanSlug);
+
+    const property = res.property;
+    const similar = res.similar_properties;
+
+    return { property, similar };
+  } catch (error) {
+    return { property: [], similar: [] };
+  }
+}
 
 export default function offPlan() {
   const icon = useIcons();

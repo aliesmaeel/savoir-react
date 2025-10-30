@@ -4,11 +4,11 @@ import BookingInput from "./BookingInput";
 import BookingDropdown from "./BookingDropdown";
 import BookingCheckbox from "./BookingCheckbox";
 import Button from "~/UI/Button";
-import { Link } from "react-router";
-
-const TO_EMAIL = "info@savoirproperties.com"; // <-- set your recipient address
+import { Link, useLoaderData } from "react-router";
 
 export default function BookYourViewing() {
+  const { property, similar } = useLoaderData() as { property: any; similar: any };
+
   const icon = useIcons();
 
   const [name, setName] = useState("");
@@ -20,6 +20,8 @@ export default function BookYourViewing() {
   const [inquiryType, setInquiryType] = useState(""); // from dropdown
   const [checked, setChecked] = useState(false);
   const [mixed, setMixed] = useState(true);
+
+  const TO_EMAIL = property.user.email; // <-- set your recipient address
 
   function handleSubmit() {
     // basic guards

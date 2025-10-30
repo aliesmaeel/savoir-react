@@ -7,7 +7,7 @@ export default [
     route("/search", "routes/search.tsx"),
     route("/project/:projectSlug", "routes/project.tsx"),
     route("/off-plan", "routes/offPlanProjects.tsx"),
-    route("/off-plan/:projectid", "routes/offPlan.tsx"),
+    route("/off-plan/:offPlanSlug", "routes/offPlan.tsx"),
 
     // News
     route("/news", "routes/news/news.tsx"),
@@ -15,9 +15,9 @@ export default [
 
     // Our Team
     route("/our-team", "routes/ourTeam/ourTeam.tsx"),
-    route("/our-team/:memberid", "routes/ourTeam/teamPage.tsx"),
+    route("/our-team/:teamSlug", "routes/ourTeam/teamPage.tsx"),
 
-    route("/popular-areas", "routes/popularAreas/popularAreas.tsx"),
+    route("/popular-areas/:areaSlug", "routes/popularAreas/popularAreas.tsx"),
 
     route("/contact-us", "routes/contactUs.tsx"),
 

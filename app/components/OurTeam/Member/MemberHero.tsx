@@ -1,8 +1,11 @@
 import React from "react";
+import { useLoaderData } from "react-router";
 import Header from "~/UI/Header";
 import Title from "~/UI/Title";
 
 export default function MemberHero() {
+  const { team } = useLoaderData() as { team: any };
+
   const items = [
     {
       title: "Experience :",
@@ -10,11 +13,11 @@ export default function MemberHero() {
     },
     {
       title: "Specialization :",
-      value: "Primary Market",
+      value: team.Job_Description,
     },
     {
       title: "Language :",
-      value: "English, Russian, Romanian",
+      value: team.language,
     },
   ];
 
@@ -36,8 +39,8 @@ export default function MemberHero() {
           />
           <div className="flex flex-col items-start gap-[22px] lg:gap-[75px]  mx-auto">
             <div className="flex flex-col items-start gap-[5px] lg:gap-[13px]">
-              <p className="text-[21px] lg:text-[53px] font-medium">Wade Warren</p>
-              <Title className="text-[19px] lg:text-[48px]">Property Consultant</Title>
+              <p className="text-[21px] lg:text-[53px] font-medium">{team.name}</p>
+              <Title className="text-[19px] lg:text-[48px]">{team.Job_Description}</Title>
             </div>
             <div className="flex flex-col items-start gap-[9px] lg:gap-[22px]">
               {items.map((item: any, index: number) => (
