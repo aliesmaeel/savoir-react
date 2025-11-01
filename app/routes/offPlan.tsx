@@ -1,4 +1,5 @@
 import React from "react";
+import { useLoaderData } from "react-router";
 import { getOffPlanPage } from "~/api/offPlan.service";
 import OffPlanDescription from "~/components/OffPlanProjects/OffPlan/OffPlanDescription";
 import OffPlanLocation from "~/components/OffPlanProjects/OffPlan/OffPlanLocation";
@@ -16,16 +17,17 @@ export async function clientLoader({ params }: { params: { offPlanSlug: string }
   try {
     const res: any = await getOffPlanPage(offPlanSlug);
 
-    const property = res.property;
-    const similar = res.similar_properties;
+    const property = res;
+    // const similar = res.similar_properties;
 
-    return { property, similar };
+    return { property };
   } catch (error) {
-    return { property: [], similar: [] };
+    return { property: [] };
   }
 }
 
 export default function offPlan() {
+  const { property } = useLoaderData() as { property: any };
   const icon = useIcons();
   return (
     <div>
@@ -44,7 +46,7 @@ export default function offPlan() {
               <p className="text-[#C6A45A] text-[27px] font-bold">$1,250,000</p>
             </div>
           </div>
-          <ProjectPageSwiper />
+          <ProjectPageSwiper mainImage={property.image} sliderImages={property.header_images} />
         </div>
 
         <div className="flex flex-col lg:flex-row items-start gap-[100px] w-full mt-[34px]">
