@@ -1,5 +1,6 @@
 import React from "react";
 import { useLoaderData } from "react-router";
+import { getFAQ } from "~/api/faq.service";
 import { getOffPlanPage } from "~/api/offPlan.service";
 import OffPlanDescription from "~/components/OffPlanProjects/OffPlan/OffPlanDescription";
 import OffPlanLocation from "~/components/OffPlanProjects/OffPlan/OffPlanLocation";
@@ -14,21 +15,24 @@ import FAQs from "~/UI/FAQs";
 
 export async function clientLoader({ params }: { params: { offPlanSlug: string } }) {
   const offPlanSlug = params.offPlanSlug;
+  const faqtype = "offplan";
   try {
     const res: any = await getOffPlanPage(offPlanSlug);
+    const resFAQ: any = await getFAQ(faqtype);
 
     const property = res;
     // const similar = res.similar_properties;
 
-    return { property };
+    return { property, faq: resFAQ };
   } catch (error) {
-    return { property: [] };
+    return { property: [], faq: [] };
   }
 }
 
 export default function offPlan() {
-  const { property } = useLoaderData() as { property: any };
+  const { property, faq } = useLoaderData() as { property: any; faq: any };
   const icon = useIcons();
+
   return (
     <div>
       <PageLayout>
@@ -65,7 +69,7 @@ export default function offPlan() {
           <p className="text-black text-[36px] font-medium">
             FAQs about rental properties in Dubai UAE
           </p>
-          <FAQs />
+          <FAQs questions={faq} />
         </div>
       </PageLayout>
     </div>

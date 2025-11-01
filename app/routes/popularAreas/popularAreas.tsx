@@ -1,5 +1,7 @@
 import React from "react";
+import { useLoaderData } from "react-router";
 import { getArea } from "~/api/area.service";
+import { getFAQ } from "~/api/faq.service";
 import PopularAbout from "~/components/PopularAreas/PopularAbout";
 import PopularAreasHero from "~/components/PopularAreas/PopularAreasHero";
 import PopularForSale from "~/components/PopularAreas/PopularForSale";
@@ -9,19 +11,23 @@ import FAQs from "~/UI/FAQs";
 
 export async function clientLoader({ params }: { params: { areaSlug: string } }) {
   const areaSlug = params.areaSlug;
+  const faqtype = "area";
   try {
     const res: any = await getArea(areaSlug);
+    const resFAQ: any = await getFAQ(faqtype);
 
     const area = res.area;
     const properties = res.suggested_properties;
 
-    return { area, properties };
+    return { area, properties, faq: resFAQ };
   } catch (error) {
-    return { area: [], properties: [] };
+    return { area: [], properties: [], faq: [] };
   }
 }
 
 export default function popularAreas() {
+  const { faq } = useLoaderData() as { faq: any };
+
   return (
     <div className="relative">
       <PopularAreasHero />
@@ -33,7 +39,7 @@ export default function popularAreas() {
           <p className="text-black text-[20px] lg:text-[36px] font-medium">
             FAQs about rental properties in Dubai UAE
           </p>
-          <FAQs />
+          <FAQs questions={faq} />
         </div>
       </PageLayout>
     </div>

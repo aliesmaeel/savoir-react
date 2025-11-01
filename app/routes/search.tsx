@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { useLoaderData, useLocation } from "react-router";
 import { getSuggestionSearch, search as searchApi } from "~/api/home.service";
 import SearchFIlterItems from "~/components/Search/SearchFIlterItems";
 import SearchHero from "~/components/Search/SearchHero";
@@ -7,17 +7,21 @@ import SearchResults from "~/components/Search/SearchResults";
 import PageLayout from "~/layouts/PageLayout";
 import FAQs from "~/UI/FAQs";
 import CustomPagination from "~/UI/CustomPagination";
+import { getFAQ } from "~/api/faq.service";
 
 export async function clientLoader({ request }: { request: Request }) {
+  const faqtype = "buy";
   try {
     const searchRes: any = await getSuggestionSearch();
-    return { search: searchRes };
+    const resFAQ: any = await getFAQ(faqtype);
+    return { search: searchRes, faq: resFAQ };
   } catch (error) {
-    return { search: [] };
+    return { search: [], faq: [] };
   }
 }
 
 export default function Search() {
+  const { faq } = useLoaderData() as { faq: any };
   const [projects, setProjects] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -105,7 +109,7 @@ export default function Search() {
           <p className="text-black text-[16px] lg:text-[36px] font-medium">
             FAQs about rental properties in Dubai UAE
           </p>
-          <FAQs />
+          <FAQs questions={faq} />
         </div>
       </PageLayout>
     </div>

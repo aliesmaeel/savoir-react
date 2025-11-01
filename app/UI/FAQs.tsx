@@ -2,41 +2,12 @@ import React, { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
-export default function FAQs() {
-  const icon = useIcons();
+type Props = {
+  questions: any;
+};
 
-  const questions = [
-    {
-      question:
-        "We unlock a world of real estate opportunities with leading agents and real estates.?",
-      answer:
-        "We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.",
-    },
-    {
-      question:
-        "We unlock a world of real estate opportunities with leading agents and real estates.?",
-      answer:
-        "We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.",
-    },
-    {
-      question:
-        "We unlock a world of real estate opportunities with leading agents and real estates.?",
-      answer:
-        "We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.",
-    },
-    {
-      question:
-        "We unlock a world of real estate opportunities with leading agents and real estates.?",
-      answer:
-        "We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.",
-    },
-    {
-      question:
-        "We unlock a world of real estate opportunities with leading agents and real estates.?",
-      answer:
-        "We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.We unlock a world of real estate opportunities with leading agents and real estate professionals through our membership in the largest real estate network in the world. We facilitate access to customers and provide luxury offers from more than 70 countries.",
-    },
-  ];
+export default function FAQs({ questions }: Props) {
+  const icon = useIcons();
 
   // First one open by default; null means all closed
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -50,7 +21,7 @@ export default function FAQs() {
 
   return (
     <div className="flex flex-col items-start gap-[14px] lg:gap-[28px] w-full">
-      {questions.map((item, idx) => {
+      {questions.map((item: any, idx: number) => {
         const isOpen = openIndex === idx;
 
         return (
@@ -65,7 +36,10 @@ export default function FAQs() {
                 background: isOpen ? "linear-gradient(90deg, #C6A45A 0.09%, #FFF 112.46%)" : "",
               }}
             >
-              <p className="text-[10px] lg:text-[24px] font-medium pr-4">{item.question}</p>
+              <div
+                className="text-[10px] lg:text-[24px] font-medium pr-4"
+                dangerouslySetInnerHTML={{ __html: item.question }}
+              ></div>
 
               <button
                 type="button"
@@ -96,7 +70,10 @@ export default function FAQs() {
                   style={{ overflow: "hidden" }}
                 >
                   <div className="px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] pt-4">
-                    <p className="text-[10px] lg:text-[23px] leading-[1.9]">{item.answer}</p>
+                    <div
+                      className="text-[10px] lg:text-[23px] leading-[1.9]"
+                      dangerouslySetInnerHTML={{ __html: item.answer }}
+                    ></div>
                   </div>
                 </motion.div>
               )}
