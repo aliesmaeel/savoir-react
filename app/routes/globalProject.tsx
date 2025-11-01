@@ -1,3 +1,4 @@
+// routes/globalProject.tsx
 import React from "react";
 import { useLoaderData } from "react-router";
 import { getGlobalProject } from "~/api/global.service";
@@ -14,17 +15,20 @@ export async function clientLoader({ request, params }: { request: Request; para
   const country = (q ?? fromRoute ?? "united arab emirates").toLowerCase();
 
   try {
-    const global: any = await getGlobalProject(country); // expects lowercase like "united arab emirates"
+    const global: any = await getGlobalProject(country); // expects lowercase
     return { global, country };
   } catch {
     return { global: [], country };
   }
 }
 
-export default function globalProject() {
-  const { global, country } = useLoaderData() as { global: any; country: string };
+// block revalidation on search-only changes
+export function shouldRevalidate({ currentUrl, nextUrl }: { currentUrl: URL; nextUrl: URL }) {
+  return currentUrl.pathname !== nextUrl.pathname;
+}
 
-  console.log({ country, global });
+export default function GlobalProject() {
+  const { global, country } = useLoaderData() as { global: any; country: string };
 
   return (
     <div>

@@ -1,9 +1,9 @@
+// components/GlobalProject/GlobalGlobe.tsx
 import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import * as turf from "@turf/turf";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
-import { useSearchParams } from "react-router";
 
 type GlobalGlobeProps = {
   fullscreen?: boolean;
@@ -14,10 +14,8 @@ type GlobalGlobeProps = {
   globeScale?: number;
   selectedCountry: string;
   setSelectedCountry: (country: string) => void;
-
-  /** Sync selection to URL, e.g., ?country=united%20arab%20emirates */
-  syncSelectedToUrl?: boolean; // default true
-  selectedParamKey?: string; // default "country"
+  syncSelectedToUrl?: boolean;
+  selectedParamKey?: string;
 };
 
 const norm = (s: string) => s.toLowerCase();
@@ -36,12 +34,11 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   syncSelectedToUrl = true,
   selectedParamKey = "country",
 }) => {
-  const containerRef: any = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<any>(null);
   const [labels, setLabels] = useState<any[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const isMobile = useIsMobile();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const selectedCountries = [
     "United Arab Emirates",
@@ -53,25 +50,30 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     "Malta",
   ];
 
-  // Read initial country from URL once (case-insensitive). Keep canonical Title Case in state.
+  // read initial country from URL once
   useEffect(() => {
     if (!syncSelectedToUrl) return;
-    const fromUrl = searchParams.get(selectedParamKey);
-    if (!fromUrl) return;
-    const canonical = findCanonical(fromUrl, selectedCountries);
-    if (canonical && canonical !== selectedCountry) setSelectedCountry(canonical);
+    try {
+      const url = new URL(window.location.href);
+      const fromUrl = url.searchParams.get(selectedParamKey);
+      if (!fromUrl) return;
+      const canonical = findCanonical(fromUrl, selectedCountries);
+      if (canonical && canonical !== selectedCountry) setSelectedCountry(canonical);
+    } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Write current selection to URL as lowercase
+  // write selection to URL without navigation
   useEffect(() => {
     if (!syncSelectedToUrl) return;
-    const next = new URLSearchParams(searchParams);
-    next.set(selectedParamKey, norm(selectedCountry));
-    setSearchParams(next, { replace: true });
-  }, [selectedCountry, syncSelectedToUrl, selectedParamKey, searchParams, setSearchParams]);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set(selectedParamKey, norm(selectedCountry));
+      window.history.replaceState(null, "", url.toString());
+    } catch {}
+  }, [selectedCountry, syncSelectedToUrl, selectedParamKey]);
 
-  // Resize handling
+  // responsive canvas
   useEffect(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
@@ -89,7 +91,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     };
   }, []);
 
-  // Globe setup
+  // globe setup ONCE (does not depend on selectedCountry)
   useEffect(() => {
     if (!containerRef.current) return;
     let cancelled = false;
@@ -110,9 +112,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       world.globeMaterial().transparent = true;
       world.controls().autoRotate = false;
 
-      if (globeScale !== 1) {
-        world.scene().scale.set(globeScale, globeScale, globeScale);
-      }
+      if (globeScale !== 1) world.scene().scale.set(globeScale, globeScale, globeScale);
 
       worldRef.current = world;
 
@@ -148,7 +148,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
         return { lat, lng, name: f.properties.name, feature: f };
       });
 
-      // Ensure Malta label exists with manual coords
       if (!labelsData.some((d: any) => d.name === "Malta")) {
         labelsData.push({ name: "Malta", lat: 35.9375, lng: 14.3754, feature: null });
       }
@@ -169,27 +168,34 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       worldRef.current = null;
       if (containerRef.current) containerRef.current.innerHTML = "";
     };
-  }, [enableZoom, globeScale, initialAltitude, selectedCountry]);
+    // only run once for stable props; remove selectedCountry
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enableZoom, globeScale, initialAltitude]);
 
-  // Update highlighting when selection changes
+  // update highlight and camera when selectedCountry changes
   useEffect(() => {
-    if (!worldRef.current) return;
-    worldRef.current
+    const world = worldRef.current;
+    if (!world) return;
+
+    world
       .polygonCapColor((d: any) =>
         d.properties.name === selectedCountry ? "rgba(255, 215, 0, 1)" : "rgba(196, 175, 134, 0.7)"
       )
       .polygonStrokeColor((d: any) => (d.properties.name === selectedCountry ? "#fff" : "#000"));
-  }, [selectedCountry]);
 
-  // Handle selection
-  const handleSelect = (countryName: string) => {
-    setSelectedCountry(countryName);
-    setDropdownOpen(false);
-    const country = labels.find((d) => d.name === countryName);
-    if (country && worldRef.current) {
-      const alt = countryName === "Malta" ? Math.min(initialAltitude, 0.9) : initialAltitude;
-      worldRef.current.pointOfView({ lat: country.lat, lng: country.lng, altitude: alt }, 2000);
+    const target =
+      labels.find((d: any) => d.name === selectedCountry) ??
+      labels.find((d: any) => d.name === "United Arab Emirates");
+
+    if (target) {
+      const alt = selectedCountry === "Malta" ? Math.min(initialAltitude, 0.9) : initialAltitude;
+      world.pointOfView({ lat: target.lat, lng: target.lng, altitude: alt }, 1200);
     }
+  }, [selectedCountry, labels, initialAltitude]);
+
+  const handleSelect = (countryName: string) => {
+    setSelectedCountry(countryName); // no globe re-init
+    setDropdownOpen(false);
   };
 
   const style: React.CSSProperties = fullscreen
@@ -215,7 +221,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
         </div>
         <div className="flex items-center justify-between w-full px-[45px] py-[20px] rounded-[20px] bg-[#ECE1C8] shadow-[0_31px_62px_-16px_rgba(143,144,188,0.15)] backdrop-blur-[10px]">
           <div className="flex flex-col items-start">
-            <p className="text-[18px] font-semibold">Search </p>
+            <p className="text-[18px] font-semibold">Search</p>
             <div
               style={{ cursor: "pointer", position: "relative", userSelect: "none" }}
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -237,7 +243,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
                     width: "100%",
                     backgroundColor: "#ece1c8",
                     color: "#000",
-                    borderRadius: " 0 0 20px 20px",
+                    borderRadius: "0 0 20px 20px",
                     maxHeight: 200,
                     overflowY: "auto",
                     zIndex: 20,
