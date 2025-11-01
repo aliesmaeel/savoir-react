@@ -1,21 +1,20 @@
 import React from "react";
+import { useLoaderData } from "react-router";
 
 export default function PopularLocation() {
+  const { area } = useLoaderData() as { area: any };
+
   return (
     <div className="flex flex-col items-start gap-[17px] w-full mt-[67px]">
       <p className="text-black text-[27px]">The Location</p>
-      <img
-        loading="lazy"
-        src="/images/placeholders/map.webp"
-        alt=""
+      <div
         className="w-full aspect-[1333/558] rounded-[15px] object-cover"
+        dangerouslySetInnerHTML={{ __html: area.location }}
       />
-      <iframe
-        src="https://www.youtube.com/embed/VtwwDG5GNFg?si=dYLQoNfgh65JfO7O"
-        title="YouTube video player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        className="w-full aspect-[1333/558] rounded-[15px] mt-[100px]"
-      ></iframe>
+      <div
+        className="w-full aspect-[1333/558] rounded-[15px] object-cover"
+        dangerouslySetInnerHTML={{ __html: area.youtube }}
+      />
     </div>
   );
 }

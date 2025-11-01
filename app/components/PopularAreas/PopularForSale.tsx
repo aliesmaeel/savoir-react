@@ -1,60 +1,17 @@
 import React from "react";
+import { useLoaderData } from "react-router";
 import { SwiperSlide } from "swiper/react";
 import ProjectCard from "~/components/Cards/ProjectCard";
 import ThreeSwiper from "~/UI/ThreeSwiper";
 
 export default function PopularForSale() {
-  const projects = [
-    {
-      id: 3,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "$ 450,000",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-      beds: "3",
-      bathrooms: "3",
-      square: "136456 sqft",
-      listedBy: "Wade Warren",
-      listedByImage: "/images/placeholders/listedBy.svg",
-      isLuxury: false,
-    },
-    {
-      id: 4,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "$ 450,000",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-      beds: "3",
-      bathrooms: "3",
-      square: "136456 sqft",
-      listedBy: "Wade Warren",
-      listedByImage: "/images/placeholders/listedBy.svg",
-      isLuxury: true,
-    },
-    {
-      id: 5,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "$ 450,000",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-      beds: "3",
-      bathrooms: "3",
-      square: "136456 sqft",
-      listedBy: "Wade Warren",
-      listedByImage: "/images/placeholders/listedBy.svg",
-      isLuxury: false,
-    },
-  ];
+  const { area, properties } = useLoaderData() as { area: any; properties: any };
+
   return (
     <div className="flex flex-col items-start gap-[33px] w-full mt-[90px]">
-      <p className="text-[20px] lg:text-[36px] font-semibold">
-        Properties For Sale In Dubai Marina
-      </p>
+      <p className="text-[20px] lg:text-[36px] font-semibold">Properties For Sale {area.name}</p>
       <ThreeSwiper>
-        {projects.map((project: any, index: number) => (
+        {properties.map((project: any, index: number) => (
           <SwiperSlide key={index}>
             <ProjectCard project={project} />
           </SwiperSlide>

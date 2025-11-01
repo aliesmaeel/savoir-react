@@ -12,7 +12,7 @@ export default function OffPlanCard({ project }: props) {
   const icon = useIcons();
   return (
     <Card className="!rounded-[46.534px]">
-      <Link to={`/off-plan/${project.id}`} className="block px-[23px] pt-[27px] pb-[30px] w-full">
+      <Link to={`/off-plan/${project.slug}`} className="block px-[23px] pt-[27px] pb-[30px] w-full">
         <img
           loading="lazy"
           src={project.image}

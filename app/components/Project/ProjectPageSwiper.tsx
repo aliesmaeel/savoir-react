@@ -9,20 +9,12 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
-const items = [
-  { id: 1, img: "/images/placeholders/project1.webp", title: "Dubai Creek Harbour" },
-  { id: 2, img: "/images/placeholders/project2.webp", title: "Dubai Creek Harbour1" },
-  { id: 3, img: "/images/placeholders/project3.webp", title: "Dubai Creek Harbour2" },
-  { id: 4, img: "/images/placeholders/project4.webp", title: "Dubai Creek Harbour3" },
-  { id: 5, img: "/images/placeholders/project5.webp", title: "Dubai Creek Harbour4" },
-  { id: 6, img: "/images/placeholders/project6.webp", title: "Dubai Creek Harbour5" },
-  { id: 7, img: "/images/placeholders/project7.webp", title: "Dubai Creek Harbour6" },
-  { id: 8, img: "/images/placeholders/project8.webp", title: "Dubai Creek Harbour7" },
-  { id: 9, img: "/images/placeholders/project9.webp", title: "Dubai Creek Harbour8" },
-  { id: 10, img: "/images/placeholders/project1.webp", title: "Dubai Creek Harbour" },
-];
+type Props = {
+  mainImage: string;
+  sliderImages: any;
+};
 
-export default function ProjectPageSwiper() {
+export default function ProjectPageSwiper({ mainImage, sliderImages }: Props) {
   const { property } = useLoaderData() as { property: any };
 
   const [isGrabbing, setIsGrabbing] = useState(false);
@@ -78,7 +70,7 @@ export default function ProjectPageSwiper() {
           // optional arrows for titles (using selectors avoids ref timing issues)
           navigation={{ prevEl: ".titles-prev", nextEl: ".titles-next" }}
         >
-          {property.property_images.map((item: any, idx: number) => (
+          {sliderImages.map((item: any, idx: number) => (
             <SwiperSlide key={`title-${idx}`}>
               <TitleCell image={item.url} />
             </SwiperSlide>
@@ -118,7 +110,7 @@ export default function ProjectPageSwiper() {
             onSliderFirstMove={() => setIsGrabbing(true)}
             onTransitionEnd={() => setIsGrabbing(false)}
           >
-            {property.property_images.map((item: any, idx: number) => (
+            {sliderImages.map((item: any, idx: number) => (
               <SwiperSlide key={idx} className="!w-full">
                 <SlideCard item={item} arrow={arrow} />
               </SwiperSlide>
@@ -128,7 +120,7 @@ export default function ProjectPageSwiper() {
 
         <img
           loading="lazy"
-          src={property.photo}
+          src={mainImage}
           alt=""
           className="rounded-[8px] w-full h-full object-cover hidden lg:block"
         />
@@ -139,7 +131,7 @@ export default function ProjectPageSwiper() {
           <span className="text-[#C6A45A] font-semibold">
             {String(currentIndex + 1).padStart(2, "0")}
           </span>{" "}
-          of {String(property.property_images.length).padStart(2, "0")}
+          of {String(sliderImages.length).padStart(2, "0")}
         </p>
 
         {/* Custom Navigation Buttons (selectors so they bind on first paint) */}

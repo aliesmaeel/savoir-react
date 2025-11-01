@@ -49,7 +49,7 @@ export default function project() {
           </p>
         </div>
       </div>
-      <ProjectPageSwiper />
+      <ProjectPageSwiper mainImage={property.photo} sliderImages={property.property_images} />
       <ProjectDescription />
       <ProjectFeatures />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-[35px] w-full mt-[90px]">

@@ -4,61 +4,17 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 import SearchSortBy from "../Search/SearchSortBy";
 import OffPlanCard from "../Cards/OffPlanCard";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
+import { useLoaderData } from "react-router";
 
 export default function OffPlanResults() {
+  const { offPlan, currentPage, totalPages } = useLoaderData() as {
+    offPlan: any[];
+    currentPage: number;
+    totalPages: number;
+  };
   const arrow = useArrow();
   const icon = useIcons();
   const isMobile = useIsMobile();
-  const projects = [
-    {
-      id: 1,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "45 M",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-    },
-    {
-      id: 2,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "45 M",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-    },
-    {
-      id: 3,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "45 M",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-    },
-    {
-      id: 4,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "45 M",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-    },
-    {
-      id: 5,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "45 M",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-    },
-    {
-      id: 6,
-      title: "Luxury 4-Bedroom | Sea and Park Views in Blue Waters",
-      price: "45 M",
-      location: "Marina, Dubai",
-      date: "2years ago",
-      image: "/images/placeholders/properties.webp",
-    },
-  ];
 
   return (
     <div className="flex flex-col items-start gap-[50px] w-full">
@@ -79,7 +35,7 @@ export default function OffPlanResults() {
         {!isMobile && <SearchSortBy />}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-[37px]">
-        {projects.map((project: any, index: number) => (
+        {offPlan.map((project: any, index: number) => (
           <OffPlanCard key={index} project={project} />
         ))}
       </div>

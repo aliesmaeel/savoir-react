@@ -5,35 +5,11 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import TeamCard from "./TeamCard";
 import ThreeSwiper from "~/UI/ThreeSwiper";
-
-const team = [
-  {
-    name: "Wade Warren",
-    title: "Property Consultant",
-    experience: "Experience: 15 years",
-    img: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=1600&auto=format&fit=crop",
-  },
-  {
-    name: "Jenny Wilson",
-    title: "Senior Broker",
-    experience: "Experience: 12 years",
-    img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop",
-  },
-  {
-    name: "Courtney Henry",
-    title: "Investment Advisor",
-    experience: "Experience: 14 years",
-    img: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop",
-  },
-  {
-    name: "Jacob Jones",
-    title: "Leasing Expert",
-    experience: "Experience: 10 years",
-    img: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1600&auto=format&fit=crop",
-  },
-];
+import { useLoaderData } from "react-router";
 
 export default function FindYourPartner() {
+  const { teams } = useLoaderData() as { teams: any };
+
   return (
     <section className="flex flex-col lg:flex-row items-center gap-[33px] w-full">
       <div className="flex flex-col items-start gap-[15px] lg:w-[447px] shrink-0">
@@ -75,7 +51,7 @@ export default function FindYourPartner() {
           slideToClickedSlide
           className="!px-0 !py-0" // remove padding that was pushing slides in
         >
-          {team.map((member: any, index: number) => (
+          {teams.map((member: any, index: number) => (
             <SwiperSlide key={index} className="cursor-grab select-none">
               <TeamCard member={member} />
             </SwiperSlide>
@@ -83,7 +59,7 @@ export default function FindYourPartner() {
         </Swiper>
       </div>
       <ThreeSwiper>
-        {team.map((member: any, index: number) => (
+        {teams.map((member: any, index: number) => (
           <SwiperSlide key={index} className="cursor-grab select-none">
             <TeamCard member={member} />
           </SwiperSlide>
