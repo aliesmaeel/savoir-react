@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 
-export default function PropertiesTabs() {
-  const [tab, setTab] = useState("For Rent");
-
+export default function PropertiesTabs({ tab, setTab }: any) {
   const tabs = ["For Rent", "For Sale", "Off Plan"];
 
   return (

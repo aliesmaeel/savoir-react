@@ -1,11 +1,14 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Card from "~/UI/Card";
 import PropertiesSearch from "./PropertiesSearch";
 import PropertiesTabs from "./PropertiesTabs";
 import PropertiesSwiper from "./PropertiesSwiper";
 import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
+import { useLoaderData } from "react-router";
 
 export default function HomeProperties() {
+  const { home } = useLoaderData() as { home: any };
+  const [tab, setTab] = useState("For Rent");
   // Controls + variants for parent div (left → right)
   const controls = useAnimation();
   const variants: Variants = {
@@ -39,10 +42,14 @@ export default function HomeProperties() {
     >
       <Card>
         <div className="flex flex-col items-start gap-[30px] lg:gap-[60px] px-[24px] lg:px-[45px] py-[46px] lg:py-[87px] pb-[22px] lg:pb-[41px] w-full">
-          <PropertiesSearch />
+          {/* <PropertiesSearch /> */}
           <div className="flex flex-col items-center gap-[49px] w-full">
-            <PropertiesTabs />
-            <PropertiesSwiper />
+            <PropertiesTabs tab={tab} setTab={setTab} />
+            {tab === "Off Plan" && (
+              <PropertiesSwiper properties={home.featured_properties.off_plan} />
+            )}
+            {tab === "For Sale" && <PropertiesSwiper properties={home.featured_properties.RS} />}
+            {tab === "For Rent" && <PropertiesSwiper properties={home.featured_properties.RR} />}
           </div>
         </div>
       </Card>
