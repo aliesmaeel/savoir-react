@@ -60,7 +60,7 @@ export default function ProjectDescription() {
           </div>
         </div>
       </div>
-      <ProjectListedByContact />
+      <ProjectListedByContact user={property.user} />
     </div>
   );
 }
