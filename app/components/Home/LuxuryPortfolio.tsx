@@ -6,6 +6,7 @@ import Card from "~/UI/Card";
 import Title from "~/UI/Title";
 import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
+import { Link } from "react-router";
 
 export default function LuxuryPortfolio() {
   const arrow = useArrow();
@@ -93,10 +94,17 @@ export default function LuxuryPortfolio() {
               perspectives on Real Estate, Design, Travel and Lifestyle.
             </p>
           </div>
-          <Button className="w-[299px]">
-            View all{" "}
-            <img loading="lazy" src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
-          </Button>
+          <Link to={"/off-plan"}>
+            <Button className="w-[299px]">
+              View all{" "}
+              <img
+                loading="lazy"
+                src={arrow.longWhite}
+                alt=""
+                className="w-[17px] rotate-[-45deg]"
+              />
+            </Button>
+          </Link>
         </div>
 
         {/* Magazine image */}

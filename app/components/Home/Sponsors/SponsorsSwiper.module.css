@@ -2,24 +2,47 @@
   position: relative;
   overflow: hidden;
   width: 100%;
+  padding-inline: 3rem; /* moved here */
+  /* optional fade instead of padding hack */
+  /* mask-image: linear-gradient(to right, transparent, #000 40%, #000 60%, transparent); */
 }
 
 .track {
   display: flex;
   align-items: center;
-  gap: 3rem; /* space between logos */
-  width: max-content; /* shrink to content so translate works cleanly */
+  gap: 3rem;
+  width: max-content;
+  will-change: transform;
   animation: marquee var(--speed, 20s) linear infinite;
-  padding-inline: 3rem; /* side padding */
 }
 
 .track:hover {
   animation-play-state: paused; /* pause on hover */
 }
 
+.item {
+  height: 105px;
+  width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.item::after {
+  position: absolute;
+  height: 100%;
+  width: 1px;
+  background-color: #222;
+  /* opacity: 0.5; */
+  content: "";
+  left: -127%;
+}
+
 .item img {
-  height: 74px; /* h-12 approx */
-  width: auto;
+  height: 105px; /* h-12 approx */
+  width: 125px;
+  object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
@@ -35,12 +58,12 @@
 /* Infinite scroll keyframes:
    We duplicate the content once, so shifting by -50% loops perfectly. */
 @keyframes marquee {
-  0% {
-    transform: translateX(0);
+  from {
+    transform: translate3d(0, 0, 0);
   }
-  100% {
-    transform: translateX(-50%);
-  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  } /* exact half since halves now match */
 }
 
 @media (max-width: 1024px) {

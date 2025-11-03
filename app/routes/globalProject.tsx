@@ -6,6 +6,7 @@ import AboutGlobal from "~/components/GlobalProject/AboutGlobal";
 import GlobalProjectHero from "~/components/GlobalProject/GlobalProjectHero";
 import GlobeLuxuryProperties from "~/components/GlobalProject/GlobeLuxuryProperties";
 import OffPlanStartingPrice from "~/components/OffPlanProjects/OffPlan/OffPlanStartingPrice";
+import ProjectListedByContact from "~/components/Project/ProjectListedByContact";
 import PageLayout from "~/layouts/PageLayout";
 
 export async function clientLoader({ request, params }: { request: Request; params: any }) {
@@ -36,7 +37,7 @@ export default function GlobalProject() {
       <PageLayout>
         <div className="flex flex-col lg:flex-row items-start gap-[50px] w-full">
           <AboutGlobal />
-          <OffPlanStartingPrice />
+          <ProjectListedByContact user={global.project.user} />
         </div>
         <GlobeLuxuryProperties />
       </PageLayout>

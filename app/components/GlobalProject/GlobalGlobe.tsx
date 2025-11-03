@@ -220,13 +220,14 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
           </p>
         </div>
         <div className="flex items-center justify-between w-full px-[45px] py-[20px] rounded-[20px] bg-[#ECE1C8] shadow-[0_31px_62px_-16px_rgba(143,144,188,0.15)] backdrop-blur-[10px]">
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start w-full">
             <p className="text-[18px] font-semibold">Search</p>
             <div
+              className="w-full"
               style={{ cursor: "pointer", position: "relative", userSelect: "none" }}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <div className="flex items-center justify-between w-[270px]">
+              <div className="flex items-center justify-between w-full">
                 <p className="text-[16px]">{selectedCountry}</p>
                 <span className={`${dropdownOpen && "rotate-180"}`}>▼</span>
               </div>
