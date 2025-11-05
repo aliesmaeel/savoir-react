@@ -46,7 +46,7 @@ export default function HeroSection() {
       <HeroSwiper />
 
       <div className="flex flex-col items-center justify-center w-full h-full absolute inset-0 z-10 px-[16px] lg:px-[45px]">
-        <div className="flex flex-col items-center gap-[12px] lg:gap-[53.68px] w-full">
+        <div className="flex flex-col items-center gap-[12px] lg:gap-[43.68px] w-full">
           <div className="flex flex-col items-center gap-[7.92px]" data-aos="fade-down">
             <h1 className="text-white text-[16px] lg:text-[51.04px]">
               Search Luxury Homes In{" "}
@@ -54,10 +54,6 @@ export default function HeroSection() {
                 {WORDS[idx].slice(0, len)}
               </span>
             </h1>
-            <p className="text-white text-[12px] lg:text-[18.48px] text-center">
-              Explore Dubai's Diverse Communities: Where Tradition Meets Innovation in Every
-              Neighborhood.
-            </p>
           </div>
           <SearchFilter />
         </div>
