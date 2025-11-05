@@ -64,7 +64,7 @@ export default function GlobalProjects() {
         <div className="flex flex-col items-start gap-[25px] lg:gap-[39px] w-full pt-[21px] lg:pt-[33px] pb-[36px] lg:pb-[55px]">
           <div className="flex items-center justify-between w-full px-[21px] lg:px-[33px]">
             <Title className="text-[22px] lg:text-[34px]">Global Projects</Title>
-            <Link to="#" className="flex items-center gap-[6px] lg:gap-[9px]">
+            <Link to="/global-project" className="flex items-center gap-[6px] lg:gap-[9px]">
               <p className="text-[11px] lg:text-[18px] underline">See all</p>
               <img loading="lazy" src={arrow.smallGold} alt="" className="w-[7px] lg:w-[8px]" />
             </Link>

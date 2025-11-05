@@ -4,7 +4,7 @@ import { Navigation, Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import { useLoaderData } from "react-router";
+import { Link, useLoaderData } from "react-router";
 
 const items = [
   {
@@ -77,7 +77,8 @@ function SlideCard({ item }: { item: any }) {
   const { isActive } = useSwiperSlide();
 
   return (
-    <div
+    <Link
+      to={`/global-project?country=${item.name}`}
       className={[
         "transition-all duration-300 ease-out flex flex-col items-start gap-[12px]",
         isActive ? "scale-100 opacity-100" : "scale-[0.85]",
@@ -94,9 +95,9 @@ function SlideCard({ item }: { item: any }) {
           className="py-[10px] px-[44px] rounded-[9px] absolute bottom-[64px] right-[-18px]"
           style={{ background: "linear-gradient(91deg, #C6A45A 1.09%, #FFF 188.49%)" }}
         >
-          <p className="text-[24px] font-medium">{item.name}</p>
+          <p className="text-[24px] font-medium capitalize">{item.name}</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

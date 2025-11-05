@@ -23,7 +23,7 @@ export default function FilterPriceRange({
   value,
   onChange,
   onDraftChange,
-  label = "PriceRange",
+  label = "Price Range",
   placeholder = "Choose Price Range",
   currency = "AED",
   maxWidthClass = "max-w-[216.48px]",
