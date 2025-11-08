@@ -31,6 +31,10 @@ export default function FooterUsefulLinks() {
       title: "Mortgage Services",
       link: "/mortgage-services",
     },
+    {
+      title: "realEstateGuides",
+      link: "/real-estate-guides",
+    },
   ];
 
   return (
