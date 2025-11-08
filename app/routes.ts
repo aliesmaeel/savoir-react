@@ -33,6 +33,14 @@ export default [
 
     route("/real-estate-advisory", "routes/realEstateAdvisory.tsx"),
 
+    route("/property-management", "routes/propertyManagement.tsx"),
+
+    route("/interior-design-services", "routes/interiorDesignServices.tsx"),
+
+    route("/property-evaluation-services", "routes/propertyEvaluationServices.tsx"),
+
+    route("/mortgage-services", "routes/mortgageServices.tsx"),
+
     route("/global-project", "routes/globalProject.tsx"),
   ]),
 ] satisfies RouteConfig;
