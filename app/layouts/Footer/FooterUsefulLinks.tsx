@@ -15,6 +15,22 @@ export default function FooterUsefulLinks() {
       title: "Real Estate Advisory",
       link: "/real-estate-advisory",
     },
+    {
+      title: "Property Management",
+      link: "/property-management",
+    },
+    {
+      title: "Interior Design Services",
+      link: "/interior-design-services",
+    },
+    {
+      title: "Property Evaluation Services",
+      link: "/property-evaluation-services",
+    },
+    {
+      title: "Mortgage Services",
+      link: "/mortgage-services",
+    },
   ];
 
   return (

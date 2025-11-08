@@ -49,7 +49,10 @@ export default function HomeProperties() {
               <PropertiesSwiper properties={home.featured_properties.off_plan} />
             )}
             {tab === "For Sale" && <PropertiesSwiper properties={home.featured_properties.RS} />}
-            {tab === "For Rent" && <PropertiesSwiper properties={home.featured_properties.RR} />}
+            {tab === "For Rent" ||
+              (home.featured_properties.RR.length > 0 && (
+                <PropertiesSwiper properties={home.featured_properties.RR} />
+              ))}
           </div>
         </div>
       </Card>
