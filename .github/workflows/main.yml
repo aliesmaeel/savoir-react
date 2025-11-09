@@ -66,6 +66,6 @@ jobs:
             fi
 
 
-            pnpm install --prod
+            pnpm install
             pnpm run build
             pm2 restart savoir-react --update-env
