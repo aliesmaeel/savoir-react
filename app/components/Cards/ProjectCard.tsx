@@ -122,22 +122,22 @@ export default function ProjectCard({ project }: props) {
           <div className="flex items-center gap-[9px]">
             <img
               loading="lazy"
-              src={project.listedByImage}
+              src={project.user.image}
               alt=""
               className="w-[46px] aspect-square object-cover"
             />
             <div className="flex flex-col items-start gap-[2px]">
               <p className="text-[#353635B2] text-[13px]">Listed By</p>
-              <p className="text-[15px]">{project.listedBy}</p>
+              <p className="text-[15px]">{project.user.name}</p>
             </div>
           </div>
           <div className="flex items-center gap-[14px]">
-            <button>
+            <a href={`https://wa.me/${project.user.phone}`} target="_blank" rel="noreferrer">
               <img loading="lazy" src={icon.whatsapp} alt="" className="w-[34px]" />
-            </button>
-            <button>
+            </a>
+            <a href={`tel:${project.user.phone}`}>
               <img loading="lazy" src={icon.callProjectCard} alt="" className="w-[39px]" />
-            </button>
+            </a>
           </div>
         </div>
       </Link>

@@ -29,12 +29,12 @@ export default function OffPlanCard({ project }: props) {
           </div>
           <div className="flex items-center gap-[7px]">
             <img loading="lazy" src={icon.maintain} alt="" className="w-[30px]" />
-            <p className="text-[22px] font-medium">Meraas</p>
+            <p className="text-[22px] font-medium">{project.developer}</p>
           </div>
         </div>
         <hr className="w-full border-[#00000080] mt-[23px]" />
-        <p className="text-[#666] text-[22px] mt-[21px]">Handover in Q1 2029</p>
-        <Button className="w-full text-[21px] !py-[6px] h-[45px] mt-[24px]">From AED 45 M</Button>
+        <p className="text-[#666] text-[22px] mt-[21px]">Handover in {project.completion_date}</p>
+        <Button className="w-full text-[21px] !py-[6px] h-[45px] mt-[24px]">From {project.starting_price}</Button>
       </Link>
     </Card>
   );
