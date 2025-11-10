@@ -30,11 +30,12 @@ export async function clientLoader({ params }: { params: { projectSlug: string }
 export default function project() {
   const { property, similar } = useLoaderData() as { property: any; similar: any };
   const icon = useIcons();
+  console.log("property", property);
   return (
     <PageLayout>
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[13px] w-full mt-[90px]">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-[13px]">
-          <p className="text-[24px] font-semibold">Seaside Serenity Villa</p>
+          <p className="text-[24px] font-semibold">{property.title_en}</p>
           <div className="flex items-center gap-[7px]">
             <img loading="lazy" src={icon.locationBlack} alt="" className="w-[16px]" />
             <p className="text-[14px] font-medium">

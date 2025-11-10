@@ -39,15 +39,17 @@ export default function offPlan() {
         <div className="flex flex-col items-center">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[13px] w-full mt-[90px]">
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-[13px]">
-              <p className="text-[24px] font-semibold">Seaside Serenity Villa</p>
+              <p className="text-[24px] font-semibold">{property.title}</p>
               <div className="flex items-center gap-[7px]">
                 <img loading="lazy" src={icon.locationBlack} alt="" className="w-[16px]" />
-                <p className="text-[14px] font-medium">Malibu, California</p>
+                <p className="text-[14px] font-medium">{property.location}</p>
               </div>
             </div>
             <div className="flex flex-col items-start gap-[2px]">
               <p className="text-[14px] font-medium">Price</p>
-              <p className="text-[#C6A45A] text-[27px] font-bold">$1,250,000</p>
+              <p className="text-[#C6A45A] text-[27px] font-bold">
+                {property.starting_price}
+              </p>
             </div>
           </div>
           <ProjectPageSwiper mainImage={property.image} sliderImages={property.header_images} />
