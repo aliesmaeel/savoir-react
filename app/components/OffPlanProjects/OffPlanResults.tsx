@@ -6,12 +6,11 @@ import OffPlanCard from "../Cards/OffPlanCard";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 import { useLoaderData } from "react-router";
 
-export default function OffPlanResults() {
-  const { offPlan, currentPage, totalPages } = useLoaderData() as {
-    offPlan: any[];
-    currentPage: number;
-    totalPages: number;
-  };
+type Props = {
+  offPlan: any;
+};
+
+export default function OffPlanResults({ offPlan }: Props) {
   const arrow = useArrow();
   const icon = useIcons();
   const isMobile = useIsMobile();

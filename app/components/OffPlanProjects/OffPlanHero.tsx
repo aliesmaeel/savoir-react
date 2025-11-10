@@ -1,5 +1,5 @@
 import React from "react";
-import SearchFilter from "~/layouts/Filter/SearchFilter";
+import OffPlanFilter from "./OffPlanFilter";
 
 export default function OffPlanHero() {
   return (
@@ -21,7 +21,7 @@ export default function OffPlanHero() {
               Neighborhood.
             </p>
           </div>
-          {/* <SearchFilter /> */}
+          <OffPlanFilter />
         </div>
         <div
           className="absolute bottom-0 left-0 w-full h-[200px]"
