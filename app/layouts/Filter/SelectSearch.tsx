@@ -88,7 +88,11 @@ export default function SelectSearch({
   value = [],
   placeholder = "Search here..",
 }: SelectSearchProps) {
-  const options: Option[] = search.map((x) => ({ label: x, value: x }));
+  //search is key value pairs
+  const options: Option[] = Object.entries(search).map(([key, label]) => ({
+    label : label,  // display name
+    value: key, // actual key (link)
+  }));
   const selectedOptions = options.filter((o) => value.includes(o.value));
 
   const handleChange = (items: readonly Option[] | null) => {

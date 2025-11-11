@@ -198,7 +198,7 @@ export default function SearchFIlterItems() {
       <div className="grid grid-cols-3 lg:grid-cols-5 gap-[7px] lg:gap-[17px] w-full">
         {items.map((item) => (
           <div
-            key={item.key}
+            key={item.label}
             className="flex items-center justify-between w-full p-[8px] lg:p-[16px] rounded-[4px] lg:rounded-[10px] bg-[#EEE]"
           >
             <div className="flex items-center gap-[4px] lg:gap-[8px]">
