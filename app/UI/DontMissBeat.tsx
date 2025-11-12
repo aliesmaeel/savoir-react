@@ -55,7 +55,7 @@ export default function DontMissBeat() {
         </p>
       </div>
 
-      <div className="flex w-full max-w-[310px] lg:max-w-[600px] h-[25px] lg:h-[74px] rounded-[4px] lg:rounded-[10px] overflow-hidden bg-white">
+      <div className="flex w-full max-w-[310px] lg:max-w-[700px] h-[25px] lg:h-[74px] rounded-[4px] lg:rounded-[10px] overflow-hidden bg-white">
         <div className="flex items-center gap-[18px] w-full px-[10px] lg:px-[20px] py-[7px] lg:py-[19px]">
           <img loading="lazy" src={icon.dontMissEmail} alt="" className="w-[13px] lg:w-[39px]" />
           <input
