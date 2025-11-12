@@ -21,11 +21,11 @@ export default function ContactUsForm() {
 
   const items = useMemo(
     () => [
-      { icon: icon.contactPhone, text: "+1012 3456 789" },
-      { icon: icon.contactEmail, text: "Savoir@gmail.com" },
+      { icon: icon.contactPhone, text: "+971505074686" },
+      { icon: icon.contactEmail, text: "info@saviorproperties.com" },
       {
         icon: icon.contactLocation,
-        text: "132 Dartmouth Street Boston, Massachusetts 02156 United States",
+        text: "Emaar Business Park, Bldg.4 - Office 502A Shk. Zayed Road - Dubai",
       },
     ],
     [icon]
@@ -34,7 +34,7 @@ export default function ContactUsForm() {
   const social = useMemo(
     () => [
       {
-        icon: icon.contactFacebook,
+        icon: icon.contactLinkedin,
         link: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/",
       },
       {
@@ -106,7 +106,7 @@ export default function ContactUsForm() {
             <div className="flex flex-col items-start gap-[20px] lg:gap-[48px]">
               {items.map((item, index) => (
                 <div key={index} className="flex items-start gap-[24px]">
-                  <img loading="lazy" src={item.icon} alt="" />
+                  <img loading="lazy"  src={item.icon} alt="" />
                   <div className="text-[17px]">{item.text}</div>
                 </div>
               ))}
@@ -115,7 +115,7 @@ export default function ContactUsForm() {
           <div className="flex gap-[19px]">
             {social.map((s, index) => (
               <Link key={index} to={s.link} target="_blank" rel="noreferrer">
-                <img loading="lazy" src={s.icon} alt="" />
+                <img loading="lazy" width={'35px'} height={'35px'}  src={s.icon} alt="" />
               </Link>
             ))}
           </div>

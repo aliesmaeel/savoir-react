@@ -85,7 +85,7 @@ export default function FilterRent({
         aria-expanded={open}
       >
         <div className="flex flex-col items-start">
-          <p className="text-white text-[15.84px] font-semibold">{label}</p>
+          <p className="text-white text-[15.84px] font-semibold">Property Type</p>
           <div className="flex items-center gap-[13.2px]">
             <p className="text-white text-[14.08px] truncate">{triggerSummary || placeholder}</p>
             <img

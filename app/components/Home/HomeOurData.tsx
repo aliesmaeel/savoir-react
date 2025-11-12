@@ -5,8 +5,8 @@ import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } f
 
 export default function HomeOurData() {
   const data = [
-    { title: "Countries", logo: "/images/placeholders/image 49.svg", info: "70" },
-    { title: "Offices", logo: "/images/placeholders/image 48.svg", info: "4700K" },
+    { title: "Countries", logo: "/images/placeholders/image 48.svg", info: "70" },
+    { title: "Offices",logo: "/images/placeholders/image 49.svg" , info: "4700K" },
     { title: "Companies", logo: "/images/placeholders/image 47.svg", info: "550K" },
   ];
 

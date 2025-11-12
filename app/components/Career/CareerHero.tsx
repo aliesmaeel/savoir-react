@@ -17,9 +17,9 @@ export default function CareerHero() {
       <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[53.68px] w-full">
           <div className="flex flex-col items-center gap-[7.92px]" data-aos="fade-down">
-            <h1 className="text-white text-[20px] lg:text-[51.04px]">Careers Savoir</h1>
+            <h1 className="text-white text-[20px] lg:text-[51.04px]"> Savoir Careers</h1>
             <p className="text-white text-[12px] lg:text-[18.48px] text-center">
-              Ready to become part of a team that fuels your growth? At haus & haus, we're proud to
+              Ready to become part of a team that fuels your growth? At Savior Properties , we're proud to
               have a cohesive group of 11 diverse departments collaborating to achieve remarkable
               outcomes. We're seeking hardworking, ambitious, honest, and dedicated individuals to
               join our ranks. If that resonates with you, we would love to hear from you.

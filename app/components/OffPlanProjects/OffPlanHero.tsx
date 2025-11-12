@@ -14,11 +14,7 @@ export default function OffPlanHero() {
         <div className="flex flex-col items-center gap-[12px] lg:gap-[61px] w-full">
           <div className="flex flex-col items-center gap-[7.92px] lg:gap-[17px] w-full">
             <p className="text-white text-[16px] lg:text-[58px] text-center">
-              Discover the Best Off-Plan Projects in Dubai
-            </p>
-            <p className="text-white text-[12px] lg:text-[22px] text-center">
-              Explore Dubai’s Diverse Communities: Where Tradition Meets Innovation in Every
-              Neighborhood.
+              Discover the Best Off-Plan Projects
             </p>
           </div>
           <OffPlanFilter />
