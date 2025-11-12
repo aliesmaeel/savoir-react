@@ -31,7 +31,7 @@ export default function OffPlanFilter() {
     [searchRes]
   );
   const dateOptions = useMemo(
-    () => (searchRes.completion_dates || []).map((d: string) => ({ label: d, code: d })),
+    () => (searchRes.completion_date || []).map((d: string) => ({ label: d, code: d })),
     [searchRes]
   );
 

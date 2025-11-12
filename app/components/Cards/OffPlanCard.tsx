@@ -22,7 +22,7 @@ export default function OffPlanCard({ project }: props) {
         <p className="text-[#C6A45A] text-[15px] font-semibold max-w-[319px] mt-[21px]">
           {project.title}
         </p>
-        <div className="flex flex-col items-start gap-[11px] mt-[11px]">
+        <div className="flex flex-col items-start gap-[11px] mt-[11px] h-[100px]">
           <div className="flex items-center gap-[7px]">
             <img loading="lazy" src={icon.locationBlack} alt="" className="w-[30px]" />
             <p className="text-[22px] font-medium">{project.location}</p>

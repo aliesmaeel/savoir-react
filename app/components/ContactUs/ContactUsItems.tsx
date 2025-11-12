@@ -12,7 +12,7 @@ export default function ContactUsItems() {
     {
       title: "General enquiry",
       subtitle:
-        "Have a question or request? Drop us a message, and a haus & haus expert will get back to you shortly.",
+        "Have a question or request? Drop us a message, and a  Savior Properties  expert will get back to you shortly.",
       icon: icon.GeneralEnquiry,
       onClick: () => setOpenPopup(true),
     },

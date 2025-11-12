@@ -55,8 +55,8 @@ export default function DontMissBeat() {
         </p>
       </div>
 
-      <div className="flex w-full max-w-[310px] lg:max-w-[800px] h-[28px] lg:h-[84px] rounded-[4px] lg:rounded-[10px] overflow-hidden bg-white">
-        <div className="flex items-center gap-[18px] w-full px-[10px] lg:px-[30px] py-[7px] lg:py-[19px]">
+      <div className="flex w-full max-w-[310px] lg:max-w-[700px] h-[25px] lg:h-[74px] rounded-[4px] lg:rounded-[10px] overflow-hidden bg-white">
+        <div className="flex items-center gap-[18px] w-full px-[10px] lg:px-[20px] py-[7px] lg:py-[19px]">
           <img loading="lazy" src={icon.dontMissEmail} alt="" className="w-[13px] lg:w-[39px]" />
           <input
             type="email"
@@ -64,7 +64,7 @@ export default function DontMissBeat() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             onKeyDown={onKeyDown}
-            className="w-full border-0 outline-0 bg-white text-[12px] lg:text-[29px]"
+            className="w-full border-0 outline-0 bg-white text-[12px] lg:text-[18px]"
             aria-label="Email address"
           />
         </div>

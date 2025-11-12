@@ -1,25 +1,11 @@
 import React from "react";
 import useIcons from "~/hooks/imageHooks/useIcons";
+import {useLoaderData} from "react-router";
 
 export default function ProjectFeatures() {
+  const { property } = useLoaderData() as { property: any };
   const icon = useIcons();
-  const features = [
-    "Children's play area",
-    "Shared spa",
-    "Built-in kitchen appliances",
-    "Shared gym",
-    "Walk-in closet",
-    "Built-in wardrobe",
-    "Shared swimming pool",
-    "Barbecue area",
-    "Concierge service",
-    "Balcony",
-    "Private garden",
-    "Pets allowed",
-    "Central air conditioning",
-    "Cable-ready",
-    "Sea/water view",
-  ];
+  let features= property.features.length > 0 ? property.features.split(',') : [];
 
   return (
     <div className="flex flex-col items-start gap-[23px] w-full mt-[45px]">

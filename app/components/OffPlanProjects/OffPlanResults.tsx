@@ -20,15 +20,7 @@ export default function OffPlanResults({ offPlan }: Props) {
       <div className="flex items-center justify-between w-full">
         <div className="flex flex-col items-start gap-[9px] lg:gap-[15px] w-full">
           <div className="flex items-center justify-between w-full">
-            <p className="text-[16px] lg:text-[27px] font-medium">Properties off-plan in Dubai</p>
-
             {isMobile && <SearchSortBy />}
-          </div>
-          <div className="flex flex-col items-start">
-            <p className="text-[#505050] text-[12px] lg:text-[21px]">
-              Dubai’s property market offers an exceptional variety of homes suited...
-            </p>
-            <p className="text-[12px] lg:text-[21px] font-semibold">1094 results</p>
           </div>
         </div>
         {!isMobile && <SearchSortBy />}

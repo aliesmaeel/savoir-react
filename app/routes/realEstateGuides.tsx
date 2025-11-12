@@ -34,7 +34,7 @@ export default function realEstateGuides() {
             </p>
             <p className="text-[14px] lg:text-[27px]">
               From buying or selling a property to discovering Dubai's key areas and investments,
-              the haus & haus guides are packed with essential information and key market insights.
+              the Savior Properties guides are packed with essential information and key market insights.
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-[40px] w-full">

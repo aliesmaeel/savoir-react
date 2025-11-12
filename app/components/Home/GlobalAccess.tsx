@@ -93,50 +93,63 @@ export default function GlobalAccess() {
       {/* Globe + Stats (unchanged) */}
       <div className="relative w-full lg:w-auto" ref={globeWrapRef}>
         <img
-          loading="lazy"
-          src={icon.globalAccessleft}
-          alt=""
-          className="absolute top-[-100%] left-0 z-10 hidden lg:block"
+            loading="lazy"
+            src={icon.globalAccessleft}
+            alt=""
+            className="absolute top-[-100%] left-0 z-10 hidden lg:block"
         />
         <img
-          loading="lazy"
-          src={icon.globalAccessRight}
-          alt=""
-          className="absolute bottom-[0] right-0 z-10 hidden lg:block"
+            loading="lazy"
+            src={icon.globalAccessRight}
+            alt=""
+            className="absolute bottom-[0] right-0 z-10 hidden lg:block"
         />
 
+        <img
+            src='/images/luxury.svg'
+            alt=""
+            className="absolute top-[42%] right-[10%] z-10 hidden lg:block" data-aos="fade-right"
+            data-aos-duration="2000"
+        />
+
+        <img
+            src='/images/leading.svg'
+            alt=""
+            className="absolute top-[42%] left-[10%] z-10 hidden lg:block" data-aos="fade-left"
+            data-aos-duration="2000"
+        />
         <StatPin inView={inView} top="top-[12%] lg:top-[20%]" left="left-[17%] lg:left-[21%]">
           <div className="flex flex-col items-center">
             <AnimatedInfo
-              display="4600"
-              duration={500}
-              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+                display="4600"
+                duration={500}
+                className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />
-            <p className="text-[9px] lgtext-[30px]">offices</p>
+            <p className="lg:text-[30px] text-[9px] text-center">offices</p>
           </div>
           <img
-            loading="lazy"
-            src={icon.globalAccessVictor}
-            alt=""
-            className="w-[52px] lg:w-[166px]"
+              loading="lazy"
+              src={icon.globalAccessVictor}
+              alt=""
+              className="w-[52px] lg:w-[166px]"
           />
         </StatPin>
 
         {/* Top-right */}
         <StatPin inView={inView} top="top-[12%] lg:top-[20%]" left="left-[79%]">
           <img
-            loading="lazy"
-            src={icon.globalAccessVictor}
-            alt=""
-            className="w-[52px] lg:w-[166px] rotate-y-180"
+              loading="lazy"
+              src={icon.globalAccessVictor}
+              alt=""
+              className="w-[52px] lg:w-[166px] rotate-y-180"
           />
           <div className="flex flex-col items-center">
             <AnimatedInfo
-              display="550"
-              duration={500}
-              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+                display="550"
+                duration={500}
+                className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />
-            <p className="text-[9px] lgtext-[30px]">firms</p>
+            <p className="lg:text-[30px] text-[9px] text-center">firms</p>
           </div>
         </StatPin>
 
@@ -144,39 +157,41 @@ export default function GlobalAccess() {
         <StatPin inView={inView} top="top-[76%]" left="left-[16%] lg:left-[23%]">
           <div className="flex flex-col items-center">
             <AnimatedInfo
-              display="70"
-              duration={500}
-              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+                display="70"
+                duration={500}
+                className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />
-            <p className="text-[9px] lgtext-[30px]">countries</p>
+            <p className="lg:text-[30px] text-[9px] text-center">countries</p>
           </div>
           <img
-            loading="lazy"
-            src={icon.globalAccessVictor}
-            alt=""
-            className="w-[52px] lg:w-[166px] rotate-x-180"
+              loading="lazy"
+              src={icon.globalAccessVictor}
+              alt=""
+              className="w-[52px] lg:w-[166px] rotate-x-180"
           />
         </StatPin>
 
         {/* Bottom-right */}
         <StatPin inView={inView} top="top-[76%]" left="left-[78%]">
           <img
-            loading="lazy"
-            src={icon.globalAccessVictor}
-            alt=""
-            className="w-[52px] lg:w-[166px] rotate-180"
+              loading="lazy"
+              src={icon.globalAccessVictor}
+              alt=""
+              className="w-[52px] lg:w-[166px] rotate-180"
           />
           <div className="flex flex-col items-center">
             <AnimatedInfo
-              display="150000"
-              duration={500}
-              className={`text-[18px] lg:text-[60px] ${styles.info}`}
+                display="150000"
+                duration={500}
+                className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />
-            <p className="text-[9px] lgtext-[30px] text-center">Sales Associates</p>
+            <p className="lg:text-[30px] text-[9px] text-center text-center">Sales Associates</p>
           </div>
         </StatPin>
 
-        <GlobeViewer height={isMobile ? 180 : 600} />
+        <GlobeViewer height={isMobile ? 180 : 600}/>
+
+
       </div>
     </div>
   );
@@ -186,18 +201,18 @@ export default function GlobalAccess() {
  * StatPin (unchanged)
  */
 function StatPin({
-  inView,
-  top,
-  left,
-  children,
-}: {
+                   inView,
+                   top,
+                   left,
+                   children,
+                 }: {
   inView: boolean;
   top: string;
   left: string;
   children: React.ReactNode;
 }) {
   const base =
-    "flex items-end gap-[9px] lg:gap-[30px] absolute z-10 transition-all duration-700 ease-out will-change-transform will-change-opacity";
+      "flex items-end gap-[9px] lg:gap-[30px] absolute z-10 transition-all duration-700 ease-out will-change-transform will-change-opacity";
   const hidden = "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0";
   const shown = `${top} ${left} -translate-x-1/2 -translate-y-1/2 opacity-100`;
 
