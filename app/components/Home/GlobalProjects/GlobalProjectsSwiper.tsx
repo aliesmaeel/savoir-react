@@ -89,7 +89,7 @@ function SlideCard({ item }: { item: any }) {
           loading="lazy"
           src={item.image}
           alt={item.name}
-          className="w-full aspect-[438/365] rounded-[16px] object-cover"
+          className="w-[500px] aspect-[438/365] rounded-[16px] object-cover"
         />
         <div
           className="py-[10px] px-[44px] rounded-[9px] absolute bottom-[64px] right-[-18px]"
