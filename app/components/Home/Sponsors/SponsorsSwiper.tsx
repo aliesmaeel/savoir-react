@@ -19,7 +19,7 @@ export default function SponsorsSwiper({ speedSeconds = 20, logos }: Props) {
         {loop.map((src, i) => {
           const isFirstSet = i < logos.length;
           return (
-            <div className={styles.item} key={`${src.id ?? i}-${isFirstSet ? "a" : "b"}`}>
+            <div className={styles.item} key={src._k ?? `sponsor-${i}`}>
               <img
                 src={src.image}
                 alt={src.alt ?? `sponsor-${i}`}

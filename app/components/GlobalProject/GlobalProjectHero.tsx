@@ -33,13 +33,13 @@ export default function GlobalProjectHero() {
   }, [selectedCountry]);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[100vh] relative">
+    <div className="flex flex-col items-center justify-center w-full h-[100vh] relative ">
       <div className="relative w-full">
         <img
           loading="lazy"
           src={backgroundImage}
           alt={selectedCountry}
-          className="w-full h-[100vh] object-cover transition-all duration-700 grayscale-25"
+          className="w-full h-[100vh] object-cover transition-all duration-700 grayscale-25 brightness-50"
           key={selectedCountry}
         />
         <div className="w-full h-full bg-[#00000026] absolute top-0 left-0" />

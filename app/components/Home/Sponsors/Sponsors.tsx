@@ -116,7 +116,7 @@ export default function Sponsors() {
           animate={title1Ctrl}
           viewport={{ amount: 0.35, once: false }}
           onViewportEnter={onEnterTitle1}
-          onViewportLeave={onLeaveTitle1}
+          
           style={{ willChange: "transform, opacity" }}
         >
           <Title className="text-[15px] lg:text-[45px]">MARKETING CHANNELS</Title>
@@ -140,7 +140,7 @@ export default function Sponsors() {
           animate={title2Ctrl}
           viewport={{ amount: 0.35, once: false }}
           onViewportEnter={onEnterTitle2}
-          onViewportLeave={onLeaveTitle2}
+          
           style={{ willChange: "transform, opacity" }}
         >
           <Title className="text-[15px] lg:text-[45px]">

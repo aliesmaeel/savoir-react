@@ -60,7 +60,7 @@ export default function GlobalAccess() {
 
   return (
     <div className="flex flex-col items-center gap-[24px] lg:gap-[52px] w-full relative">
-      <div className="flex flex-col items-start gap-[14px] lg:gap-[21px] w-full">
+      <div className="flex flex-col items-start gap-[14px] lg:gap-[21px] w-full pl-[10%] pr-[10%]">
         {/* Title */}
         <motion.div
           variants={variants}
@@ -68,7 +68,7 @@ export default function GlobalAccess() {
           animate={titleCtrl}
           viewport={{ amount: 0.5 }}
           onViewportEnter={onEnter}
-          onViewportLeave={onLeave}
+          
           style={{ willChange: "transform, opacity" }}
         >
           <Title className="text-[#C6A45A] text-[16px] lg:text-[31px]">
@@ -91,7 +91,7 @@ export default function GlobalAccess() {
       </div>
 
       {/* Globe + Stats (unchanged) */}
-      <div className="relative w-full lg:w-auto" ref={globeWrapRef}>
+      <div className="relative w-full lg:w-full" ref={globeWrapRef}>
         <img
             loading="lazy"
             src={icon.globalAccessleft}
@@ -125,7 +125,7 @@ export default function GlobalAccess() {
                 duration={500}
                 className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />
-            <p className="lg:text-[30px] text-[9px] text-center">offices</p>
+            <p className="lg:text-[30px] text-[9px] text-center">Offices</p>
           </div>
           <img
               loading="lazy"
@@ -149,7 +149,7 @@ export default function GlobalAccess() {
                 duration={500}
                 className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />
-            <p className="lg:text-[30px] text-[9px] text-center">firms</p>
+            <p className="lg:text-[30px] text-[9px] text-center">Firms</p>
           </div>
         </StatPin>
 
@@ -161,7 +161,7 @@ export default function GlobalAccess() {
                 duration={500}
                 className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />
-            <p className="lg:text-[30px] text-[9px] text-center">countries</p>
+            <p className="lg:text-[30px] text-[9px] text-center">Countries</p>
           </div>
           <img
               loading="lazy"
@@ -181,7 +181,7 @@ export default function GlobalAccess() {
           />
           <div className="flex flex-col items-center">
             <AnimatedInfo
-                display="150000"
+                display="150K"
                 duration={500}
                 className={`text-[18px] lg:text-[60px] ${styles.info}`}
             />

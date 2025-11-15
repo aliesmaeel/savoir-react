@@ -1,44 +1,48 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Card from "~/UI/Card";
 import PropertiesSearch from "./PropertiesSearch";
 import PropertiesTabs from "./PropertiesTabs";
 import PropertiesSwiper from "./PropertiesSwiper";
-import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
 import { useLoaderData } from "react-router";
 
 export default function HomeProperties() {
   const { home } = useLoaderData() as { home: any };
   const [tab, setTab] = useState("For Rent");
-  // Controls + variants for parent div (left → right)
-  const controls = useAnimation();
-  const variants: Variants = {
-    hidden: { opacity: 0, x: -200, transition: { duration: 0.7, ease: "easeOut" } },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } },
-  };
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Track scroll direction
-  const { scrollY } = useScroll();
-  const prev = useRef(0);
-  const dir = useRef<"down" | "up">("down");
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    dir.current = latest > prev.current ? "down" : "up";
-    prev.current = latest;
-  });
+  // Efficient Intersection Observer - only runs once
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+          // Disconnect after first trigger for better performance
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.25,
+        rootMargin: "0px",
+      }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isVisible]);
 
   return (
-    <motion.div
-      className="w-full"
-      variants={variants}
-      initial="hidden"
-      animate={controls}
-      style={{ willChange: "transform, opacity" }}
-      viewport={{ amount: 0.25 }} // trigger when 25% is in view
-      onViewportEnter={() => {
-        if (dir.current === "down") controls.start("visible");
-      }}
-      onViewportLeave={() => {
-        if (dir.current === "up") controls.start("hidden"); // smooth exit
-      }}
+    <div
+      ref={containerRef}
+      className={`w-full transition-all duration-700 ease-out ${
+        isVisible
+          ? "opacity-100 translate-x-0"
+          : "opacity-0 -translate-x-[200px]"
+      }`}
     >
       <Card>
         <div className="flex flex-col items-start gap-[30px] lg:gap-[60px] px-[24px] lg:px-[45px] py-[46px] lg:py-[87px] pb-[22px] lg:pb-[41px] w-full">
@@ -55,6 +59,6 @@ export default function HomeProperties() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }

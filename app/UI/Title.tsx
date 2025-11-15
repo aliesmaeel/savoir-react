@@ -8,7 +8,7 @@ type props = {
 export default function Title({ children, className }: props) {
   return (
     <div className="relative">
-      <p className={` ${className}`}>{children}</p>
+      <p className={`Theseasons ${className}`}>{children}</p>
       <div
         className="w-full h-[4px] mt-[5px]"
         style={{

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import styles from "./HomeOurData.module.css";
 import AnimatedInfo from "~/UI/AnimatedInfo";
-import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
+import { motion, useAnimation, type Variants } from "framer-motion";
 
 export default function HomeOurData() {
   const data = [
@@ -12,20 +12,12 @@ export default function HomeOurData() {
 
   const controls = useAnimation();
   const [canCount, setCanCount] = useState(false); // ⬅️ gate for AnimatedInfo
+  const hasShown = useRef(false);
 
   const variants: Variants = {
     hidden: { opacity: 0, y: 100, transition: { duration: 0.7, ease: "easeOut" } },
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
   };
-
-  // Track scroll direction
-  const { scrollY } = useScroll();
-  const prev = useRef(0);
-  const dir = useRef<"down" | "up">("down");
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    dir.current = latest > prev.current ? "down" : "up";
-    prev.current = latest;
-  });
 
   return (
     <motion.div
@@ -36,19 +28,11 @@ export default function HomeOurData() {
       style={{ willChange: "transform, opacity" }}
       viewport={{ amount: 0.5 }}
       onViewportEnter={async () => {
-        if (dir.current === "down") {
+        if (!hasShown.current) {
+          hasShown.current = true;
           // reveal grid first, then start numbers slightly after
           await controls.start("visible");
           setTimeout(() => setCanCount(true), 300); // delay before numbers start
-        } else {
-          // scrolling up: let numbers start immediately
-          setCanCount(true);
-        }
-      }}
-      onViewportLeave={async () => {
-        if (dir.current === "up") {
-          await controls.start("hidden");
-          setCanCount(false); // reset
         }
       }}
     >
@@ -66,7 +50,7 @@ export default function HomeOurData() {
               enabled={canCount} // ⬅️ use gate
               startDelayMs={index * 50} // ⬅️ optional stagger per item
             />
-            <p className="text-[#353635] text-[11px] lg:text-[33px]">{item.title}</p>
+            <p className="text-[#353635] text-[11px] lg:text-[33px] Theseasons">{item.title}</p>
           </div>
         </div>
       ))}

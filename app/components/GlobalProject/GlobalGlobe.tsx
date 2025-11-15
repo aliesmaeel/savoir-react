@@ -107,11 +107,12 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
         .labelResolution(50);
 
       world.controls().enableZoom = enableZoom;
-      world.globeMaterial().color = new THREE.Color("#bebbb3");
+      
       world.globeMaterial().opacity = 1;
       world.globeMaterial().transparent = true;
       world.controls().autoRotate = false;
-
+      world.globeMaterial().color = new THREE.Color("#bebbb3");
+      
       if (globeScale !== 1) world.scene().scale.set(globeScale, globeScale, globeScale);
 
       worldRef.current = world;

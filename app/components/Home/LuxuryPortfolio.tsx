@@ -1,10 +1,9 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useArrow from "~/hooks/imageHooks/useArrow";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
 import Card from "~/UI/Card";
 import Title from "~/UI/Title";
-import { motion, useAnimation, type Variants, useScroll, useMotionValueEvent } from "framer-motion";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 import { Link } from "react-router";
 
@@ -12,75 +11,47 @@ export default function LuxuryPortfolio() {
   const arrow = useArrow();
   const icon = useIcons();
   const isMobile = useIsMobile();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Parent animation
-  const controls = useAnimation();
-  const variants: Variants = {
-    hidden: { opacity: 0, x: 200, transition: { duration: 0.7, ease: "easeOut" } },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } },
-  };
-
-  // Image animation
-  const imgControls = useAnimation();
-  const imgVariants: Variants = {
-    hidden: { opacity: 0, x: 100, y: 100, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      y: 0,
-      scale: 1,
-      transition: { duration: 0.6, ease: "easeOut", delay: 0.7 },
-    },
-  };
-
-  // Track scroll (desktop only)
-  const { scrollY } = useScroll();
-  const prev = useRef(0);
-  const dir = useRef<"down" | "up">("down");
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    if (isMobile) return; // 🚫 disable scroll animations on mobile
-
-    const isDown = latest > prev.current;
-    dir.current = isDown ? "down" : "up";
-
-    if (isDown && latest > 100) {
-      controls.start("visible");
-    } else if (!isDown) {
-      controls.start("hidden");
+  // Efficient Intersection Observer - only runs once
+  useEffect(() => {
+    // Skip animation on mobile for better performance
+    if (isMobile) {
+      setIsVisible(true);
+      return;
     }
 
-    prev.current = latest;
-  });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+          // Disconnect after first trigger for better performance
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 0.5,
+        rootMargin: "0px",
+      }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isVisible, isMobile]);
 
   return (
-    <motion.div
-      className="w-full"
-      variants={variants}
-      initial="hidden"
-      animate={isMobile ? "visible" : controls} // ✅ always visible on mobile
-      style={{ willChange: "transform, opacity" }}
-      viewport={isMobile ? undefined : { amount: 0.5 }}
-      onViewportEnter={
-        isMobile
-          ? undefined
-          : () => {
-              if (dir.current === "down") {
-                controls.start("visible");
-                imgControls.start("visible");
-              }
-            }
-      }
-      onViewportLeave={
-        isMobile
-          ? undefined
-          : () => {
-              if (dir.current === "up") {
-                controls.start("hidden");
-                imgControls.start("hidden");
-              }
-            }
-      }
+    <div
+      ref={containerRef}
+      className={`w-full transition-all duration-700 ease-out ${
+        isVisible || isMobile
+          ? "opacity-100 translate-x-0"
+          : "opacity-0 translate-x-[200px]"
+      }`}
     >
       <Card className="flex flex-col items-start gap-[20px] lg:gap-[30px] w-full pt-[21px] lg:pt-[33px] pb-[147px] lg:pb-[36px] px-[17px] lg:px-[33px] h-full relative overflow-hidden">
         <Title className="text-[22px] lg:text-[30px]">EXPLORE RECENT OFF PLAN PROJECTS</Title>
@@ -108,15 +79,16 @@ export default function LuxuryPortfolio() {
         </div>
 
         {/* Magazine image */}
-        <motion.img
+        <img
           src={icon.Magazine}
           alt=""
-          className="absolute bottom-[-44px] right-[-30px] w-[158px] lg:w-[341px]"
-          variants={imgVariants}
-          initial="hidden"
-          animate={isMobile ? "visible" : imgControls} // ✅ skip anim on mobile
+          className={`absolute bottom-[-44px] right-[-30px] w-[158px] lg:w-[341px] transition-all duration-[600ms] ease-out delay-[700ms] ${
+            isVisible || isMobile
+              ? "opacity-100 translate-x-0 translate-y-0 scale-100"
+              : "opacity-0 translate-x-[100px] translate-y-[100px] scale-90"
+          }`}
         />
       </Card>
-    </motion.div>
+    </div>
   );
 }

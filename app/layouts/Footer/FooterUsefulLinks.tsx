@@ -4,34 +4,42 @@ import { Link } from "react-router";
 export default function FooterUsefulLinks() {
   const items = [
     {
+      key: 1,
       title: "Global Project",
       link: "/global-project",
     },
     {
+      key: 2,
       title: "List With Us",
       link: "/list-with-us",
     },
     {
+      key: 3,
       title: "Real Estate Advisory",
       link: "/real-estate-advisory",
     },
     {
+      key: 4,
       title: "Property Management",
       link: "/property-management",
     },
     {
+      key: 5,
       title: "Interior Design Services",
       link: "/interior-design-services",
     },
     {
+      key: 6,
       title: "Property Evaluation Services",
       link: "/property-evaluation-services",
     },
     {
+      key: 7,
       title: "Mortgage Services",
       link: "/mortgage-services",
     },
     {
+      key: 8,
       title: "realEstateGuides",
       link: "/real-estate-guides",
     },
@@ -42,8 +50,8 @@ export default function FooterUsefulLinks() {
       <p className="text-[#C6A45A] text-[14px] lg:text-[24px] font-semibold">USEFUL LINKS</p>
       <ul className="flex flex-col items-start gap-[6px] w-full">
         {items.map((item: any, index: number) => (
-          <li className="list-disc text-[21px] ml-[22px]">
-            <Link to={item.link} key={index} className="">
+          <li key= {item.key ?? index} className="list-disc text-[21px] ml-[22px]">
+            <Link to={item.link} key={item.key} className="">
               <p className="text-[12px] lg:text-[18px]">{item.title}</p>
             </Link>
           </li>

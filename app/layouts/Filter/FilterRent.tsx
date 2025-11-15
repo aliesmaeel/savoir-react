@@ -32,12 +32,30 @@ export default function FilterRent({
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   // Local draft state for dropdown
-  const [draft, setDraft] = useState<RentFilters>({ ...DEFAULT_VALUE, ...value });
+  // Validate initial state: Rent + Off-plan is not allowed
+  const getValidInitialState = (): RentFilters => {
+    const initial = { ...DEFAULT_VALUE, ...value };
+    if (initial.interested === "Rent" && initial.status === "Off-plan") {
+      return { ...initial, status: "All" };
+    }
+    return initial;
+  };
+  const [draft, setDraft] = useState<RentFilters>(getValidInitialState());
 
   // Sync draft when parent value changes
   useEffect(() => {
-    if (value) setDraft(value);
-  }, [value]);
+    if (value) {
+      // Validate: Rent + Off-plan is not allowed
+      if (value.interested === "Rent" && value.status === "Off-plan") {
+        // Auto-fix: change status to "All"
+        const fixed = { ...value, status: "All" as Status };
+        setDraft(fixed);
+        onChange?.(fixed);
+      } else {
+        setDraft(value);
+      }
+    }
+  }, [value, onChange]);
 
   // Outside click
   useEffect(() => {
@@ -51,15 +69,34 @@ export default function FilterRent({
 
   const triggerSummary = useMemo(() => `${draft.interested} • ${draft.status}`, [draft]);
 
+  // Check if Off-plan is disabled (when Rent is selected)
+  const isOffPlanDisabled = draft.interested === "Rent";
+
   // Update draft and notify parent immediately
   const setInterested = (v: Interested) => {
-    const next = { ...draft, interested: v };
+    let next: RentFilters;
+    
+    // If selecting Rent and current status is Off-plan, change status to All
+    if (v === "Rent" && draft.status === "Off-plan") {
+      next = { interested: v, status: "All" };
+    } else {
+      next = { ...draft, interested: v };
+    }
+    
     setDraft(next);
     onChange?.(next);
   };
 
   const setStatus = (v: Status) => {
-    const next = { ...draft, status: v };
+    let next: RentFilters;
+    
+    // If selecting Off-plan and current interested is Rent, change interested to Buy
+    if (v === "Off-plan" && draft.interested === "Rent") {
+      next = { interested: "Buy", status: v };
+    } else {
+      next = { ...draft, status: v };
+    }
+    
     setDraft(next);
     onChange?.(next);
   };
@@ -73,6 +110,8 @@ export default function FilterRent({
     "bg-[#B59B62] text-[16px] text-white font-medium py-[6px] w-full border border-white rounded-[9px] h-[43px]";
   const outline =
     "bg-transparent text-[16px] text-white font-medium py-[6px] w-full border border-white rounded-[9px] h-[43px]";
+  const disabled =
+    "bg-transparent text-[16px] text-white/50 font-medium py-[6px] w-full border border-white/50 rounded-[9px] h-[43px] cursor-not-allowed";
 
   return (
     <div className={`relative w-full ${maxWidthClass}`} ref={wrapperRef}>
@@ -152,9 +191,17 @@ export default function FilterRent({
                   <button
                     type="button"
                     onClick={() => setStatus("Off-plan")}
-                    className={draft.status === "Off-plan" ? filled : outline}
+                    disabled={isOffPlanDisabled}
+                    className={
+                      isOffPlanDisabled
+                        ? disabled
+                        : draft.status === "Off-plan"
+                          ? filled
+                          : outline
+                    }
+                    aria-label={isOffPlanDisabled ? "Off-plan is not available for Rent" : "Select Off-plan"}
                   >
-                    Off-plan
+                    Off plan
                   </button>
                 </div>
               </div>
