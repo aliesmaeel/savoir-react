@@ -1,19 +1,22 @@
+import { Suspense, lazy } from "react";
 import PageLayout from "~/layouts/PageLayout";
 import type { Route } from "./+types/home";
 import HeroSection from "~/components/Home/HeroSection";
 import HomeAbout from "~/components/Home/HomeAbout";
 import HomeOurData from "~/components/Home/HomeOurData";
-import NewsInsights from "~/components/Home/NewsInsights/NewsInsights";
 import HomeProperties from "~/components/Home/HomeProperties/HomeProperties";
-import GlobalProjects from "~/components/Home/GlobalProjects/GlobalProjects";
-import GlobalAccess from "~/components/Home/GlobalAccess";
-import Locations from "~/components/Home/Locations/Locations";
-import OffPlanProjects from "~/components/Home/OffPlanProjects/OffPlanProjects";
-import OurCustomers from "~/components/Home/OurCustomers/OurCustomers";
-import LuxuryPortfolio from "~/components/Home/LuxuryPortfolio";
-import Sponsors from "~/components/Home/Sponsors/Sponsors";
+import NewsInsights from "~/components/Home/NewsInsights/NewsInsights";
 import { getHomeInfo, getSuggestionSearch } from "~/api/home.service";
 import { useLoaderData } from "react-router";
+
+// Lazy load below-the-fold components for better performance
+const GlobalProjects = lazy(() => import("~/components/Home/GlobalProjects/GlobalProjects"));
+const GlobalAccess = lazy(() => import("~/components/Home/GlobalAccess"));
+const Locations = lazy(() => import("~/components/Home/Locations/Locations"));
+const OurCustomers = lazy(() => import("~/components/Home/OurCustomers/OurCustomers"));
+const OffPlanProjects = lazy(() => import("~/components/Home/OffPlanProjects/OffPlanProjects"));
+const LuxuryPortfolio = lazy(() => import("~/components/Home/LuxuryPortfolio"));
+const Sponsors = lazy(() => import("~/components/Home/Sponsors/Sponsors"));
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Savoir" }];
@@ -42,6 +45,7 @@ export default function Home() {
       <div className="absolute w-full  top-[calc(100vh+100px)] z-[-1]">
         <img
           loading="lazy"
+          decoding="async"
           src="/images/placeholders/homeBackground.webp"
           alt=""
           className="w-full opacity-25"
@@ -58,28 +62,22 @@ export default function Home() {
         <HomeAbout />
         <HomeOurData />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] lg:gap-[37.5px] w-full mt-[31px] lg:mt-[99px] mb-[33px] lg:mb-[167px]">
-          {/* <div className="w-full" data-aos="fade-right"> */}
           <HomeProperties />
-          {/* </div> */}
           <div className="flex flex-col items-end justify-end gap-[24px] lg:gap-[37px] w-full">
             <NewsInsights />
             <div className="w-full flex justify-end">
-              <GlobalProjects />
+              <Suspense fallback={<div className="w-full h-[300px]" />}>
+                <GlobalProjects />
+              </Suspense>
             </div>
           </div>
         </div>
-
-        <GlobalAccess />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[37.5px] w-full mt-[40px] lg:mt-[142px]">
-          <Locations />
-          <OurCustomers />
-          <OffPlanProjects />
-          <LuxuryPortfolio />
-        </div>
       </PageLayout>
-      <div>
+
+      <GlobalAccess />
+      <Suspense fallback={null}>
         <Sponsors />
-      </div>
+      </Suspense>
     </div>
   );
 }

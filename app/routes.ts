@@ -43,6 +43,6 @@ export default [
 
     route("/real-estate-guides", "routes/realEstateGuides.tsx"),
 
-    route("/global-project", "routes/globalProject.tsx"),
+    route("/global-projects", "routes/globalProject.tsx"),
   ]),
 ] satisfies RouteConfig;

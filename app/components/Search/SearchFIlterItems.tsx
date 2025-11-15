@@ -151,14 +151,13 @@ export default function SearchFIlterItems() {
     });
   }
 
-  if (interested !== "Rent") {
-    items.push({
-      key: "interested",
-      icon: icon.searchType,
-      label: interested, // Buy
-      onClear: clearInterested,
-    });
-  }
+  // Always show interested filter (Rent or Buy)
+  items.push({
+    key: "interested",
+    icon: icon.searchType,
+    label: interested,
+    onClear: clearInterested,
+  });
 
   if (status !== "All") {
     items.push({

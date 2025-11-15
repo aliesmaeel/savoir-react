@@ -19,7 +19,7 @@ export default function PropertiesSwiper({ properties }: any) {
   const [swiperInstance, setSwiperInstance] = useState<any>(null);
   const icon = useIcons();
 
-  console.log(properties);
+
   return (
     <div className="w-full">
       <Swiper

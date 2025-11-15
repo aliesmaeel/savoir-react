@@ -5,10 +5,25 @@
   src: url("../public/fonts/centurygothic.ttf");
 }
 
+@font-face {
+  font-family: "Poppins-Regular";
+  src: url("../public/fonts/Poppins-Regular.ttf");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Theseasons";
+  src: url("../public/fonts/Theseasons-reg.otf");
+  font-weight: 400;
+  font-style: normal;
+}
+
 @theme {
   --font-sans:
-    "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Poppins-Regular", "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol", "Noto Color Emoji";
+  --font-heading: "Theseasons", serif;
 }
 
 html,
@@ -16,6 +31,24 @@ body {
   color: #353635;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  font-family: "Poppins-Regular", "Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* All headings use Theseasons font */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Theseasons", serif;
+  font-weight: bold;
+  
+}
+
+.font-medium {
+  font-family: "Theseasons", serif;
+  font-weight: bold;
 }
 
 button {
@@ -34,6 +67,11 @@ iframe {
 
 .Jakarta {
   font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.Theseasons {
+  font-family: "Theseasons", serif;
+  font-weight: bold;
 }
 
 .swiper-3d .swiper-slide-shadow {

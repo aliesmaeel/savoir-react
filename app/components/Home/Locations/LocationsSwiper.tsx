@@ -63,8 +63,8 @@ export default function LocationsSwiper() {
           onSlideChange={onTitlesChange}
           onClick={onTitlesChange}
         >
-          {home.areas.map((item: any) => (
-            <SwiperSlide key={`title-${item.id}`}>
+          {home.areas.map((item: any, index: number) => (
+            <SwiperSlide key={item.id ? `title-${item.id}` : `title-${index}`}>
               <TitleCell title={item.title} />
             </SwiperSlide>
           ))}
@@ -117,8 +117,8 @@ export default function LocationsSwiper() {
           onTransitionEnd={() => setIsGrabbing(false)}
           onSlideChange={onMainChange}
         >
-          {home.areas.map((item: any) => (
-            <SwiperSlide key={item.id} className="!w-[76.5%] ">
+          {home.areas.map((item: any, index: number) => (
+            <SwiperSlide key={item.id ? item.id : `slide-${index}`} className="!w-[76.5%] ">
               <SlideCard item={item} arrow={arrow} />
             </SwiperSlide>
           ))}

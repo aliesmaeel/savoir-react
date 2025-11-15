@@ -9,7 +9,7 @@ type props = {
 export default function Header({ children, className }: props) {
   return (
     <div className="relative">
-      <p className={`font-bold ${styles.title} ${className}`}>{children}</p>
+      <p className={`font-bold Theseasons ${styles.title} ${className}`}>{children}</p>
       <div
         className="w-full h-[2px]"
         style={{

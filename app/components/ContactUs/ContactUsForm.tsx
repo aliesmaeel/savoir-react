@@ -100,7 +100,7 @@ export default function ContactUsForm() {
         >
           <div className="flex flex-col items-start gap-[20px] lg:gap-[98px]">
             <div className="flex flex-col items-start gap-[6px]">
-              <p className="text-[31px] font-semibold">Contact Information</p>
+              <p className="text-[31px] font-semibold Theseasons">Contact Information</p>
               <p className="text-[21px]">Say something to start a live chat!</p>
             </div>
             <div className="flex flex-col items-start gap-[20px] lg:gap-[48px]">
