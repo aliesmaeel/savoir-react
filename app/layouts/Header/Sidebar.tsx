@@ -32,6 +32,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { title: "Our Team", path: "/our-team" },
     { title: "Career", path: "/career" },
     { title: "About us", path: "/about-us" },
+
   ];
 
   return (
