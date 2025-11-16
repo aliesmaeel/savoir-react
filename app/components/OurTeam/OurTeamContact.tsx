@@ -30,13 +30,13 @@ export default function OurTeamContact() {
           <div className="relative z-10">
             <img
               loading="lazy"
-              src="/images/placeholders/user.webp"
+              src="https://res.cloudinary.com/djd3y5gzw/image/fetch/f_auto,q_auto,fl_lossy/https%3A%2F%2Fsavoirbucket.s3.eu-north-1.amazonaws.com%2Fstorage%2Fimage%2FAgent%2FuVx9BuxNjc1uBa0dgcVyichT2koE59IPFIUhe5L9.jpg"
               alt=""
               className="w-full aspect-[328/482] rounded-[9px] object-cover"
             />
             <img
               loading="lazy"
-              src="/images/placeholders/user.webp"
+              src="https://res.cloudinary.com/djd3y5gzw/image/fetch/f_auto,q_auto,fl_lossy/https%3A%2F%2Fsavoirbucket.s3.eu-north-1.amazonaws.com%2Fstorage%2Fimage%2FAgent%2FuVx9BuxNjc1uBa0dgcVyichT2koE59IPFIUhe5L9.jpg"
               alt=""
               className="w-full aspect-[328/482] rounded-[9px] object-cover rotate-x-180 blur-[50px] absolute left-0 top-[75%]"
             />

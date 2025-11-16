@@ -11,29 +11,6 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 import useArrow from "~/hooks/imageHooks/useArrow";
 import { useLoaderData } from "react-router";
 
-const testimonials = [
-  {
-    rating: 4.8,
-    text: "I have been dealing with Savoir Prive Properties for more than a year now on my multiple properties, and I have no hesitation whatsoever in saying that professionalism, integrity and transparency are core principles of Savior.",
-    author: "Millon Zahino",
-    role: "Behavioral Science",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    rating: 5.0,
-    text: "The service was outstanding, and the team made sure that every detail was perfect. I highly recommend them for anyone seeking reliable property management.",
-    author: "Sarah Johnson",
-    role: "Marketing Director",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-  {
-    rating: 4.7,
-    text: "Excellent experience throughout. The process was transparent, and the staff is extremely professional. Definitely a trustworthy company.",
-    author: "James Lee",
-    role: "Financial Analyst",
-    avatar: "https://randomuser.me/api/portraits/men/28.jpg",
-  },
-];
 
 export default function OurCustomersSwiper() {
   const [swiperInstance, setSwiperInstance] = useState<any>(null);
@@ -62,6 +39,7 @@ export default function OurCustomersSwiper() {
       <Swiper
         effect="cards"
         loop={true}
+        loopAdditionalSlides={home.testimonials.length}
         grabCursor={true}
         autoplay={{
           delay: 3000, // ⬅️ auto scroll every 3s
