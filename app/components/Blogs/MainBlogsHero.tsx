@@ -13,7 +13,7 @@ export default function MainBlogsHero() {
         <div className="flex flex-col items-center gap-[53.68px] w-full max-w-[1226px]">
           <div className="flex flex-col items-center gap-[17px] w-full">
             <h1 className="text-white text-[16px] lg:text-[51.04px] text-center ">
-              Discover the Best Off-Plan Projects in Dubai
+              Our Blogs
             </h1>
           </div>
         </div>

@@ -1,5 +1,5 @@
 // routes/globalProject.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useLoaderData } from "react-router";
 import { getGlobalProject } from "~/api/global.service";
 import AboutGlobal from "~/components/GlobalProject/AboutGlobal";
@@ -23,7 +23,6 @@ export async function clientLoader({ request, params }: { request: Request; para
   }
 }
 
-// block revalidation on search-only changes
 export function shouldRevalidate({ currentUrl, nextUrl }: { currentUrl: URL; nextUrl: URL }) {
   return currentUrl.pathname !== nextUrl.pathname;
 }
@@ -31,15 +30,32 @@ export function shouldRevalidate({ currentUrl, nextUrl }: { currentUrl: URL; nex
 export default function GlobalProject() {
   const { global, country } = useLoaderData() as { global: any; country: string };
 
+  const [currentGlobal, setCurrentGlobal] = useState<any>(global);
+  const [currentCountry, setCurrentCountry] = useState<string>(country);
+
+  const handleCountryDataChange = (newCountry: string, newGlobal: any) => {
+    setCurrentCountry(newCountry);
+    setCurrentGlobal(newGlobal);
+  };
+
   return (
     <div>
-      <GlobalProjectHero />
+      <GlobalProjectHero
+        initialCountry={currentCountry}
+        initialImage={currentGlobal?.project?.image}
+        onCountryDataChange={handleCountryDataChange}
+      />
       <PageLayout>
         <div className="flex flex-col lg:flex-row items-start gap-[50px] w-full">
-          <AboutGlobal />
-          <ProjectListedByContact user={global.project.user} />
+          <AboutGlobal
+            country={currentCountry}
+            description={currentGlobal?.project?.description ?? ""}
+          />
+          <ProjectListedByContact user={currentGlobal.project.user} />
         </div>
-        <GlobeLuxuryProperties />
+        <GlobeLuxuryProperties
+          similarProperties={currentGlobal?.similar_properties ?? []}
+        />
       </PageLayout>
     </div>
   );

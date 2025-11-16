@@ -51,13 +51,12 @@ const Button: React.FC<ButtonProps> = ({
 
   if (type === "white") {
     return (
-      <button
-        onClick={onClick}
-        disabled={disabled}
+      <a
+        href="#current-vacancies"
         className={`flex items-center justify-center gap-[3.5px] px-[20px] lg:px-[93px] py-[18px] rounded-[10.5px] text-[#C6A45A] text-[24px] font-semibold bg-[#FFFFFF] ${className}`}
       >
         {children}
-      </button>
+      </a>
     );
   }
 

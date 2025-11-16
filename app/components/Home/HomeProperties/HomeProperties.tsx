@@ -35,6 +35,8 @@ export default function HomeProperties() {
     return () => observer.disconnect();
   }, [isVisible]);
 
+  const featured = home?.featured_properties ?? {};
+
   return (
     <div
       ref={containerRef}
@@ -50,11 +52,13 @@ export default function HomeProperties() {
           <div className="flex flex-col items-center gap-[49px] w-full">
             <PropertiesTabs tab={tab} setTab={setTab} />
             {tab === "Off Plan" && (
-              <PropertiesSwiper properties={home.featured_properties.off_plan} />
+              <PropertiesSwiper properties={featured.off_plan ?? []} />
             )}
-            {tab === "For Sale" && <PropertiesSwiper properties={home.featured_properties.RS} />}
+            {tab === "For Sale" && (
+              <PropertiesSwiper properties={featured.RS ?? []} />
+            )}
             {tab === "For Rent" && (
-                <PropertiesSwiper properties={home.featured_properties.RR} />
+              <PropertiesSwiper properties={featured.RR ?? []} />
             )}
           </div>
         </div>

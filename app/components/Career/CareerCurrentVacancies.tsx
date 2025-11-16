@@ -12,7 +12,7 @@ export default function CareerCurrentVacancies() {
   }));
 
   return (
-    <div className="flex flex-col items-center gap-[52px] w-full">
+    <div className="flex flex-col items-center gap-[52px] w-full" id="current-vacancies">
       <div className="flex flex-col items-center gap-[15px] w-full">
         <p className="text-black text-[20px] lg:text-[42px] font-medium">Current Vacancies</p>
         <p className="text-black text-[15px] lg:text-[22px] text-center">
