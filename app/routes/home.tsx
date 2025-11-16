@@ -4,14 +4,14 @@ import type { Route } from "./+types/home";
 import HeroSection from "~/components/Home/HeroSection";
 import HomeAbout from "~/components/Home/HomeAbout";
 import HomeOurData from "~/components/Home/HomeOurData";
-import HomeProperties from "~/components/Home/HomeProperties/HomeProperties";
 import NewsInsights from "~/components/Home/NewsInsights/NewsInsights";
+import HomeProperties from "~/components/Home/HomeProperties/HomeProperties";
+import GlobalAccess from "~/components/Home/GlobalAccess";
 import { getHomeInfo, getSuggestionSearch } from "~/api/home.service";
 import { useLoaderData } from "react-router";
 
 // Lazy load below-the-fold components for better performance
 const GlobalProjects = lazy(() => import("~/components/Home/GlobalProjects/GlobalProjects"));
-const GlobalAccess = lazy(() => import("~/components/Home/GlobalAccess"));
 const Locations = lazy(() => import("~/components/Home/Locations/Locations"));
 const OurCustomers = lazy(() => import("~/components/Home/OurCustomers/OurCustomers"));
 const OffPlanProjects = lazy(() => import("~/components/Home/OffPlanProjects/OffPlanProjects"));
@@ -73,11 +73,20 @@ export default function Home() {
           </div>
         </div>
       </PageLayout>
+        <GlobalAccess />
+        <PageLayout>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[37.5px] w-full mt-[40px] lg:mt-[142px]">
+          <Locations />
+          <OurCustomers />
+          <OffPlanProjects />
+          <LuxuryPortfolio />
+        </div>
+      </PageLayout>
 
-      <GlobalAccess />
       <Suspense fallback={null}>
         <Sponsors />
       </Suspense>
+
     </div>
   );
 }
