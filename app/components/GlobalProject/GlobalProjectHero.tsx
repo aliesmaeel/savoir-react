@@ -82,7 +82,7 @@ const GlobalProjectHero: React.FC<GlobalProjectHeroProps> = ({
           selectedParamKey="country"
         />
         <div
-          className="absolute bottom-0 left-0 w-full h-[176px] z-10"
+          className="absolute bottom-0 left-0 w-full h-[176px] z-1"
           style={{ background: "linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%)" }}
         />
       </div>

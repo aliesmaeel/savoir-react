@@ -78,7 +78,7 @@ function SlideCard({ item }: { item: any }) {
 
   return (
     <Link
-      to={`/global-project?country=${item.name}`}
+      to={`/global-projects?country=${item.name}`}
       className={[
         "transition-all duration-300 ease-out flex flex-col items-start gap-[12px]",
         isActive ? "scale-100 opacity-100" : "scale-[0.85]",
