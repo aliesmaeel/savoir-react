@@ -1,28 +1,30 @@
 import React, { useState } from "react";
+import { useLoaderData } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
 import Popup from "~/UI/Popup";
 import OffPlanPopup from "./OffPlanPopup";
 
 export default function OffPlanStartingPrice() {
+  const { property } = useLoaderData() as { property: any };
   const icon = useIcons();
   const [openPopup, setOpenPopup] = useState(false);
   const features = [
     {
       title: "Developer :",
-      value: "Meraas",
+      value: property.developer || "N/A",
     },
     {
       title: "Completion :",
-      value: "Q1-2001",
+      value: property.completion_date || "N/A",
     },
     {
       title: "Lifestyle :",
-      value: "Standard",
+      value: property.lifestyle || "N/A",
     },
     {
       title: "Title type :",
-      value: "Freehold",
+      value: property.title_type || "N/A",
     },
   ];
   return (
@@ -32,7 +34,7 @@ export default function OffPlanStartingPrice() {
 
       <div className="flex flex-col">
         <p className="text-[25px]">Starting Price</p>
-        <p className="text-[37px] font-semibold">AED 45M</p>
+        <p className="text-[37px] font-semibold">{property.starting_price || "N/A"}</p>
       </div>
       <div className="flex flex-col items-start gap-[21px] w-full">
         {features.map((feature: any, index: number) => (

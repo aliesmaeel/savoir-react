@@ -30,7 +30,7 @@ export async function clientLoader({ params }: { params: { projectSlug: string }
 export default function project() {
   const { property, similar } = useLoaderData() as { property: any; similar: any };
   const icon = useIcons();
-  console.log("property", property);
+  
   return (
     <PageLayout>
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-[13px] w-full mt-[90px]">
@@ -57,8 +57,10 @@ export default function project() {
         <MortgageCalculator />
         <RentalYieldCalculator />
       </div>
+      <div style={{ backgroundImage: `url(${icon.vLetter})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       <BookYourViewing />
       <AveragePrices />
+      </div>
       {similar.length > 0 && <SimilarListings />}
 
       <DontMissBeat />

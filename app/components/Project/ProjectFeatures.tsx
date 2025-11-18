@@ -1,15 +1,30 @@
-import React from "react";
+import React, { useMemo } from "react";
 import useIcons from "~/hooks/imageHooks/useIcons";
-import {useLoaderData} from "react-router";
+import { useLoaderData } from "react-router";
 
 export default function ProjectFeatures() {
   const { property } = useLoaderData() as { property: any };
   const icon = useIcons();
-  let features= property.features.length > 0 ? property.features.split(',') : [];
+
+  const features = useMemo(() => {
+    if (!property.features) return [];
+
+    // Check if features is a string
+    if (typeof property.features !== "string") {
+      // If it's an array, return it directly
+      if (Array.isArray(property.features)) {
+        return property.features.filter(Boolean);
+      }
+      return [];
+    }
+
+    // If it's a string, split by comma
+    return property.features.split(",").map((f: string) => f.trim()).filter(Boolean);
+  }, [property.features]);
 
   return (
     <div className="flex flex-col items-start gap-[23px] w-full mt-[45px]">
-      <p className="text-[27px] font-semibold Theseasons">Features & amenities</p>
+      <p className="text-[27px] font-semibold ">Features & amenities</p>
       <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-x-[45px] gap-y-[22px]">
         {features.map((feature: any, index: number) => (
           <div
