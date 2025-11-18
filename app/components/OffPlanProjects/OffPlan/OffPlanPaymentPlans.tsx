@@ -1,25 +1,26 @@
 import React from "react";
+import { useLoaderData } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
 export default function OffPlanPaymentPlans() {
+  const { property } = useLoaderData() as { property: any };
   const icon = useIcons();
 
   const plans = [
     {
       title: "First Installment",
       icon: icon.FirstInstallment,
-      value: "20%",
+      value: property.first_installment || "0%",
     },
-
     {
-      title: "Under Construction",
+      title: "During Construction",
       icon: icon.UnderConstruction,
-      value: "20%",
+      value: property.during_construction || "N/A",
     },
     {
       title: "On Handover",
       icon: icon.OnHandover,
-      value: "20%",
+      value: property.on_handover || "N/A",
     },
   ];
 
@@ -34,7 +35,7 @@ export default function OffPlanPaymentPlans() {
           >
             <img loading="lazy" src={plan.icon} alt="" className="w-[45px]" />
             <div className="flex flex-col items-start gap-[7px] mt-[5px]">
-              <p className="text-[15px] font-semibold">{plan.title}</p>
+              <p className="text-[15px] font-semibold min-h-[42px] flex items-center">{plan.title}</p>
               <p className="text-[#C6A45A] text-[24px] font-medium">{plan.value}</p>
             </div>
           </div>

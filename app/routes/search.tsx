@@ -8,6 +8,7 @@ import PageLayout from "~/layouts/PageLayout";
 import FAQs from "~/UI/FAQs";
 import CustomPagination from "~/UI/CustomPagination";
 import { getFAQ } from "~/api/faq.service";
+import useIcons from "~/hooks/imageHooks/useIcons";
 
 export async function clientLoader({ request }: { request: Request }) {
   const faqtype = "buy";
@@ -25,7 +26,7 @@ export default function Search() {
   const [projects, setProjects] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const icon = useIcons();
   const location = useLocation();
 
   const fetchProjects = async (page: number) => {
@@ -96,6 +97,7 @@ export default function Search() {
       <SearchHero />
 
       <PageLayout>
+        <div style={{ backgroundImage: `url(${icon.vLetter})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         <div className="flex flex-col items-start gap-[47px]">
           <SearchFIlterItems />
           <SearchResults projects={projects} />
@@ -110,6 +112,7 @@ export default function Search() {
             FAQs about rental properties in Dubai UAE
           </p>
           <FAQs questions={faq} />
+        </div>
         </div>
       </PageLayout>
     </div>
