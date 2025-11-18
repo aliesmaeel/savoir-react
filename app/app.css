@@ -47,7 +47,7 @@ h6 {
 }
 
 .font-medium {
-  font-family: "Theseasons", serif;
+  font-family: "Poppins-Regular", "Poppins", ui-sans-serif, system-ui, sans-serif;
   font-weight: bold;
 }
 
