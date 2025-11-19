@@ -1,15 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
+import Popup from "~/UI/Popup";
 import CareerCard from "./CareerCard";
+import CVPopup from "./CVPopup";
 import ThreeSwiper from "~/UI/ThreeSwiper";
 import { SwiperSlide } from "swiper/react";
 
-export default function CareerCurrentVacancies() {
-  const vacancies = Array.from({ length: 6 }, (_, index) => ({
-    id: index + 1,
-    title: `Property Manger`,
-    image: "/images/placeholders/career.jpg",
-    location: "Marina, Dubai",
-  }));
+type Props = {
+  vacancies: any[];
+};
+
+export default function CareerCurrentVacancies({ vacancies }: Props) {
+  const [openPopup, setOpenPopup] = useState(false);
+  const [selectedCareerId, setSelectedCareerId] = useState<string | number | null>(null);
+
+  const handleApplyClick = (jobId: string | number) => {
+    setSelectedCareerId(jobId);
+    setOpenPopup(true);
+  };
+
+  const handleClosePopup = () => {
+    setOpenPopup(false);
+    setSelectedCareerId(null);
+  };
 
   return (
     <div className="flex flex-col items-center gap-[52px] w-full" id="current-vacancies">
@@ -23,11 +35,17 @@ export default function CareerCurrentVacancies() {
       </div>
       <ThreeSwiper>
         {vacancies.map((job: any, index: number) => (
-          <SwiperSlide>
-            <CareerCard key={index} job={job} />
+          <SwiperSlide key={job?.id ?? job?._id ?? index}>
+            <CareerCard job={job} onApplyClick={handleApplyClick} />
           </SwiperSlide>
         ))}
       </ThreeSwiper>
+
+      {openPopup && selectedCareerId && (
+        <Popup onClose={handleClosePopup}>
+          <CVPopup careerId={selectedCareerId} onClose={handleClosePopup} />
+        </Popup>
+      )}
     </div>
   );
 }
