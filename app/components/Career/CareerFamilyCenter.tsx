@@ -16,7 +16,7 @@ export default function CareerFamilyCenter() {
   return (
     <Card className="!rounded-[15px] lg:!rounded-[67px] py-[30px] lg:py-[59px] px-[16px] lg:px-[45px]">
       <div className="flex flex-col items-start gap-[34px] w-full">
-        <GoldTitle> Family-Centric Culture</GoldTitle>
+        <GoldTitle> Family Centric Culture</GoldTitle>
         <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">
           Unlike larger corporations, we cherish the intimacy of a family-centric culture. We
           believe in the power of personal connections, and our team is more than just colleagues –
@@ -43,9 +43,11 @@ export default function CareerFamilyCenter() {
           topics, from real estate-specific knowledge to social media and marketing, often featuring
           keynote speakers. Join us and stay ahead of the curve!
         </p>
-        <Button className="!rounded-[4px] !py-[15px] !px-[81px] text-[18px] h-[44px]">
+        <a href="/our-team"
+        style={{ background: 'linear-gradient(94deg, #C6A45A 3.17%, rgba(255, 255, 255, 0.60) 224.54%)' }}
+        className="!rounded-[4px] text-white !py-[9px] !px-[81px] text-[18px] h-[44px]">
           Meet Our Team
-        </Button>
+        </a>
       </div>
     </Card>
   );

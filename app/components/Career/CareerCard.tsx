@@ -5,10 +5,18 @@ import Card from "~/UI/Card";
 
 type Props = {
   job: any;
+  onApplyClick: (jobId: string | number) => void;
 };
 
-export default function CareerCard({ job }: Props) {
+export default function CareerCard({ job, onApplyClick }: Props) {
   const icon = useIcons();
+
+  const handleApplyClick = () => {
+    const jobId = job?.id ?? job?._id;
+    if (jobId) {
+      onApplyClick(jobId);
+    }
+  };
 
   return (
     <Card className="!rounded-[46px] px-[22px] pb-[40px] pt-[30px]">
@@ -28,7 +36,9 @@ export default function CareerCard({ job }: Props) {
             </div>
           </div>
 
-          <Button className="w-full h-[45px] text-[21px]">Apply now</Button>
+          <Button className="w-full h-[45px] text-[21px]" onClick={handleApplyClick}>
+            Apply now
+          </Button>
         </div>
       </div>
     </Card>

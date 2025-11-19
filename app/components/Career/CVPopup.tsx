@@ -1,12 +1,21 @@
 import React, { useState } from "react";
+import { applyToCareer } from "~/api/career.service";
+import { useNotify } from "../notifications/NotificationsProvider";
 import BookingInput from "../Project/BookYourViewing/BookingInput";
 import Button from "~/UI/Button";
 
-export default function CVPopup() {
+type Props = {
+  careerId: string | number;
+  onClose: () => void;
+};
+
+export default function CVPopup({ careerId, onClose }: Props) {
+  const notify = useNotify();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [file, setFile] = useState<any>(null);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
@@ -26,7 +35,7 @@ export default function CVPopup() {
     }
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (!name || !email || !file) {
@@ -35,9 +44,28 @@ export default function CVPopup() {
     }
 
     setError("");
-    console.log("Submitting:", { name, email, file });
+    setSubmitting(true);
 
-    // TODO: Handle form submission (e.g., upload to backend)
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("cv", file);
+
+      await applyToCareer(careerId, formData);
+      
+      notify.success("Your application has been submitted successfully!");
+      setName("");
+      setEmail("");
+      setFile(null);
+      onClose();
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || "Failed to submit application. Please try again.";
+      setError(errorMessage);
+      notify.error(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -69,8 +97,11 @@ export default function CVPopup() {
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </div>
 
-      <Button className="!rounded-[4px] !px-[78px] !py-[15px] h-[44px] text-[18px] w-full">
-        Submit Your CV
+      <Button 
+        className="!rounded-[4px] !px-[78px] !py-[15px] h-[44px] text-[18px] w-full"
+        disabled={submitting}
+      >
+        {submitting ? "Submitting..." : "Submit Your CV"}
       </Button>
     </form>
   );

@@ -74,16 +74,16 @@ export default function Search() {
 
     try {
       const res: any = await searchApi(page, 5, body);
-      console.log(res);
       setProjects(res.data);
-      setTotalPages(res.count || 1); // Assuming API returns totalPages
+      // Use total_pages from API response (e.g., 37 pages for 183 items with 5 per page)
+      setTotalPages(res.total_pages || 1);
     } catch (err) {
       console.error("Search API error:", err);
     }
   };
 
   useEffect(() => {
-    setCurrentPage(1); // reset page on filter change
+    setCurrentPage(1);
     fetchProjects(1);
   }, [location.search]);
 
@@ -98,6 +98,7 @@ export default function Search() {
 
       <PageLayout>
         <div style={{ backgroundImage: `url(${icon.vLetter})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+
         <div className="flex flex-col items-start gap-[47px]">
           <SearchFIlterItems />
           <SearchResults projects={projects} />

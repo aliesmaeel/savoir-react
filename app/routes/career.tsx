@@ -1,4 +1,6 @@
 import React from "react";
+import { useLoaderData } from "react-router";
+import { getAllCareers } from "~/api/career.service";
 import CareerAbout from "~/components/Career/CareerAbout";
 import CareerAgentExpectations from "~/components/Career/CareerAgentExpectations";
 import CareerCreativity from "~/components/Career/CareerCreativity";
@@ -9,7 +11,18 @@ import CareerGlobalExposure from "~/components/Career/CareerGlobalExposure";
 import CareerHero from "~/components/Career/CareerHero";
 import PageLayout from "~/layouts/PageLayout";
 
+export async function clientLoader() {
+  try {
+    const res: any = await getAllCareers();
+    const careers = res.data ?? res ?? [];
+    return { careers };
+  } catch {
+    return { careers: [] };
+  }
+}
+
 export default function career() {
+  const { careers } = useLoaderData() as { careers: any[] };
   return (
     <div>
       <CareerHero />
@@ -27,7 +40,7 @@ export default function career() {
       </PageLayout>
       <CareerAgentExpectations />
       <PageLayout>
-        <CareerCurrentVacancies />
+        <CareerCurrentVacancies vacancies={careers} />
       </PageLayout>
     </div>
   );

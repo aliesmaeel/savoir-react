@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import Button from "~/UI/Button";
-import Popup from "~/UI/Popup";
-import CVPopup from "./CVPopup";
 
 export default function CareerHero() {
-  const [openPopup, setOpenPopup] = useState(false);
+  const handleViewVacancies = () => {
+    const vacanciesSection = document.getElementById("current-vacancies");
+    if (vacanciesSection) {
+      vacanciesSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
@@ -26,10 +29,7 @@ export default function CareerHero() {
             </p>
           </div>
           <div className="flex flex-col lg:flex-row items-center gap-[13px]">
-            <Button type="white">View vacancies</Button>
-            <Button onClick={() => setOpenPopup(true)} type="transparent">
-              Send us your CV
-            </Button>
+            <Button type="white" onClick={handleViewVacancies}>View vacancies</Button>
           </div>
         </div>
         <div
@@ -39,12 +39,6 @@ export default function CareerHero() {
           }}
         />
       </div>
-
-      {openPopup && (
-        <Popup onClose={() => setOpenPopup(false)}>
-          <CVPopup />
-        </Popup>
-      )}
     </div>
   );
 }
