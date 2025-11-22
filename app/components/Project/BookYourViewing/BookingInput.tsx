@@ -8,6 +8,14 @@ type Props = {
   value: string;
   onChange: (value: string) => void;
   white?: boolean;
+  name?: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  autoComplete?: string;
+  ariaLabel?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
 };
 
 export default function BookingInput({
@@ -16,9 +24,19 @@ export default function BookingInput({
   value,
   onChange,
   white = false,
+  name,
+  required = true,
+  minLength,
+  maxLength,
+  pattern,
+  autoComplete,
+  ariaLabel,
+  inputMode,
 }: Props) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     onChange(e.target.value);
+
+  const accessibilityProps = ariaLabel ? { "aria-label": ariaLabel } : {};
 
   // TEL with country selector + formatting
   if (type === "tel") {
@@ -33,12 +51,22 @@ export default function BookingInput({
           value={value}
           onChange={onChange}
           placeholder={placeholder || "Enter Phone number"}
+          name={name}
+          required={required}
+          autoComplete={autoComplete}
           className="w-full relative"
           inputClassName={`!bg-transparent !border-0 !outline-none !shadow-none !ring-0 !w-full !font-medium ${
             white
               ? "!text-white !placeholder-white !text-[15px]"
               : "!text-[10px] !placeholder-[#666]"
           }`}
+          inputProps={{
+            ...accessibilityProps,
+            minLength,
+            maxLength,
+            pattern,
+            inputMode,
+          }}
           countrySelectorStyleProps={{
             // buttonType: "button",
 
@@ -65,8 +93,12 @@ export default function BookingInput({
           placeholder={placeholder}
           value={value}
           onChange={handleChange}
+          name={name}
+          required={required}
+          minLength={minLength}
+          maxLength={maxLength}
+          aria-label={ariaLabel}
           className="w-full bg-transparent border-0 outline-none text-[10px] font-medium placeholder-[#666] h-[30px]"
-          required
         />
       </div>
     );
@@ -84,10 +116,17 @@ export default function BookingInput({
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
+        name={name}
+        required={required}
+        minLength={minLength}
+        maxLength={maxLength}
+        pattern={pattern}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        aria-label={ariaLabel}
         className={`block w-full bg-transparent border-0 outline-none font-medium ${
           white ? "placeholder-white text-white text-[15px]" : "placeholder-[#666] text-[10px]"
         }`}
-        required
       />
     </div>
   );

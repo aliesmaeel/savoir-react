@@ -6,18 +6,18 @@ import Title from "~/UI/Title";
 export default function MemberHero() {
   const { team } = useLoaderData() as { team: any };
 
-  const items = [
+  const infoItems = [
     {
-      title: "Experience :",
-      value: "15 years",
+      title: "Phone :",
+      value: team.phone ?? "—",
     },
     {
-      title: "Specialization :",
-      value: team.Job_Description,
+      title: "Email :",
+      value: team.email ?? "—",
     },
     {
       title: "Language :",
-      value: team.language,
+      value: team.language ?? "—",
     },
   ];
 
@@ -33,7 +33,7 @@ export default function MemberHero() {
         <div className="flex flex-col-reverse lg:flex-row items-start lg:items-center gap-[30px] lg:gap-[60px]  absolute left-0 bottom-0 z-20 w-full">
           <img
             loading="lazy"
-            src="/images/placeholders/team-member.png"
+            src={team.image_border}
             alt=""
             className="w-[50%] lg:w-full max-w-[414px]"
           />
@@ -43,7 +43,7 @@ export default function MemberHero() {
               <Title className="text-[19px] lg:text-[48px]">{team.Job_Description}</Title>
             </div>
             <div className="flex flex-col items-start gap-[9px] lg:gap-[22px]">
-              {items.map((item: any, index: number) => (
+              {infoItems.map((item: any, index: number) => (
                 <div
                   className="flex gap-[9px] lg:gap-[23px] text-[#505050] text-[12px] lg:text-[31px]"
                   key={index}
