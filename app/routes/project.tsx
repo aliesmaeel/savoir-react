@@ -58,7 +58,7 @@ export default function project() {
         <RentalYieldCalculator />
       </div>
       <div style={{ backgroundImage: `url(${icon.vLetter})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-      <BookYourViewing />
+      <BookYourViewing agent={property?.user} />
       <AveragePrices />
       </div>
       {similar.length > 0 && <SimilarListings />}

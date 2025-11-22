@@ -11,7 +11,22 @@ import { getFAQ } from "~/api/faq.service";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
 export async function clientLoader({ request }: { request: Request }) {
-  const faqtype = "buy";
+  const url = new URL(request.url);
+  const params = new URLSearchParams(url.search);
+  
+  const status = params.get("status") || "All";
+  const interested = params.get("interested") || "Rent";
+  
+  // Determine FAQ type based on search params
+  let faqtype = "buy"; // default
+  if (status === "Off-plan") {
+    faqtype = "offplan";
+  } else if (interested === "Rent") {
+    faqtype = "rent";
+  } else if (interested === "Buy") {
+    faqtype = "buy";
+  }
+  
   try {
     const searchRes: any = await getSuggestionSearch();
     const resFAQ: any = await getFAQ(faqtype);
@@ -19,6 +34,16 @@ export async function clientLoader({ request }: { request: Request }) {
   } catch (error) {
     return { search: [], faq: [] };
   }
+}
+
+export function shouldRevalidate({ currentUrl, nextUrl }: { currentUrl: URL; nextUrl: URL }) {
+  const currentStatus = currentUrl.searchParams.get("status") || "All";
+  const currentInterested = currentUrl.searchParams.get("interested") || "Rent";
+  const nextStatus = nextUrl.searchParams.get("status") || "All";
+  const nextInterested = nextUrl.searchParams.get("interested") || "Rent";
+  
+  // Revalidate if status or interested params change (affects FAQ type)
+  return currentStatus !== nextStatus || currentInterested !== nextInterested;
 }
 
 export default function Search() {
