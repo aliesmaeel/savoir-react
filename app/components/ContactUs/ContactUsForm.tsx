@@ -55,7 +55,9 @@ export default function ContactUsForm() {
     return null;
   }
 
-  async function handleSubmit() {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
     const v = validate();
     if (v) {
       notify.error(v, 4000);
@@ -121,24 +123,65 @@ export default function ContactUsForm() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-[64px] w-full">
+        <form
+          onSubmit={handleFormSubmit}
+          className="flex flex-col items-center gap-[64px] w-full relative"
+          noValidate
+        >
+          <img
+            loading="lazy"
+            src="/images/icons/popupPaterrn.svg"
+            alt=""
+            className="absolute bottom-0 right-0 z-[-1]"
+          />
           <div className="flex flex-col items-start gap-[67px] w-full">
             <div className="flex flex-col items-start gap-[20px] lg:gap-[54px] w-full">
-              <BookingInput placeholder="Enter Full Name" value={name} onChange={setName} />
-              <BookingInput placeholder="Enter Phone Number" value={phone} onChange={setPhone} />
-              <BookingInput placeholder="Enter your Email" value={email} onChange={setEmail} />
+              <BookingInput
+                placeholder="Enter Full Name"
+                value={name}
+                onChange={setName}
+                name="name"
+                required
+                minLength={2}
+                autoComplete="name"
+                ariaLabel="Enter your full name"
+              />
+              <BookingInput
+                type="tel"
+                placeholder="Enter Phone Number"
+                value={phone}
+                onChange={setPhone}
+                name="phone"
+                autoComplete="tel"
+                ariaLabel="Enter your phone number"
+                inputMode="tel"
+              />
+              <BookingInput
+                type="email"
+                placeholder="Enter your Email"
+                value={email}
+                onChange={setEmail}
+                name="email"
+                required
+                autoComplete="email"
+                ariaLabel="Enter your email address"
+              />
               <BookingInput
                 type="textAria"
                 placeholder="Enter your Message here.."
                 value={message}
                 onChange={setMessage}
+                name="message"
+                required
+                minLength={10}
+                ariaLabel="Enter your message"
               />
             </div>
 
             <div className="flex items-center justify-center lg:justify-end w-full">
               <Button
                 className="!rounded-[4px] !px-[78px] !py-[15px] h-[44px] text-[18px]"
-                onClick={handleSubmit}
+                htmlType="submit"
                 disabled={submitting}
               >
                 {submitting ? "Sending..." : "Send Your Message"}
@@ -153,7 +196,7 @@ export default function ContactUsForm() {
               <p className="text-[#C6A45A] text-[18px] font-medium">Whatsapp</p>
             </Link>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLoaderData } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
@@ -9,6 +9,18 @@ type Props = {
 
 export default function ProjectListedByContact({ user }: Props) {
   const icon = useIcons();
+  const [copied, setCopied] = useState(false);
+
+  const handleShareListing = async () => {
+    try {
+      const currentUrl = window.location.href;
+      await navigator.clipboard.writeText(currentUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy URL:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-[38px] px-[18px] py-[48px] border border-[#C6A45A] rounded-[15px] w-full max-w-[499px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10">
@@ -46,9 +58,14 @@ export default function ProjectListedByContact({ user }: Props) {
           <img loading="lazy" src={icon.dateBlack} alt="" className="w-[27px]" />
           Booking a viewing
         </Button>
-        <button className="flex items-center gap-[9px]">
+        <button
+          onClick={handleShareListing}
+          className="flex items-center gap-[9px]"
+          aria-label="Share this listing"
+          tabIndex={0}
+        >
           <img loading="lazy" src={icon.shareBlack} alt="" className="w-[27px]" />
-          <p className="text-[18px] underline">Share this Listing</p>
+          <p className="text-[18px] underline">{copied ? "Copied!" : "Share this Listing"}</p>
         </button>
       </div>
     </div>
