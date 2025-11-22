@@ -8,6 +8,7 @@ type ButtonProps = {
   children: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
+  htmlType?: "button" | "submit" | "reset";
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -16,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   children,
   onClick,
   disabled = false,
+  htmlType,
 }) => {
   const icon = useIcons();
   const arrow = useArrow();
@@ -25,6 +27,7 @@ const Button: React.FC<ButtonProps> = ({
       <button
         onClick={onClick}
         disabled={disabled}
+        type={htmlType}
         className={`flex items-center justify-center gap-[3.5px] px-[24.88px] py-[9.7px] rounded-[10.5px] text-white text-[16px] font-semibold ${className}`}
         style={{
           background: !disabled
@@ -42,6 +45,7 @@ const Button: React.FC<ButtonProps> = ({
       <button
         onClick={onClick}
         disabled={disabled}
+        type={htmlType}
         className={`flex items-center justify-center gap-[3.5px] px-[24.88px] py-[9.7px] rounded-[10.5px] text-[#353635] text-[16px] font-semibold border border-[#C6A45A] ${className}`}
       >
         {children}
@@ -65,6 +69,7 @@ const Button: React.FC<ButtonProps> = ({
       <button
         onClick={onClick}
         disabled={disabled}
+        type={htmlType}
         className={`flex items-center justify-center gap-[3.5px] px-[20px] lg:px-[93px] py-[18px] rounded-[10.5px] text-white text-[24px]  bg-[#FFFFFF40] backdrop-blur-[10px] ${className}`}
       >
         {children}

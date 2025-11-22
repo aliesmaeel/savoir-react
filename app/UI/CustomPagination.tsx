@@ -18,6 +18,7 @@ export default function CustomPagination({
   const icon = useIcons();
 
   const half = Math.floor(maxVisible / 2);
+  
   let start = Math.max(1, currentPage - half);
   let end = Math.min(totalPages, currentPage + half);
 
