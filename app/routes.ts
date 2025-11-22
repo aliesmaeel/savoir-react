@@ -44,5 +44,7 @@ export default [
     route("/real-estate-guides", "routes/realEstateGuides.tsx"),
 
     route("/global-projects", "routes/globalProject.tsx"),
+
+    route("/privacy-policy", "routes/privacy-policy.tsx"),
   ]),
 ] satisfies RouteConfig;
