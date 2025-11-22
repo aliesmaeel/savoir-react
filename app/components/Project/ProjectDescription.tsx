@@ -91,7 +91,7 @@ export default function ProjectDescription() {
 
   const truncatedDescription = useMemo(() => {
     if (!property.description_en) return "";
-    return truncateHtml(property.description_en, 85);
+    return truncateHtml(property.description_en, 40);
   }, [property.description_en]);
 
   const shouldShowReadMore = useMemo(() => {
