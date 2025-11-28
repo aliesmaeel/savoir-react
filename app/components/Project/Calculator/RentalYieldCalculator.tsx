@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Card from "~/UI/Card";
 import CalculatorInput from "./CalculatorInput";
 import { useLoaderData } from "react-router";
@@ -13,10 +13,10 @@ function parseNumber(input: string | number): number {
   return isNaN(n) ? 0 : n;
 }
 
-function fmtAED(n: number): string {
+function fmtCurrency(n: number, currency: string = "AED"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "AED",
+    currency: currency || "AED",
     maximumFractionDigits: 0,
   }).format(Math.max(0, Math.round(n)));
 }
@@ -28,10 +28,27 @@ function fmtPct(n: number): string {
 export default function RentalYieldCalculator() {
   const { property, similar } = useLoaderData() as { property: any; similar: any };
 
-  const [price, setPrice] = useState(property.price);
-  const [svc, setSvc] = useState("18,000");
-  const [extra, setExtra] = useState("0");
-  const [rent, setRent] = useState("170,000");
+  const propertyPrice = parseNumber(property.price || 0);
+  const currency = property.currency || "AED";
+  
+  // Calculate defaults: annual rental = 7% of price, service charges = 0
+  const defaultAnnualRent = Math.round(propertyPrice * 0.07);
+  const defaultServiceCharges = 0;
+
+  const [price, setPrice] = useState<string>(propertyPrice.toLocaleString("en-US"));
+  const [svc, setSvc] = useState<string>("0");
+  const [extra, setExtra] = useState<string>("0");
+  const [rent, setRent] = useState<string>(defaultAnnualRent.toLocaleString("en-US"));
+
+  // Update values when property changes
+  useEffect(() => {
+    const newPropertyPrice = parseNumber(property.price || 0);
+    const newDefaultAnnualRent = Math.round(newPropertyPrice * 0.07);
+    
+    setPrice(newPropertyPrice.toLocaleString("en-US"));
+    setSvc("0");
+    setRent(newDefaultAnnualRent.toLocaleString("en-US"));
+  }, [property.price, property.currency]);
 
   const calc = useMemo(() => {
     const p = parseNumber(price);
@@ -68,8 +85,8 @@ export default function RentalYieldCalculator() {
         <div className="grid grid-cols-2 gap-x-[15px] gap-y-[27px] w-full">
           <CalculatorInput
             label="Property Price"
-            unit="AED"
-            placeholder="2,850,000"
+            unit={currency}
+            placeholder={propertyPrice.toLocaleString("en-US")}
             value={price}
             onChange={(e: any) => setPrice(e?.target?.value ?? "")}
             onBlur={() => setPrice(formatThousands(price))}
@@ -77,8 +94,8 @@ export default function RentalYieldCalculator() {
           />
           <CalculatorInput
             label="Annual services charges"
-            unit="AED"
-            placeholder="18,000"
+            unit={currency}
+            placeholder="0"
             value={svc}
             onChange={(e: any) => setSvc(e?.target?.value ?? "")}
             onBlur={() => setSvc(formatThousands(svc))}
@@ -86,7 +103,7 @@ export default function RentalYieldCalculator() {
           />
           <CalculatorInput
             label="Additional charges"
-            unit="AED"
+            unit={currency}
             placeholder="0"
             value={extra}
             onChange={(e: any) => setExtra(e?.target?.value ?? "")}
@@ -95,8 +112,8 @@ export default function RentalYieldCalculator() {
           />
           <CalculatorInput
             label="Annual rental price"
-            unit="AED"
-            placeholder="170,000"
+            unit={currency}
+            placeholder={defaultAnnualRent.toLocaleString("en-US")}
             value={rent}
             onChange={(e: any) => setRent(e?.target?.value ?? "")}
             onBlur={() => setRent(formatThousands(rent))}
@@ -111,7 +128,7 @@ export default function RentalYieldCalculator() {
               <p className="text-[18px]">NET ROI</p>
             </div>
             <div className="flex items-center justify-between w-full">
-              <p className="text-black text-[21px] font-semibold">{fmtAED(calc.net)}</p>
+              <p className="text-black text-[21px] font-semibold">{fmtCurrency(calc.net, currency)}</p>
               <p className="text-black text-[21px] font-semibold">{fmtPct(calc.netRoi)}</p>
             </div>
             <div className="flex items-center justify-between w-full">

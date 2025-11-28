@@ -54,7 +54,7 @@ export default function LuxuryPortfolio() {
       }`}
     >
       <Card className="flex flex-col items-start gap-[20px] lg:gap-[30px] w-full pt-[21px] lg:pt-[33px] pb-[147px] lg:pb-[36px] px-[17px] lg:px-[33px] h-full relative overflow-hidden">
-        <Title className="text-[22px] lg:text-[30px]">EXPLORE RECENT OFF PLAN PROJECTS</Title>
+        <Title className="text-[22px] lg:text-[30px]">LUXURY PORTFOLIO MAGAZINE</Title>
         <div className="flex flex-col items-start gap-[22px] w-full">
           <div className="flex flex-col items-start w-full">
             <p className="text-[#353635] text-[16px] lg:text-[25px] font-medium">
@@ -65,7 +65,7 @@ export default function LuxuryPortfolio() {
               perspectives on Real Estate, Design, Travel and Lifestyle.
             </p>
           </div>
-          <Link to={"/off-plan"}>
+          <Link to={"https://www.luxuryportfolio.com/magazine "} target="_blank">
             <Button className="w-[299px]">
               View all{" "}
               <img

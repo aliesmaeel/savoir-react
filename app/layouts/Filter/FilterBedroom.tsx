@@ -58,11 +58,11 @@ export default function FilterBedroom({
     setDraft(next);
     onChange?.(next);
   };
-  const setBathrooms = (v: CountLabel) => {
-    const next = { ...draft, bathrooms: v };
-    setDraft(next);
-    onChange?.(next);
-  };
+  // const setBathrooms = (v: CountLabel) => {
+  //   const next = { ...draft, bathrooms: v };
+  //   setDraft(next);
+  //   onChange?.(next);
+  // };
 
   const triggerSummary = useMemo(() => {
     const bedText =
@@ -72,17 +72,20 @@ export default function FilterBedroom({
           ? "Studio"
           : `${draft.bedrooms} Beds`;
 
-    if (!showBathrooms) return bedText;
+    // Hide bathrooms for now
+    return bedText;
 
-    const bathText =
-      draft.bathrooms === "Any"
-        ? "Any"
-        : draft.bathrooms === "Studio"
-          ? "Studio"
-          : `${draft.bathrooms} Bath${draft.bathrooms === "1" ? "" : "s"}`;
+    // if (!showBathrooms) return bedText;
 
-    return `${bedText} • ${bathText}`;
-  }, [draft, showBathrooms]);
+    // const bathText =
+    //   draft.bathrooms === "Any"
+    //     ? "Any"
+    //     : draft.bathrooms === "Studio"
+    //       ? "Studio"
+    //       : `${draft.bathrooms} Bath${draft.bathrooms === "1" ? "" : "s"}`;
+
+    // return `${bedText} • ${bathText}`;
+  }, [draft]);
 
   // styles (gold filled vs outline)
   const pillFilled =
@@ -109,23 +112,23 @@ export default function FilterBedroom({
     </button>
   );
 
-  const ItemBath = ({
-    option,
-    active,
-    onClick,
-  }: {
-    option: CountLabel;
-    active: boolean;
-    onClick: () => void;
-  }) => (
-    <button type="button" onClick={onClick} className={active ? pillFilled : pillOutline}>
-      {option === "Studio"
-        ? "Studio"
-        : option === "Any"
-          ? "Any"
-          : `${option} ${option === "1" ? "Bath" : "Baths"}`}
-    </button>
-  );
+  // const ItemBath = ({
+  //   option,
+  //   active,
+  //   onClick,
+  // }: {
+  //   option: CountLabel;
+  //   active: boolean;
+  //   onClick: () => void;
+  // }) => (
+  //   <button type="button" onClick={onClick} className={active ? pillFilled : pillOutline}>
+  //     {option === "Studio"
+  //       ? "Studio"
+  //       : option === "Any"
+  //         ? "Any"
+  //         : `${option} ${option === "1" ? "Bath" : "Baths"}`}
+  //   </button>
+  // );
 
   return (
     <div className={`relative w-full ${maxWidthClass}`} ref={wrapperRef}>
@@ -177,8 +180,8 @@ export default function FilterBedroom({
               </div>
             </div>
 
-            {/* Bathrooms */}
-            {showBathrooms && (
+            {/* Bathrooms - Commented out for now */}
+            {/* {showBathrooms && (
               <>
                 <div className="flex flex-col items-start gap-[12px] w-full">
                   <p className="text-white text-[18px] font-semibold">Bathrooms</p>
@@ -194,7 +197,7 @@ export default function FilterBedroom({
                   </div>
                 </div>
               </>
-            )}
+            )} */}
           </motion.div>
         )}
       </AnimatePresence>

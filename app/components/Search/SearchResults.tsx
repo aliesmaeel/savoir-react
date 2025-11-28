@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 import SearchSortBy from "./SearchSortBy";
 import ProjectCard from "../Cards/ProjectCard";
 import useArrow from "~/hooks/imageHooks/useArrow";
@@ -48,10 +49,13 @@ export default function SearchResults({ projects }: Props) {
               unlock a world of real estate opportunities with leading agents and re.
             </p>
           </div>
-          <button className="flex items-center gap-[3px] px-[24px] py-[9px] h-[45px] rounded-[10px] bg-[#fefefd]">
+          <Link
+            to="/list-with-us"
+            className="flex items-center gap-[3px] px-[24px] py-[9px] h-[45px] rounded-[10px] bg-[#fefefd]"
+          >
             <p className="text-[#C6A45A] text-[16px] font-semibold">List your property</p>
             <img loading="lazy" src={arrow.longGold} alt="" className="w-[16px] rotate-[-45deg]" />
-          </button>
+          </Link>
           <img
             loading="lazy"
             src={icon.Magazine}

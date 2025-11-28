@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Card from "~/UI/Card";
 import CalculatorInput from "./CalculatorInput";
 import Button from "~/UI/Button";
@@ -15,10 +15,10 @@ function parseNumber(input: string | number): number {
   return isNaN(n) ? 0 : n;
 }
 
-function fmtAED(n: number): string {
+function fmtCurrency(n: number, currency: string = "AED"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "AED",
+    currency: currency || "AED",
     maximumFractionDigits: 0,
   }).format(Math.max(0, Math.round(n)));
 }
@@ -44,10 +44,22 @@ function monthlyPayment({
 export default function MortgageCalculator() {
   const { property, similar } = useLoaderData() as { property: any; similar: any };
 
-  const [price, setPrice] = useState<string>(property.price);
-  const [deposit, setDeposit] = useState<string>("285,000");
+  const propertyPrice = parseNumber(property.price || 0);
+  const defaultDeposit = Math.round(propertyPrice * 0.1);
+  const currency = property.currency || "AED";
+
+  const [price, setPrice] = useState<string>(propertyPrice.toLocaleString("en-US"));
+  const [deposit, setDeposit] = useState<string>(defaultDeposit.toLocaleString("en-US"));
   const [years, setYears] = useState<string>("25");
   const [rate, setRate] = useState<string>("5");
+
+  // Update values when property changes
+  useEffect(() => {
+    const newPropertyPrice = parseNumber(property.price || 0);
+    const newDefaultDeposit = Math.round(newPropertyPrice * 0.1);
+    setPrice(newPropertyPrice.toLocaleString("en-US"));
+    setDeposit(newDefaultDeposit.toLocaleString("en-US"));
+  }, [property.price, property.currency]);
 
   const calc = useMemo(() => {
     const p = parseNumber(price);
@@ -85,8 +97,8 @@ export default function MortgageCalculator() {
         <div className="grid grid-cols-2 gap-x-[15px] gap-y-[27px] w-full">
           <CalculatorInput
             label="Property Price"
-            unit="AED"
-            placeholder="2,850,000"
+            unit={currency}
+            placeholder={propertyPrice.toLocaleString("en-US")}
             type="text"
             value={price}
             onChange={(e: any) => setPrice(e?.target?.value ?? "")}
@@ -94,8 +106,8 @@ export default function MortgageCalculator() {
           />
           <CalculatorInput
             label="Deposit"
-            unit="AED"
-            placeholder="285,000"
+            unit={currency}
+            placeholder={defaultDeposit.toLocaleString("en-US")}
             type="text"
             value={deposit}
             onChange={(e: any) => setDeposit(e?.target?.value ?? "")}
@@ -128,9 +140,9 @@ export default function MortgageCalculator() {
 
         <div className="flex flex-col items-start gap-[4px]">
           <p className="text-[18px]">Monthly Payment</p>
-          <p className="text-black text-[21px] font-semibold">{fmtAED(calc.m)}</p>
+          <p className="text-black text-[21px] font-semibold">{fmtCurrency(calc.m, currency)}</p>
           <p className="text-[12px] text-[#888]">
-            Principal: {fmtAED(Math.max(0, calc.p - calc.d))} • Term:{" "}
+            Principal: {fmtCurrency(Math.max(0, calc.p - calc.d), currency)} • Term:{" "}
             {Math.max(1, Math.floor(calc.y * 12))} months • Rate: {parseNumber(rate)}% APR
           </p>
         </div>

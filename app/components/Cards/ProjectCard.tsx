@@ -37,33 +37,20 @@ export default function ProjectCard({ project }: props) {
             </div>
           )}
         </div>
-        <div className="flex items-center justify-between w-full mt-[6px]">
-          <div className="flex items-center gap-[4px]">
-            <img
-              loading="lazy"
-              src={project.featured === 1 ? icon.locationWhite : icon.locationBlack}
-              alt=""
-              className="w-[18px]"
-            />
-            <p
-              className={`text-[13px] font-medium Jakarta ${project.featured === 1 && "text-white"}`}
-            >
-              {project.location}
-            </p>
-          </div>
-          <div className="flex items-center gap-[4px]">
-            <img
-              loading="lazy"
-              src={project.featured === 1 ? icon.ClockWhite : icon.Clock}
-              alt=""
-              className="w-[14px]"
-            />
-            <p
-              className={`text-[12px] font-medium Jakarta ${project.featured === 1 && "text-white"}`}
-            >
-              {project.updated_at}
-            </p>
-          </div>
+        <div className="flex items-center gap-[4px] w-full mt-[6px]">
+          <img
+            loading="lazy"
+            src={project.featured === 1 ? icon.locationWhite : icon.locationBlack}
+            alt=""
+            className="w-[18px]"
+          />
+          <p
+            className={`text-[13px] font-medium Jakarta ${project.featured === 1 && "text-white"}`}
+          >
+            {[project.subcommunity, project.community, project.city]
+              .filter(Boolean)
+              .join(", ")}
+          </p>
         </div>
         <img
           loading="lazy"
@@ -132,10 +119,28 @@ export default function ProjectCard({ project }: props) {
             </div>
           </div>
           <div className="flex items-center gap-[14px]">
-            <a href={`https://wa.me/${project.user.phone}`} target="_blank" rel="noreferrer">
+            <a
+              href={`https://wa.me/${project.user.phone}`}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                }
+              }}
+            >
               <img loading="lazy" src={icon.whatsapp} alt="" className="w-[34px]" />
             </a>
-            <a href={`tel:${project.user.phone}`}>
+            <a
+              href={`tel:${project.user.phone}`}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                }
+              }}
+            >
               <img loading="lazy" src={icon.callProjectCard} alt="" className="w-[39px]" />
             </a>
           </div>
