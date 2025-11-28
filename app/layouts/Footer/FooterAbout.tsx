@@ -45,7 +45,10 @@ export default function FooterAbout() {
       <p className="text-[13px] lg:text-[18.7px] leading-[200%]">
         Savoir Properties is committed to delivering a high level of expertise, customer service,
         and attention to detail to the marketing and sales of luxury real estate and rental
-        properties <span className="text-[#C6A45A] font-semibold underline">Read More</span>
+        properties{" "}
+        <Link to="/about-us" className="text-[#C6A45A] font-semibold underline">
+          Read More
+        </Link>
       </p>
 
       <div className="flex items-center w-full rounded-full border border-[#C6A45A] bg-[#ebebeb] h-[39px] lg:h-[54px] overflow-hidden">

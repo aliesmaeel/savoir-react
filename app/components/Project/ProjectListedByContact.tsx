@@ -10,6 +10,7 @@ type Props = {
 export default function ProjectListedByContact({ user }: Props) {
   const icon = useIcons();
   const [copied, setCopied] = useState(false);
+  const { property } = useLoaderData() as { property: any };
 
   const handleShareListing = async () => {
     try {
@@ -20,6 +21,39 @@ export default function ProjectListedByContact({ user }: Props) {
     } catch (error) {
       console.error("Failed to copy URL:", error);
     }
+  };
+
+  const handleBookingViewing = () => {
+    const agentEmail = user?.email;
+    if (!agentEmail || typeof window === "undefined") {
+      return;
+    }
+
+    const propertyTitle = property?.title_en || property?.title || "Property";
+    const propertyUrl = window.location.href;
+    
+    const subject = `Booking a Viewing - ${propertyTitle}`;
+    const body = [
+      "Dear " + (user?.name || "Agent") + ",",
+      "",
+      "I hope this message finds you well.",
+      "",
+      "I am interested in booking a viewing for the following property:",
+      `- Property: ${propertyTitle}`,
+      `- Property Link: ${propertyUrl}`,
+      "",
+      "I would like to schedule a viewing at your earliest convenience. Please let me know your available dates and times.",
+      "",
+      "Thank you for your time and assistance. I look forward to hearing from you soon.",
+      "",
+      "Best regards,",
+    ].join("\n");
+
+    const mailtoLink = `mailto:${agentEmail}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = mailtoLink;
   };
 
   return (
@@ -54,7 +88,11 @@ export default function ProjectListedByContact({ user }: Props) {
         </Link>
       </div>
       <div className="flex flex-col items-center gap-[21px] w-full">
-        <Button type="border" className="w-full gap-[9px] !py-[9px] !text-[18px]">
+        <Button
+          type="border"
+          className="w-full gap-[9px] !py-[9px] !text-[18px]"
+          onClick={handleBookingViewing}
+        >
           <img loading="lazy" src={icon.dateBlack} alt="" className="w-[27px]" />
           Booking a viewing
         </Button>

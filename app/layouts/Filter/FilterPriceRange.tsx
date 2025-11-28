@@ -24,7 +24,7 @@ export default function FilterPriceRange({
   onChange,
   onDraftChange,
   label = "Price Range",
-  placeholder = "Choose Price Range",
+  placeholder = "Price Range",
   currency = "AED",
   maxWidthClass = "max-w-[216.48px]",
 }: Props) {

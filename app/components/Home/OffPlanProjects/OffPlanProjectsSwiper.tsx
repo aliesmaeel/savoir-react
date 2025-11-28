@@ -64,7 +64,7 @@ function SlideCard({ item }: { item: any }) {
           to={`/off-plan/${item.link}`}
           className="absolute bottom-0 left-0 w-full py-[8px] lg:py-[15px] bg-[#6c645a] flex items-center justify-center gap-[6px] lg:gap-[15px]"
         >
-          <p className="text-[#C6A45A] text-[14px] lg:text-[20px]">Show more details</p>
+          <p className="text-[#C6A45A] text-[14px] lg:text-[20px]">{item.title}</p>
           <img
             loading="lazy"
             src={useArrow().veryLongGold}

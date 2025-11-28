@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import Card from "~/UI/Card";
+import Title from "~/UI/Title";
 import LocationsSwiper from "./LocationsSwiper";
 import { motion, useAnimation, type Variants } from "framer-motion";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
@@ -37,7 +38,8 @@ export default function Locations() {
       }
     >
       <Card className="h-full">
-        <div className="pt-[20px] lg:pt-[38px] pb-[19px] lg:pb-[36px]">
+      <div className="flex flex-col items-center gap-[17px] lg:gap-[30px] w-full pt-[17px] lg:pt-[33px] pb-[19px] lg:pb-[36px] ">
+          <Title className="text-[18px] lg:text-[30px]">EXPLORE POPULAR AREAS</Title>
           <LocationsSwiper />
         </div>
       </Card>
