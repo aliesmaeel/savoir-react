@@ -1,5 +1,5 @@
 // routes/globalProject.tsx
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useLoaderData } from "react-router";
 import { getGlobalProject } from "~/api/global.service";
 import AboutGlobal from "~/components/GlobalProject/AboutGlobal";
@@ -33,10 +33,10 @@ export default function GlobalProject() {
   const [currentGlobal, setCurrentGlobal] = useState<any>(global);
   const [currentCountry, setCurrentCountry] = useState<string>(country);
 
-  const handleCountryDataChange = (newCountry: string, newGlobal: any) => {
+  const handleCountryDataChange = useCallback((newCountry: string, newGlobal: any) => {
     setCurrentCountry(newCountry);
     setCurrentGlobal(newGlobal);
-  };
+  }, []);
 
   return (
     <div>

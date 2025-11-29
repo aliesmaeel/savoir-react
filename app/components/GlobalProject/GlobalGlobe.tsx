@@ -56,9 +56,21 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     try {
       const url = new URL(window.location.href);
       const fromUrl = url.searchParams.get(selectedParamKey);
-      if (!fromUrl) return;
+      if (!fromUrl || fromUrl.trim() === "") {
+        // If country param is empty, set default and update URL
+        const defaultCountry = "United Arab Emirates";
+        if (selectedCountry !== defaultCountry) {
+          setSelectedCountry(defaultCountry);
+        }
+        return;
+      }
       const canonical = findCanonical(fromUrl, selectedCountries);
-      if (canonical && canonical !== selectedCountry) setSelectedCountry(canonical);
+      if (canonical && canonical !== selectedCountry) {
+        setSelectedCountry(canonical);
+      } else if (!canonical && selectedCountry !== "United Arab Emirates") {
+        // If country from URL is not valid, default to UAE
+        setSelectedCountry("United Arab Emirates");
+      }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -68,8 +80,14 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     if (!syncSelectedToUrl) return;
     try {
       const url = new URL(window.location.href);
-      url.searchParams.set(selectedParamKey, norm(selectedCountry));
-      window.history.replaceState(null, "", url.toString());
+      const currentParam = url.searchParams.get(selectedParamKey);
+      const normalizedSelected = norm(selectedCountry);
+      
+      // Only update URL if it's different to avoid unnecessary updates
+      if (currentParam !== normalizedSelected) {
+        url.searchParams.set(selectedParamKey, normalizedSelected);
+        window.history.replaceState(null, "", url.toString());
+      }
     } catch {}
   }, [selectedCountry, syncSelectedToUrl, selectedParamKey]);
 
@@ -213,9 +231,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-0">
       <div className="flex flex-col items-start gap-[15px] lg:gap-[37px]">
         <div className="flex flex-col items-start">
-          <p className="text-[20px] lg:text-[51px] text-white">
-            Real estate agents in {selectedCountry}
-          </p>
+        
           <p className="text-white/60 text-[15px] lg:text-[31px]">
             Explore properties in {selectedCountry}
           </p>
