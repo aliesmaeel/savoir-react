@@ -57,7 +57,8 @@ const GlobalProjectHero: React.FC<GlobalProjectHeroProps> = ({
     return () => {
       alive = false;
     };
-  }, [selectedCountry, onCountryDataChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountry]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-[100vh] relative ">

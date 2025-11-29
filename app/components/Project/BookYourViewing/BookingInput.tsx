@@ -58,7 +58,7 @@ export default function BookingInput({
           inputClassName={`!bg-transparent !border-0 !outline-none !shadow-none !ring-0 !w-full !font-medium ${
             white
               ? "!text-white !placeholder-white !text-[15px]"
-              : "!text-[10px] !placeholder-[#666]"
+              : "!text-[15px] !placeholder-[#666]"
           }`}
           inputProps={{
             ...accessibilityProps,
@@ -98,7 +98,7 @@ export default function BookingInput({
           minLength={minLength}
           maxLength={maxLength}
           aria-label={ariaLabel}
-          className="w-full bg-transparent border-0 outline-none text-[10px] font-medium placeholder-[#666] h-[30px]"
+          className="w-full bg-transparent border-0 outline-none text-[15px] font-medium placeholder-[#666] h-[30px]"
         />
       </div>
     );
@@ -125,7 +125,7 @@ export default function BookingInput({
         inputMode={inputMode}
         aria-label={ariaLabel}
         className={`block w-full bg-transparent border-0 outline-none font-medium ${
-          white ? "placeholder-white text-white text-[15px]" : "placeholder-[#666] text-[10px]"
+          white ? "placeholder-white text-white text-[15px]" : "placeholder-[#666] text-[15px]"
         }`}
       />
     </div>
