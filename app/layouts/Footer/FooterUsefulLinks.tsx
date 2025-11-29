@@ -40,7 +40,7 @@ export default function FooterUsefulLinks() {
     },
     {
       key: 8,
-      title: "realEstateGuides",
+      title: "Real Estate Guides",
       link: "/real-estate-guides",
     },
   ];
