@@ -30,7 +30,7 @@ export default function MemberHero() {
         className="w-full h-[100vh]  object-cover"
       />
       <div className="flex flex-col items-center justify-center w-full h-[100vh]  absolute top-0 left-0 px-[45px]">
-        <div className="flex flex-col-reverse lg:flex-row items-start lg:items-center gap-[30px] lg:gap-[60px]  absolute left-0 bottom-0 z-20 w-full">
+        <div className="flex flex-col-reverse lg:flex-row items-start lg:items-center gap-[30px] lg:gap-[60px]  absolute left-0 bottom-0 z-20 w-full mix-blend-multiply">
           <img
             loading="lazy"
             src={team.image_border}
