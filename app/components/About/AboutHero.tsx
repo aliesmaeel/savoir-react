@@ -3,14 +3,14 @@ import SearchFilter from "~/layouts/Filter/SearchFilter";
 
 export default function AboutHero() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-screen relative">
+    <div className="flex flex-col items-center justify-center w-full h-[85vh] lg:h-screen relative">
       <img
         loading="lazy"
         src="/images/placeholders/teams2.jpeg"
         alt=""
-        className="w-full h-screen object-cover  brightness-50"
+        className="w-full h-[85vh] lg:h-screen object-contain lg:object-cover brightness-50"
       />
-      <div className="flex flex-col items-center justify-center w-full h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
+      <div className="flex flex-col items-center justify-center w-full h-[85vh] lg:h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[61px] w-full">
           <div className="flex flex-col items-center gap-[9px]">
             <h1 className="text-white text-[25px] lg:text-[91px]">About US</h1>

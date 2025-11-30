@@ -117,6 +117,22 @@ export default function Search() {
     fetchProjects(page);
   };
 
+  // Determine FAQ title based on search params
+  const getFAQTitle = () => {
+    const params = new URLSearchParams(location.search);
+    const status = params.get("status") || "All";
+    const interested = params.get("interested") || "Rent";
+    
+    if (status === "Off-plan") {
+      return "FAQs about offPlan properties in Dubai";
+    } else if (interested === "Rent") {
+      return "FAQs about rental properties in Dubai";
+    } else if (interested === "Buy") {
+      return "FAQs about properties for sale in Dubai";
+    }
+    return "FAQs about properties in Dubai";
+  };
+
   return (
     <div className="relative">
       <SearchHero />
@@ -135,7 +151,7 @@ export default function Search() {
         </div>
         <div className="flex flex-col items-center gap-[22px] lg:gap-[53px] w-full mt-[66px]">
           <p className="text-black text-[16px] lg:text-[36px] font-medium">
-            FAQs about rental properties in Dubai UAE
+            {getFAQTitle()}
           </p>
           <FAQs questions={faq} />
         </div>

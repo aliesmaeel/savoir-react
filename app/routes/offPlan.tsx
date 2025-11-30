@@ -12,6 +12,7 @@ import ProjectPageSwiper from "~/components/Project/ProjectPageSwiper";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import PageLayout from "~/layouts/PageLayout";
 import FAQs from "~/UI/FAQs";
+import { formatPrice } from "~/utils/formatPrice";
 
 export async function clientLoader({ params }: { params: { offPlanSlug: string } }) {
   const offPlanSlug = params.offPlanSlug;
@@ -48,7 +49,7 @@ export default function offPlan() {
             <div className="flex flex-col items-start gap-[2px]">
               <p className="text-[14px] font-medium">Price</p>
               <p className="text-[#C6A45A] text-[27px] font-bold">
-                {property.starting_price}
+                {formatPrice(property.starting_price)}
               </p>
             </div>
           </div>
@@ -69,7 +70,7 @@ export default function offPlan() {
         <ProjectFeatures />
         <div className="flex flex-col items-start gap-[53px] w-full mt-[90px]">
           <p className="text-black text-[36px] font-medium">
-            FAQs about rental properties in Dubai UAE
+            FAQs about offPlan properties in Dubai
           </p>
           <FAQs questions={faq} />
         </div>

@@ -191,7 +191,7 @@ export default function ContactUsForm() {
 
           <div className="flex flex-col lg:flex-row items-center gap-[17px]">
             <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
-            <Link to="#" className="flex items-center gap-[9px]">
+            <Link to="https://wa.me/971505074686" target="_blank" rel="noreferrer" className="flex items-center gap-[9px]">
               <img loading="lazy" src={icon.whatsappGold} alt="" className="w-[27px]" />
               <p className="text-[#C6A45A] text-[18px] font-medium">Whatsapp</p>
             </Link>

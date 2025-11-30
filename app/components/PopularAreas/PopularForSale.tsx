@@ -2,6 +2,7 @@ import React from "react";
 import { useLoaderData } from "react-router";
 import { SwiperSlide } from "swiper/react";
 import ProjectCard from "~/components/Cards/ProjectCard";
+import project from "~/routes/project";
 import ThreeSwiper from "~/UI/ThreeSwiper";
 
 export default function PopularForSale() {

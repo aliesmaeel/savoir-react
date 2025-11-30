@@ -228,8 +228,8 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const icon = useIcons();
 
   return (
-    <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-0">
-      <div className="flex flex-col items-start gap-[15px] lg:gap-[37px]">
+    <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-0 mt-[20vh] lg:mt-0">
+      <div className="flex flex-col items-start gap-[15px] lg:gap-[37px] w-full lg:w-auto">
         <div className="flex flex-col items-start">
         
           <p className="text-white/60 text-[15px] lg:text-[31px]">
@@ -299,7 +299,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
         </div>
       </div>
 
-      <div className={className} style={style}>
+      <div className={`${className} hidden lg:block`} style={style}>
         <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       </div>
     </div>

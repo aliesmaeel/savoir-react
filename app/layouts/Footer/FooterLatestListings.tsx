@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getLatestListings } from "~/api/latestListings.service";
+import { formatPrice } from "~/utils/formatPrice";
 
 export default function FooterLatestListings() {
   const [items, setItems] = useState<any[]>([]);
@@ -62,7 +63,7 @@ export default function FooterLatestListings() {
           const title = item.title_en || item.title || "Property";
           const image = item.photo || item.image || "/images/placeholders/properties.webp";
           const price = item.price
-            ? `${item.price.toLocaleString()} ${item.currency || "AED"}`
+            ? `${formatPrice(item.price)} ${item.currency || "AED"}`
             : item.price_display || "Price on request";
 
           return (

@@ -3,6 +3,7 @@ import styles from "./ProjectCard.module.css";
 import { Link } from "react-router";
 import Card from "~/UI/Card";
 import useIcons from "~/hooks/imageHooks/useIcons";
+import { formatPrice } from "~/utils/formatPrice";
 
 type props = {
   project: any;
@@ -10,6 +11,7 @@ type props = {
 
 export default function ProjectCard({ project }: props) {
   const icon = useIcons();
+  
   return (
     <Card luxury={project.featured === 1} className="!rounded-[46.534px]">
       <Link to={`/project/${project.slug}`} className="block px-[24px] pb-[28px] pt-[21px]">
@@ -17,7 +19,7 @@ export default function ProjectCard({ project }: props) {
           <p
             className={`text-[21px] font-semibold ${project.featured === 1 ? styles.priceLuxury : styles.price}`}
           >
-            {project.price} {project.currency}
+            {formatPrice(project.price)} {project.currency}
           </p>
           {project.featured === 1 ? (
             <div className="flex items-center justify-center px-[7px] py-[3px] rounded-[6px] h-[22px] bg-[#C6A45A] w-[81px]">

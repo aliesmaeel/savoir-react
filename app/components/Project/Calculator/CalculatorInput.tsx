@@ -37,7 +37,7 @@ export default function CalculatorInput({
 }: Props) {
   return (
     <div className={`flex flex-col items-start gap-[11px] w-full ${containerClassName}`}>
-      <label htmlFor={id} className="text-[15px] font-semibold">
+      <label htmlFor={id} className="text-[15px] font-semibold h-[35px] lg:h-auto">
         {label}
       </label>
 
@@ -57,7 +57,7 @@ export default function CalculatorInput({
           inputMode={type === "number" ? "decimal" : undefined}
           className={`flex-1 border-0 outline-0 bg-transparent text-[#353635B2] text-[13px] ${inputClassName}`}
         />
-        {unit ? <span className="text-[#353635B2] text-[13px] select-none">{unit}</span> : null}
+        {unit ? <span className="hidden lg:inline text-[#353635B2] text-[13px] select-none">{unit}</span> : null}
       </div>
     </div>
   );
