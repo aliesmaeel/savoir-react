@@ -73,9 +73,9 @@ const GlobalProjectHero: React.FC<GlobalProjectHeroProps> = ({
         <div className="w-full h-full bg-[#00000026] absolute top-0 left-0" />
       </div>
 
-      <div className="flex flex-col items-center justify-center w-full h-[100vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
+      <div className=" lg:flex flex-col items-center justify-center w-full h-[100vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <GlobalGlobe
-          size={isMobile ? 300 : 559}
+          size={isMobile ? 400 : 559}
           globeScale={0.8}
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry}

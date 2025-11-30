@@ -2,14 +2,14 @@ import React from "react";
 
 export default function ListHero() {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[150vh] relative">
+    <div className="flex flex-col items-center justify-center w-full h-[80vh] lg:h-[150vh] relative">
       <img
         loading="lazy"
         src="/images/placeholders/memberBg.svg"
         alt=""
-        className="w-full h-[150vh]  object-cover"
+        className="w-full h-[80vh] lg:h-[150vh] object-cover"
       />
-      <div className="flex flex-col items-center justify-center w-full h-[150vh]  absolute top-0 left-0 px-[16px] lg:px-[45px]">
+      <div className="flex flex-col items-center justify-center w-full h-[80vh] lg:h-[150vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[53.68px] w-full">
           <div className="flex flex-col items-center gap-[17px]">
             <h1 className=" text-[20px] lg:text-[45px] font-semibold">

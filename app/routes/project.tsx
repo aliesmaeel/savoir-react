@@ -12,6 +12,7 @@ import ProjectPageSwiper from "~/components/Project/ProjectPageSwiper";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import PageLayout from "~/layouts/PageLayout";
 import DontMissBeat from "~/UI/DontMissBeat";
+import { formatPrice } from "~/utils/formatPrice";
 
 export async function clientLoader({ params }: { params: { projectSlug: string } }) {
   const projectSlug = params.projectSlug;
@@ -46,7 +47,7 @@ export default function project() {
         <div className="flex flex-col items-start gap-[2px]">
           <p className="text-[14px] font-medium">Price</p>
           <p className="text-[#C6A45A] text-[27px] font-bold">
-            {property.price?.toLocaleString()} {property.currency}
+            {formatPrice(property.price)} {property.currency}
           </p>
         </div>
       </div>

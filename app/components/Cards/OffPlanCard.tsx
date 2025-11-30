@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
 import Card from "~/UI/Card";
+import { formatPrice } from "~/utils/formatPrice";
 
 type props = {
   project: any;
@@ -34,7 +35,7 @@ export default function OffPlanCard({ project }: props) {
         </div>
         <hr className="w-full border-[#00000080] mt-[23px]" />
         <p className="text-[#666] text-[22px] mt-[21px]">Handover in {project.completion_date}</p>
-        <Button className="w-full text-[21px] !py-[6px] h-[45px] mt-[24px]">From {project.starting_price}</Button>
+        <Button className="w-full text-[21px] !py-[6px] h-[45px] mt-[24px]">From {formatPrice(project.starting_price)}</Button>
       </Link>
     </Card>
   );

@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import { Link } from "react-router";
+import { formatPrice } from "~/utils/formatPrice";
 
 type Props = {
   properties: any;
@@ -36,7 +37,7 @@ export default function PropertiesSwiper({ properties }: any) {
               <div className="flex flex-col items-start w-full">
                 <div className="flex items-center justify-between w-full py-[12px] lg:py-[23px]">
                   <p className="text-[#353635] text-[14px] lg:text-[26px] Jakarta font-bold">
-                    {item.price.toLocaleString()} AED
+                    {formatPrice(item.price)} AED
                   </p>
                   <div
                     className="px-[6px] lg:px-[11.8px] py-[3px] lg:py-[5px] rounded-[5px] lg:rounded-[10px] h-[18px] lg:h-[33px]"

@@ -1,4 +1,5 @@
 import React from "react";
+import { formatPrice } from "~/utils/formatPrice";
 
 export default function AveragePrices() {
   const prices = [
@@ -62,9 +63,9 @@ export default function AveragePrices() {
               </div>
               <div className="flex items-center justify-between px-[21px] py-[7px] rounded-full border border-[#262626] w-full max-w-[364px]">
                 <p className="text-[16px] font-medium">
-                  from {item.from} to {item.to}
+                  from {formatPrice(item.from)} to {formatPrice(item.to)}
                 </p>
-                <p className="text-[16px] font-medium">avg. AED {item.avg}</p>
+                <p className="text-[16px] font-medium">avg. AED {formatPrice(item.avg)}</p>
               </div>
             </div>
             <hr className="w-full border-[#31313166] last:hidden" />

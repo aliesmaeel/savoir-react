@@ -37,7 +37,7 @@ export default function popularAreas() {
         <PopularLocation />
         <div className="flex flex-col items-start gap-[41px] w-full mt-[108px]">
           <p className="text-black text-[20px] lg:text-[36px] font-medium">
-            FAQs about rental properties in Dubai UAE
+            FAQs about properties in Dubai
           </p>
           <FAQs questions={faq} />
         </div>

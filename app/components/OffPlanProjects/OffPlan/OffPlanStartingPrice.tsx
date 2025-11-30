@@ -4,6 +4,7 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
 import Popup from "~/UI/Popup";
 import OffPlanPopup from "./OffPlanPopup";
+import { formatPrice } from "~/utils/formatPrice";
 
 export default function OffPlanStartingPrice() {
   const { property } = useLoaderData() as { property: any };
@@ -34,7 +35,7 @@ export default function OffPlanStartingPrice() {
 
       <div className="flex flex-col">
         <p className="text-[25px]">Starting Price</p>
-        <p className="text-[37px] font-semibold">{property.starting_price || "N/A"}</p>
+        <p className="text-[37px] font-semibold">{formatPrice(property.starting_price) || "N/A"}</p>
       </div>
       <div className="flex flex-col items-start gap-[21px] w-full">
         {features.map((feature: any, index: number) => (
