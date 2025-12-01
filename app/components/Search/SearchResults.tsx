@@ -60,7 +60,7 @@ export default function SearchResults({ projects }: Props) {
             loading="lazy"
             src={icon.Magazine}
             alt=""
-            className="absolute bottom-0 right-0 w-[200px]"
+            className="absolute bottom-[-25px] right-0 w-[200px]"
           />
         </div>
         {projects.map((project: any, index: number) => (
