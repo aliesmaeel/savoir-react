@@ -34,14 +34,16 @@ export default function ContactUsForm() {
   const social = useMemo(
     () => [
       {
-        icon: icon.contactLinkedin,
+        icon: icon.facebook,
         link: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/",
       },
       {
-        icon: icon.contactInstagram,
+        icon: icon.instagram,
         link: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==",
       },
-      { icon: icon.contactTwitter, link: "" },
+      { icon: icon.x, link: "" },
+      {icon: icon.tiktok, link: ""},
+      {icon: icon.youtube, link: ""},
     ],
     [icon]
   );
@@ -114,10 +116,15 @@ export default function ContactUsForm() {
               ))}
             </div>
           </div>
-          <div className="flex gap-[19px]">
+          <div className="flex gap-[10px]">
             {social.map((s, index) => (
               <Link key={index} to={s.link} target="_blank" rel="noreferrer">
-                <img loading="lazy" width={'35px'} height={'35px'}  src={s.icon} alt="" />
+                <img
+                  loading="lazy"
+                  src={s.icon}
+                  alt=""
+                  className="w-[48px] h-[48px] lg:w-[70px] lg:h-[70px]"
+                />
               </Link>
             ))}
           </div>
