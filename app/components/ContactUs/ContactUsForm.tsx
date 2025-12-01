@@ -118,14 +118,14 @@ export default function ContactUsForm() {
           </div>
           <div className="flex gap-[10px]">
             {social.map((s, index) => (
-              <Link key={index} to={s.link} target="_blank" rel="noreferrer">
+              <a key={index} href={s.link} target="_blank" rel="noreferrer">
                 <img
                   loading="lazy"
                   src={s.icon}
                   alt=""
                   className="w-[48px] h-[48px] lg:w-[70px] lg:h-[70px]"
                 />
-              </Link>
+              </a>
             ))}
           </div>
         </div>

@@ -13,8 +13,8 @@ export default function FooterAbout() {
   const icons = [
     { icon: icon.facebook, path: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/" },
     { icon: icon.instagram, path: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==" },
-    { icon: icon.x, path: "#" },
-    { icon: icon.tiktok, path: "#" },
+    { icon: icon.x, path: "https://x.com/savoirprive" },
+    { icon: icon.tiktok, path: "https://www.tiktok.com/@savoir_properties" },
     { icon: icon.youtube, path: "http://youtube.com/@SavoirPriveProperties" },
   ];
 
@@ -74,9 +74,9 @@ export default function FooterAbout() {
 
       <div className="flex items-center gap-[14px] lg:gap-[19px]">
         {icons.map((i, index) => (
-          <Link key={index} to={i.path}>
+          <a key={index} href={i.path} target="_blank" rel="noreferrer">
             <img loading="lazy" src={i.icon} alt="" className="w-[35px] h-[35px] lg:w-[48px] lg:h-[48px]" />
-          </Link>
+          </a>
         ))}
       </div>
     </div>
