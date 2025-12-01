@@ -22,69 +22,101 @@ export default function ProjectDescription() {
 
   const icon = useIcons();
 
-  const truncateHtml = (html: string, wordLimit: number): string => {
-    if (!html) return "";
-    
+  // Helper function to count words from HTML content
+  const countWords = (html: string): number => {
+    if (!html) return 0;
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
     const text = tempDiv.textContent || tempDiv.innerText || "";
     const words = text.trim().split(/\s+/).filter((word) => word.length > 0);
+    return words.length;
+  };
+
+  const truncateHtml = (html: string, wordLimit: number): string => {
+    if (!html) return "";
     
-    if (words.length <= wordLimit) {
+    const wordCount = countWords(html);
+    if (wordCount <= wordLimit) {
       return html;
     }
 
-    // Get the first 85 words
-    const truncatedWords = words.slice(0, wordLimit);
-    const truncatedText = truncatedWords.join(" ");
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
     
-    // Find the position in the original text where we should cut
-    const textBeforeTruncation = text.substring(0, text.indexOf(truncatedText) + truncatedText.length);
-    
-    // Try to find a good breaking point (end of sentence or word boundary)
-    let cutPosition = textBeforeTruncation.length;
-    const lastChar = textBeforeTruncation[cutPosition - 1];
-    
-    // If we're in the middle of a word, try to find the end of the last complete word
-    if (lastChar && lastChar.match(/\w/)) {
-      const lastSpaceIndex = textBeforeTruncation.lastIndexOf(" ");
-      if (lastSpaceIndex > 0) {
-        cutPosition = lastSpaceIndex;
-      }
-    }
-    
-    // Create a temporary element to find where to cut in HTML
+    // Walk through text nodes and count words
     const walker = document.createTreeWalker(
       tempDiv,
       NodeFilter.SHOW_TEXT,
       null
     );
     
-    let currentTextLength = 0;
+    let wordCountSoFar = 0;
     let node: Node | null = null;
+    let cutNode: Node | null = null;
+    const nodesToRemove: Node[] = [];
     
     while ((node = walker.nextNode())) {
       const nodeText = node.textContent || "";
-      const nextLength = currentTextLength + nodeText.length;
+      const words = nodeText.trim().split(/\s+/).filter((word) => word.length > 0);
+      const nodeWordCount = words.length;
       
-      if (nextLength >= cutPosition) {
-        // We found the node where we need to cut
-        const remainingChars = cutPosition - currentTextLength;
-        if (remainingChars > 0 && node.textContent) {
-          node.textContent = node.textContent.substring(0, remainingChars) + "...";
+      if (wordCountSoFar + nodeWordCount >= wordLimit) {
+        cutNode = node;
+        // Calculate how many words we need from this node
+        const wordsNeeded = wordLimit - wordCountSoFar;
+        
+        if (wordsNeeded <= 0) {
+          // We've already reached the limit, mark this node for removal
+          nodesToRemove.push(node);
+        } else {
+          // Take only the needed words from this node
+          const wordsToKeep = words.slice(0, wordsNeeded);
+          
+          // Find the position in the original text where these words end
+          let searchPos = 0;
+          let charPos = 0;
+          for (let i = 0; i < wordsNeeded && i < words.length; i++) {
+            const wordIndex = nodeText.indexOf(words[i], searchPos);
+            if (wordIndex >= 0) {
+              charPos = wordIndex + words[i].length;
+              searchPos = charPos;
+            }
+          }
+          
+          // Find the last space to cut at word boundary
+          const textBeforeCut = nodeText.substring(0, charPos);
+          const lastSpaceIndex = textBeforeCut.lastIndexOf(" ");
+          const cutPosition = lastSpaceIndex > 0 ? lastSpaceIndex : charPos;
+          
+          if (node.textContent) {
+            node.textContent = nodeText.substring(0, cutPosition).trim() + "...";
+          }
         }
-        // Remove all following nodes
-        let nextNode: Node | null = node.nextSibling;
-        while (nextNode) {
-          const toRemove = nextNode;
-          nextNode = nextNode.nextSibling;
-          toRemove.parentNode?.removeChild(toRemove);
+        
+        // Mark all remaining nodes for removal
+        while ((node = walker.nextNode())) {
+          nodesToRemove.push(node);
         }
         break;
       }
       
-      currentTextLength = nextLength;
+      wordCountSoFar += nodeWordCount;
     }
+    
+    // Remove all marked nodes
+    nodesToRemove.forEach(nodeToRemove => {
+      if (nodeToRemove.parentNode) {
+        nodeToRemove.parentNode.removeChild(nodeToRemove);
+      }
+    });
+    
+    // Remove empty parent elements that might be left behind
+    const emptyElements = tempDiv.querySelectorAll("*");
+    emptyElements.forEach((el) => {
+      if (el.textContent?.trim() === "" && el.children.length === 0) {
+        el.remove();
+      }
+    });
     
     return tempDiv.innerHTML;
   };
@@ -96,11 +128,7 @@ export default function ProjectDescription() {
 
   const shouldShowReadMore = useMemo(() => {
     if (!property.description_en) return false;
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = property.description_en;
-    const text = tempDiv.textContent || tempDiv.innerText || "";
-    const words = text.trim().split(/\s+/);
-    return words.length > 85;
+    return countWords(property.description_en) > 40;
   }, [property.description_en]);
 
   const handleOpenPopup = () => {
