@@ -43,7 +43,7 @@ export default function ContactUsForm() {
       },
       { icon: icon.x, link: "" },
       {icon: icon.tiktok, link: ""},
-      {icon: icon.youtube, link: ""},
+      {icon: icon.youtube, link: "http://youtube.com/@SavoirPriveProperties"},
     ],
     [icon]
   );

@@ -11,11 +11,11 @@ export default function FooterAbout() {
   const [loading, setLoading] = useState(false);
 
   const icons = [
-    { icon: icon.facebook, path: "#" },
-    { icon: icon.instagram, path: "#" },
+    { icon: icon.facebook, path: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/" },
+    { icon: icon.instagram, path: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==" },
     { icon: icon.x, path: "#" },
     { icon: icon.tiktok, path: "#" },
-    { icon: icon.youtube, path: "#" },
+    { icon: icon.youtube, path: "http://youtube.com/@SavoirPriveProperties" },
   ];
 
   const validEmail = (v: string) => /^\S+@\S+\.\S+$/.test(v);

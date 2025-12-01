@@ -82,7 +82,7 @@ export default function LuxuryPortfolio() {
         <img
           src={icon.Magazine}
           alt=""
-          className={`absolute bottom-[-44px] right-[-30px] w-[158px] lg:w-[341px] transition-all duration-[600ms] ease-out delay-[700ms] ${
+          className={`absolute bottom-[-70px] right-[-30px] w-[158px] lg:w-[341px] transition-all duration-[600ms] ease-out delay-[700ms] ${
             isVisible || isMobile
               ? "opacity-100 translate-x-0 translate-y-0 scale-100"
               : "opacity-0 translate-x-[100px] translate-y-[100px] scale-90"
