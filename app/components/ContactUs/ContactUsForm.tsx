@@ -41,8 +41,8 @@ export default function ContactUsForm() {
         icon: icon.instagram,
         link: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==",
       },
-      { icon: icon.x, link: "" },
-      {icon: icon.tiktok, link: ""},
+      { icon: icon.x, link: "https://x.com/savoirprive" },
+      {icon: icon.tiktok, link: "https://www.tiktok.com/@savoir_properties"},
       {icon: icon.youtube, link: "http://youtube.com/@SavoirPriveProperties"},
     ],
     [icon]
