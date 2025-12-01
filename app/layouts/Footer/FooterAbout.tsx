@@ -11,9 +11,11 @@ export default function FooterAbout() {
   const [loading, setLoading] = useState(false);
 
   const icons = [
-    { icon: icon.facebookFooter, path: "#" },
-    { icon: icon.instagramFooter, path: "#" },
-    { icon: icon.twitterFooter, path: "#" },
+    { icon: icon.facebook, path: "#" },
+    { icon: icon.instagram, path: "#" },
+    { icon: icon.x, path: "#" },
+    { icon: icon.tiktok, path: "#" },
+    { icon: icon.youtube, path: "#" },
   ];
 
   const validEmail = (v: string) => /^\S+@\S+\.\S+$/.test(v);
@@ -73,7 +75,7 @@ export default function FooterAbout() {
       <div className="flex items-center gap-[14px] lg:gap-[19px]">
         {icons.map((i, index) => (
           <Link key={index} to={i.path}>
-            <img loading="lazy" src={i.icon} alt="" className="w-[35px] lg:w-[48px]" />
+            <img loading="lazy" src={i.icon} alt="" className="w-[35px] h-[35px] lg:w-[48px] lg:h-[48px]" />
           </Link>
         ))}
       </div>
