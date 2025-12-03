@@ -41,8 +41,8 @@ export default function newsPage() {
         <div className="flex flex-col items-start gap-[37px] w-full mt-[75px]">
           <p className="text-black text-[31px] font-medium">You might also be interested in...</p>
           <ThreeSwiper>
-            {news.map((newsItem: any) => (
-              <SwiperSlide>
+            {news.map((newsItem: any, index: number) => (
+              <SwiperSlide key={newsItem.id || index}>
                 <NewsCard newsItem={newsItem} />
               </SwiperSlide>
             ))}
