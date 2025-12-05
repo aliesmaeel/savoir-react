@@ -10,7 +10,7 @@ export default function BlogsHero() {
         loading="lazy"
         src={blog.blog_image[0].url}
         alt=""
-        className="w-full h-screen object-contain lg:object-cover"
+        className="w-full h-auto lg:h-screen object-contain lg:object-cover"
       />
       <div className="flex flex-col items-center justify-center w-full h-[50vh] lg:h-screen absolute top-0 left-0 px-[16px] lg:px-[45px]">
         <div className="flex flex-col items-center gap-[53.68px] w-full max-w-[1226px]">
@@ -19,7 +19,7 @@ export default function BlogsHero() {
           </div>
         </div>
         <div
-          className="absolute bottom-0 left-0 w-full h-[176px] z-10"
+          className="absolute bottom-0 left-0 w-full h-auto lg:h-[176px] z-10"
           style={{
             background: "linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%)",
           }}
