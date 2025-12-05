@@ -5,7 +5,7 @@ export default function BlogsHero() {
   const { blog } = useLoaderData() as { blog: any };
   console.log(blog);
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[48vh] lg:h-screen relative">
+    <div className="flex flex-col items-center justify-center w-full h-[38vh] lg:h-screen relative">
       <img
         loading="lazy"
         src={blog.blog_image[0].url}
