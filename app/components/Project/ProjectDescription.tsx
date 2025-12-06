@@ -205,7 +205,7 @@ export default function ProjectDescription() {
             <p className="text-[#505050] text-[8px] lg:text-[16px] font-medium">
               Completion Status:
             </p>
-            <p className="text-[#C6A45A] text-[10px] lg:text-[18px] font-semibold">Offplan</p>
+            <p className="text-[#C6A45A] text-[10px] lg:text-[18px] font-semibold">{property.completion_status}</p>
           </div>
         </div>
       </div>
