@@ -39,7 +39,7 @@ export default function ScrollToTop() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="fixed bottom-[30px] right-[30px] z-50 w-[50px] h-[50px] lg:w-[60px] lg:h-[60px] bg-[#B59B62] rounded-full flex items-center justify-center shadow-lg hover:bg-[#9d8552] transition-colors duration-200"
+          className="fixed bottom-[5px] right-[30px] z-50 w-[50px] h-[50px] lg:w-[60px] lg:h-[60px] bg-[#B59B62] rounded-full flex items-center justify-center shadow-lg hover:bg-[#9d8552] transition-colors duration-200"
           aria-label="Scroll to top"
           tabIndex={0}
         >
