@@ -71,6 +71,52 @@ export default function App() {
   useEffect(() => {
     requestAnimationFrame(() => AOS.refreshHard());
   }, [pathname]);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.id = "chatbot-embed";
+    script.src = "https://chat.savoirproperties.com/embed.js";
+    script.setAttribute("data-server-url", "https://chat.savoirproperties.com");
+
+    document.body.appendChild(script);
+
+    // Style the chatbot button after it loads
+    const styleChatbotButton = () => {
+      const chatbotButton = document.querySelector(
+        '[data-chatbot-button], #chatbot-button, .chatbot-button, [id*="chatbot"], [class*="chatbot"]'
+      ) as HTMLElement;
+      if (chatbotButton) {
+        chatbotButton.style.bottom = "40px";
+        chatbotButton.style.top = "auto";
+        chatbotButton.style.transform = "scale(0.4)";
+        chatbotButton.style.right = "40px";
+      }
+    };
+
+    // Try to style immediately and also after a delay to catch dynamically created buttons
+    setTimeout(styleChatbotButton, 100);
+    setTimeout(styleChatbotButton, 500);
+    setTimeout(styleChatbotButton, 1000);
+
+    // Use MutationObserver to watch for dynamically added chatbot elements
+    const observer = new MutationObserver(() => {
+      styleChatbotButton();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      const existingScript = document.getElementById("chatbot-embed");
+      if (existingScript) {
+        document.body.removeChild(existingScript);
+      }
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <NotificationsProvider>
       <Outlet />

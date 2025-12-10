@@ -104,3 +104,14 @@ input[type="number"] {
   background: #fff;
   border-radius: 100px;
 }
+
+/* Chatbot button positioning */
+[data-chatbot-button],
+#chatbot-button,
+.chatbot-button,
+[id*="chatbot"],
+[class*="chatbot"] {
+  bottom: 70px !important;
+  right: 30px !important;
+  
+}
