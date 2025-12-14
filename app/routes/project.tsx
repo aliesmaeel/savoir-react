@@ -60,7 +60,7 @@ export default function project() {
       </div>
       <div style={{ backgroundImage: `url(${icon.vLetter})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       <BookYourViewing agent={property?.user} />
-      <AveragePrices />
+      {/* <AveragePrices /> */}
       </div>
       {similar.length > 0 && <SimilarListings />}
 
