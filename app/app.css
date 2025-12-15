@@ -111,7 +111,7 @@ input[type="number"] {
 .chatbot-button,
 [id*="chatbot"],
 [class*="chatbot"] {
-  bottom: 45px !important;
+  bottom: 70px !important;
   right: 30px !important;
 }
 
@@ -126,7 +126,7 @@ input[type="number"] {
   left: auto !important;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
   #chatbot-iframe-container {
     height: 80vh !important;
     padding-top: 15px;
@@ -136,4 +136,18 @@ input[type="number"] {
     top: 0 !important;
     left: auto !important;
   }
+
+  #chatbot-launcher-button{
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  [data-chatbot-button],
+#chatbot-button,
+.chatbot-button,
+[id*="chatbot"],
+[class*="chatbot"] {
+  bottom: 60px !important;
+  right: 30px !important;
+}
 }
