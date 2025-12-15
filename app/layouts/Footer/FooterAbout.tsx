@@ -46,8 +46,7 @@ export default function FooterAbout() {
       <img loading="lazy" src={icon.logoFooter} alt="" className="w-[183px] brightness-[0.7]" />
       <p className="text-[13px] lg:text-[18.7px] leading-[200%]">
         Savoir Properties is committed to delivering a high level of expertise, customer service,
-        and attention to detail to the marketing and sales of luxury real estate and rental
-        properties{" "}
+        and attention to details{" "}
         <Link to="/about-us" className="text-[#C6A45A] font-semibold underline">
           Read More
         </Link>

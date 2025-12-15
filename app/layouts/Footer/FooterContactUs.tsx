@@ -4,6 +4,7 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 
 export default function FooterContactUs() {
   const icon = useIcons();
+
   return (
     <div className="flex flex-col items-start gap-[8px] lg:gap-[20px] w-full max-w-[272px]">
       <p className="text-[#C6A45A]  text-[14px] lg:text-[24px] font-semibold">Contact Us</p>
@@ -16,6 +17,10 @@ export default function FooterContactUs() {
           <img loading="lazy" src={icon.emailGold} alt="" className="w-[16px] lg:w-[18px]" />
           <p className="text-[16px] lg:text-[18px]">info@saviorproperties.com</p>
         </Link>
+      </div>
+      <div className="flex flex-col gap-[10px]">
+        <img loading="lazy" src="/images/footer1.png" alt="" className="w-full brightness-[0.7]" />
+        <img loading="lazy" src="/images/footer2.png" alt="" className="w-full brightness-[0.7]" />
       </div>
     </div>
   );
