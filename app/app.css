@@ -113,5 +113,16 @@ input[type="number"] {
 [class*="chatbot"] {
   bottom: 70px !important;
   right: 30px !important;
-  
+}
+
+@media (max-width: 480px) {
+  #chatbot-iframe-container {
+    height: 80vh !important;
+    padding-top: 15px;
+  }
+  #chatbot-iframe-container button {
+    right: 0 !important;
+    top: 0 !important;
+    left: auto !important;
+  }
 }
