@@ -137,17 +137,32 @@ input[type="number"] {
     left: auto !important;
   }
 
-  #chatbot-launcher-button{
+  #chatbot-toggle-button {
     width: 50px !important;
     height: 50px !important;
+    bottom: 60px !important;
+    right: 30px !important;
+  }
+
+  #chatbot-toggle-button svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  #chatbot-container {
+    width: 100% !important;
+    height: 100vh !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    border-radius: 0 !important;
   }
 
   [data-chatbot-button],
-#chatbot-button,
-.chatbot-button,
-[id*="chatbot"],
-[class*="chatbot"] {
-  bottom: 60px !important;
-  right: 30px !important;
-}
+  #chatbot-button,
+  .chatbot-button,
+  [id*="chatbot"],
+  [class*="chatbot"] {
+    bottom: 60px !important;
+    right: 30px !important;
+  }
 }

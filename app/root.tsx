@@ -73,47 +73,94 @@ export default function App() {
   }, [pathname]);
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.id = "chatbot-embed";
-    script.src = "https://chat.savoirproperties.com/embed.js";
-    script.setAttribute("data-server-url", "https://chat.savoirproperties.com");
+    // Check if chatbot container already exists
+    if (document.getElementById("chatbot-container")) {
+      return;
+    }
 
-    document.body.appendChild(script);
+    // Create chatbot container
+    const container = document.createElement("div");
+    container.id = "chatbot-container";
+    container.style.cssText = `
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      width: 400px;
+      height: 600px;
+      z-index: 9999;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      display: none;
+    `;
 
-    // Style the chatbot button after it loads
-    const styleChatbotButton = () => {
-      const chatbotButton = document.querySelector(
-        '[data-chatbot-button], #chatbot-button, .chatbot-button, [id*="chatbot"], [class*="chatbot"]'
-      ) as HTMLElement;
-      if (chatbotButton) {
-        chatbotButton.style.bottom = "40px";
-        chatbotButton.style.top = "auto";
-        chatbotButton.style.transform = "scale(0.4)";
-        chatbotButton.style.right = "40px";
-      }
+    // Create iframe
+    const iframe = document.createElement("iframe");
+    iframe.src = "https://chat.savoirproperties.com/";
+    iframe.style.cssText = `
+      width: 100%;
+      height: 100%;
+      border: none;
+    `;
+    iframe.setAttribute("allow", "microphone; camera");
+
+    container.appendChild(iframe);
+    document.body.appendChild(container);
+
+    // Create toggle button
+    const button = document.createElement("button");
+    button.id = "chatbot-toggle-button";
+    button.innerHTML = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="currentColor"/>
+      </svg>
+    `;
+    button.style.cssText = `
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #B59B62;
+      color: white;
+      border: none;
+      cursor: pointer;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+      transition: transform 0.2s;
+    `;
+    button.setAttribute("aria-label", "Toggle chatbot");
+    button.setAttribute("tabindex", "0");
+
+    const handleToggle = () => {
+      const isVisible = container.style.display !== "none";
+      container.style.display = isVisible ? "none" : "block";
+      button.style.transform = isVisible ? "scale(1)" : "scale(0.9)";
     };
 
-    // Try to style immediately and also after a delay to catch dynamically created buttons
-    setTimeout(styleChatbotButton, 100);
-    setTimeout(styleChatbotButton, 500);
-    setTimeout(styleChatbotButton, 1000);
-
-    // Use MutationObserver to watch for dynamically added chatbot elements
-    const observer = new MutationObserver(() => {
-      styleChatbotButton();
+    button.addEventListener("click", handleToggle);
+    button.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleToggle();
+      }
     });
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+    document.body.appendChild(button);
 
     return () => {
-      const existingScript = document.getElementById("chatbot-embed");
-      if (existingScript) {
-        document.body.removeChild(existingScript);
+      const existingContainer = document.getElementById("chatbot-container");
+      const existingButton = document.getElementById("chatbot-toggle-button");
+      if (existingContainer) {
+        document.body.removeChild(existingContainer);
       }
-      observer.disconnect();
+      if (existingButton) {
+        document.body.removeChild(existingButton);
+      }
     };
   }, []);
 
