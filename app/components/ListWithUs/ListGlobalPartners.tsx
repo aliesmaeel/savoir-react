@@ -12,13 +12,13 @@ export default function ListGlobalPartners() {
       icon: icon.leading,
       text: "As a cornerstone of the  global real estate landscape, LeadingRE shapes industry standards,  fosters innovation, and facilitates cross-border collaboration. Bringing together top real estate professionals worldwide, LeadingRE serves as a vital conduit for sharing information and promoting excellence beyond  geographical confines.",
       image: "/images/placeholders/CareerFamilyCenter.png",
-      link: "#",
+      link: "https://www.leadingre.com/",
     },
     {
       icon: icon.luxuryPortfolio,
       text: "Luxury Portfolio, the  premium arm of Leading Real Estate Companies of the World®️, empowers  agents to provide exclusive access, insights, and refined guidance to  discerning global clientele. Through our direct association, our  top-performing agents gain access to invaluable information, giving  clients a competitive edge in the market and facilitating connections  with fellow successful Realtors.",
       image: "/images/placeholders/CareerFamilyCenter.png",
-      link: "#",
+      link: "https://www.luxuryportfolio.com/",
     },
   ];
 
