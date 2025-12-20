@@ -228,7 +228,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const icon = useIcons();
 
   return (
-    <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-0 mt-[20vh] lg:mt-0">
+    <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-0 mt-[20vh] lg:mt-0 z-10">
       <div className="flex flex-col items-start gap-[15px] lg:gap-[37px] w-full lg:w-auto">
         <div className="flex flex-col items-start">
         
