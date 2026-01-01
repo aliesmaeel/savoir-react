@@ -151,7 +151,7 @@ input[type="number"] {
 
   #chatbot-container {
     width: 100% !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     bottom: 0 !important;
     right: 0 !important;
     border-radius: 0 !important;
