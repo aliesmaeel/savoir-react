@@ -12,6 +12,11 @@ export default function ProjectListedByContact({ user }: Props) {
   const [copied, setCopied] = useState(false);
   const { property } = useLoaderData() as { property: any };
 
+  // Return null if user is not provided
+  if (!user) {
+    return null;
+  }
+
   const handleShareListing = async () => {
     try {
       const currentUrl = window.location.href;
@@ -56,6 +61,10 @@ export default function ProjectListedByContact({ user }: Props) {
     window.location.href = mailtoLink;
   };
 
+  const userImage = user?.image || "/images/placeholders/user-placeholder.png";
+  const userName = user?.name || "Agent";
+  const userPhone = user?.phone || "";
+
   return (
     <div className="flex flex-col gap-[38px] px-[18px] py-[48px] border border-[#C6A45A] rounded-[15px] w-full max-w-[499px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10">
       <img loading="lazy" src={icon.Ellipse9} alt="" className="absolute top-0 left-0 z-[-1]" />
@@ -64,29 +73,31 @@ export default function ProjectListedByContact({ user }: Props) {
       <div className="flex items-center gap-[16px]">
         <img
           loading="lazy"
-          src={user.image}
+          src={userImage}
           alt=""
-          className="w-[85px] aspect-square object-cover"
+          className="w-[85px] aspect-square object-cover rounded-full"
         />
         <div className="flex flex-col items-start gap-[4px]">
           <p className="text-[#353635B2] text-[24px]">Listed By</p>
-          <p className="text-[27px]">{user.name}</p>
+          <p className="text-[27px]">{userName}</p>
         </div>
       </div>
-      <div className="flex items-center gap-[19px] w-full">
-        <Link to={`tel:${user.phone}`} className="w-full">
-          <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
-            <img loading="lazy" src={icon.phoneWhite} alt="" className="w-[27px]" />
-            Call
-          </Button>
-        </Link>
-        <Link to={`https://wa.me/${user.phone}`} className="w-full">
-          <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
-            <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[27px]" />
-            Whatsapp
-          </Button>
-        </Link>
-      </div>
+      {userPhone && (
+        <div className="flex items-center gap-[19px] w-full">
+          <Link to={`tel:${userPhone}`} className="w-full">
+            <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
+              <img loading="lazy" src={icon.phoneWhite} alt="" className="w-[27px]" />
+              Call
+            </Button>
+          </Link>
+          <Link to={`https://wa.me/${userPhone}`} className="w-full">
+            <Button className="w-full gap-[6px] !py-[8px] !text-[18px]">
+              <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[27px]" />
+              Whatsapp
+            </Button>
+          </Link>
+        </div>
+      )}
       <div className="flex flex-col items-center gap-[21px] w-full">
         <Button
           type="border"
