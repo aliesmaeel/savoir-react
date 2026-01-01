@@ -209,7 +209,7 @@ export default function ProjectDescription() {
           </div>
         </div>
       </div>
-      <ProjectListedByContact user={property.user} />
+      {property?.user && <ProjectListedByContact user={property.user} />}
       {showPopup && (
         <div className="flex items-center justify-center w-full h-screen fixed top-0 left-0 z-[99999] bg-[#00000066] px-[16px]">
           <div className="w-full max-w-[759.75px] max-h-[75vh] rounded-[15.711px] lg:rounded-[37.5px] bg-white relative z-10 flex flex-col">
