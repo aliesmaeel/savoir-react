@@ -13,9 +13,9 @@ export default function FooterContactUs() {
           <img loading="lazy" src={icon.phoneGold} alt="" className="w-[16px] lg:w-[18px]" />
           <p className="text-[16px] lg:text-[18px] underline">+971505074686</p>
         </Link>
-        <Link to={`mailto:info@saviorproperties.com`} className="flex items-center gap-[10px]">
+        <Link to={`mailto:info@savoirproperties.com`} className="flex items-center gap-[10px]">
           <img loading="lazy" src={icon.emailGold} alt="" className="w-[16px] lg:w-[18px]" />
-          <p className="text-[16px] lg:text-[18px]">info@saviorproperties.com</p>
+          <p className="text-[16px] lg:text-[18px]">info@savoirproperties.com</p>
         </Link>
       </div>
       <div className="flex flex-col gap-[10px]">

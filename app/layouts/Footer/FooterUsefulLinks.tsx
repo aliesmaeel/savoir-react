@@ -5,8 +5,8 @@ export default function FooterUsefulLinks() {
   const items = [
     {
       key: 1,
-      title: "Global Project",
-      link: "/global-project",
+      title: "Global Projects",
+      link: "/global-projects",
     },
     {
       key: 2,

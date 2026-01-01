@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { Link } from "react-router";
 import useArrow from "~/hooks/imageHooks/useArrow";
 import Button from "~/UI/Button";
 import Header from "~/UI/Header";
@@ -66,10 +67,12 @@ export default function HomeAbout() {
         transition={{ duration: 1.0, ease: "easeOut", delay: 1.5 }}
         style={{ willChange: "transform, opacity" }}
       >
-        <Button className="w-[166px] lg:w-[299px]">
-          Read more{" "}
-          <img loading="lazy" src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
-        </Button>
+        <Link to="/about-us" className="inline-block">
+          <Button className="w-[166px] lg:w-[299px]">
+            Read more{" "}
+            <img loading="lazy" src={arrow.longWhite} alt="" className="w-[17px] rotate-[-45deg]" />
+          </Button>
+        </Link>
       </motion.div>
     </motion.div>
   );
