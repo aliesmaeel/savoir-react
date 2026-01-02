@@ -71,13 +71,46 @@ export default function project() {
       <ProjectPageSwiper mainImage={property?.photo} sliderImages={property?.property_images} />
       <ProjectDescription />
       <ProjectFeatures />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[35px] w-full mt-[90px]">
-        <MortgageCalculator />
-        <RentalYieldCalculator />
-      </div>
+      {(() => {
+        const isForSale = property?.offering_type === "RS";
+        const isForRent = property?.offering_type === "RR";
+        const isOffPlan = property?.status === "Off-plan" || property?.completion_status?.toLowerCase().includes("off_plan");
+        console.log(property.completion_status , property.offering_type);
+        // For rent (not off-plan): hide both calculators
+        if (isForRent && !isOffPlan) {
+          return null;
+        }
+        
+        // Off-plan: show only RentalYieldCalculator
+        if (isOffPlan) {
+          return (
+            <div className="grid grid-cols-1 gap-[35px] w-full mt-[90px]">
+              <RentalYieldCalculator />
+            </div>
+          );
+        }
+        
+        // For sale: show both calculators
+        if (isForSale) {
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-[35px] w-full mt-[90px]">
+              <MortgageCalculator />
+              <RentalYieldCalculator />
+            </div>
+          );
+        }
+        
+        // Default fallback: show both
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-[35px] w-full mt-[90px]">
+            <MortgageCalculator />
+            <RentalYieldCalculator />
+          </div>
+        );
+      })()}
       <div style={{ backgroundImage: `url(${icon.vLetter})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       <BookYourViewing agent={property?.user} />
-       <AveragePrices /> 
+       {property?.offering_type !== "RR" && <AveragePrices />}
       </div>
       {similar.length > 0 && <SimilarListings />}
 

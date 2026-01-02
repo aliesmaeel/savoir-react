@@ -6,7 +6,7 @@ export default function AboutHero() {
     <div className="flex flex-col items-center justify-center w-full h-[85vh] lg:h-screen relative">
       <img
         loading="lazy"
-        src="/images/placeholders/teams2.jpeg"
+        src="/images/placeholders/our-team2.jpg"
         alt=""
         className="w-full h-[85vh] lg:h-screen object-contain lg:object-cover brightness-50"
       />

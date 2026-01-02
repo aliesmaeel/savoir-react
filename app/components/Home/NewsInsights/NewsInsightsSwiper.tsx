@@ -10,6 +10,12 @@ export default function NewsInsightsSwiper() {
   const [isGrabbing, setIsGrabbing] = useState(false);
   const { home } = useLoaderData() as { home: any };
 
+  const insights = home?.insights || [];
+
+  if (!insights || insights.length === 0) {
+    return null;
+  }
+
   return (
     <div
       className={`w-full transition-colors duration-200 ${
@@ -19,7 +25,7 @@ export default function NewsInsightsSwiper() {
       <Swiper
         slidesPerView="auto"
         centeredSlides
-        loop
+        loop={insights.length > 1}
         spaceBetween={1}
         slidesOffsetBefore={8}
         slidesOffsetAfter={8}
@@ -35,8 +41,8 @@ export default function NewsInsightsSwiper() {
         onSliderFirstMove={() => setIsGrabbing(true)}
         onTransitionEnd={() => setIsGrabbing(false)}
       >
-        {home.insights.map((item: any) => (
-          <SwiperSlide key={item.id} className="!w-[88%] md:!w-[82%] lg:!w-[72%] xl:!w-[66%]">
+        {insights.map((item: any) => (
+          <SwiperSlide key={item.id || item.slug} className="!w-[88%] md:!w-[82%] lg:!w-[72%] xl:!w-[66%]">
             <SlideCard item={item} />
           </SwiperSlide>
         ))}
