@@ -5,7 +5,7 @@ export default function OurTeamHero() {
     <div className="flex flex-col items-center justify-center w-full h-screen relative">
       <img
         loading="lazy"
-        src="/images/placeholders/teams2.jpeg"
+        src="/images/placeholders/our-team2.jpg"
         alt=""
         className="w-full h-screen object-cover brightness-75"
       />
