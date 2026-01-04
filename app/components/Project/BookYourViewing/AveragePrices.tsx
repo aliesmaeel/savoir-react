@@ -67,12 +67,12 @@ export default function AveragePrices({ community }: Props) {
   const chartDataFormatted = chartData.map((item) => ({
     ...item,
     monthShort: item.month_label.split(" ")[0],
-    averagePriceFormatted: formatCurrency(item.average_price),
+    averagePricePerSqftFormatted: formatCurrency(item.average_price_per_sqft),
   }));
 
   return (
     <div className="flex flex-col items-center gap-[22px] w-full max-w-[1080px] mx-auto mt-[75px] px-4">
-      <p className="text-[36px] font-semibold">Average Prices Over Time</p>
+      <p className="text-[36px] font-semibold">Average property prices per sqft – {community}</p>
       <div className="w-full" style={{ minHeight: "400px" }}>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={chartDataFormatted} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -85,7 +85,7 @@ export default function AveragePrices({ community }: Props) {
             <YAxis 
               stroke="#666"
               style={{ fontSize: "12px" }}
-              tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
+              tickFormatter={(value) => formatCurrency(value)}
             />
             <Tooltip
               contentStyle={{
@@ -102,12 +102,12 @@ export default function AveragePrices({ community }: Props) {
             <Legend />
             <Line
               type="monotone"
-              dataKey="average_price"
+              dataKey="average_price_per_sqft"
               stroke="#C6A45A"
               strokeWidth={2}
               dot={{ fill: "#C6A45A", r: 4 }}
               activeDot={{ r: 6 }}
-              name="Average Price (AED)"
+              name="Average Price per sqft (AED)"
             />
           </LineChart>
         </ResponsiveContainer>
