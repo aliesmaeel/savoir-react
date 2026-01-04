@@ -1,4 +1,3 @@
-import React from "react";
 import { useLoaderData } from "react-router";
 import { getProject } from "~/api/project.service";
 import AveragePrices from "~/components/Project/BookYourViewing/AveragePrices";
@@ -75,7 +74,6 @@ export default function project() {
         const isForSale = property?.offering_type === "RS";
         const isForRent = property?.offering_type === "RR";
         const isOffPlan = property?.status === "Off-plan" || property?.completion_status?.toLowerCase().includes("off_plan");
-        console.log(property.completion_status , property.offering_type);
         // For rent (not off-plan): hide both calculators
         if (isForRent && !isOffPlan) {
           return null;
@@ -110,7 +108,7 @@ export default function project() {
       })()}
       <div style={{ backgroundImage: `url(${icon.vLetter})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       <BookYourViewing agent={property?.user} />
-       {property?.offering_type !== "RR" && <AveragePrices />}
+       {property?.offering_type !== "RR" && <AveragePrices community={property?.community} />}
       </div>
       {similar.length > 0 && <SimilarListings />}
 

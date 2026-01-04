@@ -23,6 +23,7 @@
     "react-international-phone": "^4.6.0",
     "react-router": "^7.7.1",
     "react-select": "^5.10.2",
+    "recharts": "^3.6.0",
     "swiper": "^11.2.10",
     "three": "^0.179.1",
     "typed.js": "^2.1.0"
