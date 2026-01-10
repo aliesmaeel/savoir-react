@@ -10,17 +10,17 @@ export default function ListHero() {
         className="w-full h-[80vh] lg:h-[150vh] object-cover"
       />
       <div className="flex flex-col items-center justify-center w-full h-[80vh] lg:h-[150vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
-        <div className="flex flex-col items-center gap-[53.68px] w-full">
+        <div className="flex flex-col items-center gap-[0px] w-full">
           <div className="flex flex-col items-center gap-[17px]">
             <h1 className=" text-[20px] lg:text-[45px] font-semibold">
               Search Luxury Homes In Dubai
             </h1>
-            <p className="text-[#505050] text-[15px] lg:text-[24px]">
+            <p className="text-[#505050] text-[15px] sm:text-center lg:text-[24px]">
               Explore Dubai's Diverse Communities: Where Tradition Meets Innovation in Every
               Neighborhood.
             </p>
           </div>
-          <img className="mix-blend-multiply" loading="lazy" src="/images/placeholders/list-with-us.png" alt="" />
+          <img className="mix-blend-multiply h-[80%] w-[80%]" loading="lazy" src="/images/placeholders/list-with-us.png" alt="" />
         </div>
         <div
           className="absolute bottom-0 left-0 w-full h-[176px] z-10"
