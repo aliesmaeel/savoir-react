@@ -20,7 +20,7 @@ export default function ListHero() {
               Neighborhood.
             </p>
           </div>
-          <img loading="lazy" src="/images/placeholders/list-with-us.png" alt="" />
+          <img className="mix-blend-multiply" loading="lazy" src="/images/placeholders/list-with-us.png" alt="" />
         </div>
         <div
           className="absolute bottom-0 left-0 w-full h-[176px] z-10"
