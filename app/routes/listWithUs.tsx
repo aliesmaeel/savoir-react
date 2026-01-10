@@ -1,4 +1,5 @@
 import React from "react";
+import ContactUsForm from "~/components/ContactUs/ContactUsForm";
 import ListGlobalNetwork from "~/components/ListWithUs/ListGlobalNetwork";
 import ListGlobalPartners from "~/components/ListWithUs/ListGlobalPartners";
 import ListHero from "~/components/ListWithUs/ListHero";
@@ -13,6 +14,7 @@ export default function listWithUs() {
         <WhyListWithUs />
         <ListGlobalNetwork />
         <ListGlobalPartners />
+        <ContactUsForm />
       </PageLayout>
     </div>
   );
