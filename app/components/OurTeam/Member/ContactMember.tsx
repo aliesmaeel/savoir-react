@@ -116,7 +116,7 @@ export default function ContactMember() {
       </div>
       <div className="flex flex-col items-start gap-[24px] w-full">
         <Button
-          className="!rounded-[4px] !px-[78px] !py-[15px] h-[44px] text-[18px] w-full"
+          className="!rounded-[4px] !px-0 lg:!px-[78px] !py-[15px] h-[44px] text-[18px] w-full"
           htmlType="submit"
           aria-label={`Send email to ${contactName}`}
         >
