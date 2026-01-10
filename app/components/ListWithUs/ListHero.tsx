@@ -5,7 +5,7 @@ export default function ListHero() {
     <div className="flex flex-col items-center justify-center w-full h-[80vh] lg:h-[150vh] relative">
       <img
         loading="lazy"
-        src="/images/placeholders/memberBg.svg"
+        src="/images/icons/vLetter.png"
         alt=""
         className="w-full h-[80vh] lg:h-[150vh] object-cover"
       />

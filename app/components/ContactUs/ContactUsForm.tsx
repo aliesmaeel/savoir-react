@@ -187,7 +187,7 @@ export default function ContactUsForm() {
 
             <div className="flex items-center justify-center lg:justify-end w-full">
               <Button
-                className="!rounded-[4px] !px-[78px] !py-[15px] h-[44px] text-[18px]"
+                className="!rounded-[4px] !px-[78px] !py-[15px]  h-[44px] text-[18px]"
                 htmlType="submit"
                 disabled={submitting}
               >

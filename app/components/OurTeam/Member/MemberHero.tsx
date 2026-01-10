@@ -22,20 +22,20 @@ export default function MemberHero() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[100vh] relative">
+    <div className="flex flex-col items-center justify-center w-full h-[75vh] lg:h-[100vh] relative">
       <img
         loading="lazy"
-        src="/images/placeholders/memberBg.svg"
+        src="/images/icons/vLetter.png"
         alt=""
-        className="w-full h-[100vh]  object-cover"
+        className="w-full h-[75vh] lg:h-[100vh] object-cover"
       />
-      <div className="flex flex-col items-center justify-center w-full h-[100vh]  absolute top-0 left-0 px-[45px]">
-        <div className="flex flex-col-reverse lg:flex-row items-start lg:items-center gap-[30px] lg:gap-[60px]  absolute left-0 bottom-0 z-20 w-full mix-blend-multiply">
+      <div className="flex flex-col items-center justify-center w-full h-[75vh] lg:h-[100vh] absolute top-0 left-0 px-[45px]">
+        <div className="flex flex-col lg:flex-row items-center gap-[30px] lg:gap-[60px] absolute left-0 bottom-0 z-20 w-full mix-blend-multiply">
           <img
             loading="lazy"
             src={team.image_border}
             alt=""
-            className="w-[50%] lg:w-full max-w-[414px]"
+            className="hidden lg:block w-full max-w-[414px]"
           />
           <div className="flex flex-col items-start gap-[22px] lg:gap-[75px]  mx-auto">
             <div className="flex flex-col items-start gap-[5px] lg:gap-[13px]">
