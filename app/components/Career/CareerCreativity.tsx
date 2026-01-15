@@ -21,9 +21,17 @@ export default function CareerCreativity() {
             apart. Joining us means being part of an environment that fosters creativity and
             encourages thinking out of the box.
           </p>
-          <Button className="!rounded-[4px] !py-[15px] lg:!px-[81px] text-[18px] h-[44px]">
+          <a
+            href="https://www.leadingre.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-[3.5px] px-[24.88px] lg:px-[81px] py-[15px] rounded-[4px] text-white text-[18px] font-semibold h-[44px]"
+            style={{
+              background: "linear-gradient(94deg, #C6A45A 3.17%, rgba(255, 255, 255, 0.60) 224.54%)",
+            }}
+          >
             About our affiliates
-          </Button>
+          </a>
         </div>
       </div>
     </Card>
