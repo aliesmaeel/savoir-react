@@ -37,12 +37,12 @@ export default function MemberHero() {
             alt=""
             className="hidden lg:block w-full max-w-[414px]"
           />
-          <div className="flex flex-col items-start gap-[22px] lg:gap-[75px]  mx-auto">
-            <div className="flex flex-col items-start gap-[5px] lg:gap-[13px]">
+          <div className="flex flex-col items-center lg:items-start gap-[22px] lg:gap-[75px] mx-auto">
+            <div className="flex flex-col items-center lg:items-start gap-[5px] lg:gap-[13px]">
               <p className="text-[21px] lg:text-[53px] font-medium">{team.name}</p>
               <Title className="text-[19px] lg:text-[48px]">{team.Job_Description}</Title>
             </div>
-            <div className="flex flex-col items-start gap-[9px] lg:gap-[22px]">
+            <div className="flex flex-col items-center lg:items-start gap-[9px] lg:gap-[22px]">
               {infoItems.map((item: any, index: number) => (
                 <div
                   className="flex gap-[9px] lg:gap-[23px] text-[#505050] text-[12px] lg:text-[31px]"
