@@ -22,14 +22,14 @@ export default function MemberHero() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[75vh] lg:h-[100vh] relative">
+    <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[100vh] relative">
       <img
         loading="lazy"
         src="/images/icons/vLetter.png"
         alt=""
-        className="w-full h-[75vh] lg:h-[100vh] object-cover"
+        className="w-full h-[45vh] lg:h-[100vh] object-cover"
       />
-      <div className="flex flex-col items-center justify-center w-full h-[75vh] lg:h-[100vh] absolute top-0 left-0 px-[45px]">
+      <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[100vh] absolute top-0 left-0 px-[45px]">
         <div className="flex flex-col lg:flex-row items-center gap-[30px] lg:gap-[60px] absolute left-0 bottom-0 z-20 w-full mix-blend-multiply">
           <img
             loading="lazy"
