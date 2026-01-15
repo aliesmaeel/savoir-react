@@ -10,7 +10,7 @@ export default function AboutMember() {
     <div className="flex flex-col lg:flex-row items-start gap-[22px] w-full">
       <div className="flex flex-col items-start gap-[33px] w-full">
         <div
-          className="flex items-center gap-[38px] px-[24px] py-[10px] w-full h-[65px] border-l border-[#C6A45A]"
+          className="hidden lg:flex items-center gap-[38px] px-[24px] py-[10px] w-full h-[65px] border-l border-[#C6A45A]"
           style={{
             background:
               "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
