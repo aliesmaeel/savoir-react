@@ -1,23 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Button from "~/UI/Button";
 import Card from "~/UI/Card";
 
 export default function ListGlobalPartners() {
   const icon = useIcons();
+  const [swiperInstances, setSwiperInstances] = useState<{ [key: number]: any }>({});
 
   const items = [
     {
       icon: icon.leading,
       text: "As a cornerstone of the  global real estate landscape, LeadingRE shapes industry standards,  fosters innovation, and facilitates cross-border collaboration. Bringing together top real estate professionals worldwide, LeadingRE serves as a vital conduit for sharing information and promoting excellence beyond  geographical confines.",
-      image: "/images/placeholders/CareerFamilyCenter.png",
+      images: [
+        "/images/listwithus/4.jpg",
+        "/images/listwithus/5.jpg",
+        "/images/listwithus/6.jpg",
+        "/images/listwithus/7.jpg",
+        // Add more images here as needed
+      ],
       link: "https://www.leadingre.com/",
     },
     {
       icon: icon.luxuryPortfolio,
       text: "Luxury Portfolio, the  premium arm of Leading Real Estate Companies of the World®️, empowers  agents to provide exclusive access, insights, and refined guidance to  discerning global clientele. Through our direct association, our  top-performing agents gain access to invaluable information, giving  clients a competitive edge in the market and facilitating connections  with fellow successful Realtors.",
-      image: "/images/placeholders/CareerFamilyCenter.png",
+      images: [
+        "/images/listwithus/award.jpg",
+        // Add more images here as needed
+      ],
       link: "https://www.luxuryportfolio.com/",
     },
   ];
@@ -42,7 +56,42 @@ export default function ListGlobalPartners() {
                   </Button>
                 </Link>
               </div>
-              <img loading="lazy" src={item.image} alt="" className="w-full max-w-[539px]" />
+              <div className="w-full max-w-[539px]">
+                <Swiper
+                  slidesPerView={1}
+                  loop={item.images.length > 1}
+                  spaceBetween={0}
+                  modules={[Navigation]}
+                  onSwiper={(swiper) => setSwiperInstances((prev) => ({ ...prev, [index]: swiper }))}
+                  className="w-full"
+                >
+                  {item.images.map((image: string, imageIndex: number) => (
+                    <SwiperSlide key={imageIndex}>
+                      <img loading="lazy" src={image} alt="" className="w-full" />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+                {item.images.length > 1 && (
+                  <div className="flex items-center justify-center gap-[44px] w-full mt-6">
+                    <button
+                      type="button"
+                      className="cursor-pointer focus:outline-none"
+                      onClick={() => swiperInstances[index]?.slidePrev()}
+                      aria-label="Previous slide"
+                    >
+                      <img loading="lazy" src={icon.propertiesPrev} alt="Previous" />
+                    </button>
+                    <button
+                      type="button"
+                      className="cursor-pointer focus:outline-none"
+                      onClick={() => swiperInstances[index]?.slideNext()}
+                      aria-label="Next slide"
+                    >
+                      <img loading="lazy" src={icon.propertiesNext} alt="Next" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </Card>
         ))}
