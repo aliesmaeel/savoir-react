@@ -20,10 +20,10 @@ export default function OffPlanResults({ offPlan }: Props) {
       <div className="flex items-center justify-between w-full">
         <div className="flex flex-col items-start gap-[9px] lg:gap-[15px] w-full">
           <div className="flex items-center justify-between w-full">
-            {isMobile && <SearchSortBy />}
+            {isMobile && <SearchSortBy items={["Name", "Date"]} />}
           </div>
         </div>
-        {!isMobile && <SearchSortBy />}
+        {!isMobile && <SearchSortBy items={["Name", "Date"]} />}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-[37px]">
         {offPlan.map((project: any, index: number) => (

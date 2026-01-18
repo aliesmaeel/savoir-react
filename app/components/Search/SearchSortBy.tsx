@@ -1,21 +1,79 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router";
 import useArrow from "~/hooks/imageHooks/useArrow";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
-export default function SearchSortBy() {
+const SORT_FIELD_MAP: { [key: string]: string } = {
+  Name: "title_en",
+  Title: "title",
+  Date: "updated_at",
+  Price: "price",
+};
+
+const SORT_FIELD_REVERSE_MAP: { [key: string]: string } = {
+  title_en: "Name",
+  title: "Title",
+  updated_at: "Date",
+  price: "Price",
+};
+
+type Props = {
+  items?: string[];
+};
+
+export default function SearchSortBy({ items = ["Name", "Date", "Price"] }: Props) {
   const icon = useIcons();
   const arrow = useArrow();
-
-  const items = ["Name", "Date", "Price"];
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<string>("Name");
-
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  // Read current sort params from URL
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const sortField = params.get("sort_field") || "title_en";
+  const sortOrder = params.get("sort_order") || "desc";
+  
+  // Get selected display name, fallback to first item if field not in available items
+  const selectedFieldName = SORT_FIELD_REVERSE_MAP[sortField];
+  const selected = items.includes(selectedFieldName) ? selectedFieldName : items[0];
+  
+  // If selected field is not in available items, update URL to use valid field
+  useEffect(() => {
+    const currentFieldName = SORT_FIELD_REVERSE_MAP[sortField];
+    
+    if (currentFieldName && !items.includes(currentFieldName)) {
+      const defaultField = SORT_FIELD_MAP[items[0]];
+      const currentParams = new URLSearchParams(location.search);
+      currentParams.set("sort_field", defaultField);
+      navigate({ search: currentParams.toString() }, { replace: true, preventScrollReset: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortField, items.join(",")]);
+
   const handleSelect = (item: string) => {
-    setSelected(item);
+    const fieldName = SORT_FIELD_MAP[item];
+    const currentParams = new URLSearchParams(location.search);
+    
+    // If selecting the same field, toggle order; otherwise set to desc
+    if (fieldName === sortField) {
+      const newOrder = sortOrder === "asc" ? "desc" : "asc";
+      currentParams.set("sort_order", newOrder);
+    } else {
+      currentParams.set("sort_field", fieldName);
+      currentParams.set("sort_order", "desc");
+    }
+    
+    navigate({ search: currentParams.toString() }, { replace: true, preventScrollReset: true });
     setOpen(false);
+  };
+
+  const handleToggleOrder = () => {
+    const currentParams = new URLSearchParams(location.search);
+    const newOrder = sortOrder === "asc" ? "desc" : "asc";
+    currentParams.set("sort_order", newOrder);
+    navigate({ search: currentParams.toString() }, { replace: true, preventScrollReset: true });
   };
 
   // close when clicking outside
@@ -38,7 +96,17 @@ export default function SearchSortBy() {
         className="flex items-center justify-between gap-[22px] lg:gap-[51px] p-[6px] lg:p-[16px] rounded-[4px] lg:rounded-[10px] bg-[#EEE]"
       >
         <div className="flex items-center gap-[2px] lg:gap-[8px]">
-          <button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleOrder();
+            }}
+            className={`cursor-pointer focus:outline-none rounded-[2px] lg:rounded-[4px] p-[2px] lg:p-[4px] transition-colors ${
+              sortOrder === "asc" ? "bg-[#C6A45A]" : ""
+            }`}
+            aria-label={`Sort order: ${sortOrder === "asc" ? "Ascending" : "Descending"}`}
+          >
             <img loading="lazy" src={icon.sortOrder} alt="" className="w-[12px] lg:w-[30px]" />
           </button>
           <hr className="border-0 w-[1px] h-[9px] lg:h-[22px] bg-[#262626]" />

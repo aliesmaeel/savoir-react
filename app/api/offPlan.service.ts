@@ -6,9 +6,9 @@ const api = new ApiClient();
 //   return api.get(`/api/offplan-projects?page=${page}&limit=${limit}`);
 // }
 
-export async function getAllOffPlans(page: any, limit: any, body: any) {
+export async function getAllOffPlans(page: any, limit: any, body: any, sortField: string = "updated_at", sortOrder: string = "desc") {
   return api.post(
-    `/api/search-offplan?page=${page}&sort_field=updated_at&sort_order=desc&limit=${limit}`,
+    `/api/search-offplan?page=${page}&sort_field=${sortField}&sort_order=${sortOrder}&limit=${limit}`,
     body
   );
 }

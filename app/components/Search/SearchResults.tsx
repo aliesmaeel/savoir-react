@@ -17,21 +17,15 @@ export default function SearchResults({ projects }: Props) {
 
   return (
     <div className="flex flex-col items-start gap-[50px] w-full">
-      {/* <div className="flex items-center justify-between w-full">
+      <div className="flex items-center justify-between w-full">
         <div className="flex flex-col items-start gap-[9px] lg:gap-[15px] w-full">
           <div className="flex items-center justify-between w-full">
-            <p className="text-[16px] lg:text-[27px] font-medium">Properties for sale in Dubai</p>
             {isMobile && <SearchSortBy />}
           </div>
-          <div className="flex flex-col items-start">
-            <p className="text-[#505050] text-[12px] lg:text-[21px]">
-              Dubai’s property market offers an exceptional variety of homes suited...
-            </p>
-            <p className="text-[12px] lg:text-[21px] font-semibold">1094 results</p>
-          </div>
+      
         </div>
         {!isMobile && <SearchSortBy />}
-      </div> */}
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-x-[48px] gap-y-[45px]">
         <div
           className="relative hidden lg:flex flex-col items-start gap-[22px] px-[30px] py-[45px] w-full rounded-[46.534px] col-start-3 row-start-1

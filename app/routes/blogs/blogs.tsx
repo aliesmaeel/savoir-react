@@ -8,9 +8,13 @@ export async function clientLoader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
   const limit = 9;
+  
+  // Read sort parameters from query
+  const sortField = url.searchParams.get("sort_field") || "title";
+  const sortOrder = url.searchParams.get("sort_order") || "desc";
 
   try {
-    const res: any = await getAllBlogs(page, limit);
+    const res: any = await getAllBlogs(page, limit, sortField, sortOrder);
     const blogs = res.data ?? [];
     const p = res.pagination ?? {};
 

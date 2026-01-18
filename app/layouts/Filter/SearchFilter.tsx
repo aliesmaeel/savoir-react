@@ -118,10 +118,10 @@ export default function SearchFilter() {
 
     if (location.pathname === "/") {
       // Redirect from home page to /search
-      navigate(`/search?${params.toString()}`);
+      navigate(`/search?${params.toString()}`, { preventScrollReset: true });
     } else {
       // Already on /search, just update URL
-      navigate({ search: params.toString() }, { replace: true });
+      navigate({ search: params.toString() }, { replace: true, preventScrollReset: true });
     }
   };
 
