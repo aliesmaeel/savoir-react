@@ -38,6 +38,12 @@ export default function GlobalProjectsSwiper() {
   const [isGrabbing, setIsGrabbing] = useState(false);
   const { home } = useLoaderData() as { home: any };
 
+  const countries = home?.countries || [];
+
+  if (countries.length === 0) {
+    return null;
+  }
+
   return (
     <div
       className={`w-full transition-colors duration-200 ${
@@ -63,7 +69,7 @@ export default function GlobalProjectsSwiper() {
         onSliderFirstMove={() => setIsGrabbing(true)}
         onTransitionEnd={() => setIsGrabbing(false)}
       >
-        {home.countries.map((item: any) => (
+        {countries.map((item: any) => (
           <SwiperSlide key={item.id} className="!w-[88%] md:!w-[82%] lg:!w-[72%] xl:!w-[66%]">
             <SlideCard item={item} />
           </SwiperSlide>

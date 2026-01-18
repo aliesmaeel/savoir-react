@@ -22,6 +22,10 @@ export async function clientLoader({ request }: { request: Request }) {
   const developersQ = parseCsv(url.searchParams.get("developers"));
   const locationsQ = parseCsv(url.searchParams.get("locations"));
   const dateQ = url.searchParams.get("date"); // string like "Q1 2029" or null
+  
+  // read sort parameters from query
+  const sortField = url.searchParams.get("sort_field") || "updated_at";
+  const sortOrder = url.searchParams.get("sort_order") || "desc";
 
   // build request body for API
   const body = {
@@ -32,7 +36,7 @@ export async function clientLoader({ request }: { request: Request }) {
 
   try {
     const searchRes: any = await getOffSearch();
-    const res: any = await getAllOffPlans(page, limit, body);
+    const res: any = await getAllOffPlans(page, limit, body, sortField, sortOrder);
     const offPlan = res.data ?? [];
     const p = res.pagination ?? {};
 

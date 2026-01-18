@@ -5,23 +5,27 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 
 const SORT_FIELD_MAP: { [key: string]: string } = {
   Name: "title_en",
+  Title: "title",
   Date: "updated_at",
   Price: "price",
 };
 
 const SORT_FIELD_REVERSE_MAP: { [key: string]: string } = {
   title_en: "Name",
+  title: "Title",
   updated_at: "Date",
   price: "Price",
 };
 
-export default function SearchSortBy() {
+type Props = {
+  items?: string[];
+};
+
+export default function SearchSortBy({ items = ["Name", "Date", "Price"] }: Props) {
   const icon = useIcons();
   const arrow = useArrow();
   const location = useLocation();
   const navigate = useNavigate();
-
-  const items = ["Name", "Date", "Price"];
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -31,7 +35,22 @@ export default function SearchSortBy() {
   const sortField = params.get("sort_field") || "title_en";
   const sortOrder = params.get("sort_order") || "desc";
   
-  const selected = SORT_FIELD_REVERSE_MAP[sortField] || "Name";
+  // Get selected display name, fallback to first item if field not in available items
+  const selectedFieldName = SORT_FIELD_REVERSE_MAP[sortField];
+  const selected = items.includes(selectedFieldName) ? selectedFieldName : items[0];
+  
+  // If selected field is not in available items, update URL to use valid field
+  useEffect(() => {
+    const currentFieldName = SORT_FIELD_REVERSE_MAP[sortField];
+    
+    if (currentFieldName && !items.includes(currentFieldName)) {
+      const defaultField = SORT_FIELD_MAP[items[0]];
+      const currentParams = new URLSearchParams(location.search);
+      currentParams.set("sort_field", defaultField);
+      navigate({ search: currentParams.toString() }, { replace: true, preventScrollReset: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortField, items.join(",")]);
 
   const handleSelect = (item: string) => {
     const fieldName = SORT_FIELD_MAP[item];
@@ -46,7 +65,7 @@ export default function SearchSortBy() {
       currentParams.set("sort_order", "desc");
     }
     
-    navigate({ search: currentParams.toString() }, { replace: true });
+    navigate({ search: currentParams.toString() }, { replace: true, preventScrollReset: true });
     setOpen(false);
   };
 
@@ -54,7 +73,7 @@ export default function SearchSortBy() {
     const currentParams = new URLSearchParams(location.search);
     const newOrder = sortOrder === "asc" ? "desc" : "asc";
     currentParams.set("sort_order", newOrder);
-    navigate({ search: currentParams.toString() }, { replace: true });
+    navigate({ search: currentParams.toString() }, { replace: true, preventScrollReset: true });
   };
 
   // close when clicking outside
@@ -83,7 +102,9 @@ export default function SearchSortBy() {
               e.stopPropagation();
               handleToggleOrder();
             }}
-            className="cursor-pointer focus:outline-none"
+            className={`cursor-pointer focus:outline-none rounded-[2px] lg:rounded-[4px] p-[2px] lg:p-[4px] transition-colors ${
+              sortOrder === "asc" ? "bg-[#C6A45A]" : ""
+            }`}
             aria-label={`Sort order: ${sortOrder === "asc" ? "Ascending" : "Descending"}`}
           >
             <img loading="lazy" src={icon.sortOrder} alt="" className="w-[12px] lg:w-[30px]" />
