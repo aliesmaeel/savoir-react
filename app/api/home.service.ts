@@ -12,6 +12,6 @@ export async function getSuggestionSearch() {
   return api.get(`/api/search-suggestions`);
 }
 
-export async function search(page: any, limit: any, body: any) {
-  return api.post(`/api/search?page=${page}&limit=${limit}`, body);
+export async function search(page: any, limit: any, body: any, sortField: string = "title_en", sortOrder: string = "desc") {
+  return api.post(`/api/search?page=${page}&sort_field=${sortField}&sort_order=${sortOrder}&limit=${limit}`, body);
 }

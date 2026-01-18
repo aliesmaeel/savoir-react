@@ -67,6 +67,8 @@ export default function Search() {
     const bathroomsParam = params.get("bathrooms") || "Any";
     const minPrice = params.get("min") ? Number(params.get("min")) : null;
     const maxPrice = params.get("max") ? Number(params.get("max")) : null;
+    const sortField = params.get("sort_field") || "title_en";
+    const sortOrder = params.get("sort_order") || "desc";
 
     const parseCount = (value: string) => {
       if (value === "Any") return null;
@@ -98,7 +100,7 @@ export default function Search() {
     };
 
     try {
-      const res: any = await searchApi(page, 5, body);
+      const res: any = await searchApi(page, 5, body, sortField, sortOrder);
       setProjects(res.data);
       // Use total_pages from API response (e.g., 37 pages for 183 items with 5 per page)
       setTotalPages(res.total_pages || 1);
