@@ -13,7 +13,7 @@ export default function BlogBody() {
       {/* title_details */}
       {blog.title_details && (
         <article
-          className="text-black text-[14px] lg:text-[21px] leading-[214.286%]"
+          className="text-black text-[24px] lg:text-[32px] leading-[214.286%]"
           dangerouslySetInnerHTML={{ __html: blog.title_details }}
         />
       )}
