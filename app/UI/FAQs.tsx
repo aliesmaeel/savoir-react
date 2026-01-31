@@ -33,7 +33,7 @@ export default function FAQs({ questions }: Props) {
             <div
               className="flex items-center justify-between px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] h-[46px] lg:h-[99px] rounded-[4px] lg:rounded-[10px]  w-full"
               style={{
-                background: isOpen ? "linear-gradient(90deg, #C6A45A 0.09%, #FFF 112.46%)" : "",
+                background: isOpen ? "white" : "",
               }}
             >
               <div

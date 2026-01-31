@@ -73,7 +73,7 @@ export default function ContactMember() {
   return (
     <form
       ref={formRef}
-      className="flex flex-col items-start gap-[52px] px-[24px] py-[30px] border border-[#C6A45A] rounded-[15px] w-full lg:w-[439px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10"
+      className="flex flex-col items-start gap-[52px] px-[24px] py-[30px] border border-[#C6A45A] rounded-[15px] w-full lg:w-[439px] shrink-0 bg-white relative overflow-hidden z-10"
       onSubmit={handleFormSubmit}
       noValidate={false}
     >
@@ -140,7 +140,7 @@ export default function ContactMember() {
               <img loading="lazy" src={icon.whatsappGold} alt="" className="w-[27px]" />
               <p className="text-[#C6A45A] text-[18px] font-medium">WhatsApp</p>
             </a>
-      
+
           </div>
         </div>
       </div>

@@ -36,7 +36,7 @@ export default function ProjectListedByContact({ user }: Props) {
 
     const propertyTitle = property?.title_en || property?.title || "Property";
     const propertyUrl = window.location.href;
-    
+
     const subject = `Booking a Viewing - ${propertyTitle}`;
     const body = [
       "Dear " + (user?.name || "Agent") + ",",
@@ -66,9 +66,9 @@ export default function ProjectListedByContact({ user }: Props) {
   const userPhone = user?.phone || "";
 
   return (
-    <div className="flex flex-col gap-[38px] px-[18px] py-[48px] border border-[#C6A45A] rounded-[15px] w-full max-w-[499px] shrink-0 bg-[#FBFBFB] relative overflow-hidden z-10">
-      <img loading="lazy" src={icon.Ellipse9} alt="" className="absolute top-0 left-0 z-[-1]" />
-      <img loading="lazy" src={icon.Ellipse8} alt="" className="absolute bottom-0 right-0 z-[-1]" />
+    <div className="flex flex-col gap-[38px] px-[18px] py-[48px] border border-[#C6A45A] rounded-[15px] w-full max-w-[499px] shrink-0 bg-white relative overflow-hidden z-10">
+      {/* <img loading="lazy" src={icon.Ellipse9} alt="" className="absolute top-0 left-0 z-[-1]" />
+      <img loading="lazy" src={icon.Ellipse8} alt="" className="absolute bottom-0 right-0 z-[-1]" /> */}
 
       <div className="flex items-center gap-[16px]">
         <img
