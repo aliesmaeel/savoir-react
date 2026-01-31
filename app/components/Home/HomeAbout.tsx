@@ -44,7 +44,7 @@ export default function HomeAbout() {
       {/* Title */}
       <motion.div variants={child} transition={{ duration: 0.6, ease: "easeOut" }}>
         <Header className="text-[16px] lg:text-[34px]">
-          NEW ERA OF REAL ESTATE EXCELLENCE</Header>
+          A NEW ERA OF REAL ESTATE EXCELLENCE</Header>
       </motion.div>
 
       {/* Text + Image */}
