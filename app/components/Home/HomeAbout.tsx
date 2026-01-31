@@ -43,22 +43,33 @@ export default function HomeAbout() {
     >
       {/* Title */}
       <motion.div variants={child} transition={{ duration: 0.6, ease: "easeOut" }}>
-        <Header className="text-[16px] lg:text-[34px]">WE’RE LOCAL, WE’RE GLOBAL</Header>
+        <Header className="text-[16px] lg:text-[34px]">
+          NEW ERA OF REAL ESTATE EXCELLENCE</Header>
       </motion.div>
 
-      {/* Text */}
+      {/* Text + Image */}
       <motion.div
         variants={child}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 1 }}
-        className="text-[#353635] text-[12px] lg:text-[22px] leading-[233.333%]"
+        transition={{ duration: 0.9, ease: "easeOut", delay: 1 }}
+        className="flex flex-col lg:flex-row lg:items-stretch gap-6 lg:gap-12 w-full"
         style={{ willChange: "transform, opacity" }}
       >
-        With four decades of experience, our luxury boutique real estate agency is dedicated to
-        setting a new benchmark for service and expertise in the realm of upscale properties in
-        Dubai. Understanding the distinct needs and preferences of our clients, we provide
-        personalized solutions that consistently surpass expectations. Leveraging our profound
-        knowledge of the local market and an extensive network, we present a carefully curated
-        selection of exclusive properties epitomizing luxury living.
+        <p className="text-[#353635] text-[12px] lg:text-[20px] leading-[233.333%] flex-1 lg:min-w-0">
+          With four decades of experience, our luxury boutique real estate agency is dedicated to
+          setting a new benchmark for service and expertise in the realm of upscale properties in
+          Dubai. Understanding the distinct needs and preferences of our clients, we provide
+          personalized solutions that consistently surpass expectations. Leveraging our profound
+          knowledge of the local market and an extensive network, we present a carefully curated
+          selection of exclusive properties epitomizing luxury living.
+        </p>
+        <div className="flex-shrink-0 w-full lg:w-[45%] lg:max-w-[500px] aspect-[4/3] overflow-hidden rounded-sm">
+          <img
+            src="/images/placeholders/about.jpeg"
+            alt="Luxury real estate expertise in Dubai"
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+        </div>
       </motion.div>
 
       {/* Button */}

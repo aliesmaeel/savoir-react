@@ -56,7 +56,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
       className="flex flex-col items-center justify-start gap-[41.36px] w-full pt-[40px] max-w-[360px] h-screen fixed top-0 right-0 rounded-l-[14.1px]"
       style={{
         background:
-          "linear-gradient(180deg,rgba(198, 164, 90, 1) 0%, rgba(255, 255, 255, 1) 24%, rgba(255, 255, 255, 1) 100%)",
+          "whitesmoke",
       }}
     >
       <div className="relative w-full flex justify-center">
@@ -85,7 +85,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </svg>
         </button>
         <Link to="/">
-          <img loading="lazy" src={icon.logo} alt="" className="w-[188.47px]" />
+          <img loading="lazy" src={icon.logo} alt="" className="w-[188.47px] brightness-[0.7] " />
         </Link>
       </div>
       <div className="flex flex-col items-center gap-[26.79px]">
