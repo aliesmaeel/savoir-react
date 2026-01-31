@@ -22,22 +22,20 @@ export default function MemberHero() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[100vh] relative">
+    <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[85vh] relative">
       <img
         loading="lazy"
         src="/images/icons/vLetter.png"
         alt=""
-        className="w-full h-[45vh] lg:h-[100vh] object-cover"
+        className="w-full h-[45vh] lg:h-[85vh] object-cover"
       />
-      <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[100vh] absolute top-0 left-0 px-[45px]">
-        <div className="flex flex-col lg:flex-row items-center gap-[30px] lg:gap-[60px] absolute left-0 bottom-0 z-20 w-full mix-blend-multiply">
-          <img
-            loading="lazy"
-            src={team.image_border}
-            alt=""
-            className="hidden lg:block w-full max-w-[414px]"
+      <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[85vh] absolute top-0 left-0 px-[45px]">
+        <div className="flex flex-col lg:flex-row items-center gap-[30px] lg:gap-[30px] absolute left-0 bottom-0 z-20 w-full mix-blend-multiply">
+          <div
+            className="hidden lg:block w-full max-w-[414px] aspect-[3/4] bg-cover bg-center bg-no-repeat ml-[-100px]"
+            style={{ backgroundImage: `url(${team.image_border})` }}
           />
-          <div className="flex flex-col items-center lg:items-start gap-[22px] lg:gap-[75px] mx-auto">
+          <div className="flex flex-col items-center lg:items-start gap-[22px] lg:gap-[75px] mx-auto lg:mr-auto lg:ml-[15px]">
             <div className="flex flex-col items-center lg:items-start gap-[5px] lg:gap-[13px]">
               <p className="text-[21px] lg:text-[53px] font-medium">{team.name}</p>
               <Title className="text-[19px] lg:text-[48px]">{team.Job_Description}</Title>
