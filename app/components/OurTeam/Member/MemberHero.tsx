@@ -16,7 +16,7 @@ export default function MemberHero() {
       value: team.email ?? "—",
     },
     {
-      title: "Language :",
+      title: "Languages :",
       value: team.language ?? "—",
     },
   ];
@@ -32,7 +32,7 @@ export default function MemberHero() {
       <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[85vh] absolute top-0 left-0 px-[45px]">
         <div className="flex flex-col lg:flex-row items-center gap-[30px] lg:gap-[30px] absolute left-0 bottom-0 z-20 w-full mix-blend-multiply">
           <div
-            className="hidden lg:block w-full max-w-[414px] aspect-[3/4] bg-cover bg-center bg-no-repeat ml-[-100px]"
+            className="hidden lg:block w-full max-w-[414px] aspect-[3/4] bg-cover bg-center bg-no-repeat ml-[-60px] h-[700px]"
             style={{ backgroundImage: `url(${team.image_border})` }}
           />
           <div className="flex flex-col items-center lg:items-start gap-[22px] lg:gap-[75px] mx-auto lg:mr-auto lg:ml-[15px]">
