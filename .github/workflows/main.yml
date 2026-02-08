@@ -56,7 +56,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
-            cd /home/savoirproperties-dev/htdocs/dev.savoirproperties.com/savoir-react
+            cd ls /home/savoirproperties/htdocs/savoirproperties.com/savoir-react
             git fetch origin main
             git reset --hard origin/main
 
