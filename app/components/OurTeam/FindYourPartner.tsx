@@ -1,14 +1,16 @@
 // FindYourPartner.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import TeamCard from "./TeamCard";
-import ThreeSwiper from "~/UI/ThreeSwiper";
+import useIcons from "~/hooks/imageHooks/useIcons";
 import { useLoaderData } from "react-router";
 
 export default function FindYourPartner() {
   const { teams } = useLoaderData() as { teams: any };
+  const [swiperInstance, setSwiperInstance] = useState<any>(null);
+  const icon = useIcons();
 
   return (
     <section className="flex flex-col lg:flex-row items-center gap-[33px] w-full">
@@ -46,6 +48,7 @@ export default function FindYourPartner() {
             delay: 5000, // ⏱ autoplay every 5 seconds
             disableOnInteraction: false, // keeps autoplay running even after user interacts
           }}
+          onSwiper={(swiper) => setSwiperInstance(swiper)}
           slidesOffsetBefore={0} // ensure far-left alignment
           slidesOffsetAfter={0}
           slideToClickedSlide
@@ -57,14 +60,27 @@ export default function FindYourPartner() {
             </SwiperSlide>
           ))}
         </Swiper>
+
+        <div className="flex items-center justify-center gap-[44px] mt-6">
+          <button
+            type="button"
+            className="cursor-pointer focus:outline-none"
+            onClick={() => swiperInstance?.slidePrev()}
+            aria-label="Previous slide"
+          >
+            <img loading="lazy" src={icon.propertiesPrev} alt="Previous" />
+          </button>
+          <button
+            type="button"
+            className="cursor-pointer focus:outline-none"
+            onClick={() => swiperInstance?.slideNext()}
+            aria-label="Next slide"
+          >
+            <img loading="lazy" src={icon.propertiesNext} alt="Next" />
+          </button>
+        </div>
       </div>
-      <ThreeSwiper>
-        {teams.map((member: any, index: number) => (
-          <SwiperSlide key={index} className="cursor-grab select-none">
-            <TeamCard member={member} />
-          </SwiperSlide>
-        ))}
-      </ThreeSwiper>
+
     </section>
   );
 }

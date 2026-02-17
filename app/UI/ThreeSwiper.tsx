@@ -40,7 +40,7 @@ export default function ThreeSwiper({ children, spaceBetween = 30 }: Props) {
         {children}
       </Swiper>
 
-      <div className="flex items-center justify-between gap-[44px] w-full mt-6">
+      <div className="flex items-center justify-between gap-[44px] w-[30%] mt-6">
         <button
           type="button"
           className="cursor-pointer focus:outline-none"
