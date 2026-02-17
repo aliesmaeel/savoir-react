@@ -17,7 +17,7 @@ export default function MemberHero() {
     },
     {
       title: "Languages :",
-      value: team.language ?? "—",
+      value: (team.language ?? "—").replace(/,/g, ", "),
     },
   ];
   const vLetter = '/images/icons/vLetter.png';
