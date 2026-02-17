@@ -43,7 +43,8 @@ export default function MemberHero() {
                   className="flex gap-[9px] lg:gap-[23px] text-[#505050] text-[12px] lg:text-[31px]"
                   key={index}
                 >
-                  {item.title} <span className="text-[#353635] font-medium">{item.value}</span>
+                  <span className="w-[max-content]">{item.title}</span>
+                  <span className="text-[#353635] font-medium">{item.value}</span>
                 </div>
               ))}
             </div>
