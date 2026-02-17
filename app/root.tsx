@@ -16,7 +16,7 @@ import { useEffect } from "react";
 import { NotificationsProvider } from "./components/notifications/NotificationsProvider";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", type: "image/svg+xml", href: "/images/icons/logo-favicon.svg" },
+  { rel: "icon", type: "image/svg+xml", href: "/images/icons/logo.svg" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

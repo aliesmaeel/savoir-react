@@ -58,8 +58,8 @@ jobs:
           script: |
             cd ls /home/savoirproperties/htdocs/savoirproperties.com/savoir-react
             git fetch origin main
-            git reset --hard origin/main
-
+            git pull origin main --rebase
+            
             if ! command -v pnpm &> /dev/null; then
               echo "Installing pnpm..."
               npm install -g pnpm
