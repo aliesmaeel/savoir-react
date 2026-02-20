@@ -33,7 +33,7 @@ export default function CareerFamilyCenter() {
           </div>
           <img
             loading="lazy"
-            src="/images/placeholders/CareerFamilyCenter.png"
+            src="/images/Career/Familycentric.jpeg"
             alt=""
             className="w-[576px] aspect-[576/336] object-cover"
           />

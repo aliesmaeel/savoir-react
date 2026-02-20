@@ -9,7 +9,7 @@ export default function CareerCreativity() {
       <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full">
         <img
           loading="lazy"
-          src="/images/placeholders/CareerCreativity.png"
+          src="/images/Career/Innovationandcreativity.jpg"
           alt=""
           className="w-[396px] aspect-[396/336] rounded-[15px] object-cover"
         />
