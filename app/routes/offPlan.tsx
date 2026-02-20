@@ -68,8 +68,8 @@ export default function offPlan() {
           <OffPlanYoutube />
         </div>
         <ProjectFeatures />
-        <div className="flex flex-col items-start gap-[53px] w-full mt-[90px]">
-          <p className="text-black text-[36px] font-medium">
+        <div className="flex flex-col items-center gap-[53px] w-full mt-[90px]">
+          <p className="text-black text-[16px] lg:text-[36px] font-medium">
             FAQs about offPlan properties in Dubai
           </p>
           <FAQs questions={faq} />

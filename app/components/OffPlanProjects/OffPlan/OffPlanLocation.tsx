@@ -10,7 +10,7 @@ export default function OffPlanLocation() {
 
   return (
     <div className="flex flex-col items-start gap-[17px] w-full mt-[67px]">
-      <p className="text-black text-[27px]">The Location</p>
+      <p className="text-[21px] font-semibold">The Location</p>
       {property.location && (
         <p className="text-[#505050] text-[16px] font-medium">{property.location}</p>
       )}

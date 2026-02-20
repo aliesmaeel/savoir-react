@@ -23,7 +23,7 @@ export default function OffPlanYoutube() {
 
   return (
     <div className="flex flex-col items-start gap-[17px] w-full mt-[67px]">
-      <p className="text-black text-[27px]">Watch this video</p>
+      <p className="text-[21px] font-semibold">Watch this video</p>
       <iframe
         src={`https://www.youtube.com/embed/${videoId}`}
         title="YouTube video player"

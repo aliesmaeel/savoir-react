@@ -72,7 +72,7 @@ export default function AveragePrices({ community }: Props) {
 
   return (
     <div className="flex flex-col items-center gap-[22px] w-full max-w-[1080px] mx-auto mt-[75px] px-4">
-      <p className="text-[36px] font-semibold">Average property prices per sqft – {community}</p>
+      <p className="text-[21px] font-semibold">Average property prices per sqft – {community}</p>
       <div className="w-full" style={{ minHeight: "400px" }}>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={chartDataFormatted} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>

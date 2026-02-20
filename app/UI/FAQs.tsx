@@ -31,7 +31,7 @@ export default function FAQs({ questions }: Props) {
           >
             {/* Header (fixed 99px height) */}
             <div
-              className="flex items-center justify-between px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] h-[46px] lg:h-[99px] rounded-[4px] lg:rounded-[10px]  w-full"
+              className="flex items-center justify-between px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] h-[46px] lg:h-[79px] rounded-[4px] lg:rounded-[10px]  w-full"
               style={{
                 background: isOpen ? "white" : "",
               }}
