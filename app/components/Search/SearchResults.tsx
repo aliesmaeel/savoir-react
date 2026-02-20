@@ -24,7 +24,7 @@ export default function SearchResults({ projects }: Props) {
           </div>
       
         </div>
-        {!isMobile && <SearchSortBy />}
+       
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-x-[48px] gap-y-[45px]">
         <div

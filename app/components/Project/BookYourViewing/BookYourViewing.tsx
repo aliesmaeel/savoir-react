@@ -119,10 +119,8 @@ export default function BookYourViewing({ agent }: Props) {
   return (
     <div className="flex flex-col items-start gap-[22px] w-full mt-[75px]">
       <div className="flex flex-col items-start gap-[7px]">
-        <p className="text-[36px] font-semibold">Book your viewing</p>
-        <p className="text-[#999999] text-[13px] font-medium">
-          And our agent will show you property
-        </p>
+        <p className="text-[21px] font-semibold">Book your viewing</p>
+    
       </div>
       <form
         ref={formRef}

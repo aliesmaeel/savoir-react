@@ -140,6 +140,12 @@ export default function ProjectDescription() {
   };
 
   const items = [
+
+    {
+      title: "Area",
+      icon: icon.searchSquare,
+      value: `${property.size?.toLocaleString()} SF`,
+    },
     {
       title: "Bedrooms",
       icon: icon.searchBedroom,
@@ -151,9 +157,9 @@ export default function ProjectDescription() {
       value: property.bathroom,
     },
     {
-      title: "Area",
-      icon: icon.searchSquare,
-      value: `${property.size?.toLocaleString()} Square Feet`,
+      title: "Status",
+      icon: icon.searchType,
+      value: property.completion_status,
     },
   ];
 
@@ -161,7 +167,7 @@ export default function ProjectDescription() {
     <div className="flex flex-col lg:flex-row items-start gap-[53px] w-full mt-[34px]">
       <div className="flex flex-col items-start gap-[31px] w-full">
         <div className="flex flex-col items-start gap-[17px] w-full">
-          <p className="text-black text-[21px]">{property.title_en}</p>
+          <p className="text-[21px] font-semibold">{property.title_en}</p>
           <div className="flex flex-col items-start gap-[4px] w-full">
             <p className="text--[27px] font-semibold">Description</p>
             <div
@@ -192,21 +198,16 @@ export default function ProjectDescription() {
           {items.map((item: any, index: number) => (
             <div
               key={index}
-              className="flex flex-col items-start gap-[4px] lg:gap-[8px] pr-[26px] lg:pr-[52px] border-r border-[#353635]"
+              className="flex flex-col items-start gap-[4px] lg:gap-[8px] pr-[6px] lg:pr-[6px] border-r border-[#353635]"
             >
               <div className="flex items-center gap-[3px] lg:gap-[7px]">
                 <img loading="lazy" src={item.icon} alt="" className="w-[12px] lg:w-[25px]" />
-                <p className="text-[#505050] text-[8px] lg:text-[16px] font-medium">{item.title}</p>
+                <p className="text-[#505050] text-[8px] lg:text-[16px] font-medium">{item.title} {item.value}</p>
               </div>
-              <p className="text-[10px] lg:text-[18px] font-semibold">{item.value}</p>
+            
             </div>
           ))}
-          <div className="flex flex-col items-start gap-[3px] lg:gap-[8px]">
-            <p className="text-[#505050] text-[8px] lg:text-[16px] font-medium">
-              Completion Status:
-            </p>
-            <p className="text-[#C6A45A] text-[10px] lg:text-[18px] font-semibold">{property.completion_status}</p>
-          </div>
+      
         </div>
       </div>
       {property?.user && <ProjectListedByContact user={property.user} />}

@@ -50,7 +50,7 @@ export default function SearchFilter() {
   const [query, setQuery] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>([]);
   const [rentFilters, setRentFilters] = useState<RentFilters>({
-    interested: "Rent",
+    interested: "Buy",
     status: "All",
   });
   const [bedBath, setBedBath] = useState<BedBathValue>({
@@ -75,7 +75,7 @@ export default function SearchFilter() {
     setRentFilters({
       interested: INTERESTED_VALUES.includes(interestedParam as any)
         ? (interestedParam as (typeof INTERESTED_VALUES)[number])
-        : "Rent",
+        : "Buy",
       status: STATUS_VALUES.includes(statusParam as any)
         ? (statusParam as (typeof STATUS_VALUES)[number])
         : "All",

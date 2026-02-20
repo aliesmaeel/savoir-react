@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
-
+import SearchSortBy from "./SearchSortBy";
+import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 // Local map for type codes -> labels (same options used in FilterType)
 const TYPE_LABEL: Record<string, string> = {
   AP: "Apartment",
@@ -43,7 +44,7 @@ export default function SearchFIlterItems() {
   const icon = useIcons();
   const location = useLocation();
   const navigate = useNavigate();
-
+  const isMobile = useIsMobile();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
 
   // Read current values
@@ -60,7 +61,7 @@ export default function SearchFIlterItems() {
   const bedCount = formatCountLabel(bedrooms);
   const bathCount = formatCountLabel(bathrooms);
 
-  const interested = params.get("interested") || "Rent";
+  const interested = params.get("interested") || "Buy";
   const status = params.get("status") || "All";
 
   // Helpers
@@ -86,7 +87,7 @@ export default function SearchFIlterItems() {
     });
   const clearInterested = () =>
     updateParams((p) => {
-      p.set("interested", "Rent");
+      p.set("interested", "Buy");
     });
   const clearStatus = () =>
     updateParams((p) => {
@@ -100,7 +101,7 @@ export default function SearchFIlterItems() {
       p.delete("query");
       p.delete("min");
       p.delete("max");
-      p.set("interested", "Rent");
+      p.set("interested", "Buy");
       p.set("status", "All");
       p.set("bedrooms", "Any");
       p.set("bathrooms", "Any");
@@ -194,29 +195,32 @@ export default function SearchFIlterItems() {
 
   return (
     <div className="flex flex-col items-start gap-[9px] lg:gap-[20px] w-full">
-      <div className="grid grid-cols-3 lg:grid-cols-5 gap-[7px] lg:gap-[17px] w-full">
-        {items.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center justify-between w-full p-[8px] lg:p-[16px] rounded-[4px] lg:rounded-[10px] bg-[#EEE]"
-          >
-            <div className="flex items-center gap-[4px] lg:gap-[8px]">
-              <img loading="lazy" src={item.icon} alt="" className="w-[9px] lg:w-[19px]" />
-              <hr className="border-0 w-[1px] h-[11px] lg:h-[22px] bg-[#262626]" />
-              <p className="text-[7px] lg:text-[14px] font-medium">{item.label}</p>
+      <div className="flex flex-wrap items-center gap-[7px] lg:gap-[17px] w-full">
+        <div className="grid grid-cols-3 lg:grid-cols-5 gap-[7px] lg:gap-[17px] flex-1 min-w-0">
+          {items.map((item) => (
+            <div
+              key={item.label}
+              className="flex items-center justify-between w-full p-[8px] lg:p-[16px] rounded-[4px] lg:rounded-[10px] bg-[#EEE]"
+            >
+              <div className="flex items-center gap-[4px] lg:gap-[8px]">
+                <img loading="lazy" src={item.icon} alt="" className="w-[9px] lg:w-[19px]" />
+                <hr className="border-0 w-[1px] h-[11px] lg:h-[22px] bg-[#262626]" />
+                <p className="text-[7px] lg:text-[14px] font-medium">{item.label}</p>
+              </div>
+              <button onClick={item.onClear} aria-label={`clear ${item.key}`}>
+                <img
+                  loading="lazy"
+                  src={icon.searchCloseButton}
+                  alt=""
+                  className="w-[12px] lg:w-[26px]"
+                />
+              </button>
             </div>
-            <button onClick={item.onClear} aria-label={`clear ${item.key}`}>
-              <img
-                loading="lazy"
-                src={icon.searchCloseButton}
-                alt=""
-                className="w-[12px] lg:w-[26px]"
-              />
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
+        {!isMobile && <div className="ml-auto"><SearchSortBy /></div>}
       </div>
-
+     
       <button onClick={resetAll} aria-label="reset all filters">
         <p className="text-[12px] lg:text-[24px] font-medium underline">Reset all filters</p>
       </button>

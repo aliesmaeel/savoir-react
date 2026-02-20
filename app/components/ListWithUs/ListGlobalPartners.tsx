@@ -38,7 +38,6 @@ export default function ListGlobalPartners() {
 
   return (
     <div className="flex flex-col items-center gap-[46px] w-full mt-[108px]">
-      <p className="text-black text-[20px] lg:text-[42px] font-medium">Why List With Us ?</p>
       <div className="flex flex-col items-start gap-[52px] w-full">
         {items.map((item: any, index: number) => (
           <Card key={index} className="!rounded-[15px] lg:!rounded-[67.5px] w-full group">

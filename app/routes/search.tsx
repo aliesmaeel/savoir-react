@@ -15,7 +15,7 @@ export async function clientLoader({ request }: { request: Request }) {
   const params = new URLSearchParams(url.search);
   
   const status = params.get("status") || "All";
-  const interested = params.get("interested") || "Rent";
+  const interested = params.get("interested") || "Buy";
   
   // Determine FAQ type based on search params
   let faqtype = "buy"; // default
@@ -38,9 +38,9 @@ export async function clientLoader({ request }: { request: Request }) {
 
 export function shouldRevalidate({ currentUrl, nextUrl }: { currentUrl: URL; nextUrl: URL }) {
   const currentStatus = currentUrl.searchParams.get("status") || "All";
-  const currentInterested = currentUrl.searchParams.get("interested") || "Rent";
+  const currentInterested = currentUrl.searchParams.get("interested") || "Buy";
   const nextStatus = nextUrl.searchParams.get("status") || "All";
-  const nextInterested = nextUrl.searchParams.get("interested") || "Rent";
+  const nextInterested = nextUrl.searchParams.get("interested") || "Buy";
   
   // Revalidate if status or interested params change (affects FAQ type)
   return currentStatus !== nextStatus || currentInterested !== nextInterested;
@@ -61,7 +61,7 @@ export default function Search() {
 
     const query = params.get("query") ? params.get("query")!.split(",") : [];
     const types = params.get("types") ? params.get("types")!.split(",") : [];
-    const interested = params.get("interested") || "Rent";
+    const interested = params.get("interested") || "Buy";
     const status = params.get("status") || "All";
     const bedroomsParam = params.get("bedrooms") || "Any";
     const bathroomsParam = params.get("bathrooms") || "Any";
@@ -123,7 +123,7 @@ export default function Search() {
   const getFAQTitle = () => {
     const params = new URLSearchParams(location.search);
     const status = params.get("status") || "All";
-    const interested = params.get("interested") || "Rent";
+    const interested = params.get("interested") || "Buy";
     
     if (status === "Off-plan") {
       return "FAQs about offPlan properties in Dubai";

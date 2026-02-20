@@ -115,9 +115,9 @@ export default function OffPlanDescription() {
 
   return (
     <div className="flex flex-col items-start gap-[29px] w-full">
-      <p className="text-[#C6A45A] text-[27px] font-semibold">{property.title}</p>
+      <p className="text-[21px] font-semibold">{property.title}</p>
       <div className="flex flex-col items-start gap-[4px] w-full">
-        <p className="text-[27px] font-semibold">Description</p>
+        <p className="text--[27px] font-semibold">Description</p>
         <div
           className="text-[#505050] text-[18px] leading-[180%]"
           dangerouslySetInnerHTML={{

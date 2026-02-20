@@ -26,7 +26,7 @@ export default function OffPlanPaymentPlans() {
 
   return (
     <div className="flex flex-col items-start gap-[29px] w-full mt-[50px]">
-      <p className="text-black text-[27px]">Payment plans</p>
+      <p className="text-[21px] font-semibold">Payment plans</p>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[14px] w-full">
         {plans.map((plan: any, index: any) => (
           <div
