@@ -15,12 +15,28 @@ export default function CareerEnduringLegacy() {
             our brand story of excellence in premium real estate services.
           </p>
         </div>
-        <img
-          loading="lazy"
-          src="/images/placeholders/CareerEnduringLegacy.png"
-          alt=""
-          className="w-[502px] aspect-[502/385] rounded-[7.5px] object-cover"
-        />
+        <div className="flex flex-col gap-[10px] w-full max-w-[502px]">
+          <img
+            loading="lazy"
+            src="/images/Career/legacy1.jpg"
+            alt=""
+            className="w-full aspect-[502/200] rounded-[7.5px] object-cover"
+          />
+          <div className="flex gap-[10px] w-full">
+            <img
+              loading="lazy"
+              src="/images/Career/legacy2.jpg"
+              alt=""
+              className="flex-1 aspect-[251/185] w-[49%] rounded-[7.5px] object-cover"
+            />
+            <img
+              loading="lazy"
+              src="/images/Career/legacy3.jpg"
+              alt=""
+              className="flex-1 aspect-[251/185] w-[49%] rounded-[7.5px] object-cover"
+            />
+          </div>
+        </div>
       </div>
     </Card>
   );
