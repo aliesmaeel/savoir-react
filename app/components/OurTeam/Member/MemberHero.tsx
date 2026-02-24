@@ -32,18 +32,18 @@ export default function MemberHero() {
             className="hidden lg:block w-full max-w-[414px] aspect-[3/4] bg-cover bg-center bg-no-repeat ml-[-60px] h-[700px]"
             style={{ backgroundImage: `url(${team.image_border})` }}
           />
-          <div className="flex flex-col items-center lg:items-start gap-[22px] lg:gap-[75px] mx-auto lg:mr-auto lg:ml-[15px]">
+          <div className="flex flex-col items-center lg:items-start gap-[22px] lg:gap-[55px] mx-auto lg:mr-auto lg:ml-[15px] w-[44%]">
             <div className="flex flex-col items-center lg:items-start gap-[5px] lg:gap-[13px]">
-              <p className="text-[21px] lg:text-[53px] font-medium">{team.name}</p>
-              <Title className="text-[19px] lg:text-[48px]">{team.Job_Description}</Title>
+              <p className="text-[21px] lg:text-[43px] font-medium">{team.name}</p>
+              <Title className="text-[19px] lg:text-[38px]">{team.Job_Description}</Title>
             </div>
             <div className="flex flex-col items-center lg:items-start gap-[9px] lg:gap-[22px]">
               {infoItems.map((item: any, index: number) => (
                 <div
-                  className="flex gap-[9px] lg:gap-[23px] text-[#505050] text-[12px] lg:text-[31px]"
+                  className="flex gap-[9px] lg:gap-[23px] text-[#505050] text-[12px] lg:text-[21px]"
                   key={index}
                 >
-                  <span className="w-[max-content]">{item.title}</span>
+                  <span className="w-[130px]">{item.title}</span>
                   <span className="text-[#353635] font-medium">{item.value}</span>
                 </div>
               ))}

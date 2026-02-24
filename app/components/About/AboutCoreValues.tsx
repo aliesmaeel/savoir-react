@@ -7,7 +7,7 @@ export default function AboutCoreValues() {
   const items = [
     {
       title: "Knowledge",
-      text: "In our real estate domain, knowledge is not just information; it is  power. At Savoir Privé Properties, we empower our clients with the  information they need to make the smartest choices, recognizing that  knowledge is the key to success in the dynamic world of real estate.",
+      text: "In our real estate domain, knowledge is not just information; it is power. At Savoir Privé Properties, we empower our clients with the information they need to make the smartest choices, recognizing that knowledge is the key to success in the dynamic world of real estate. We believe that informed decisions are the foundation of lasting success. By providing clear insights, reliable data, and thoughtful guidance, we help our clients navigate opportunities with confidence and clarity. Our commitment is to ensure every client feels prepared, supported, and fully equipped to move forward in an ever-changing market.",
       image: "/images/about/Knowledge.jpg",
     },
     {
@@ -17,7 +17,7 @@ export default function AboutCoreValues() {
     },
     {
       title: "Trust",
-      text: "At SAVOIR we do not have clients, we have partners. This is a healthy relationship based on trust and mutual understanding. Trust is what leads us to success.",
+      text: "At SAVOIR we do not have clients, we have partners. This is a healthy relationship based on trust and mutual understanding. Trust is what leads us to success. We believe in building long-term connections where transparency, respect, and shared goals define every interaction. By working closely together, we create value, strengthen confidence, and achieve results that reflect our collective vision and commitment.",
       image: "/images/about/Trust.jpg",
     },
     {

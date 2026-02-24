@@ -15,10 +15,10 @@ export default function FindYourPartner() {
   return (
     <section className="flex flex-col lg:flex-row items-center gap-[33px] w-full">
       <div className="flex flex-col items-start gap-[15px] lg:w-[447px] shrink-0">
-        <p className="text-black text-[20px] lg:text-[52px] font-medium">FIND YOUR PARTNER</p>
-        <p className="text-[15px] lg:text-[37px] leading-[170%]">
+        <p className="text-black text-[20px] lg:text-[42px] font-medium">FIND YOUR PARTNER</p>
+        <p className="text-[15px] lg:text-[27px] leading-[170%]">
           Our team is highly experienced and knowledgeable across all aspects of the real estate
-          industry
+          industry.
         </p>
       </div>
 
