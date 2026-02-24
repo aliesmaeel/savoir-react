@@ -11,7 +11,7 @@ export default function NewsBody() {
       {/* title_details */}
       {newsItem.title_details && (
         <article
-          className="text-black text-[14px] lg:text-[21px] leading-[214.286%]"
+          className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
           dangerouslySetInnerHTML={{ __html: newsItem.title_details }}
         />
       )}
@@ -19,12 +19,12 @@ export default function NewsBody() {
       {/* description_one_title and description_one */}
       {newsItem.description_one_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-black text-[20px] lg:text-[27px] font-semibold">
+          <h2 className="text-[21px] font-semibold">
             {newsItem.description_one_title}
           </h2>
           {newsItem.description_one && (
             <article
-              className="text-black text-[14px] lg:text-[21px] leading-[214.286%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_one }}
             />
           )}
@@ -64,12 +64,12 @@ export default function NewsBody() {
       {/* description_two_title and description_two */}
       {newsItem.description_two_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-black text-[20px] lg:text-[27px] font-semibold">
+          <h2 className="text-[21px] font-semibold">
             {newsItem.description_two_title}
           </h2>
           {newsItem.description_two && (
             <article
-              className="text-black text-[14px] lg:text-[21px] leading-[214.286%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_two }}
             />
           )}
@@ -79,12 +79,12 @@ export default function NewsBody() {
       {/* description_three_title and description_three */}
       {newsItem.description_three_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-black text-[20px] lg:text-[27px] font-semibold">
+          <h2 className="text-[21px] font-semibold">
             {newsItem.description_three_title}
           </h2>
           {newsItem.description_three && (
             <article
-              className="text-black text-[14px] lg:text-[21px] leading-[214.286%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_three }}
             />
           )}
@@ -94,12 +94,12 @@ export default function NewsBody() {
       {/* description_four_title and description_four */}
       {newsItem.description_four_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-black text-[20px] lg:text-[27px] font-semibold">
+          <h2 className="text-[21px] font-semibold">
             {newsItem.description_four_title}
           </h2>
           {newsItem.description_four && (
             <article
-              className="text-black text-[14px] lg:text-[21px] leading-[214.286%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_four }}
             />
           )}

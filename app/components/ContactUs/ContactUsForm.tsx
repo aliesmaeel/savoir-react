@@ -25,7 +25,7 @@ export default function ContactUsForm() {
       { icon: icon.contactEmail, text: "info@saviorproperties.com" },
       {
         icon: icon.contactLocation,
-        text: "Emaar Business Park, Bldg.4 - Office 502A Shk. Zayed Road - Dubai",
+        text: "Emaar Business Park, Bldg.4 - Office 502 Shk. Zayed Road - Dubai",
       },
     ],
     [icon]

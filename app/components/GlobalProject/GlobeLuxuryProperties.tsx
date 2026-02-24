@@ -29,8 +29,8 @@ const GlobeLuxuryProperties: React.FC<GlobeLuxuryPropertiesProps> = ({
 
   return (
     <div className="flex flex-col items-start gap-[33px] w-full mt-[90px]">
-      <p className="text-[36px] font-semibold">
-        LUXURY Properties{titleCountry ? ` in ${titleCountry}` : ""}
+      <p className="text-[24px] font-semibold">
+        LUXURY Properties{titleCountry ? ` in ${titleCountry} :` : ""}
       </p>
       <ThreeSwiper>
         {similar.map((project: any, index: number) => (

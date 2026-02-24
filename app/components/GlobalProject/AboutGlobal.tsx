@@ -10,7 +10,7 @@ const AboutGlobal: React.FC<AboutGlobalProps> = ({ country, description }) => {
   return (
     <div className="flex flex-col items-start gap-[33px] w-full">
       <GoldTitle className="!text-[34px] capitalize">About {country}</GoldTitle>
-      <p className="text-[15px] lg:text-[27px] ">{description}</p>
+      <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%] ">{description}</p>
     </div>
   );
 };

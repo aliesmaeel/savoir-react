@@ -1,34 +1,40 @@
 import React from "react";
 
-export default function ListHero() {
+const ListHero = () => {
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[80vh] lg:h-[110vh] relative">
-      <img
-        loading="lazy"
-        src="/images/icons/vLetter.png"
-        alt=""
-        className="w-full h-[80vh] lg:h-[150vh] object-cover"
+    <section className="relative flex items-center justify-center w-full min-h-[70vh] lg:min-h-[90vh] overflow-hidden">
+  
+
+      <div
+        className="absolute inset-0 bg-white/60 lg:bg-white/70"
+        aria-hidden="true"
+        style={{ backgroundImage: "url('/images/icons/vLetter.png')", backgroundSize: "contain", backgroundRepeat  : "no-repeat" }}
       />
-      <div className="flex flex-col items-center justify-end w-full h-[80vh] lg:h-[110vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
-        <div className="flex flex-col items-center gap-[0px] w-full">
+
+      <div className="relative z-10 flex w-full justify-center px-[16px] lg:px-[45px] py-[72px] lg:py-[96px] pb-[0px]">
+        <div className="flex w-full max-w-5xl flex-col items-center gap-[32px] text-center">
           <div className="flex flex-col items-center gap-[17px]">
-            <h1 className=" text-[20px] lg:text-[45px] font-semibold">
+            <h1 className="text-[22px] sm:text-[26px] lg:text-[45px] font-semibold">
               Search Luxury Homes In Dubai
             </h1>
-            <p className="text-[#505050] text-[15px] sm:text-center lg:text-[24px]">
+            <p className="text-[#505050] text-[15px] sm:text-[16px] lg:text-[20px]">
               Explore Dubai's Diverse Communities: Where Tradition Meets Innovation in Every
               Neighborhood.
             </p>
           </div>
-          <img className="mix-blend-multiply h-[80%] w-[80%]" loading="lazy" src="/images/placeholders/list-with-us.jpg" alt="" />
+
+          <div className="w-full flex justify-center">
+            <img
+              loading="lazy"
+              src="/images/placeholders/list-with-us.jpg"
+              alt="Luxury homes in Dubai listing preview"
+              className="w-full max-w-[90%] rounded-xl mix-blend-multiply"
+            />
+          </div>
         </div>
-        <div
-          className="absolute bottom-0 left-0 w-full h-[176px] z-10"
-          style={{
-            background: "linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%)",
-          }}
-        />
       </div>
-    </div>
+    </section>
   );
-}
+};
+
+export default ListHero;

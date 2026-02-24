@@ -20,7 +20,7 @@ export default function AboutMember() {
           <p className="text-[23px] lg:text-[34px] font-semibold">About {team.name}</p>
         </div>
         <div
-          className="text-[15px] lg:text-[27px] leading-[170%]"
+          className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
           dangerouslySetInnerHTML={{ __html: team.bio }}
         ></div>
       </div>
