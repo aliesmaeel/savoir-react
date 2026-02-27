@@ -66,7 +66,7 @@ export default function ListGlobalPartners() {
                 >
                   {item.images.map((image: string, imageIndex: number) => (
                     <SwiperSlide key={imageIndex}>
-                      <img loading="lazy" src={image} alt="" className="w-full h-[900px]" />
+                      <img loading="lazy" src={image} alt="" className="w-full h-[650px]" />
                     </SwiperSlide>
                   ))}
                 </Swiper>
