@@ -41,11 +41,11 @@ export default function ListGlobalPartners() {
       <div className="flex flex-col items-start gap-[52px] w-full">
         {items.map((item: any, index: number) => (
           <Card key={index} className="!rounded-[15px] lg:!rounded-[67.5px] w-full group">
-            <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full px-[37px] py-[48px] group-even:lg:flex-row-reverse">
+            <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full px-[37px] py-[28px] group-even:lg:flex-row-reverse">
               <div className="flex flex-col items-start gap-[24px] w-full">
                 <div className="flex flex-col items-start gap-[13px] w-full">
                   <img loading="lazy" src={item.icon} alt="" />
-                  <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">
+                  <p className="text-[#505050] text-[15px] sm:text-[16px] lg:text-[20px] leading-[140%]">
                     {item.text}
                   </p>
                 </div>
@@ -66,7 +66,7 @@ export default function ListGlobalPartners() {
                 >
                   {item.images.map((image: string, imageIndex: number) => (
                     <SwiperSlide key={imageIndex}>
-                      <img loading="lazy" src={image} alt="" className="w-full h-[650px]" />
+                      <img loading="lazy" src={image} alt="" className="w-full h-[400px]" />
                     </SwiperSlide>
                   ))}
                 </Swiper>
