@@ -33,6 +33,7 @@ export default function ListGlobalPartners() {
         // Add more images here as needed
       ],
       link: "https://www.luxuryportfolio.com/",
+      
     },
   ];
 
