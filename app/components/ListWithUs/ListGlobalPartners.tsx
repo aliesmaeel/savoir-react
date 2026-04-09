@@ -63,10 +63,11 @@ export default function ListGlobalPartners() {
                   modules={[Navigation]}
                   onSwiper={(swiper) => setSwiperInstances((prev) => ({ ...prev, [index]: swiper }))}
                   className="w-full"
+                  
                 >
                   {item.images.map((image: string, imageIndex: number) => (
                     <SwiperSlide key={imageIndex}>
-                      <img loading="lazy" src={image} alt="" className="w-full" />
+                      <img loading="lazy" src={image} alt="" className="w-full " />
                     </SwiperSlide>
                   ))}
                 </Swiper>
