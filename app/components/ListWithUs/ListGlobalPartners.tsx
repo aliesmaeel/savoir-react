@@ -20,7 +20,6 @@ export default function ListGlobalPartners() {
         "/images/listwithus/4.jpg",
         "/images/listwithus/5.jpg",
         "/images/listwithus/6.jpg",
-        "/images/listwithus/7.jpg",
         // Add more images here as needed
       ],
       link: "https://www.leadingre.com/",
