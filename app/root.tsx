@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useMatches,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -38,12 +39,17 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const matches = useMatches();
+  const currentMatch = matches[matches.length - 1] as any;
+  const seoImage = currentMatch?.data?.seo?.image;
+
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        {seoImage && <link rel="preload" as="image" href={seoImage} />}
         <Links />
       </head>
       <body>
