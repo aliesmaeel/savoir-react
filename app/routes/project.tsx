@@ -30,14 +30,13 @@ const resolveImageUrl = (image: string, origin: string) => {
 
 const getFirstPropertyImage = (property: any): string => {
   if (!property) return "";
-  if (typeof property?.photo === "string" && property.photo) return property.photo;
 
   const firstImage = property?.property_images?.[0];
   if (!firstImage) return "";
 
   if (typeof firstImage === "string") return firstImage;
 
-  return firstImage?.image || firstImage?.url || firstImage?.photo || firstImage?.src || "";
+  return firstImage?.url || firstImage?.image || firstImage?.photo || firstImage?.src || "";
 };
 
 export function meta({ data }: Route.MetaArgs) {
