@@ -22,10 +22,10 @@ export default function ContactUsForm() {
   const items = useMemo(
     () => [
       { icon: icon.contactPhone, text: "+971505074686" },
-      { icon: icon.contactEmail, text: "info@saviorproperties.com" },
+      { icon: icon.contactEmail, text: "info@savoirproperties.com" },
       {
         icon: icon.contactLocation,
-        text: "Emaar Business Park, Bldg.4 - Office 502 Shk. Zayed Road - Dubai",
+        text: "Emaar Business Park, Bldg.4, Office 502, Shk. Zayed Road, Dubai",
       },
     ],
     [icon]
@@ -91,7 +91,7 @@ export default function ContactUsForm() {
 
   return (
     <div className="flex flex-col items-start gap-[22px] w-full mt-[112px]">
-      <div className="flex flex-col lg:flex-row items-center gap-[39px] w-full p-[11px] rounded-[9px] border border-[#C6A45A] overflow-hidden relative z-10">
+      <div className="flex flex-col lg:flex-row items-center gap-[39px] w-full p-[11px] rounded-[9px] border border-[##9b957f] overflow-hidden relative z-10">
         <img
           loading="lazy"
           src={icon.Ellipse8}
@@ -100,7 +100,7 @@ export default function ContactUsForm() {
         />
         <div
           className="flex flex-col items-start justify-between gap-[20px] p-[16px] lg:p-[44px] w-full lg:max-w-[490px] lg:aspect-[490/727] rounded-[11px] text-white"
-          style={{ background: "linear-gradient(170deg, #C6A45A 7.6%, #FFF 168.8%)" }}
+          style={{ background: "#9b957f" }}
         >
           <div className="flex flex-col items-start gap-[20px] lg:gap-[98px]">
             <div className="flex flex-col items-start gap-[6px]">

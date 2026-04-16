@@ -20,7 +20,7 @@ const GlobalProjectHero: React.FC<GlobalProjectHeroProps> = ({
   const normalizedInitialCountry =
     initialCountry && initialCountry.length > 0
       ? initialCountry
-      : "united arab emirates";
+      : "Bulgaria";
 
   // Display name (capitalize) for UI / globe
   const toDisplayName = (name: string) =>

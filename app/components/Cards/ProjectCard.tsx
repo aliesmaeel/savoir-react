@@ -61,7 +61,7 @@ export default function ProjectCard({ project }: props) {
           className="w-full aspect-[375.733/242.119] object-cover rounded-[10px] mt-[22px]"
         />
         <p
-          className={`text-[#C6A45A] text-[14px] Jakarta font-medium leading-[150%] max-w-[227px] mt-[17px] ${project.featured === 1 && "text-white"} `}
+          className={`text-[#353635] text-[14px] Jakarta font-medium leading-[150%] max-w-[227px] mt-[17px] ${project.featured === 1 && "text-white"} `}
         >
           {project.title_en}
         </p>

@@ -13,7 +13,7 @@ export async function clientLoader({ request, params }: { request: Request; para
   const url = new URL(request.url);
   const q = url.searchParams.get("country");
   const fromRoute = params?.country as string | undefined;
-  const country = (q ?? fromRoute ?? "united arab emirates").toLowerCase();
+  const country = (q ?? fromRoute ?? "Bulgaria").toLowerCase();
 
   try {
     const global: any = await getGlobalProject(country); // expects lowercase
@@ -56,6 +56,7 @@ export default function GlobalProject() {
           )}
         </div>
         <GlobeLuxuryProperties
+          country={currentCountry}
           similarProperties={currentGlobal?.similar_properties ?? []}
         />
       </PageLayout>
