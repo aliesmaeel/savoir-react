@@ -149,10 +149,10 @@ function SlideCard({ item, arrow }: { item: any; arrow: ReturnType<typeof useArr
           to={`/popular-areas/${item.slug}`}
           className="absolute bottom-0 left-0 w-full py-[8px] lg:py-[15px] bg-[#6c645a] flex items-center justify-center gap-[15px]"
         >
-          <p className="text-[#C6A45A] text-[14px] lg:text-[20px]">{item.name}</p>
+          <p className="text-[white] text-[14px] lg:text-[20px]">{item.name}</p>
           <img
             loading="lazy"
-            src={arrow.veryLongGold}
+            src={arrow.veryLongWhite}
             alt=""
             className="w-[35px] lg:w-[50px] mt-[-5px]"
           />

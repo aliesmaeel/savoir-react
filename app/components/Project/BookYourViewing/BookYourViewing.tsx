@@ -61,7 +61,7 @@ export default function BookYourViewing({ agent }: Props) {
     
     const subject = `Property Inquiry — ${formattedName} - ${propertyTitle}`;
     const body = [
-      "Dear Savoir Properties Team,",
+      "Dear SAVOIR Team,",
       "",
       "I hope this message finds you well.",
       "",

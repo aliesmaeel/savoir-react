@@ -7,7 +7,7 @@ export default function CareerAbout() {
       <Header className="text-[20px] lg:text-[34px]">WE’RE LOCAL, WE’RE GLOBAL</Header>
       <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
         <span className="font-semibold">
-          At Savoir Prive, we are more than just a real estate agency
+          At SAVOIR, we are more than just a real estate agency
         </span>
         <br />
         We are a dynamic community of professionals dedicated to redefining industry standards. As

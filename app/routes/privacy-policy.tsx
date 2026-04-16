@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
             <section className="flex flex-col gap-[16px]">
               <h2 className="text-[18px] lg:text-[24px] font-semibold text-[#C6A45A]">1. Introduction</h2>
               <p>
-                Savoir Properties ("we", "us", "our") respects your privacy and is committed to protecting your personal data. This Privacy Policy describes how we collect, use, store, and disclose your information when you visit or use our website www.savoirproperties.com (the "Website"), subscribe to our newsletter or market reports, or otherwise interact with us. By using our Website or providing us with your information, you agree to this Policy.
+              SAVOIR ("we", "us", "our") respects your privacy and is committed to protecting your personal data. This Privacy Policy describes how we collect, use, store, and disclose your information when you visit or use our website www.savoirproperties.com (the "Website"), subscribe to our newsletter or market reports, or otherwise interact with us. By using our Website or providing us with your information, you agree to this Policy.
               </p>
             </section>
 
@@ -154,7 +154,7 @@ export default function PrivacyPolicy() {
               <h2 className="text-[18px] lg:text-[24px] font-semibold text-[#C6A45A]">13. Contact Us</h2>
               <p>If you have any questions about this Privacy Policy or our data practices, or want to exercise any of your rights, you can contact us:</p>
               <div className="flex flex-col gap-[8px] ml-[16px]">
-                <p className="font-semibold">Savoir Properties</p>
+                <p className="font-semibold">SAVOIR</p>
                 <p>Email: <a href="mailto:info@saviorproperties.com" className="text-[#C6A45A] underline">info@saviorproperties.com</a></p>
                 <p>Address: Clover Bay, 2026, Business Bay</p>
                 <p>Phone: <a href="tel:+971505074686" className="text-[#C6A45A] underline">+971505074686</a></p>

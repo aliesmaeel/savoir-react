@@ -50,7 +50,7 @@ export default function OffPlanProjects() {
     >
       <Card>
         <div className="flex flex-col items-center gap-[17px] lg:gap-[30px] w-full pt-[17px] lg:pt-[33px] pb-[19px] lg:pb-[36px] ">
-          <Title className="text-[18px] lg:text-[30px]">EXPLORE RECENT OFF PLAN PROJECTS</Title>
+          <Title className="text-[18px] lg:text-[30px]">Explore Recent Off Plan Projects</Title>
           <OffPlanProjectsSwiper />
         </div>
       </Card>

@@ -10,7 +10,7 @@ export default function CareerEnduringLegacy() {
           <GoldTitle>Enduring Legacy</GoldTitle>
           <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">
             With a decades-long legacy and a proven track record of billions of dollars in real
-            estate transactions, Savoir Prive is more than just a workplace; it is a testament to
+            estate transactions, SAVOIR is more than just a workplace; it is a testament to
             long-term success. Every member of our team is a part of our success, contributing to
             our brand story of excellence in premium real estate services.
           </p>

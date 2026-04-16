@@ -18,7 +18,7 @@ export default function HeroSwiper() {
     <Swiper
       className="absolute inset-0 -z-10 w-full h-full"
       modules={[Autoplay]}
-      autoplay={{ delay: 1000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+      autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
       loop={images.length > 1}
       speed={600}
     >
