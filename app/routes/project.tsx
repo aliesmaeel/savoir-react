@@ -28,6 +28,18 @@ const resolveImageUrl = (image: string, origin: string) => {
   return `${origin}${image.startsWith("/") ? image : `/${image}`}`;
 };
 
+const getFirstPropertyImage = (property: any): string => {
+  if (!property) return "";
+  if (typeof property?.photo === "string" && property.photo) return property.photo;
+
+  const firstImage = property?.property_images?.[0];
+  if (!firstImage) return "";
+
+  if (typeof firstImage === "string") return firstImage;
+
+  return firstImage?.image || firstImage?.url || firstImage?.photo || firstImage?.src || "";
+};
+
 export function meta({ data }: Route.MetaArgs) {
   const title = data?.seo?.title || "Savoir Property";
   const description = data?.seo?.description || "Explore this property listing with Savoir.";
@@ -67,7 +79,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       property?.community_description ||
       "Explore this property listing with Savoir.";
     const description = buildShortDescription(descriptionSource);
-    const imageSource = property?.photo || property?.property_images?.[0]?.image || "";
+    const imageSource = getFirstPropertyImage(property);
     const image = resolveImageUrl(imageSource, origin);
 
     return { property, similar, seo: { title, description, image } };
