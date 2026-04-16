@@ -23,7 +23,7 @@ const buildShortDescription = (value: string, maxLength = 170) => {
 };
 
 const resolveImageUrl = (image: string, origin: string) => {
-  if (!image) return `${origin}/images/placeholders/homeBackground.webp`;
+  if (!image) return "";
   if (image.startsWith("http://") || image.startsWith("https://")) return image;
   return `${origin}${image.startsWith("/") ? image : `/${image}`}`;
 };
@@ -31,29 +31,27 @@ const resolveImageUrl = (image: string, origin: string) => {
 export function meta({ data }: Route.MetaArgs) {
   const title = data?.seo?.title || "Savoir Property";
   const description = data?.seo?.description || "Explore this property listing with Savoir.";
-  const image = data?.seo?.image || "/images/placeholders/homeBackground.webp";
+  const image = data?.seo?.image || "";
 
-  return [
+  const metaTags = [
     { title },
     { name: "description", content: description },
     { property: "og:type", content: "website" },
     { property: "og:title", content: title },
     { property: "og:description", content: description },
-    { property: "og:image", content: image },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { name: "twitter:image", content: image },
   ];
+
+  if (image) {
+    metaTags.push({ property: "og:image", content: image }, { name: "twitter:image", content: image });
+  }
+
+  return metaTags;
 }
 
-export async function clientLoader({
-  params,
-  request,
-}: {
-  params: { projectSlug: string };
-  request: Request;
-}) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const projectSlug = params.projectSlug;
   const origin = new URL(request.url).origin;
   try {
@@ -69,8 +67,7 @@ export async function clientLoader({
       property?.community_description ||
       "Explore this property listing with Savoir.";
     const description = buildShortDescription(descriptionSource);
-    const imageSource =
-      property?.photo || property?.featured_image || property?.property_images?.[0]?.image || "";
+    const imageSource = property?.photo || property?.property_images?.[0]?.image || "";
     const image = resolveImageUrl(imageSource, origin);
 
     return { property, similar, seo: { title, description, image } };
@@ -81,7 +78,7 @@ export async function clientLoader({
       seo: {
         title: "Savoir Property",
         description: "Explore this property listing with Savoir.",
-        image: `${origin}/images/placeholders/homeBackground.webp`,
+        image: "",
       },
     };
   }
