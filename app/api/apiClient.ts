@@ -14,7 +14,8 @@ export class ApiClient {
     });
 
     this.axiosInstance.interceptors.request.use((config: any) => {
-      const token = localStorage.getItem("accessToken");
+      const token =
+        typeof window !== "undefined" ? window.localStorage.getItem("accessToken") : null;
       if (token) {
         config.headers = { ...config.headers, Authorization: `Bearer ${token}` };
       }

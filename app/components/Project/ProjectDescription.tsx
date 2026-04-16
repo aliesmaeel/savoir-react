@@ -21,10 +21,14 @@ export default function ProjectDescription() {
   }, [showPopup]);
 
   const icon = useIcons();
+  const isBrowser = typeof document !== "undefined";
+
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
   // Helper function to count words from HTML content
   const countWords = (html: string): number => {
     if (!html) return 0;
+    if (!isBrowser) return stripHtml(html).split(/\s+/).filter((word) => word.length > 0).length;
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
     const text = tempDiv.textContent || tempDiv.innerText || "";
@@ -34,6 +38,11 @@ export default function ProjectDescription() {
 
   const truncateHtml = (html: string, wordLimit: number): string => {
     if (!html) return "";
+    if (!isBrowser) {
+      const words = stripHtml(html).split(/\s+/).filter((word) => word.length > 0);
+      if (words.length <= wordLimit) return stripHtml(html);
+      return `${words.slice(0, wordLimit).join(" ")}...`;
+    }
     
     const wordCount = countWords(html);
     if (wordCount <= wordLimit) {
