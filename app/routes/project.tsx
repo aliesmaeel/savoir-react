@@ -57,7 +57,12 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 
   if (image) {
-    metaTags.push({ property: "og:image", content: image }, { name: "twitter:image", content: image });
+    metaTags.push(
+      { property: "og:image", content: image },
+      { property: "og:image:width", content: "900" },
+      { property: "og:image:height", content: "1350" },
+      { name: "twitter:image", content: image }
+    );
   }
 
   return metaTags;
