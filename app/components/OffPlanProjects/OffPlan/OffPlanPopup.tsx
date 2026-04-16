@@ -22,7 +22,7 @@ export default function OffPlanPopup({ recipientNumber }: Props) {
 
   const waHref = useMemo(() => {
     const msg =
-      `Hello Savoir Properties\n` +
+      `Hello SAVOIR\n` +
       `My Name is: ${name}\n` +
       `I'm Interest in: ${selectedType1} / ${selectedType2}\n` +
       `This is my phone number: ${phone}`;

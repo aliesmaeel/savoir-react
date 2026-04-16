@@ -50,7 +50,7 @@ export default function OurCustomers() {
     >
       <Card className="flex flex-col items-start gap-0 lg:gap-[38px] pt-[20px] lg:pt-[33px] pb-0 lg:pb-[40px] w-full max-w-[591px]">
         <div className="px-[20px] lg:px-[33px]">
-          <Title className="text-[21px] lg:text-[30px]">Our customers love</Title>
+          <Title className="text-[21px] lg:text-[30px]">Our Customers Love</Title>
         </div>
         <OurCustomersSwiper />
       </Card>

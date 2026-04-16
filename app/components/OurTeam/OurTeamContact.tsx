@@ -29,7 +29,7 @@ export default function OurTeamContact() {
     
     const subject = `Team Contact Inquiry — ${fullName}`;
     const body = [
-      "Dear Savoir Properties Team,",
+      "Dear SAVOIR Team,",
       "",
       "I hope this message finds you well.",
       "",

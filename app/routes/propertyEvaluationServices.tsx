@@ -6,7 +6,7 @@ export default function propertyEvaluationServices() {
   const items = [
     {
       title: "Property Evaluation Services",
-      text: "Entrust your property valuation to our seasoned experts who leverage their extensive experience and profound knowledge of Dubai and the UAE real estate landscape. We go far beyond by providing a thorough comparative market study to accurately ascertain the worth of your asset or potential investment. Discover the distinction with Savoir Prive's property evaluation expertise. Elevate your experience with our tailored approach that combines precision, insight, and innovation. Partner with us to unlock the full potential of your property and embark on a journey of unparalleled success in the real estate market.",
+      text: "Entrust your property valuation to our seasoned experts who leverage their extensive experience and profound knowledge of Dubai and the UAE real estate landscape. We go far beyond by providing a thorough comparative market study to accurately ascertain the worth of your asset or potential investment. Discover the distinction with SAVOIR's property evaluation expertise. Elevate your experience with our tailored approach that combines precision, insight, and innovation. Partner with us to unlock the full potential of your property and embark on a journey of unparalleled success in the real estate market.",
       image: "/images/propertyEvaluationServices/image1.jpg",
       link: "/contact-us",
     },
@@ -17,7 +17,7 @@ export default function propertyEvaluationServices() {
       link: "/contact-us",
     },
     {
-      title: "Unveil the True Worth of Your Property with Savoir Prive's Evaluation Expertise.",
+      title: "Unveil the True Worth of Your Property with SAVOIR's Evaluation Expertise.",
       text: "Our skilled property specialists provide a detailed evaluation of your home's genuine value by drawing on their vast expertise and in-depth knowledge of Dubai and the UAE. We provide a thorough competitive market study in addition to a standard evaluation to make sure your property stands out from the competition.",
       image: "/images/propertyEvaluationServices/image3.jpg",
       link: "/contact-us",

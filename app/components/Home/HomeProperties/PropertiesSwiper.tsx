@@ -77,7 +77,7 @@ export default function PropertiesSwiper({ properties }: any) {
               </Link>
               <Link
                 to={`/project/${item.slug}`}
-                className="text-[#C6A45A] text-[12px] lg:text-[23px] font-medium leading-[19.5px] lg:leading-[35px] underline"
+                className="text-[#353635] text-[12px] lg:text-[23px] font-medium leading-[19.5px] lg:leading-[35px]"
               >
                 {item.title_en}
               </Link>

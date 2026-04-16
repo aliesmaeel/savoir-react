@@ -7,12 +7,12 @@ export default function NewsAbout() {
   const arrow = useArrow();
   return (
     <div className="flex flex-col items-start gap-[18px] w-full">
-      <Header className="text-[34px]">About Savoir properties :</Header>
+      <Header className="text-[34px]">About SAVOIR :</Header>
       <p className="text-[#353635] text-[22px] leading-[233.333%]">
-        Savoir Prive Properties is honored and proud to announce its exclusive representation of the
+        SAVOIR is honored and proud to announce its exclusive representation of the
         prestigious Elounda Hills project in the GCC region. We are excited to bring this
         exceptional opportunity to investors and homebuyers seeking a luxurious and sophisticated
-        lifestyle in one of the most beautiful and sought-after locations in...Savoir Prive
+        lifestyle in one of the most beautiful and sought-after locations in...SAVOIR
         Properties is honored and proud to announce its exclusive representation of the prestigious
         Elounda Hills project in the GCC region. We are excited to bring this exceptional
         opportunity to investors and homebuyers seeking a luxurious and sophisticated lifestyle in

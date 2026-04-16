@@ -45,14 +45,14 @@ export default function FooterAbout() {
     <div className="flex flex-col items-start gap-[23px] lg:gap-[30px] w-full max-w-[456px]">
       <img loading="lazy" src={icon.logoFooter} alt="" className="w-[183px] brightness-[0.7]" />
       <p className="text-[13px] lg:text-[18.7px] leading-[200%]">
-        Savoir Properties is committed to delivering a high level of expertise, customer service,
+      SAVOIR is committed to delivering a high level of expertise, customer service,
         and attention to details{" "}
         <Link to="/about-us" className="text-[#C6A45A] font-semibold underline">
           Read More
         </Link>
       </p>
 
-      <div className="flex items-center w-full rounded-full border border-[#C6A45A] bg-[#ebebeb] h-[39px] lg:h-[54px] overflow-hidden">
+      <div className="flex items-center w-full rounded-full border border-[#353635] bg-[#ebebeb] h-[39px] lg:h-[54px] overflow-hidden">
         <input
           type="email"
           value={email}
@@ -65,9 +65,9 @@ export default function FooterAbout() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="py-[11px] lg:py-[15px] pr-[7px] lg:pr-[10px] pl-[13px] lg:pl-[18px] bg-[#C6A45A] h-[39px] lg:h-[54px] disabled:opacity-60"
+          className="py-[11px] lg:py-[15px] pr-[7px] lg:pr-[10px] pl-[13px] lg:pl-[18px] bg-[#353635] h-[39px] lg:h-[54px] disabled:opacity-60"
         >
-          <p className="text-[14px] lg:text-[16px]">{loading ? "..." : "Subscribe"}</p>
+          <p className="text-[14px] text-white lg:text-[16px]">{loading ? "..." : "Subscribe"}</p>
         </button>
       </div>
 

@@ -10,7 +10,7 @@ export default function realEstateAdvisory() {
   const items = [
     {
       title: "Real Estate Advisory",
-      text: "Embark on an extraordinary journey where the complex decisions that often consume your time are transformed into seamless, effortless choices. At Savoir Prive, our real estate advisory solutions redefine how you engage with the Dubai property market, offering more than conventional services. Here, we promise a personalized approach to investing that not only aligns with your primary goals but anticipates your specific requirements.",
+      text: "Embark on an extraordinary journey where the complex decisions that often consume your time are transformed into seamless, effortless choices. At SAVOIR, our real estate advisory solutions redefine how you engage with the Dubai property market, offering more than conventional services. Here, we promise a personalized approach to investing that not only aligns with your primary goals but anticipates your specific requirements.",
       image: "/images/real-estate-advisory/image1.jpg",
       link: "/contact-us",
     },
@@ -22,7 +22,7 @@ export default function realEstateAdvisory() {
     },
     {
       title: "Crafting Your Real Estate Journey",
-      text: "At Savoir Prive, we understand that your real estate journey is as unique as you are. Therefore, our advisory solutions are more than just a service – they are a personalized experience designed to elevate your real estate success story. Every suggestion, every strategy, and every tip is a testament to our commitment to ensuring that your investment journey is not only smooth, but also truly exceptional. Our mission goes beyond the ordinary: every interaction is an opportunity to redefine your real estate journey. We believe in more than only transactional relations; we want to develop lifelong ties. With Savoir Prive, you are more than simply a customer; you are an essential component of our dedication to excellence in premium real estate services.",
+      text: "At SAVOIR, we understand that your real estate journey is as unique as you are. Therefore, our advisory solutions are more than just a service – they are a personalized experience designed to elevate your real estate success story. Every suggestion, every strategy, and every tip is a testament to our commitment to ensuring that your investment journey is not only smooth, but also truly exceptional. Our mission goes beyond the ordinary: every interaction is an opportunity to redefine your real estate journey. We believe in more than only transactional relations; we want to develop lifelong ties. With SAVOIR, you are more than simply a customer; you are an essential component of our dedication to excellence in premium real estate services.",
       image: "/images/real-estate-advisory/image3.png",
       link: "/contact-us",
     },

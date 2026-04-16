@@ -1,5 +1,6 @@
 import React from "react";
 import { useLoaderData } from "react-router";
+import type { Route } from "./+types/offPlan";
 import { getFAQ } from "~/api/faq.service";
 import { getOffPlanPage } from "~/api/offPlan.service";
 import OffPlanDescription from "~/components/OffPlanProjects/OffPlan/OffPlanDescription";
@@ -14,19 +15,76 @@ import PageLayout from "~/layouts/PageLayout";
 import FAQs from "~/UI/FAQs";
 import { formatPrice } from "~/utils/formatPrice";
 
-export async function clientLoader({ params }: { params: { offPlanSlug: string } }) {
+const stripHtml = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+const buildShortDescription = (value: string, maxLength = 170) => {
+  const cleaned = stripHtml(value);
+  if (cleaned.length <= maxLength) return cleaned;
+  return `${cleaned.slice(0, maxLength - 1).trimEnd()}...`;
+};
+
+const resolveImageUrl = (image: string, origin: string) => {
+  if (!image) return `${origin}/images/placeholders/homeBackground.webp`;
+  if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  return `${origin}${image.startsWith("/") ? image : `/${image}`}`;
+};
+
+export function meta({ data }: Route.MetaArgs) {
+  const title = data?.seo?.title || "Savoir Off-plan Property";
+  const description = data?.seo?.description || "Explore this off-plan property with Savoir.";
+  const image = data?.seo?.image || "/images/placeholders/homeBackground.webp";
+
+  return [
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:image", content: image },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: image },
+  ];
+}
+
+export async function clientLoader({
+  params,
+  request,
+}: {
+  params: { offPlanSlug: string };
+  request: Request;
+}) {
   const offPlanSlug = params.offPlanSlug;
   const faqtype = "offplan";
+  const origin = new URL(request.url).origin;
   try {
     const res: any = await getOffPlanPage(offPlanSlug);
     const resFAQ: any = await getFAQ(faqtype);
 
     const property = res;
     // const similar = res.similar_properties;
+    const title = property?.title || "Savoir Off-plan Property";
+    const descriptionSource =
+      property?.short_description ||
+      property?.description ||
+      property?.location ||
+      "Explore this off-plan property with Savoir.";
+    const description = buildShortDescription(descriptionSource);
+    const imageSource = property?.image || property?.header_images?.[0]?.image || "";
+    const image = resolveImageUrl(imageSource, origin);
 
-    return { property, faq: resFAQ };
+    return { property, faq: resFAQ, seo: { title, description, image } };
   } catch (error) {
-    return { property: [], faq: [] };
+    return {
+      property: [],
+      faq: [],
+      seo: {
+        title: "Savoir Off-plan Property",
+        description: "Explore this off-plan property with Savoir.",
+        image: `${origin}/images/placeholders/homeBackground.webp`,
+      },
+    };
   }
 }
 

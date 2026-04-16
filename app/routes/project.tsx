@@ -1,4 +1,5 @@
 import { useLoaderData } from "react-router";
+import type { Route } from "./+types/project";
 import { getProject } from "~/api/project.service";
 import AveragePrices from "~/components/Project/BookYourViewing/AveragePrices";
 import BookYourViewing from "~/components/Project/BookYourViewing/BookYourViewing";
@@ -13,17 +14,76 @@ import PageLayout from "~/layouts/PageLayout";
 import DontMissBeat from "~/UI/DontMissBeat";
 import { formatPrice } from "~/utils/formatPrice";
 
-export async function clientLoader({ params }: { params: { projectSlug: string } }) {
+const stripHtml = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+const buildShortDescription = (value: string, maxLength = 170) => {
+  const cleaned = stripHtml(value);
+  if (cleaned.length <= maxLength) return cleaned;
+  return `${cleaned.slice(0, maxLength - 1).trimEnd()}...`;
+};
+
+const resolveImageUrl = (image: string, origin: string) => {
+  if (!image) return `${origin}/images/placeholders/homeBackground.webp`;
+  if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  return `${origin}${image.startsWith("/") ? image : `/${image}`}`;
+};
+
+export function meta({ data }: Route.MetaArgs) {
+  const title = data?.seo?.title || "Savoir Property";
+  const description = data?.seo?.description || "Explore this property listing with Savoir.";
+  const image = data?.seo?.image || "/images/placeholders/homeBackground.webp";
+
+  return [
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:image", content: image },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { name: "twitter:image", content: image },
+  ];
+}
+
+export async function clientLoader({
+  params,
+  request,
+}: {
+  params: { projectSlug: string };
+  request: Request;
+}) {
   const projectSlug = params.projectSlug;
+  const origin = new URL(request.url).origin;
   try {
     const res: any = await getProject(projectSlug);
 
     const property = res.property || null;
     const similar = res.similar_properties || [];
+    const title = property?.title_en || property?.title || "Savoir Property";
+    const descriptionSource =
+      property?.short_description ||
+      property?.description_en ||
+      property?.description ||
+      property?.community_description ||
+      "Explore this property listing with Savoir.";
+    const description = buildShortDescription(descriptionSource);
+    const imageSource =
+      property?.photo || property?.featured_image || property?.property_images?.[0]?.image || "";
+    const image = resolveImageUrl(imageSource, origin);
 
-    return { property, similar };
+    return { property, similar, seo: { title, description, image } };
   } catch (error) {
-    return { property: null, similar: [] };
+    return {
+      property: null,
+      similar: [],
+      seo: {
+        title: "Savoir Property",
+        description: "Explore this property listing with Savoir.",
+        image: `${origin}/images/placeholders/homeBackground.webp`,
+      },
+    };
   }
 }
 
