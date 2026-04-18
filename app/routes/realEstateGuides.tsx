@@ -5,7 +5,7 @@ import PageLayout from "~/layouts/PageLayout";
 import Button from "~/UI/Button";
 import Popup from "~/UI/Popup";
 import DownloadGuidePopup from "~/components/RealEstateGuides/DownloadGuidePopup";
-import { getRealEstateGuides, downloadGuide } from "~/api/realEstateGuides.service";
+import { getRealEstateGuides } from "~/api/realEstateGuides.service";
 import { envConfig } from "~/config/envConfig";
 
 export async function clientLoader() {
@@ -33,24 +33,11 @@ export default function realEstateGuides() {
     setSelectedGuide(null);
   };
 
-  const handleDownload = async () => {
-    if (!selectedGuide) return;
-
-    try {
-      const blob = await downloadGuide(selectedGuide.id);
-
-      // Create a blob URL and trigger download
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = selectedGuide.pdf || "guide.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading guide:", error);
-    }
+  const handleDownload = async (guide: { id: number | string; pdf: string }) => {
+    if (!guide) return;
+    const baseUrl = envConfig.baseUrl?.replace(/\/+$/, "") || "";
+    const downloadUrl = `${baseUrl}/api/download-guide/${guide.id}`;
+    window.open(downloadUrl, "_blank", "noopener,noreferrer");
   };
 
   const getImageUrl = (imagePath: string) => {
@@ -104,7 +91,7 @@ export default function realEstateGuides() {
             guideId={selectedGuide.id}
             brochureName={selectedGuide.pdf}
             onClose={handleClosePopup}
-            onDownload={handleDownload}
+            onDownload={() => handleDownload(selectedGuide)}
           />
         </Popup>
       )}
