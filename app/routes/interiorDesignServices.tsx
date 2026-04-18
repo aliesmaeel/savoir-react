@@ -24,13 +24,22 @@ export default function interiorDesignServices() {
     },
   ];
 
+  /** Only items at these indexes show the “visit the site” button. */
+  const visitSiteIndexes: number[] = [];
+
   return (
-    <div>
-      <AdvisoryHero />
+    <div className="mt-[100px]">
       <PageLayout>
         <div className="flex flex-col items-start gap-[100px] w-full">
           {items.map((item: any, index: number) => (
-            <Content key={index} item={item} isRight={index % 2 === 0} />
+            <Content key={index} item={{
+                ...item,
+                text: item.text.replace(/\./g, ".\n"),
+              }}
+              isRight={index % 2 === 0}
+              index={index}
+              visitSiteIndexes={visitSiteIndexes}
+            />
           ))}
         </div>
       </PageLayout>
