@@ -6,12 +6,16 @@ import ThreeSwiper from "~/UI/ThreeSwiper";
 
 type GlobeLuxuryPropertiesProps = {
   similarProperties: any[];
+  /** Lowercase country from parent (updates when user picks a country on the globe). */
+  country?: string;
 };
 
 const GlobeLuxuryProperties: React.FC<GlobeLuxuryPropertiesProps> = ({
   similarProperties,
+  country: countryProp,
 }) => {
-  const { country } = useLoaderData() as { global: any; country: string };
+  const { country: countryFromLoader } = useLoaderData() as { global: any; country: string };
+  const country = countryProp ?? countryFromLoader;
 
   const similar = similarProperties ?? [];
 
@@ -30,7 +34,7 @@ const GlobeLuxuryProperties: React.FC<GlobeLuxuryPropertiesProps> = ({
   return (
     <div className="flex flex-col items-start gap-[33px] w-full mt-[90px]">
       <p className="text-[24px] font-semibold">
-        LUXURY Properties{titleCountry ? ` in ${titleCountry} :` : ""}
+        Luxury Properties{titleCountry ? ` In ${titleCountry}` : ""}
       </p>
       <ThreeSwiper>
         {similar.map((project: any, index: number) => (

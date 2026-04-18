@@ -41,7 +41,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const isMobile = useIsMobile();
 
   const selectedCountries = [
-    "United Arab Emirates",
     "Egypt",
     "Bulgaria",
     "Greece",
@@ -58,7 +57,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       const fromUrl = url.searchParams.get(selectedParamKey);
       if (!fromUrl || fromUrl.trim() === "") {
         // If country param is empty, set default and update URL
-        const defaultCountry = "United Arab Emirates";
+        const defaultCountry = "Bulgaria";
         if (selectedCountry !== defaultCountry) {
           setSelectedCountry(defaultCountry);
         }
@@ -67,9 +66,9 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       const canonical = findCanonical(fromUrl, selectedCountries);
       if (canonical && canonical !== selectedCountry) {
         setSelectedCountry(canonical);
-      } else if (!canonical && selectedCountry !== "United Arab Emirates") {
+      } else if (!canonical && selectedCountry !== "Bulgaria") {
         // If country from URL is not valid, default to UAE
-        setSelectedCountry("United Arab Emirates");
+        setSelectedCountry("Bulgaria");
       }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -176,7 +175,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
 
       const target =
         labelsData.find((d: any) => d.name === selectedCountry) ??
-        labelsData.find((d: any) => d.name === "United Arab Emirates");
+        labelsData.find((d: any) => d.name === "Bulgaria");
       if (target) {
         world.pointOfView({ lat: target.lat, lng: target.lng, altitude: initialAltitude }, 2000);
       }
@@ -204,7 +203,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
 
     const target =
       labels.find((d: any) => d.name === selectedCountry) ??
-      labels.find((d: any) => d.name === "United Arab Emirates");
+      labels.find((d: any) => d.name === "Bulgaria");
 
     if (target) {
       const alt = selectedCountry === "Malta" ? Math.min(initialAltitude, 0.9) : initialAltitude;

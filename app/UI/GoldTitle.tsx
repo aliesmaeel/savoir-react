@@ -10,14 +10,14 @@ export default function GoldTitle({ children, className }: props) {
   const icon = useIcons();
   return (
     <div
-      className="flex items-center gap-[7px] w-full px-[18px] py-[10px] h-[47px] border-l-[3px] border-[#C6A45A]"
+      className="flex items-center gap-[7px] w-full px-[18px] py-[10px] h-auto border-l-[3px] border-[#C6A45A]"
       style={{
         background:
           "linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(240, 232, 214, 1) 50%, rgba(255, 255, 255, 0) 100%)",
       }}
     >
       <img loading="lazy" src={icon.zap} alt="" className="w-[18px]" />
-      <p className={`text-[15px] lg:text-[22px] font-semibold Theseasons ${className}`}>{children}</p>
+      <p className={`text-[15px] lg:text-[20px] font-semibold Theseasons ${className}`}>{children}</p>
     </div>
   );
 }

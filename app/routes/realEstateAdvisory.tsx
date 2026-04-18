@@ -15,7 +15,7 @@ export default function realEstateAdvisory() {
       link: "/contact-us",
     },
     {
-      title: "Ready to Redefine Your Real Estate Success?",
+      title: "Ready To Redefine Your Real Estate Success?",
       text: "Get in touch with us today to find out how our real estate consultancy can help you maximize the return on your real estate assets. Our team of experts, specialized in formulating strategic suggestions designed to fit your specific property objectives and investment ambitions, is here to advise and support you whether you are an experienced investor or are just entering in the market.Navigating the complexities of the dynamic real estate landscape in Dubai requires more than routine solutions. That's why our advisory services stand out, promising customized investment plans that provide not just guidance but a transformative experience that complement your key goals. We support you every step of the way, drawing on our specific knowledge to make sure the journey goes well.",
       image: "/images/real-estate-advisory/image2.jpg",
       link: "/contact-us",
@@ -28,13 +28,25 @@ export default function realEstateAdvisory() {
     },
   ];
 
+  /** Only items at these indexes show the “visit the site” button. */
+  const visitSiteIndexes: number[] = [];
+
   return (
-    <div>
-      <AdvisoryHero />
+    <div className="mt-[100px]">
+      
       <PageLayout>
         <div className="flex flex-col items-start gap-[100px] w-full">
           {items.map((item: any, index: number) => (
-            <Content key={index} item={item} isRight={index % 2 === 0} />
+            <Content
+              key={index}
+              item={{
+                ...item,
+                text: item.text.replace(/\./g, ".\n"),
+              }}
+              isRight={index % 2 === 0}
+              index={index}
+              visitSiteIndexes={visitSiteIndexes}
+            />
           ))}
         </div>
       </PageLayout>

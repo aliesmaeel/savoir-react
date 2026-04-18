@@ -59,10 +59,11 @@ export default function realEstateGuides() {
     const baseUrl = envConfig.baseUrl?.replace(/\/+$/, "") || "";
     return `${baseUrl}/${imagePath}`;
   };
+  /** Only items at these indexes show the “visit the site” button. */
+  const visitSiteIndexes: number[] = [];
 
   return (
-    <div>
-      <AdvisoryHero />
+    <div className="mt-[100px]">
       <PageLayout>
         <div className="flex flex-col items-start gap-[89px] w-full">
           <div className="flex flex-col items-start gap-[24px] w-full">

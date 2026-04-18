@@ -155,7 +155,7 @@ export default function PrivacyPolicy() {
               <p>If you have any questions about this Privacy Policy or our data practices, or want to exercise any of your rights, you can contact us:</p>
               <div className="flex flex-col gap-[8px] ml-[16px]">
                 <p className="font-semibold">SAVOIR</p>
-                <p>Email: <a href="mailto:info@saviorproperties.com" className="text-[#C6A45A] underline">info@saviorproperties.com</a></p>
+                <p>Email: <a href="mailto:info@savoirproperties.com" className="text-[#C6A45A] underline">info@savoirproperties.com</a></p>
                 <p>Address: Clover Bay, 2026, Business Bay</p>
                 <p>Phone: <a href="tel:+971505074686" className="text-[#C6A45A] underline">+971505074686</a></p>
               </div>
