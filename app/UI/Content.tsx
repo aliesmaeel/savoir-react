@@ -10,9 +10,15 @@ type Props = {
   index?: number;
   /** If set, only these indexes render the “visit the site” button. If omitted, every block shows it. */
   visitSiteIndexes?: number[];
+  /** The link to the site. */
+  linkToSite?: string;
+  /** The target of the link. */
+  target?: "_blank" | "_self";
+  /** The rel of the link. */
+  rel?: string;
 };
 
-export default function Content({ item, isRight, index = 0, visitSiteIndexes }: Props) {
+export default function Content({ item, isRight, index = 0, visitSiteIndexes, linkToSite, target }: Props) {
   const showVisitSite =
     visitSiteIndexes === undefined ? true : visitSiteIndexes.includes(index);
   return (
@@ -25,7 +31,7 @@ export default function Content({ item, isRight, index = 0, visitSiteIndexes }: 
           {item.text}
         </p>
         {showVisitSite ? (
-          <Link to={item.link}>
+          <Link to={linkToSite ?? ""} target={target ?? "_self"}>
             <Button className="!rounded-[4px] !py-[15px] lg:!px-[81px] text-[18px] h-[44px]">
               visit the site
             </Button>
