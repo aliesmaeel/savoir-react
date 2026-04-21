@@ -93,7 +93,7 @@ export default function ProjectListedByContact({ user }: Props) {
     const propertyTitle = property?.title_en || property?.title || "Property";
     const propertyUrl = window.location.href;
 
-    const subject = `Booking a Viewing - ${propertyTitle}`;
+    const subject = `Contact Us - ${propertyTitle}`;
     const body = [
       "Dear " + (user?.name || "Agent") + ",",
       "",
@@ -161,7 +161,7 @@ export default function ProjectListedByContact({ user }: Props) {
           onClick={handleBookingViewing}
         >
           <img loading="lazy" src={icon.dateBlack} alt="" className="w-[27px]" />
-          Booking a viewing
+          Contact US
         </Button>
         <div className="relative w-full flex justify-center" ref={dropdownRef}>
           <button

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
 type Props = {
@@ -20,14 +21,14 @@ export default function Popup({ children, title, onClose }: Props) {
     };
   }, []);
 
-  return (
-    <div className="flex items-center justify-center w-full h-screen absolute top-0 left-0 z-[99999] bg-[#00000066] px-[16px]">
-      <div className="w-full max-w-[759.75px] rounded-[15.711px] lg:rounded-[37.5px] bg-white relative z-10">
+  const overlay = (
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#00000066] px-[16px]">
+      <div className="relative z-10 w-full max-w-[759.75px] rounded-[15.711px] bg-white lg:rounded-[37.5px]">
         <div
-          className={`flex items-center justify-between w-full px-[21px] lg:px-[40px] py-[14px] lg:py-[27px] ${title ? "bg-[#C6A45A33]" : ""}`}
+          className={`flex w-full items-center justify-between px-[21px] py-[14px] lg:px-[40px] lg:py-[27px] ${title ? "bg-[#C6A45A33]" : ""}`}
         >
-          <p className="text-[15px] lg:text-[29px] font-bold">{title}</p>
-          <button onClick={onClose}>
+          <p className="text-[15px] font-bold lg:text-[29px]">{title}</p>
+          <button type="button" onClick={onClose} aria-label="Close dialog">
             <img loading="lazy" src={icon.popupClose} alt="" className="w-[12px] lg:w-[24px]" />
           </button>
         </div>
@@ -41,4 +42,10 @@ export default function Popup({ children, title, onClose }: Props) {
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(overlay, document.body);
 }

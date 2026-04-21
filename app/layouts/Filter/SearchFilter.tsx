@@ -125,30 +125,67 @@ export default function SearchFilter() {
     }
   };
 
+  const isHome = location.pathname === "/";
+
   return (
     <div
-      className="flex flex-col lg:flex-row items-center justify-end gap-[8px] lg:gap-[20px] rounded-[17.6px] bg-[#FFFFFF40] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] py-[12px] lg:py-[16.72px] px-[24px] lg:px-[34.32px] w-full relative z-20 max-w-[1226px]"
+      className={`relative z-20 flex rounded-[17.6px] bg-[#FFFFFF40] py-[12px] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] lg:py-[16.72px] ${
+        isHome
+          ? "mx-auto w-full max-w-full flex-col gap-[12px] px-3 sm:px-4  lg:w-[70vw] lg:px-[34.32px]"
+          : "w-full max-w-[1226px] flex-col items-center justify-end gap-[8px] px-[24px] lg:flex-row lg:gap-[20px] lg:px-[34.32px]"
+      }`}
       data-aos="fade-up"
     >
-      <div className="grid grid-cols-2 lg:flex gap-[17.6px] justify-between w-full">
-        <FilterRent value={rentFilters} onChange={setRentFilters} />
-        <FilterType
-          options={TYPE_OPTIONS}
-          selected={types}
-          onChange={setTypes}
-          label="Type"
-          placeholder="Select Your Type"
-          maxWidthClass="max-w-[185.68px]"
-        />
-        <FilterBedroom value={bedBath} onChange={setBedBath} />
-        <FilterPriceRange
-          value={price}
-          onChange={setPrice}
-          onDraftChange={(draft) => setPrice(draft)} // sync live draft
-        />
-      </div>
-      <SelectSearch search={search} onChange={setQuery} value={query} />
-      <SearchButton onClick={handleSearch} />
+      {isHome ? (
+        <>
+          {/* Phones & tablets: full width, stacked — avoids cramped 60/40 row */}
+          <div className="flex w-full flex-col gap-[12px] lg:hidden">
+            <SelectSearch variant="home" search={search} onChange={setQuery} value={query} />
+            <FilterRent
+              value={rentFilters}
+              onChange={setRentFilters}
+              maxWidthClass="max-w-full"
+            />
+            <SearchButton onClick={handleSearch} />
+          </div>
+          {/* Large screens: 50vw bar, 70% location / 30% filters + search */}
+          <div className="hidden w-full flex-nowrap items-center gap-[17.6px] lg:flex lg:gap-[20px]">
+            <div className="lg:w-[60%] w-[70%] min-w-0 shrink-0">
+              <SelectSearch variant="home" search={search} onChange={setQuery} value={query} />
+            </div>
+            <div className="flex w-[50%] min-w-0 shrink-0 items-center justify-end gap-[8px] overflow-visible lg:w-[40%]">
+              <div className="min-w-0 flex-1 w-[50%] lg:w-[50%]">
+                <FilterRent value={rentFilters} onChange={setRentFilters} />
+              </div>
+              <div className="shrink-0 lg:w-[50%] w-[50%]">
+                <SearchButton onClick={handleSearch} />
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="grid w-full grid-cols-2 justify-between gap-[17.6px] lg:flex">
+            <FilterRent value={rentFilters} onChange={setRentFilters} />
+            <FilterType
+              options={TYPE_OPTIONS}
+              selected={types}
+              onChange={setTypes}
+              label="Type"
+              placeholder="Select Your Type"
+              maxWidthClass="max-w-[185.68px]"
+            />
+            <FilterBedroom value={bedBath} onChange={setBedBath} />
+            <FilterPriceRange
+              value={price}
+              onChange={setPrice}
+              onDraftChange={(draft) => setPrice(draft)}
+            />
+          </div>
+          <SelectSearch variant="compact" search={search} onChange={setQuery} value={query} />
+          <SearchButton onClick={handleSearch} />
+        </>
+      )}
     </div>
   );
 }

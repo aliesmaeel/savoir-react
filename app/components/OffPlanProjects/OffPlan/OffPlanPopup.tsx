@@ -38,38 +38,16 @@ export default function OffPlanPopup({ recipientNumber }: Props) {
   return (
     <div className="flex flex-col items-start gap-[55px] w-full px-[21px] lg:px-[40px] pt-[61px] pb-[104px]">
       <div className="flex flex-col items-start gap-[10px] lg:gap-[21px] w-full">
-        <p className="text-[12px] lg:text-[24px] font-medium">What are you interested in?</p>
-
-        <div className="grid grid-cols-2 gap-[29px] lg:gap-[50px] w-full">
-          <div className="grid grid-cols-2 gap-[2px] lg:gap-[9px] w-full">
-            {type1.map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType1(type)}
-                className={`flex items-center justify-center w-full h-[33px] lg:h-[64px] rounded-[4px] lg:rounded-[9px] border border-[#353635] ${type === selectedType1 ? "bg-[#C6A45A99]" : "bg-white"}`}
-              >
-                <p className="text-[8px] lg:text-[16px] font-medium">{type}</p>
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-[2px] lg:gap-[9px] w-full">
-            {type2.map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType2(type)}
-                className={`flex items-center justify-center w-full h-[33px] lg:h-[64px] rounded-[4px] lg:rounded-[9px] border border-[#353635] ${type === selectedType2 ? "bg-[#C6A45A99]" : "bg-white"}`}
-              >
-                <p className="text-[8px] lg:text-[16px] font-medium">{type}</p>
-              </button>
-            ))}
-          </div>
+        <div className="flex w-full flex-col items-start gap-[10px] lg:gap-[14px]">
+          <p className="text-[12px] font-medium lg:text-[24px]">Enter your name</p>
+          <BookingInput type="text" value={name} onChange={setName} placeholder="Enter your name" />
         </div>
+
+
       </div>
 
-      <div className="flex flex-col items-start w-full gap-2">
-        <p className="text-[#666] text-[19px] font-medium">Enter Phone Number</p>
-        <BookingInput type="text" value={name} onChange={setName} placeholder="Enter Full Name" />
+      <div className="flex w-full flex-col items-start gap-2">
+        <p className="text-[19px] font-medium text-[#666]">Enter Phone Number</p>
         <BookingInput
           type="tel"
           value={phone}
