@@ -50,8 +50,7 @@ export default function DontMissBeat() {
           Sign up for our newsletter to stay up to date on the Dubai property market.
         </p>
         <p className="text-white text-[10px] lg:text-[18px] font-medium max-w-[86%]">
-          Lorem ipsum dolor sit amet consectetur. A fringilla turpis duis eget tincidunt facilisis
-          justo eget elit. Augue montes in eu mollis dictum risus blan eget commodo amet
+          Stay informed about the latest real estate trends, market insights, and exclusive offers in the Dubai property market.
         </p>
       </div>
 
