@@ -7,8 +7,8 @@ export default function AboutCoreValues() {
   const items = [
     {
       title: "Knowledge",
-      text: "In our real estate domain, knowledge is not just information; it is power. At Savoir Privé Properties, we empower our clients with the information they need to make the smartest choices, recognizing that knowledge is the key to success in the dynamic world of real estate. We believe that informed decisions are the foundation of lasting success. By providing clear insights, reliable data, and thoughtful guidance, we help our clients navigate opportunities with confidence and clarity. Our commitment is to ensure every client feels prepared, supported, and fully equipped to move forward in an ever-changing market.",
-      image: "/images/about/Knowledge.jpg",
+      text: "We firmly believe that knowledge is the foundation of success in real estate.At Savoir Privé Properties, we are dedicated to empowering our clients with the insights and guidance they need to make confident, informed decisions. Our mission is simple yet impactful – to equip every client with the clarity and understanding needed to navigate the ever-changing market successfully.",
+      image: "/images/about/Excellence.jpg",
     },
     {
       title: "Passion",
@@ -17,13 +17,13 @@ export default function AboutCoreValues() {
     },
     {
       title: "Trust",
-      text: "At SAVOIR we do not have clients, we have partners. This is a healthy relationship based on trust and mutual understanding. Trust is what leads us to success. We believe in building long-term connections where transparency, respect, and shared goals define every interaction. By working closely together, we create value, strengthen confidence, and achieve results that reflect our collective vision and commitment.",
+      text: "At SAVOIR we do not have clients, we have partners. This is a healthy relationship based on trust and understanding. Trust is what leads us to success. We believe in building long-term connections where transparency, respect, and goals define every interaction. By working together, we create value, strengthen confidence, and achieve results that reflect our vision and commitment.",
       image: "/images/about/Trust.jpg",
     },
     {
       title: "Excellence",
       text: "The synergy of knowledge and  experience culminates in excellence, and that is precisely what we stand for at Savoir Privé Properties. Our commitment is to provide excellence in every facet of our work. As wisdom and hands-on expertise converge, a new echelon of quality defines our distinctive approach to the realm of real estate.",
-      image: "/images/about/Excellence.jpg",
+      image: "/images/about/Knowledge.jpg",
     },
   ];
 
@@ -39,7 +39,7 @@ export default function AboutCoreValues() {
             <div className="flex flex-col items-start gap-[32px]">
               <div className="flex flex-col items-start gap-[27px]">
                 <GoldTitle>{item.title}</GoldTitle>
-                <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">{item.text}</p>
+                <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">{item.text}</p>
               </div>
               {item.image && <img loading="lazy" src={item.image} alt="" />}
             </div>

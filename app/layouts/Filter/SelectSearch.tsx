@@ -8,6 +8,8 @@ interface SelectSearchProps {
   onChange?: (values: string[]) => void;
   value?: string[]; // selected values
   placeholder?: string;
+  /** `home` = full width of parent; `compact` = fixed 300px (search & other filters). */
+  variant?: "home" | "compact";
 }
 
 const controlHeight = 44;
@@ -87,6 +89,7 @@ export default function SelectSearch({
   onChange,
   value = [],
   placeholder = "Search here..",
+  variant = "compact",
 }: SelectSearchProps) {
   //search is key value pairs
   const options: Option[] = Object.entries(search).map(([key, label]) => ({
@@ -100,8 +103,11 @@ export default function SelectSearch({
     onChange?.(vals);
   };
 
+  const wrapperClassName =
+    variant === "home" ? "w-full min-w-0 shrink-0" : "w-[300px] max-w-full shrink-0";
+
   return (
-    <div className="w-full max-w-[300px] shrink-0">
+    <div className={wrapperClassName}>
       <Select
         classNamePrefix="community"
         styles={styles}

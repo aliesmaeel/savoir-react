@@ -27,17 +27,21 @@ export default function FAQs({ questions }: Props) {
         return (
           <div
             key={idx}
-            className="flex flex-col items-start w-full border border-[#C6A45A] rounded-[4px] lg:rounded-[10px] overflow-hidden"
+            className="flex flex-col items-start w-full border border-[#353635] rounded-[4px] lg:rounded-[10px] overflow-hidden"
           >
             {/* Header (fixed 99px height) */}
             <div
-              className="flex items-center justify-between px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] h-[46px] lg:h-[79px] rounded-[4px] lg:rounded-[10px]  w-full"
+              className="flex items-center 
+              justify-between px-[8px] 
+              lg:px-[27px] py-[7px] 
+              lg:py-[7px] h-[46px] lg:h-auto 
+              rounded-[4px] lg:rounded-[10px]  w-full"
               style={{
                 background: isOpen ? "white" : "",
               }}
             >
               <div
-                className="text-[10px] lg:text-[24px] font-medium pr-4"
+                className="text-[10px] lg:text-[18px] font-medium pr-4"
                 dangerouslySetInnerHTML={{ __html: item.question }}
               ></div>
 
@@ -46,7 +50,8 @@ export default function FAQs({ questions }: Props) {
                 onClick={() => toggle(idx)}
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${idx}`}
-                className={`flex items-center justify-center rounded-[4px] lg:rounded-[10px] h-[20px] lg:h-[45px] w-[28px] lg:w-[82px] transition ${isOpen ? "border border-[#353635] bg-white " : ""}`}
+                className={`flex items-center justify-center 
+                  rounded-[4px] lg:rounded-[10px] h-[20px] lg:h-[40px] w-[28px] lg:w-[52px] transition ${isOpen ? "border border-[#353635] bg-white " : ""}`}
                 style={{
                   background: isOpen
                     ? ""
@@ -71,7 +76,7 @@ export default function FAQs({ questions }: Props) {
                 >
                   <div className="px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] pt-4">
                     <div
-                      className="text-[10px] lg:text-[23px] leading-[1.9]"
+                      className="text-[10px] lg:text-[18px] leading-[1.9]"
                       dangerouslySetInnerHTML={{ __html: item.answer }}
                     ></div>
                   </div>

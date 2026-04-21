@@ -114,14 +114,25 @@ export default function App() {
     container.appendChild(iframe);
     document.body.appendChild(container);
 
+    const iconChat = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="currentColor"/>
+      </svg>`;
+    const iconClose = `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+
+    const syncToggleAppearance = (isOpen: boolean) => {
+      button.innerHTML = isOpen ? iconClose : iconChat;
+      button.setAttribute("aria-expanded", String(isOpen));
+      button.setAttribute("aria-label", isOpen ? "Close chat" : "Open chat");
+    };
+
     // Create toggle button
     const button = document.createElement("button");
     button.id = "chatbot-toggle-button";
-    button.innerHTML = `
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="currentColor"/>
-      </svg>
-    `;
+    syncToggleAppearance(false);
     button.style.cssText = `
       position: fixed;
       bottom: 40px;
@@ -140,13 +151,14 @@ export default function App() {
       box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
       transition: transform 0.2s;
     `;
-    button.setAttribute("aria-label", "Toggle chatbot");
     button.setAttribute("tabindex", "0");
 
     const handleToggle = () => {
       const isVisible = container.style.display !== "none";
       container.style.display = isVisible ? "none" : "block";
-      button.style.transform = isVisible ? "scale(1)" : "scale(0.9)";
+      const isOpen = container.style.display === "block";
+      syncToggleAppearance(isOpen);
+      button.style.transform = isOpen ? "scale(0.9)" : "scale(1)";
     };
 
     button.addEventListener("click", handleToggle);

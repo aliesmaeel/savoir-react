@@ -31,8 +31,9 @@ export default function Sidebar({ onClose }: SidebarProps) {
     { title: "Contact Us", path: "/contact-us" },
     { title: "Our Team", path: "/our-team" },
     { title: "Career", path: "/career" },
-    { title: "About us", path: "/about-us" },
-
+    { title: "About Us", path: "/about-us" },
+   
+   
   ];
 
   const handleCloseClick = () => {
@@ -90,16 +91,18 @@ export default function Sidebar({ onClose }: SidebarProps) {
       </div>
       <div className="flex flex-col items-center gap-[26.79px]">
         <div className="flex flex-col items-center gap-[21.15px]">
-          {items.map((item, index) => (
-            <NavLink
-              to={item.path}
-              key={index}
-              className="text-[17.39px] font-medium"
-              onClick={onClose} // close when link clicked
-            >
-              {item.title}
-            </NavLink>
-          ))}
+          {items.map((item, index) => {
+            const isListWithUs = item.path === "/list-with-us";
+            return (
+              <NavLink
+                to={item.path}
+                key={index}
+                className="text-[17.39px] font-medium "
+              >
+                {item.title}
+              </NavLink>
+            );
+          })}
         </div>
         <div className="flex flex-col items-center gap-[12.22px]">
           <NavLink to={`#`} onClick={onClose}>

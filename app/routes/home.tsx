@@ -43,13 +43,7 @@ export default function Home() {
     <div className="relative ">
       <HeroSection />
       <div className="absolute w-full  top-[calc(100vh+100px)] z-[-1]">
-        <img
-          loading="lazy"
-          decoding="async"
-          src="/images/placeholders/homeBackground.webp"
-          alt=""
-          className="w-full opacity-25"
-        />
+      
         <div
           className="absolute bottom-0 left-0 w-full h-[250px]"
           style={{

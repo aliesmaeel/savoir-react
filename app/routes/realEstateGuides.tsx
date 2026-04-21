@@ -5,7 +5,7 @@ import PageLayout from "~/layouts/PageLayout";
 import Button from "~/UI/Button";
 import Popup from "~/UI/Popup";
 import DownloadGuidePopup from "~/components/RealEstateGuides/DownloadGuidePopup";
-import { getRealEstateGuides, downloadGuide } from "~/api/realEstateGuides.service";
+import { getRealEstateGuides } from "~/api/realEstateGuides.service";
 import { envConfig } from "~/config/envConfig";
 
 export async function clientLoader() {
@@ -33,24 +33,11 @@ export default function realEstateGuides() {
     setSelectedGuide(null);
   };
 
-  const handleDownload = async () => {
-    if (!selectedGuide) return;
-
-    try {
-      const blob = await downloadGuide(selectedGuide.id);
-
-      // Create a blob URL and trigger download
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = selectedGuide.pdf || "guide.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading guide:", error);
-    }
+  const handleDownload = async (guide: { id: number | string; pdf: string }) => {
+    if (!guide) return;
+    const baseUrl = envConfig.baseUrl?.replace(/\/+$/, "") || "";
+    const downloadUrl = `${baseUrl}/api/download-guide/${guide.id}`;
+    window.open(downloadUrl, "_blank", "noopener,noreferrer");
   };
 
   const getImageUrl = (imagePath: string) => {
@@ -67,10 +54,10 @@ export default function realEstateGuides() {
       <PageLayout>
         <div className="flex flex-col items-start gap-[89px] w-full">
           <div className="flex flex-col items-start gap-[24px] w-full">
-            <p className="text-black text-[24px] lg:text-[60px] font-semibold">
+            <p className="text-[15px] lg:text-[20px] font-semibold Theseasons !text-[34px] capitalize">
               Real estate guides from industry experts
             </p>
-            <p className="text-[14px] lg:text-[27px]">
+            <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%] ">
               From buying or selling a property to discovering Dubai's key areas and investments,
               the Savior Properties guides are packed with essential information and key market insights.
             </p>
@@ -104,7 +91,7 @@ export default function realEstateGuides() {
             guideId={selectedGuide.id}
             brochureName={selectedGuide.pdf}
             onClose={handleClosePopup}
-            onDownload={handleDownload}
+            onDownload={() => handleDownload(selectedGuide)}
           />
         </Popup>
       )}
