@@ -47,4 +47,5 @@ export default [
 
     route("/privacy-policy", "routes/privacy-policy.tsx"),
   ]),
+  route("/ai-tool", "routes/ppsfTool.tsx"),
 ] satisfies RouteConfig;

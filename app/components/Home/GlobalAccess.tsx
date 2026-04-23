@@ -81,7 +81,7 @@ export default function GlobalAccess() {
           variants={variants}
           initial="hidden"
           animate={textCtrl}
-          className="text-[#353635] text-[12px] lg:text-[23px] leading-[166%] lg:leading-[225.806%]"
+          className="text-[#353635] text-[12px] lg:text-[23px] leading-[166%] lg:leading-[190.806%]"
           style={{ willChange: "transform, opacity" }}
         >
           We unlock a world of real estate opportunities with leading agents and real estate

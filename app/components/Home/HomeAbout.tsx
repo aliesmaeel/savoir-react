@@ -54,14 +54,17 @@ export default function HomeAbout() {
         className="flex flex-col lg:flex-row lg:items-stretch gap-6 lg:gap-12 w-full"
         style={{ willChange: "transform, opacity" }}
       >
-        <p className="text-[#353635] text-[12px] lg:text-[20px] leading-[233.333%] flex-1 lg:min-w-0">
+        <p className="text-[#353635] text-[12px] lg:text-[20px] leading-[190.333%] flex-1 lg:min-w-0">
           With four decades of experience, our luxury boutique real estate agency is dedicated to
           setting a new benchmark for service and expertise in the realm of upscale properties in
-          Dubai. Understanding the distinct needs and preferences of our clients, we provide
-          personalized solutions that consistently surpass expectations. Leveraging our profound
+          Dubai.<br />
+          Understanding the distinct needs and preferences of our clients, we provide
+          personalized solutions that consistently surpass expectations.<br />
+          Leveraging our profound
           knowledge of the local market and an extensive network, we present a carefully curated
-          selection of exclusive properties epitomizing luxury living.
+          selection of exclusive properties epitomizing luxury living.<br />
         </p>
+   
         <div className="flex-shrink-0 w-full lg:w-[45%] lg:max-w-[500px] aspect-[4/3] overflow-hidden rounded-sm">
           <img
             src="/images/placeholders/about.jpeg"

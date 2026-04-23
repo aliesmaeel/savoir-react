@@ -82,7 +82,7 @@ function TestimonialCard({ data }: { data: any }) {
 
           <div className="flex flex-col items-start">
             <img loading="lazy" src={icon.quotes} alt="" />
-            <p className="text-[#232222] text-[15px] leading-[166.667%] px-[7px]">{data.message}</p>
+            <p className="text-[#232222] text-[15px] leading-[156.667%] px-[7px]">{data.message}</p>
           </div>
           <hr className="w-[85%] border-2 border-[#3536354D] mx-auto" />
         </div>
