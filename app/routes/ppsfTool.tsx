@@ -1,5 +1,5 @@
 import type { Route } from "./+types/ppsfTool";
-import ppsfHtml from "../../build/server/savoir_ppsf_tool_4.html?raw";
+import ppsfHtml from "public/savoir_ppsf_tool_4.html?raw";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Savoir PPSF Tool" }];
