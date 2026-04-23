@@ -1,64 +1,55 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Swiper, SwiperSlide, useSwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
-import useArrow from "~/hooks/imageHooks/useArrow";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import { Link } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 import ThreeSwiper from "~/UI/ThreeSwiper";
+import { useLoaderData } from "react-router";
 
-const items = [
-  {
-    rating: 4.8,
-    text: "I have been dealing with SAVOIR for more than a year now on my multiple properties, and I have no hesitation whatsoever in saying that professionalism, integrity and transparency ar core principles of Savior and they value the clients and their expectations. I found Eva, who is the managing partnts expectats. I found Eva, who is the managing p and their expectats. found Eva, who is the managing partner,",
-    author: "Millon Zahino",
-    role: "Behavioral Science",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    rating: 5.0,
-    text: "I have been dealing with SAVOIR for more than a year now on my multiple properties, and I have no hesitation whatsoever in saying that professionalism, integrity and transparency ar core principles of Savior and they value the clients and their expectations. I found Eva, who is the managing partnts expectats. I found Eva, who is the managing p and their expectats. found Eva, who is the managing partner,",
-    author: "Sarah Johnson",
-    role: "Marketing Director",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-  {
-    rating: 4.7,
-    text: "I have been dealing with SAVOIR for more than a year now on my multiple properties, and I have no hesitation whatsoever in saying that professionalism, integrity and transparency ar core principles of Savior and they value the clients and their expectations. I found Eva, who is the managing partnts expectats. I found Eva, who is the managing p and their expectats. found Eva, who is the managing partner,",
-    author: "James Lee",
-    role: "Financial Analyst",
-    avatar: "https://randomuser.me/api/portraits/men/28.jpg",
-  },
-  {
-    rating: 4.8,
-    text: "I have been dealing with SAVOIR for more than a year now on my multiple properties, and I have no hesitation whatsoever in saying that professionalism, integrity and transparency ar core principles of Savior and they value the clients and their expectations. I found Eva, who is the managing partnts expectats. I found Eva, who is the managing p and their expectats. found Eva, who is the managing partner,",
-    author: "Millon Zahino",
-    role: "Behavioral Science",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-  },
-  {
-    rating: 5.0,
-    text: "I have been dealing with SAVOIR for more than a year now on my multiple properties, and I have no hesitation whatsoever in saying that professionalism, integrity and transparency ar core principles of Savior and they value the clients and their expectations. I found Eva, who is the managing partnts expectats. I found Eva, who is the managing p and their expectats. found Eva, who is the managing partner,",
-    author: "Sarah Johnson",
-    role: "Marketing Director",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-  },
-  {
-    rating: 4.7,
-    text: "I have been dealing with SAVOIR for more than a year now on my multiple properties, and I have no hesitation whatsoever in saying that professionalism, integrity and transparency ar core principles of Savior and they value the clients and their expectations. I found Eva, who is the managing partnts expectats. I found Eva, who is the managing p and their expectats. found Eva, who is the managing partner,",
-    author: "James Lee",
-    role: "Financial Analyst",
-    avatar: "https://randomuser.me/api/portraits/men/28.jpg",
-  },
-];
+type TestimonialApi = {
+  id: number;
+  name: string;
+  position: string;
+  image: string;
+  message: string;
+  rating?: number;
+};
+
+type ReviewSlide = {
+  id: number;
+  text: string;
+  author: string;
+  role: string;
+  avatar: string;
+  rating?: number;
+};
 
 export default function MemberReviewSwiper() {
+  const { testimonials = [] } = useLoaderData() as { testimonials?: TestimonialApi[] };
   const [isGrabbing, setIsGrabbing] = useState(false);
-  const arrow = useArrow();
   const isMobile = useIsMobile();
+
+  const items: ReviewSlide[] = useMemo(
+    () =>
+      (testimonials ?? []).map((t) => ({
+        id: t.id,
+        text: t.message ?? "",
+        author: t.name ?? "",
+        role: t.position ?? "",
+        avatar: t.image ?? "",
+        rating: typeof t.rating === "number" ? t.rating : undefined,
+      })),
+    [testimonials]
+  );
+
+  const enableLoop = items.length > 2;
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <>
@@ -72,7 +63,7 @@ export default function MemberReviewSwiper() {
           <Swiper
             slidesPerView="auto"
             centeredSlides
-            loop
+            loop={enableLoop}
             spaceBetween={-60} // overlap
             slidesOffsetBefore={8}
             slidesOffsetAfter={8}
@@ -91,8 +82,8 @@ export default function MemberReviewSwiper() {
             onSliderFirstMove={() => setIsGrabbing(true)}
             onTransitionEnd={() => setIsGrabbing(false)}
           >
-            {items.map((item, index) => (
-              <SwiperSlide key={index} className="!w-[45%]">
+            {items.map((item) => (
+              <SwiperSlide key={item.id} className="!w-[45%]">
                 <SlideCard data={item} />
               </SwiperSlide>
             ))}
@@ -105,8 +96,8 @@ export default function MemberReviewSwiper() {
           <p className="text-black text-[42px] font-medium">The Reviews</p>
 
           <ThreeSwiper>
-            {items.map((item, index) => (
-              <SwiperSlide key={index}>
+            {items.map((item) => (
+              <SwiperSlide key={item.id}>
                 <SlideCard data={item} />
               </SwiperSlide>
             ))}
@@ -117,7 +108,7 @@ export default function MemberReviewSwiper() {
   );
 }
 
-function SlideCard({ data }: { data: any }) {
+function SlideCard({ data }: { data: ReviewSlide }) {
   const { isActive } = useSwiperSlide();
   const icon = useIcons();
 
@@ -136,12 +127,14 @@ function SlideCard({ data }: { data: any }) {
         className={`flex flex-col items-start justify-between w-full h-full ${isActive ? "opacity-100" : "opacity-30"}`}
       >
         <div className="flex flex-col items-start gap-[18px]">
-          <div className="flex items-center gap-2 ml-[12px]">
-            <span className="bg-[#c6a45a] text-white text-[10px] font-medium px-3 py-1 rounded-full flex items-center gap-1 leading-[12px]">
-              {data.rating}
-              <img loading="lazy" src={icon.startWhite} alt="" />
-            </span>
-          </div>
+          {typeof data.rating === "number" ? (
+            <div className="ml-[12px] flex items-center gap-2">
+              <span className="flex items-center gap-1 rounded-full bg-[#c6a45a] px-3 py-1 text-[10px] font-medium leading-[12px] text-white">
+                {data.rating}
+                <img loading="lazy" src={icon.startWhite} alt="" />
+              </span>
+            </div>
+          ) : null}
 
           <div className="flex flex-col items-start gap-[6px]">
             <img loading="lazy" src={icon.quotes} alt="" />

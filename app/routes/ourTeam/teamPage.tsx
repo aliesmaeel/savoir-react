@@ -12,10 +12,11 @@ export async function clientLoader({ params }: { params: { teamSlug: string } })
 
     const team = res.team;
     const teams = res.other_teams;
+    const testimonials = res.testimonials ?? [];
 
-    return { team, teams };
+    return { team, teams, testimonials };
   } catch (error) {
-    return { team: [], teams: [] };
+    return { team: [], teams: [], testimonials: [] };
   }
 }
 
