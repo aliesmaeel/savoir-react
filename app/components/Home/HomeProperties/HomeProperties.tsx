@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Card from "~/UI/Card";
+import Title from "~/UI/Title";
 import PropertiesSearch from "./PropertiesSearch";
 import PropertiesTabs from "./PropertiesTabs";
 import PropertiesSwiper from "./PropertiesSwiper";
@@ -47,9 +48,10 @@ export default function HomeProperties() {
       }`}
     >
       <Card>
-        <div className="flex flex-col items-start gap-[30px] lg:gap-[60px] px-[24px] lg:px-[45px] py-[46px] lg:py-[87px] pb-[22px] lg:pb-[41px] w-full">
+        <div className="flex flex-col items-start gap-[30px] lg:gap-[60px] px-[24px] lg:px-[45px] py-[46px] lg:py-[27px] pb-[22px] lg:pb-[41px] w-full">
           {/* <PropertiesSearch /> */}
-          <div className="flex flex-col items-center gap-[49px] w-full">
+          <div className="flex flex-col items-start gap-[49px] w-full">
+            <Title className="text-[22px] lg:text-[34px]">Savoir’s Collection</Title>
             <PropertiesTabs tab={tab} setTab={setTab} />
             {tab === "Off Plan" && (
               <PropertiesSwiper properties={featured.off_plan ?? []} />

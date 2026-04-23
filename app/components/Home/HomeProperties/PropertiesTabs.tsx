@@ -7,7 +7,7 @@ export default function PropertiesTabs({ tab, setTab }: any) {
     <div className="flex justify-between w-full">
       {tabs.map((item: any, index: number) => (
         <button onClick={() => setTab(item)} key={index} className="relative">
-          <p className="Theseasons text-[22px] lg:text-[34px]">{item}</p>
+          <p className="Theseasons text-[22px] lg:text-[24px]">{item}</p>
           {item === tab && (
             <div
               className="w-[139%] h-[3.75px] absolute left-[50%] translate-x-[-50%] bottom-[-10px]"

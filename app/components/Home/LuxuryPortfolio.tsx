@@ -58,7 +58,7 @@ export default function LuxuryPortfolio() {
         <div className="flex flex-col items-start gap-[22px] w-full">
           <div className="flex flex-col items-start w-full">
          
-            <p className="text-[#353635] text-[14px] lg:text-[22px] leading-[233.333%]">
+            <p className="text-[#353635] text-[14px] lg:text-[22px] leading-[193.333%]">
               Published biannually, Luxury Portfolio magazine features the latest luxury
               perspectives on Real Estate, Design, Travel and Lifestyle.
             </p>

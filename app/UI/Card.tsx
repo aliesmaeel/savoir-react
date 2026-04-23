@@ -8,7 +8,7 @@ type Props = {
 
 export default function Card({ children, className, luxury }: Props) {
   return (
-    <div className={`${styles.card} ${luxury ? styles.luxury : ""} ${className || ""}`}>
+    <div className={`${styles.card} ${luxury ? styles.luxury : ""} ${className || ""} !rounded-[15px] lg:!rounded-[15.5px]`}>
       {children}
     </div>
   );

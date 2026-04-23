@@ -21,20 +21,8 @@ export default function HomeOurData() {
 
   return (
     <motion.div
-      className="grid grid-cols-3 gap-[33px] lg:gap-[36px] w-full pt-[37px] lg:pt-[52px]"
-      variants={variants}
-      initial="hidden"
-      animate={controls}
-      style={{ willChange: "transform, opacity" }}
-      viewport={{ amount: 0.5 }}
-      onViewportEnter={async () => {
-        if (!hasShown.current) {
-          hasShown.current = true;
-          // reveal grid first, then start numbers slightly after
-          await controls.start("visible");
-          setTimeout(() => setCanCount(true), 300); // delay before numbers start
-        }
-      }}
+      className="grid grid-cols-3 gap-[33px] lg:gap-[36px] w-full pt-[37px] lg:pt-[52px] lg:hidden"
+     
     >
       {data.map((item, index) => (
         <div
@@ -42,7 +30,7 @@ export default function HomeOurData() {
           className="flex flex-col items-center justify-between gap-[11px] lg:gap-[36px]"
         >
           <img loading="lazy" src={item.logo} alt={item.title} />
-          <div className="flex flex-col items-center gap-[7px] lg:gap-[22px]">
+          <div className="flex flex-col items-center gap-[7px] lg:gap-[22px] hidden">
             <AnimatedInfo
               display={item.info}
               duration={500}
