@@ -18,17 +18,17 @@ export default function ListGlobalNetwork() {
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row items-center gap-[52px] w-full mt-[108px]">
+    <div className="flex flex-col lg:flex-row items-center gap-[52px] w-full mt-[108px] align-start">
       <div className="flex flex-col items-start gap-[37px] w-full">
         <GoldTitle>A Global Network, A Local Touch</GoldTitle>
-        <p className="text-[#505050] text-[15px] sm:text-[16px] lg:text-[20px] leading-[150%]">
-          Within the LeadingRE umbrella, a diverse set of sub-companies and affiliates work together
-          to shape the future of real estate. These organizations offer a wide range of services,
-          including luxury real estate, commercial property, and worldwide relocation services. Each
-          sub-company contributes a distinct thread to this exceptional tapestry of aggregate
-          expertise, strengthening LeadingRE's position as a holistic resource for both real estate
-          professionals and clients.
+        <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
+          Within the LeadingRE umbrella, a diverse set of sub-companies and affiliates work together to shape the future of real estate.
+          <br />
+          These organizations offer a wide range of services, including luxury real estate, commercial property, and worldwide relocation services.
+          <br />
+          Each sub-company contributes a distinct thread to this exceptional tapestry of aggregate expertise, strengthening LeadingRE's position as a holistic resource for both real estate professionals and clients.
         </p>
+   
       </div>
       <div className="w-[576px]">
         <Swiper

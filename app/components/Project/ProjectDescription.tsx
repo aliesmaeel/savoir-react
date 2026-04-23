@@ -153,7 +153,7 @@ export default function ProjectDescription() {
     {
       title: "Area",
       icon: icon.searchSquare,
-      value: `${property.size?.toLocaleString()} SF`,
+      value: `${property.size?.toLocaleString()} sq.ft`,
     },
     {
       title: "Bedrooms",

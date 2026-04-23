@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import Card from "~/UI/Card";
 import Popup from "~/UI/Popup";
@@ -6,6 +7,7 @@ import ContactUsPopup from "./ContactUsPopup";
 
 export default function ContactUsItems() {
   const icon = useIcons();
+  const navigate = useNavigate();
   const [openPopup, setOpenPopup] = useState(false);
 
   const items = [
@@ -34,6 +36,7 @@ export default function ContactUsItems() {
       subtitle:
         "Meet our diverse team of trusted property professionals and see what sets us apart.",
       icon: icon.OurTeam,
+      onClick: () => navigate("/our-team"),
     },
   ];
 

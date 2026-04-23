@@ -14,7 +14,7 @@ export default function AboutHero() {
         <div className="flex flex-col items-center gap-[61px] w-full">
           <div className="flex flex-col items-center gap-[9px]">
             <h1 className="text-white text-[25px] lg:text-[91px]">About US</h1>
-            <p className="text-white text-[18px] lg:text-[68px]">Savoir Beyond Excellence</p>
+            <p className="text-white text-[18px] lg:text-[68px]">A New Era of Real Estate Excellence</p>
           </div>
         </div>
         <div

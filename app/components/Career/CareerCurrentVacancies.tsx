@@ -27,7 +27,7 @@ export default function CareerCurrentVacancies({ vacancies }: Props) {
     <div className="flex flex-col items-center gap-[52px] w-full" id="current-vacancies">
       <div className="flex flex-col items-center gap-[15px] w-full">
         <p className="font-bold Theseasons _title_13r73_1 text-[20px] lg:text-[34px]">Current Vacancies</p>
-        <p className="text-black text-[15px] lg:text-[22px] text-center">
+        <p className="text-[#505050] text-[14px] lg:text-[18px] text-center leading-[180%]">
           We offer uncapped salary potential, incentives and rewards, and ongoing support from our
           managers and trainers. Whether you're just starting your career or looking to make a
           change, we want to hear from you.

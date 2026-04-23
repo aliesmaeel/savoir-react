@@ -9,7 +9,7 @@ export default function OurAgents() {
 
   return (
     <div className="flex flex-col items-center gap-[37px] w-full mt-[112px]">
-      <p className="text-black text-[42px] font-medium">Our agents</p>
+      <p className="text-black text-[42px] font-medium">Our Team</p>
       <ThreeSwiper spaceBetween={21}>
         {teams.map((member: any, index: number) => (
           <SwiperSlide>

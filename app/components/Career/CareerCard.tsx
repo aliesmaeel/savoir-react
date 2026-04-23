@@ -32,7 +32,7 @@ export default function CareerCard({ job, onApplyClick }: Props) {
             <p className="text-[#C6A45A] text-[21px] font-semibold">{job.title}</p>
             <div className="flex items-center gap-[4px]">
               <img loading="lazy" src={icon.locationBlack} alt="" className="w-[30px]" />
-              <p className="text-[#353635] text-[22px] font-medium">{job.location}</p>
+              <p className="text-[#353635] text-[15px] font-semibold">{job.location}</p>
             </div>
           </div>
 

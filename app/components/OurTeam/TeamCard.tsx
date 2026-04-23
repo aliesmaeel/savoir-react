@@ -9,7 +9,9 @@ export default function TeamCard({ member }: Props) {
   return (
     <Link
       to={`/our-team/${member.slug}`}
-      className="flex flex-col items-start gap-[20px] w-full aspect-[430/542] rounded-[35px] backdrop-blur-[46px] py-[24px] px-[47px]"
+      className="flex flex-col items-start gap-[20px]
+       w-full aspect-[430/542] rounded-[35px]
+       backdrop-blur-[46px] py-[24px] px-[16px] lg:px-[47px]"
       style={{
         background:
           "linear-gradient(162deg, rgba(53, 54, 53, 0.05) -2.97%, rgba(255, 255, 255, 0.07) 120.88%)",
@@ -21,12 +23,12 @@ export default function TeamCard({ member }: Props) {
         loading="lazy"
         src={member.image}
         alt={member.name}
-        className="aspect-square w-full rounded-[8px] object-cover"
+        className="aspect-square w-full  object-cover"
       />
       <div className="flex flex-col items-start gap-[7px] w-full">
-        <p className="text-[28px] font-medium">{member.name}</p>
-        <p className="text-[#505050] text-[25px]">{member.Job_Description}</p>
-        <p className="text-[#505050] text-[25px]">{member.experience}</p>
+        <p className="text-[18px] lg:text-[24px]  font-medium">{member.name}</p>
+        <p className="text-[15px] text-[#505050] lg:text-[25px] ">{member.Job_Description}</p>
+        <p className="text-[15px] text-[#505050] lg:text-[25px] ">{member.experience}</p>
       </div>
     </Link>
   );

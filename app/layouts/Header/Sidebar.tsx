@@ -85,7 +85,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
             />
           </svg>
         </button>
-        <Link to="/">
+        <Link to="/" onClick={onClose}>
           <img loading="lazy" src={icon.logo} alt="" className="w-[188.47px] brightness-[0.7] " />
         </Link>
       </div>
@@ -98,6 +98,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 to={item.path}
                 key={index}
                 className="text-[17.39px] font-medium "
+                onClick={onClose}
               >
                 {item.title}
               </NavLink>

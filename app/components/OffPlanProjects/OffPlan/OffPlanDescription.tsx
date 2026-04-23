@@ -20,6 +20,10 @@ export default function OffPlanDescription() {
   }, [showPopup]);
 
   const icon = useIcons();
+  const addBreakAfterFullStop = (html: string): string => {
+    if (!html) return "";
+    return html.replace(/\.\s*/g, ".<br/>");
+  };
 
   const truncateHtml = (html: string, wordLimit: number): string => {
     if (!html) return "";
@@ -73,7 +77,7 @@ export default function OffPlanDescription() {
         // We found the node where we need to cut
         const remainingChars = cutPosition - currentTextLength;
         if (remainingChars > 0 && node.textContent) {
-          node.textContent = node.textContent.substring(0, remainingChars) + "...";
+          node.textContent = node.textContent.substring(0, remainingChars);
         }
         // Remove all following nodes
         let nextNode: Node | null = node.nextSibling;
@@ -93,7 +97,12 @@ export default function OffPlanDescription() {
 
   const truncatedDescription = useMemo(() => {
     if (!property.description) return "";
-    return truncateHtml(property.description, 85);
+    return addBreakAfterFullStop(truncateHtml(property.description, 85));
+  }, [property.description]);
+
+  const fullDescriptionWithBreaks = useMemo(() => {
+    if (!property.description) return "";
+    return addBreakAfterFullStop(property.description);
   }, [property.description]);
 
   const shouldShowReadMore = useMemo(() => {
@@ -165,7 +174,7 @@ export default function OffPlanDescription() {
               <div
                 className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
                 dangerouslySetInnerHTML={{
-                  __html: property.description,
+                  __html: fullDescriptionWithBreaks,
                 }}
               />
             </div>
