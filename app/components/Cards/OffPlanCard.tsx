@@ -20,7 +20,7 @@ export default function OffPlanCard({ project }: props) {
           alt=""
           className="w-full aspect-[375/277] rounded-[10px] object-cover"
         />
-        <p className="text-[#C6A45A] text-[15px] font-semibold max-w-[319px] mt-[21px]">
+        <p className="text-[#353635] text-[15px] font-semibold max-w-[319px] mt-[21px]">
           {project.title}
         </p>
         <div className="flex flex-col items-start gap-[11px] mt-[11px] h-[100px]">

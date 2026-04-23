@@ -34,7 +34,7 @@ export default function BlogCard({ blog }: Props) {
         />
         <div className="flex flex-col items-start gap-[15px] w-full">
           <div className="flex flex-col items-start gap-[7px] w-full">
-            <p className="text-[#1C1C1B] text-[21px] font-medium">{blog.title}</p>
+            <p className="text-[#353635] text-[15px] font-semibold">{blog.title}</p>
             <div className="flex items-center gap-[15px] w-full">
               <div className="flex items-center gap-[4px]">
                 <img src={icon.calendarGray} alt="" />
@@ -48,7 +48,7 @@ export default function BlogCard({ blog }: Props) {
           </div>
           <div className="flex flex-col items-start gap-[6px] w-full">
             <p className="text-[#636366] text-[15px]">{decodedDescription}</p>
-            <Link to={`/blogs/${blog.slug}`} className="text-[15px] font-semibold underline">
+            <Link to={`/blogs/${blog.slug}`} className="text-[15px] text-[#C6A45A] font-semibold underline">
               Read more
             </Link>
           </div>

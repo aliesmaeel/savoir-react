@@ -19,7 +19,7 @@ export default function NewsBody() {
       {/* description_one_title and description_one */}
       {newsItem.description_one_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[21px] font-semibold">
+          <h2 className="text-[15px] lg:text-[20px] font-semibold Theseasons undefined">
             {newsItem.description_one_title}
           </h2>
           {newsItem.description_one && (
@@ -64,7 +64,7 @@ export default function NewsBody() {
       {/* description_two_title and description_two */}
       {newsItem.description_two_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[21px] font-semibold">
+          <h2 className="text-[21px] text-[#353635] font-semibold">
             {newsItem.description_two_title}
           </h2>
           {newsItem.description_two && (
@@ -79,7 +79,7 @@ export default function NewsBody() {
       {/* description_three_title and description_three */}
       {newsItem.description_three_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[21px] font-semibold">
+          <h2 className="text-[21px] text-[#353635] font-semibold">
             {newsItem.description_three_title}
           </h2>
           {newsItem.description_three && (
@@ -94,7 +94,7 @@ export default function NewsBody() {
       {/* description_four_title and description_four */}
       {newsItem.description_four_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[21px] font-semibold">
+          <h2 className="text-[21px] text-[#353635] font-semibold">
             {newsItem.description_four_title}
           </h2>
           {newsItem.description_four && (

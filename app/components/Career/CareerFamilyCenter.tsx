@@ -17,7 +17,7 @@ export default function CareerFamilyCenter() {
     <Card className="!rounded-[15px] lg:!rounded-[67px] py-[30px] lg:py-[59px] px-[16px] lg:px-[45px]">
       <div className="flex flex-col items-start gap-[34px] w-full">
         <GoldTitle> Family Centric Culture</GoldTitle>
-        <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">
+        <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
           Unlike larger corporations, we cherish the intimacy of a family-centric culture. We
           believe in the power of personal connections, and our team is more than just colleagues –
           we are a closely-knit family that supports each other's growth and success .
@@ -27,7 +27,7 @@ export default function CareerFamilyCenter() {
             {items.map((item: string, index: number) => (
               <div className="flex items-start gap-[18px] w-full">
                 <img loading="lazy" src={icon.dotGold} alt="" />
-                <p className="text-black text-[12px] lg:text-[19px] leading-[192%]">{item}</p>
+                <p className="text-[#505050] text-[12px] lg:text-[19px] leading-[192%]">{item}</p>
               </div>
             ))}
           </div>
@@ -38,7 +38,7 @@ export default function CareerFamilyCenter() {
             className="w-[576px] aspect-[576/336] object-cover"
           />
         </div>
-        <p className="text-black text-[15px] lg:text-[22px] leading-[200%]">
+        <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
           Additionally, we conduct bi-weekly company-wide training sessions covering a range of
           topics, from real estate-specific knowledge to social media and marketing, often featuring
           keynote speakers. Join us and stay ahead of the curve!

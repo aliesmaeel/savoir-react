@@ -18,10 +18,10 @@ export default function NewsCard({ newsItem }: Props) {
         />
         <div className="flex flex-col items-start gap-[11px]">
           <div className="flex flex-col items-start gap-[2px]">
-            <p className="text-[#C6A45A] text-[15px] font-semibold">{newsItem.title}</p>
+            <p className="text-[#353635] text-[15px] font-semibold">{newsItem.title}</p>
             <p className="text-[#505050] text-[15px]">{newsItem.created_at}</p>
           </div>
-          <Link to={`/news/${newsItem.slug}`} className="text-[15px] font-semibold underline">
+          <Link to={`/news/${newsItem.slug}`} className="text-[15px] text-[#C6A45A] font-semibold underline">
             Read more
           </Link>
         </div>

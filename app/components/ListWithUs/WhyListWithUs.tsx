@@ -19,7 +19,7 @@ export default function WhyListWithUs() {
           <Card className="!rounded-[52.5px]">
             <div className="flex flex-col items-start gap-[24px] w-full px-[27px] pt-[20px] pb-[20px]">
               <img loading="lazy" src={icon.quotes} alt="" className="w-[70px]" />
-              <p className="text-black text-[24px]">{item}</p>
+              <p className="text-black text-[20px]">{item}</p>
             </div>
           </Card>
         ))}

@@ -79,7 +79,7 @@ export default function ContactMember() {
     >
       <div className="flex flex-col items-start gap-[20px] w-full">
         <div className="flex flex-col items-start w-full">
-          <p className="text-[30px] font-semibold">Prompt consultation :</p>
+          <p className="text-[30px] font-semibold">Contact Us :</p>
           <p className="text-[21px]">Fill form below and our agent will contact you shortly</p>
         </div>
         <div className="flex flex-col items-start gap-[22px] w-full">
