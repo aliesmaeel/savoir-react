@@ -11,7 +11,7 @@ export default function NewsBody() {
       {/* title_details */}
       {newsItem.title_details && (
         <article
-          className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+          className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
           dangerouslySetInnerHTML={{ __html: newsItem.title_details }}
         />
       )}
@@ -19,12 +19,12 @@ export default function NewsBody() {
       {/* description_one_title and description_one */}
       {newsItem.description_one_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[15px] lg:text-[20px] font-semibold Theseasons undefined">
+          <h2 className="text-[16px] lg:text-[20px] font-semibold Theseasons undefined">
             {newsItem.description_one_title}
           </h2>
           {newsItem.description_one && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_one }}
             />
           )}
@@ -69,7 +69,7 @@ export default function NewsBody() {
           </h2>
           {newsItem.description_two && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_two }}
             />
           )}
@@ -84,7 +84,7 @@ export default function NewsBody() {
           </h2>
           {newsItem.description_three && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_three }}
             />
           )}
@@ -99,7 +99,7 @@ export default function NewsBody() {
           </h2>
           {newsItem.description_four && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: newsItem.description_four }}
             />
           )}

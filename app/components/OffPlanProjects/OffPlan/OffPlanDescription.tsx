@@ -172,7 +172,7 @@ export default function OffPlanDescription() {
             />
             <div className="overflow-y-auto flex-1 px-[21px] lg:px-[40px] pb-[40px] lg:pb-[60px] pt-[20px]">
               <div
-                className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+                className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
                 dangerouslySetInnerHTML={{
                   __html: fullDescriptionWithBreaks,
                 }}

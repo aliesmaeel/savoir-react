@@ -180,7 +180,7 @@ export default function ProjectDescription() {
           <div className="flex flex-col items-start gap-[4px] w-full">
             <p className="text--[27px] font-semibold">Description</p>
             <div
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{
                 __html: truncatedDescription,
               }}
@@ -237,7 +237,7 @@ export default function ProjectDescription() {
             />
             <div className="overflow-y-auto flex-1 px-[21px] lg:px-[40px] pb-[40px] lg:pb-[60px] pt-[20px]">
               <div
-                className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+                className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
                 dangerouslySetInnerHTML={{
                   __html: property.description_en,
                 }}

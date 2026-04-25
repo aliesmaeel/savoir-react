@@ -8,7 +8,7 @@ export default function CareerGlobalExposure() {
       <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full">
         <div className="flex flex-col items-start gap-[31px] w-full">
           <GoldTitle className="text-[">Global Exposure, Local Expertise</GoldTitle>
-          <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
+          <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]">
             As a proud member of Leading Real Estate Companies of the World®, our agents enjoy unparalleled global exposure.<br />
             This membership opens doors to a vast international network, providing agents with access to a global portal where they can showcase their listings and connect with elite professionals worldwide.
           </p>

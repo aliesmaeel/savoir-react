@@ -15,7 +15,7 @@ export default function CareerCreativity() {
         />
         <div className="flex flex-col items-start gap-[31px] w-full">
           <GoldTitle> Innovation and Creativity</GoldTitle>
-          <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
+          <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]">
             At SAVOIR, we embrace innovation and forward-thinking.<br />
             Our commitment to introducing new ideas, unconventional strategies, and advanced technologies sets us apart.<br />
             Joining us means being part of an environment that fosters creativity and encourages thinking out of the box.
