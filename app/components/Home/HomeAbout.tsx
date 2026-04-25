@@ -54,7 +54,7 @@ export default function HomeAbout() {
         className="flex flex-col lg:flex-row lg:items-stretch gap-6 lg:gap-12 w-full"
         style={{ willChange: "transform, opacity" }}
       >
-        <p className="text-[#353635] text-[12px] lg:text-[20px] leading-[190.333%] flex-1 lg:min-w-0">
+        <p className="text-[#353635] text-[12px] lg:text-[20px] leading-[160.333%] flex-1 lg:min-w-0">
           With four decades of experience, our luxury boutique real estate agency is dedicated to
           setting a new benchmark for service and expertise in the realm of upscale properties in
           Dubai.<br />

@@ -13,7 +13,7 @@ export default function BlogBody() {
       {/* title_details */}
       {blog.title_details && (
         <article
-          className="font-semibold text-[15px] lg:text-[24px] leading-[180%]"
+          className="font-semibold text-[16px] lg:text-[24px] leading-[180%]"
           dangerouslySetInnerHTML={{ __html: blog.title_details }}
         />
       )}
@@ -21,12 +21,12 @@ export default function BlogBody() {
       {/* description_one_title and description_one */}
       {blog.description_one_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[15px] lg:text-[20px] font-semibold Theseasons undefined">
+          <h2 className="text-[16px] lg:text-[20px] font-semibold Theseasons undefined">
             {blog.description_one_title}
           </h2>
           {blog.description_one && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: blog.description_one }}
             />
           )}
@@ -66,12 +66,12 @@ export default function BlogBody() {
       {/* description_two_title and description_two */}
       {blog.description_two_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[#353635] text-[15px] lg:text-[20px] font-semibold Theseasons undefined">
+          <h2 className="text-[#353635] text-[16px] lg:text-[20px] font-semibold Theseasons undefined">
             {blog.description_two_title}
           </h2>
           {blog.description_two && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: blog.description_two }}
             />
           )}
@@ -81,12 +81,12 @@ export default function BlogBody() {
       {/* description_three_title and description_three */}
       {blog.description_three_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[#353635] text-[15px] lg:text-[20px] font-semibold Theseasons undefined">
+          <h2 className="text-[#353635] text-[16px] lg:text-[20px] font-semibold Theseasons undefined">
             {blog.description_three_title}
           </h2>
           {blog.description_three && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: blog.description_three }}
             />
           )}
@@ -96,12 +96,12 @@ export default function BlogBody() {
       {/* description_four_title and description_four */}
       {blog.description_four_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[#353635] text-[15px] lg:text-[20px] font-semibold Theseasons undefined">
+          <h2 className="text-[#353635] text-[16px] lg:text-[20px] font-semibold Theseasons undefined">
             {blog.description_four_title}
           </h2>
           {blog.description_four && (
             <article
-              className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]"
+              className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]"
               dangerouslySetInnerHTML={{ __html: blog.description_four }}
             />
           )}

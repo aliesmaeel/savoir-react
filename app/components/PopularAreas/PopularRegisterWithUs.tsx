@@ -50,7 +50,7 @@ export default function PopularRegisterWithUs() {
   return (
     <div className="flex flex-col gap-[44px] w-full max-w-[460px] p-[17px] pb-[28px] rounded-[20px] bg-[#FFFFFF40] backdrop-blur-[10px] relative z-20">
       <div className="flex flex-col items-start gap-[22px] w-full">
-        <p className="text-white text-[27px] font-medium leading-[50.628%]">REGISTER WITH US</p>
+        <p className="text-white text-[27px] font-medium leading-[50.628%] Theseasons">Register With Us</p>
 
         <BookingInput white={true} placeholder="Enter Full Name" value={name} onChange={setName} />
         <BookingInput

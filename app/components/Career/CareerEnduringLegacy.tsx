@@ -8,7 +8,7 @@ export default function CareerEnduringLegacy() {
       <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full">
         <div className="flex flex-col items-start gap-[31px] w-full">
           <GoldTitle>Enduring Legacy</GoldTitle>
-          <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
+          <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]">
             With a decades-long legacy and a proven track record of billions of dollars in real estate transactions, SAVOIR is more than just a workplace; it is a testament to long-term success.<br />
             Every member of our team is a part of our success, contributing to our brand story of excellence in premium real estate services.
           </p>

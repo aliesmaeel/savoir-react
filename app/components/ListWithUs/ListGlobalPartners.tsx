@@ -28,7 +28,7 @@ export default function ListGlobalPartners() {
       icon: icon.luxuryPortfolio,
       text: "Luxury Portfolio, the  premium arm of Leading Real Estate Companies of the World®️, empowers  agents to provide exclusive access, insights, and refined guidance to  discerning global clientele. Through our direct association, our  top-performing agents gain access to invaluable information, giving  clients a competitive edge in the market and facilitating connections  with fellow successful Realtors.",
       images: [
-        "/images/listwithus/award.jpg",
+        "/images/listwithus/award.webp",
         // Add more images here as needed
       ],
       link: "https://www.luxuryportfolio.com/",
@@ -44,7 +44,7 @@ export default function ListGlobalPartners() {
             <div className="flex flex-col lg:flex-row items-start gap-[35px] w-full px-[37px] py-[28px] group-even:lg:flex-row-reverse">
               <div className="flex flex-col items-start gap-[24px] w-full">
                 <div className="flex flex-col items-start gap-[13px] w-full">
-                  <img loading="lazy" src={item.icon} alt="" />
+                  <img loading="lazy" src={item.icon} alt="" className="object-contain" />
                   <p className="whitespace-pre-line text-[#505050] text-[15px] sm:text-[16px] lg:text-[20px] leading-[140%]">
                     {item.text.replace(/\./g, ".\n")}
                   </p>
@@ -67,7 +67,7 @@ export default function ListGlobalPartners() {
                 >
                   {item.images.map((image: string, imageIndex: number) => (
                     <SwiperSlide key={imageIndex}>
-                      <img loading="lazy" src={image} alt="" className="w-full h-[400px] object-cover" />
+                      <img loading="lazy" src={image} alt="" className="w-full h-[400px] object-contain" />
                     </SwiperSlide>
                   ))}
                 </Swiper>

@@ -5,7 +5,7 @@ export default function CareerAbout() {
   return (
     <div className="flex flex-col items-start gap-[18px] w-full">
       <Header className="text-[20px] lg:text-[34px]">We're Local, We're Global</Header>
-      <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[180%]">
+      <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]">
         <span className="font-semibold">
           At SAVOIR, we are more than just a real estate agency
         </span>
