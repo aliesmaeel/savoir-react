@@ -34,6 +34,7 @@ export default function MemberHero() {
               <p className="text-[21px] lg:text-[43px] font-medium">{team.name}</p>
               <Title className="text-[19px] lg:text-[38px]">{team.Job_Description}</Title>
             </div>
+            
             <div className="flex flex-col items-center items-start lg:items-start gap-[9px] lg:gap-[22px]">
               {infoItems.map((item: any, index: number) => (
                 <div
