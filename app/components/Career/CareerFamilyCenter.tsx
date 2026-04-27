@@ -14,7 +14,7 @@ export default function CareerFamilyCenter() {
   ];
 
   return (
-    <Card className="!rounded-[15px] lg:!rounded-[67px] py-[30px] lg:py-[59px] px-[16px] lg:px-[45px]">
+    <Card className="!rounded-[15px] lg:!rounded-[15.5px] py-[30px] lg:py-[59px] px-[16px] lg:px-[45px]">
       <div className="flex flex-col items-start gap-[34px] w-full">
         <GoldTitle> Family Centric Culture</GoldTitle>
         <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%]">
