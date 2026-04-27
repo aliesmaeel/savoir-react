@@ -114,7 +114,10 @@ function SlideCard({ data }: { data: ReviewSlide }) {
 
   return (
     <div
-      className={`relative flex flex-col gap-[12px] transition-all duration-300 lg:aspect-[517/453] backdrop-blur-[60px] rounded-[44px] px-[39px] py-[29px]
+      className={`relative flex flex-col gap-[12px]
+         transition-all duration-300
+          lg:aspect-[517/453] backdrop-blur-[60px]
+           rounded-[15px] px-[39px] py-[29px]
       ${isActive ? "scale-100 opacity-100" : "scale-[0.85] opacity-80"}`}
       style={{
         background:

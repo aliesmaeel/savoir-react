@@ -4,7 +4,7 @@ import GoldTitle from "~/UI/GoldTitle";
 
 export default function CareerGlobalExposure() {
   return (
-    <Card className="!rounded-[15px] lg:!rounded-[67px] py-[30px] lg:py-[59px] px-[16px] lg:px-[45px]">
+    <Card className="!rounded-[15px] lg:!rounded-[15.5px] py-[30px] lg:py-[59px] px-[16px] lg:px-[45px]">
       <div className="flex flex-col lg:flex-row items-center gap-[35px] w-full">
         <div className="flex flex-col items-start gap-[31px] w-full">
           <GoldTitle className="text-[">Global Exposure, Local Expertise</GoldTitle>

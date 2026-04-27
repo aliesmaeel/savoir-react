@@ -10,7 +10,7 @@ export default function TeamCard({ member }: Props) {
     <Link
       to={`/our-team/${member.slug}`}
       className="flex flex-col items-start gap-[20px]
-       w-full aspect-[430/542] rounded-[35px]
+       w-full aspect-[430/542] rounded-[15px]
        backdrop-blur-[46px] py-[24px] px-[16px] lg:px-[47px]"
       style={{
         background:
@@ -26,9 +26,9 @@ export default function TeamCard({ member }: Props) {
         className="aspect-square w-full  object-cover"
       />
       <div className="flex flex-col items-start gap-[7px] w-full">
-        <p className="text-[18px] lg:text-[24px]  font-medium">{member.name}</p>
-        <p className="text-[15px] text-[#505050] lg:text-[25px] ">{member.Job_Description}</p>
-        <p className="text-[15px] text-[#505050] lg:text-[25px] ">{member.experience}</p>
+        <p className="text-[11px] lg:text-[24px]  font-medium">{member.name}</p>
+        <p className="text-[9px] text-[#505050] lg:text-[25px] ">{member.Job_Description}</p>
+        <p className="text-[9px] text-[#505050] lg:text-[25px] ">{member.experience}</p>
       </div>
     </Link>
   );

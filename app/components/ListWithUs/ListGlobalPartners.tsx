@@ -40,7 +40,7 @@ export default function ListGlobalPartners() {
     <div className="flex flex-col items-center gap-[46px] w-full mt-[108px]">
       <div className="flex flex-col items-start gap-[52px] w-full">
         {items.map((item: any, index: number) => (
-          <Card key={index} className="!rounded-[15px] lg:!rounded-[67.5px] w-full group">
+          <Card key={index} className="!rounded-[15px] lg:!rounded-[15.5px] w-full group">
             <div className="flex flex-col lg:flex-row items-start gap-[35px] w-full px-[37px] py-[28px] group-even:lg:flex-row-reverse">
               <div className="flex flex-col items-start gap-[24px] w-full">
                 <div className="flex flex-col items-start gap-[13px] w-full">

@@ -22,24 +22,15 @@ export default function FindYourPartner() {
         </p>
       </div>
 
-      <div
-        className="
-          lg:block
-          relative w-full
-          [&_.swiper]:!overflow-hidden
-          [&_.swiper-slide]:transition-all [&_.swiper-slide]:duration-500 [&_.swiper-slide]:will-change-transform
-          [&_.swiper-slide]:z-0 [&_.swiper-slide]:opacity-60
-          /* LEFT — focused (active) */
-          [&_.swiper-slide-active]:z-30 [&_.swiper-slide-active]:opacity-100 [&_.swiper-slide-active]:translate-x-0
-          /* MIDDLE — directly after active (behind + slightly smaller + shifted left) */
-          [&_.swiper-slide-active+_.swiper-slide]:z-20 [&_.swiper-slide-active+_.swiper-slide]:opacity-80 [&_.swiper-slide-active+_.swiper-slide]:-translate-x-8
-          /* THIRD — two after active (further behind + smaller + more left) */
-          [&_.swiper-slide-active+_.swiper-slide+_.swiper-slide]:z-10 [&_.swiper-slide-active+_.swiper-slide+_.swiper-slide]:opacity-70 [&_.swiper-slide-active+_.swiper-slide+_.swiper-slide]:-translate-x-16
-        "
-      >
+      <div className="lg:block relative w-full">
         <Swiper
           modules={[Autoplay]}
-          slidesPerView={3} // always 3
+          slidesPerView={2}
+          breakpoints={{
+            1024: {
+              slidesPerView: 3,
+            },
+          }}
           centeredSlides={false} // active is LEFT
           loop={true}
           autoplay={{
