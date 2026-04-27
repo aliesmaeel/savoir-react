@@ -28,7 +28,8 @@ export default function MemberHero() {
       <div className="flex flex-col items-center justify-center w-full h-[45vh] lg:h-[85vh] relative top-0 left-0 px-[45px] max-w-[1336px]"
       >
         <div className="absolute bottom-0 left-0 z-20 flex h-full w-full flex-col items-center justify-center gap-[30px] px-[16px] lg:flex-row lg:items-end lg:justify-between lg:gap-[30px] lg:px-[60px] mix-blend-multiply">
-          <div className="flex w-full flex-col items-center gap-[22px] lg:w-[44%] lg:items-start lg:gap-[55px]">
+          <div className="flex w-full flex-col items-center gap-[22px] lg:w-[44%] lg:items-start lg:gap-[55px]
+          lg:self-center">
             <div className="flex flex-col items-center lg:items-start gap-[5px] lg:gap-[13px]">
               <p className="text-[21px] lg:text-[43px] font-medium">{team.name}</p>
               <Title className="text-[19px] lg:text-[38px]">{team.Job_Description}</Title>
@@ -46,8 +47,8 @@ export default function MemberHero() {
             </div>
           </div>
           <div
-            className="hidden h-[700px] w-full max-w-[414px] bg-cover bg-center bg-no-repeat lg:block"
-            style={{ backgroundImage: `url(${team.image_border})` }}
+            className="hidden h-[700px] w-full max-w-[414px] bg-contain bg-center bg-no-repeat lg:block"
+            style={{ backgroundImage: `url(${team.image})` }}
           />
        
 
