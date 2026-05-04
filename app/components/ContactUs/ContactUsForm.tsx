@@ -100,7 +100,7 @@ export default function ContactUsForm() {
         />
         <div
           className="flex flex-col items-start justify-between gap-[20px] p-[16px] lg:p-[44px] w-full lg:max-w-[490px] lg:aspect-[490/727] rounded-[11px] text-white"
-          style={{ background: "#9b957f" }}
+          style={{ background: "black" }}
         >
           <div className="flex flex-col items-start gap-[20px] lg:gap-[98px]">
             <div className="flex flex-col items-start gap-[6px]">
