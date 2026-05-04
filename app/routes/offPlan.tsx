@@ -127,7 +127,7 @@ export default function offPlan() {
         </div>
         <ProjectFeatures />
         <div className="flex flex-col items-center gap-[53px] w-full mt-[90px]">
-          <p className="text-black text-[16px] lg:text-[36px] font-medium">
+          <p className="text-black text-[16px] lg:text-[36px] CormorantGaramond">
             FAQs about offPlan properties in Dubai
           </p>
           <FAQs questions={faq} />

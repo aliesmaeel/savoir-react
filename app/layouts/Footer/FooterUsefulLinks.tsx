@@ -50,7 +50,7 @@ export default function FooterUsefulLinks() {
       <p className="text-[#C6A45A] text-[14px] lg:text-[24px] font-semibold">USEFUL LINKS</p>
       <ul className="flex flex-col items-start gap-[6px] w-full">
         {items.map((item: any, index: number) => (
-          <li key= {item.key ?? index} className="list-disc text-[21px] ml-[22px]">
+          <li key= {item.key ?? index} className=" text-[21px] ml-[22px]">
             <Link to={item.link} key={item.key} className="">
               <p className="text-[12px] lg:text-[18px]">{item.title}</p>
             </Link>

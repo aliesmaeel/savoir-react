@@ -6,6 +6,11 @@
 }
 
 @font-face {
+  font-family: "Didot";
+  src: url("../public/fonts/Didot.ttf");
+}
+
+@font-face {
   font-family: "Poppins-Regular";
   src: url("../public/fonts/Poppins-Regular.ttf");
   font-weight: 400;
@@ -164,4 +169,14 @@ input[type="number"] {
     bottom: 60px !important;
     right: 30px !important;
   }
+}
+
+.faq p , .faq h3{
+  font-family: "CormorantGaramond", serif;
+  font-weight: 500;
+}
+
+p{
+    font-family: "CormorantGaramond", serif;
+
 }

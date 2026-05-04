@@ -34,15 +34,16 @@ export default function FAQs({ questions }: Props) {
               className="flex items-center 
               justify-between px-[8px] 
               lg:px-[27px] py-[7px] 
-              lg:py-[7px] h-[46px] lg:h-auto 
+              lg:py-[7px] h-[36px] lg:h-auto 
               rounded-[4px] lg:rounded-[10px]  w-full"
               style={{
                 background: isOpen ? "white" : "",
               }}
             >
               <div
-                className="text-[10px] lg:text-[18px] font-medium pr-4"
+                className="text-[10px] lg:text-[18px] font-medium pr-4 faq"
                 dangerouslySetInnerHTML={{ __html: item.question }}
+                
               ></div>
 
               <button
@@ -77,6 +78,7 @@ export default function FAQs({ questions }: Props) {
                   <div className="px-[8px] lg:px-[27px] py-[7px] lg:py-[22px] pt-4">
                     <div
                       className="text-[10px] lg:text-[18px] leading-[1.9]"
+                      style={{fontFamily: "CormorantGaramond"}}
                       dangerouslySetInnerHTML={{ __html: item.answer }}
                     ></div>
                   </div>

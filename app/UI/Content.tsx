@@ -27,7 +27,7 @@ export default function Content({ item, isRight, index = 0, visitSiteIndexes, li
     >
       <div className="flex flex-col items-start gap-[37px] w-full">
         <GoldTitle>{item.title}</GoldTitle>
-        <p className="whitespace-pre-line text-black text-[15px] lg:text-[15px] leading-[200%]">
+        <p className="whitespace-pre-line text-black text-[15px] lg:text-[18px] leading-[200%]">
           {item.text}
         </p>
         {showVisitSite ? (
