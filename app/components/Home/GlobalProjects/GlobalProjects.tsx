@@ -1,20 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
-import useArrow from "~/hooks/imageHooks/useArrow";
-import Card from "~/UI/Card";
-import Title from "~/UI/Title";
-import GlobalProjectsSwiper from "./GlobalProjectsSwiper";
+import { Link, useLoaderData } from "react-router";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 export default function GlobalProjects() {
-  const arrow = useArrow();
+  const { home } = useLoaderData() as { home: any };
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Efficient Intersection Observer - only runs once
   useEffect(() => {
-    // Skip animation on mobile for better performance
     if (isMobile) {
       setIsVisible(true);
       return;
@@ -25,14 +19,10 @@ export default function GlobalProjects() {
         const entry = entries[0];
         if (entry.isIntersecting && !isVisible) {
           setIsVisible(true);
-          // Disconnect after first trigger for better performance
           observer.disconnect();
         }
       },
-      {
-        threshold: 0.5,
-        rootMargin: "0px",
-      }
+      { threshold: 0.5, rootMargin: "0px" }
     );
 
     if (containerRef.current) {
@@ -42,27 +32,68 @@ export default function GlobalProjects() {
     return () => observer.disconnect();
   }, [isVisible, isMobile]);
 
+  const countries: any[] = (home?.countries || []).slice(0, 6);
+
+  if (countries.length === 0) {
+    return null;
+  }
+
   return (
-    <div
+    <section
       ref={containerRef}
-      className={`w-full transition-all duration-700 ease-out ${
+      className={`w-full bg-[#0A0A0A] transition-all duration-700 ease-out ${
         isVisible || isMobile
           ? "opacity-100 translate-x-0"
           : "opacity-0 translate-x-[200px]"
       }`}
     >
-      <Card className="w-full max-w-[591px]">
-        <div className="flex flex-col items-start gap-[25px] lg:gap-[39px] w-full pt-[21px] lg:pt-[33px] pb-[36px] lg:pb-[55px]">
-          <div className="flex items-center justify-between w-full px-[21px] lg:px-[33px]">
-            <Title className="text-[22px] lg:text-[34px]">Global Projects</Title>
-            <Link to="/global-projects" className="flex items-center gap-[6px] lg:gap-[9px]">
-              <p className="text-[11px] lg:text-[18px] underline">See all</p>
-              <img loading="lazy" src={arrow.smallGold} alt="" className="w-[7px] lg:w-[8px]" />
-            </Link>
+      {/* Header */}
+      <div className="max-w-[1280px] mx-auto w-full flex flex-col lg:flex-row lg:items-end justify-between gap-[20px] px-[24px] lg:px-[52px] pt-[36px] lg:pt-[60px] pb-[24px] lg:pb-[48px] border-b-[0.5px] border-white/[0.14]">
+        <div>
+          <div className="Jakarta text-[10px] font-medium tracking-[0.22em] uppercase text-[#E0C98A] mb-[10px]">
+            Worldwide Presence
           </div>
-          <GlobalProjectsSwiper />
+          <p className="CormorantGaramond text-[28px] lg:text-[44px] leading-[1.05] tracking-[-0.01em] text-white">
+            <span className="italic">Global</span> Projects
+          </p>
         </div>
-      </Card>
-    </div>
+        <Link
+          to="/global-projects"
+          className="Jakarta text-[10px] font-medium tracking-[0.2em] uppercase text-white/30 hover:text-[#C6A45A] inline-flex items-center gap-[8px] group transition-colors"
+        >
+          See All Markets
+          <span className="block w-[24px] group-hover:w-[40px] h-[0.5px] bg-current transition-all duration-300" />
+        </Link>
+      </div>
+
+      {/* Country grid */}
+      <div
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:h-[520px]"
+      >
+        {countries.map((c, idx) => (
+          <Link
+            key={c.id ?? c.name ?? idx}
+            to={`/global-projects?country=${encodeURIComponent(c.name)}`}
+            className="relative overflow-hidden cursor-pointer group block aspect-[3/4] lg:aspect-auto border-r-[0.5px] last:border-r-0 border-white/10"
+            style={{ animationDelay: `${idx * 0.06}s` }}
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-[700ms] ease-out group-hover:scale-[1.06]"
+              style={{ backgroundImage: `url('${c.image}')` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,10,10,0.88)] to-[rgba(10,10,10,0.1)] group-hover:from-[rgba(10,10,10,0.92)] group-hover:to-[rgba(10,10,10,0.25)] transition-all duration-400" />
+            <div className="absolute bottom-0 left-0 right-0 px-[18px] py-[24px]">
+              <p className="CormorantGaramond text-[22px] font-light text-white leading-[1] mb-[8px] capitalize">
+                {c.name}
+              </p>
+              <span className="inline-flex items-center gap-[8px] Jakarta text-[9px] font-medium tracking-[0.2em] uppercase text-[#E0C98A] opacity-0 translate-y-[6px] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                Explore
+                <span className="block w-[14px] h-[0.5px] bg-[#E0C98A]" />
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

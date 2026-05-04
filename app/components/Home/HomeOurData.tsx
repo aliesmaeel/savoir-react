@@ -38,7 +38,7 @@ export default function HomeOurData() {
               enabled={canCount} // ⬅️ use gate
               startDelayMs={index * 50} // ⬅️ optional stagger per item
             />
-            <p className="text-[#353635] text-[11px] lg:text-[33px] Theseasons">{item.title}</p>
+            <p className="text-[#353635] text-[11px] lg:text-[33px] CormorantGaramond">{item.title}</p>
           </div>
         </div>
       ))}
