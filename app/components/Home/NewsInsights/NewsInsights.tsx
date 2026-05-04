@@ -76,7 +76,7 @@ export default function NewsInsights() {
             to={`/news/${featured.slug}`}
             className="group block py-[40px] lg:pr-[36px]"
           >
-            <div className="relative overflow-hidden mb-[22px] aspect-[16/9] lg:aspect-[4/5] bg-[#F8F6F2]">
+            <div className="relative overflow-hidden mb-[22px] aspect-[16/9] bg-[#F8F6F2]">
               <img
                 loading="lazy"
                 src={featured.image}

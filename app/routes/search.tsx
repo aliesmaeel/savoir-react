@@ -152,7 +152,7 @@ export default function Search() {
           />
         </div>
         <div className="flex flex-col items-center gap-[22px] lg:gap-[53px] w-full mt-[66px]">
-          <p className="text-black text-[16px] lg:text-[36px] font-medium">
+          <p className="text-black text-[16px] lg:text-[36px] CormorantGaramond">
             {getFAQTitle()}
           </p>
           <FAQs questions={faq} />
