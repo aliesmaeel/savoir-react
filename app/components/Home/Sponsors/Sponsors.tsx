@@ -107,7 +107,7 @@ export default function Sponsors() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-[40px] lg:gap-[100px] w-full mb-[118px]">
+    <div className="flex flex-col items-center gap-[40px] lg:gap-[100px] w-full mb-[118px] mt-[40px] lg:mt-[120px]">
       {/* ---------- Section 1 ---------- */}
       <div className="flex flex-col items-center gap-[20px] lg:gap-[67px] w-full">
         <motion.div

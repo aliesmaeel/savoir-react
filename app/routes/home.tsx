@@ -55,27 +55,42 @@ export default function Home() {
       <PageLayout>
         <HomeAbout />
         <HomeOurData />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px] lg:gap-[37.5px] w-full mt-[31px] lg:mt-[99px] mb-[33px] lg:mb-[167px]">
-          <HomeProperties />
-          <div className="flex flex-col items-end justify-end gap-[24px] lg:gap-[37px] w-full">
+      </PageLayout>
+      <div className="w-full mt-[31px] lg:mt-[29px]">
+        <HomeProperties />
+      </div>
+      <div className="w-full mt-[31px] lg:mt-[60px]">
+        <Suspense fallback={<div className="w-full h-[400px] bg-[#0A0A0A]" />}>
           <GlobalProjects />
-            <div className="w-full flex justify-end">
-              <Suspense fallback={<div className="w-full h-[300px]" />}>
-                <NewsInsights />
-              </Suspense>
-            </div>
-          </div>
-        </div>
-      </PageLayout>
-        <GlobalAccess />
-        <PageLayout>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[37.5px] w-full mt-[40px] lg:mt-[142px]">
-          <Locations />
-          <OurCustomers />
+        </Suspense>
+      </div>
+      <div className="w-full">
+        <Suspense fallback={<div className="w-full h-[500px] bg-[#F8F6F2]" />}>
           <OffPlanProjects />
-          <LuxuryPortfolio />
+        </Suspense>
+      </div>
+      <GlobalAccess />
+      <div className="w-full">
+        <Suspense fallback={<div className="w-full h-[500px] bg-white" />}>
+          <NewsInsights />
+        </Suspense>
+      </div>
+        
+        <div className="w-full">
+          <Suspense fallback={<div className="w-full h-[600px] bg-white" />}>
+            <Locations />
+          </Suspense>
         </div>
-      </PageLayout>
+        <div className="w-full">
+          <Suspense fallback={<div className="w-full h-[500px] bg-white" />}>
+            <OurCustomers />
+          </Suspense>
+        </div>
+        <div className="w-full">
+          <Suspense fallback={<div className="w-full h-[600px] bg-[#0A0A0A]" />}>
+            <LuxuryPortfolio />
+          </Suspense>
+        </div>
 
       <Suspense fallback={null}>
         <Sponsors />

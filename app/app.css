@@ -13,9 +13,9 @@
 }
 
 @font-face {
-  font-family: "Theseasons";
-  src: url("../public/fonts/TheSeasonsRegular.ttf");
-  font-weight: 400;
+  font-family: "CormorantGaramond";
+  src: url("../public/fonts/CormorantGaramond-Light.ttf");
+  font-weight: 300;
   font-style: normal;
 }
 
@@ -23,7 +23,7 @@
   --font-sans:
     "Poppins-Regular", "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol", "Noto Color Emoji";
-  --font-heading: "Theseasons", serif;
+  --font-heading: "CormorantGaramond", serif;
 }
 
 html,
@@ -34,16 +34,15 @@ body {
   font-family: "Poppins-Regular", "Poppins", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* All headings use Theseasons font */
+/* All headings use CormorantGaramond font */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: "Theseasons", serif;
-  font-weight: bold;
-  
+  font-family: "CormorantGaramond", serif;
+  font-weight: 300;
 }
 
 .font-medium {
@@ -69,9 +68,9 @@ iframe {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
 
-.Theseasons {
-  font-family: "Theseasons", serif;
-  font-weight: bold;
+.CormorantGaramond {
+  font-family: "CormorantGaramond", serif;
+  font-weight: 300;
 }
 
 .swiper-3d .swiper-slide-shadow {

@@ -54,7 +54,7 @@ export default function realEstateGuides() {
       <PageLayout>
         <div className="flex flex-col items-start gap-[89px] w-full">
           <div className="flex flex-col items-start gap-[24px] w-full">
-            <p className="text-[15px] lg:text-[22px] font-semibold Theseasons !text-[34px] capitalize">
+            <p className="text-[15px] lg:text-[22px] font-semibold CormorantGaramond !text-[34px] capitalize">
               Real estate guides from industry experts
             </p>
             <p className="text-[#505050] text-[14px] lg:text-[18px] leading-[160%] ">

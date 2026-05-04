@@ -19,7 +19,7 @@ export default function NewsBody() {
       {/* description_one_title and description_one */}
       {newsItem.description_one_title && (
         <div className="flex flex-col items-start gap-[22px] w-full">
-          <h2 className="text-[16px] lg:text-[20px] font-semibold Theseasons undefined">
+          <h2 className="text-[16px] lg:text-[20px] font-semibold CormorantGaramond undefined">
             {newsItem.description_one_title}
           </h2>
           {newsItem.description_one && (
