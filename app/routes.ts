@@ -1,6 +1,8 @@
 import { type RouteConfig, index, layout, route } from "@react-router/dev/routes";
 
-export default [
+const maintenanceMode = process.env.MAINTENANCE_MODE === "true";
+
+const appRoutes: RouteConfig = [
   layout("layouts/MainLayout.tsx", [
     index("routes/home.tsx"),
     route("/about", "routes/about.tsx"),
@@ -48,4 +50,13 @@ export default [
     route("/privacy-policy", "routes/privacy-policy.tsx"),
   ]),
   route("/ai-tool", "routes/ppsfTool.tsx"),
-] satisfies RouteConfig;
+];
+
+export default (
+  maintenanceMode
+    ? [
+        index("routes/comingSoon.ts", { id: "comingSoonIndex" }),
+        route("*", "routes/comingSoon.ts", { id: "comingSoonSplat" }),
+      ]
+    : appRoutes
+) satisfies RouteConfig;
