@@ -4,12 +4,14 @@ import styles from "./SponsorsSwiper.module.css";
 type Logo = { id: string; image: string; alt?: string; width?: number; height?: number };
 type Props = { speedSeconds?: number; logos: Logo[] };
 
-export default function SponsorsSwiper({ speedSeconds = 20, logos }: Props) {
+export default function SponsorsSwiper({ speedSeconds = 20, logos = [] }: Props) {
   // create 3x content for safety
   const loop = useMemo(
-    () => [0, 1, 2].flatMap((rep) => logos.map((l) => ({ ...l, _k: `${l.id}-${rep}` }))),
+    () => [0, 1, 2].flatMap((rep) => (logos ?? []).map((l) => ({ ...l, _k: `${l.id}-${rep}` }))),
     [logos]
   );
+
+  if (!logos || logos.length === 0) return null;
 
   const style = { ["--speed" as unknown as "speed"]: `${speedSeconds}s` } as React.CSSProperties;
 
