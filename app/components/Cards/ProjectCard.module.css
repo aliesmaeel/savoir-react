@@ -1,0 +1,13 @@
+.price {
+  background: linear-gradient(94deg, #c6a45a 3.15%, #353635 140.2%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.priceLuxury {
+  background: linear-gradient(94deg, #c6a45a 3.15%, #fff 140.2%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

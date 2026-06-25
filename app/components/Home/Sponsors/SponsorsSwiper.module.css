@@ -1,0 +1,92 @@
+.wrapper {
+  position: relative;
+  overflow: hidden;
+  width: min(calc(100% - 48px), 1176px);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 2rem);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 22px 70px rgba(53, 54, 53, 0.06);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: max-content;
+  will-change: transform;
+  animation: marquee var(--speed, 20s) linear infinite;
+}
+
+.track:hover {
+  animation-play-state: paused; /* pause on hover */
+}
+
+.item {
+  height: 68px;
+  width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.item img {
+  max-height: 44px;
+  max-width: 108px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.72;
+  filter: saturate(0.82) contrast(0.95);
+  transition: opacity 180ms ease, filter 180ms ease, transform 180ms ease;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.item:hover img {
+  opacity: 1;
+  filter: saturate(1) contrast(1.04);
+  transform: translateY(-1px);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}
+
+/* Infinite scroll keyframes:
+   We duplicate the content once, so shifting by -50% loops perfectly. */
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  } /* exact half since halves now match */
+}
+
+@media (max-width: 1024px) {
+  .wrapper {
+    width: calc(100% - 32px);
+    padding-inline: 1rem;
+  }
+
+  .track {
+    gap: 1.2rem;
+  }
+
+  .item {
+    width: 132px;
+    height: 58px;
+  }
+
+  .item img {
+    max-height: 34px;
+    max-width: 92px;
+  }
+}

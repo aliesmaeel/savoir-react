@@ -1,0 +1,57 @@
+{
+  "name": "savoir",
+  "private": true,
+  "type": "module",
+
+  "homepage": "https://axsh-py.github.io/Savoir-website",
+
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc",
+
+    "predeploy": "npm run build",
+    "deploy": "node scripts/deploy-gh-pages.mjs"
+  },
+
+  "dependencies": {
+    "@react-router/node": "^7.7.1",
+    "@react-router/serve": "^7.7.1",
+    "@turf/turf": "^7.2.0",
+    "aos": "^2.3.4",
+    "axios": "^1.12.2",
+    "framer-motion": "^12.23.12",
+    "globe.gl": "^2.43.0",
+    "isbot": "^5.1.27",
+    "nodemailer": "^7.0.10",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-international-phone": "^4.6.0",
+    "react-router": "^7.7.1",
+    "react-select": "^5.10.2",
+    "recharts": "^3.6.0",
+    "swiper": "^11.2.10",
+    "three": "^0.179.1",
+    "typed.js": "^2.1.0"
+  },
+
+  "devDependencies": {
+    "@react-router/dev": "^7.7.1",
+    "@tailwindcss/vite": "^4.1.4",
+    "@types/aos": "^3.0.7",
+    "@types/node": "^20",
+    "@types/nodemailer": "^7.0.3",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/react-slick": "^0.23.13",
+    "@types/three": "^0.179.0",
+    "gh-pages": "^6.3.0",
+    "react-slick": "^0.31.0",
+    "slick-carousel": "^1.8.1",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

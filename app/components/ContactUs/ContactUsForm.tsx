@@ -1,0 +1,198 @@
+import { useState, useMemo } from "react";
+import useIcons from "~/hooks/imageHooks/useIcons";
+
+import Button from "~/UI/Button";
+import { Link } from "react-router";
+import BookingInput from "../Project/BookYourViewing/BookingInput";
+import { useNotify } from "../notifications/NotificationsProvider";
+import { contactUs } from "~/api/form.service";
+
+// adjust the import path to wherever you defined contactUs()
+
+export default function ContactUsForm() {
+  const icon = useIcons();
+  const notify = useNotify();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const items = useMemo(
+    () => [
+      { icon: icon.contactPhone, text: "+971505074686" },
+      { icon: icon.contactEmail, text: "info@savoirproperties.com" },
+      {
+        icon: icon.contactLocation,
+        text: "Emaar Business Park, Bldg.4, Office 502, Shk. Zayed Road, Dubai",
+      },
+    ],
+    [icon]
+  );
+
+  const social = useMemo(
+    () => [
+      {
+        icon: icon.facebook,
+        link: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/",
+      },
+      {
+        icon: icon.instagram,
+        link: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==",
+      },
+      { icon: icon.x, link: "https://x.com/savoirprive" },
+      {icon: icon.tiktok, link: "https://www.tiktok.com/@savoir_properties"},
+      {icon: icon.youtube, link: "http://youtube.com/@SavoirPriveProperties"},
+    ],
+    [icon]
+  );
+
+  function validate() {
+    if (!name.trim()) return "Name is required.";
+    if (!email.trim()) return "Email is required.";
+    // simple RFC5322-lite check
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Email is invalid.";
+    if (!message.trim()) return "Message is required.";
+    return null;
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    const v = validate();
+    if (v) {
+      notify.error(v, 4000);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await contactUs({
+        type: "contact_us",
+        email: email.trim(),
+        name: name.trim(),
+        phone: phone.trim(),
+        message: message.trim(),
+      });
+
+      notify.success("Message sent.");
+      setName("");
+      setEmail("");
+      setPhone("");
+      setMessage("");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to send message.";
+      notify.error(msg, 6000);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto mt-[82px] flex w-full max-w-[1080px] flex-col items-start gap-[22px]">
+      <div className="relative z-10 flex w-full flex-col items-center gap-[32px] overflow-hidden rounded-[9px] border border-[#9b957f] bg-white p-[10px] lg:flex-row">
+        <div
+          className="flex flex-col items-start justify-between gap-[20px] p-[16px] lg:p-[34px] w-full lg:max-w-[405px] lg:aspect-[405/560] rounded-[11px] text-white"
+          style={{ background: "black" }}
+        >
+          <div className="flex flex-col items-start gap-[20px] lg:gap-[58px]">
+            <div className="flex flex-col items-start gap-[6px]">
+              <p className="text-[31px] font-semibold CormorantGaramond">Contact Information</p>
+              <p className="text-[21px]">Let's Connect!</p>
+            </div>
+            <div className="flex flex-col items-start gap-[20px] lg:gap-[48px]">
+              {items.map((item, index) => (
+                <div key={index} className="flex items-start gap-[24px]">
+                  <img loading="lazy"  src={item.icon} alt="" />
+                  <div className="text-[17px]">{item.text}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-[10px]">
+            {social.map((s, index) => (
+              <a key={index} href={s.link} target="_blank" rel="noreferrer">
+                <img
+                  loading="lazy"
+                  src={s.icon}
+                  alt=""
+            className="h-[42px] w-[42px] lg:h-[52px] lg:w-[52px]"
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <form
+          onSubmit={handleFormSubmit}
+          className="flex w-full flex-col items-center gap-[42px] relative"
+          noValidate
+        >
+          <div className="flex w-full flex-col items-start gap-[44px]">
+            <div className="flex w-full flex-col items-start gap-[20px] lg:gap-[40px]">
+              <BookingInput
+                placeholder="Enter Full Name"
+                value={name}
+                onChange={setName}
+                name="name"
+                required
+                minLength={2}
+                autoComplete="name"
+                ariaLabel="Enter your full name"
+              />
+              <BookingInput
+                type="tel"
+                placeholder="Enter Phone Number"
+                value={phone}
+                onChange={setPhone}
+                name="phone"
+                autoComplete="tel"
+                ariaLabel="Enter your phone number"
+                inputMode="tel"
+              />
+              <BookingInput
+                type="email"
+                placeholder="Enter your Email"
+                value={email}
+                onChange={setEmail}
+                name="email"
+                required
+                autoComplete="email"
+                ariaLabel="Enter your email address"
+              />
+              <BookingInput
+                type="textAria"
+                placeholder="Enter your Message here.."
+                value={message}
+                onChange={setMessage}
+                name="message"
+                required
+                minLength={10}
+                ariaLabel="Enter your message"
+              />
+            </div>
+
+            <div className="flex items-center justify-center lg:justify-end w-full">
+              <Button
+                className="h-[44px] !rounded-[4px] !bg-[#111111] !px-[78px] !py-[15px] text-[18px] hover:!bg-[#262626]"
+                htmlType="submit"
+                disabled={submitting}
+              >
+                {submitting ? "Sending..." : "Send Your Message"}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center gap-[17px]">
+            <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
+            <Link to="https://wa.me/971505074686" target="_blank" rel="noreferrer" className="flex items-center gap-[9px]">
+              <img loading="lazy" src={icon.whatsappGold} alt="" className="w-[27px]" />
+              <p className="text-black text-[18px] font-semibold">Whatsapp</p>
+            </Link>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

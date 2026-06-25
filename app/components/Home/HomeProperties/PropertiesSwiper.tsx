@@ -1,0 +1,108 @@
+import React, { useRef, useState } from "react";
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+
+import { Navigation } from "swiper/modules";
+import useIcons from "~/hooks/imageHooks/useIcons";
+import { Link } from "react-router";
+import { formatPrice } from "~/utils/formatPrice";
+
+type Props = {
+  properties: any;
+};
+
+export default function PropertiesSwiper({ properties }: any) {
+  const [swiperInstance, setSwiperInstance] = useState<any>(null);
+  const icon = useIcons();
+
+
+  return (
+    <div className="w-full">
+      <Swiper
+        slidesPerView={1}
+        loop={true}
+        spaceBetween={30}
+        modules={[Navigation]}
+        onSwiper={(swiper) => setSwiperInstance(swiper)}
+        className="w-full h-full"
+      >
+        {properties.map((item: any) => (
+          <SwiperSlide key={item.slug}>
+            <div className="flex flex-col items-start gap-[15px] lg:gap-[29px] w-full">
+              <div className="flex flex-col items-start w-full">
+                <div className="flex items-center justify-between w-full py-[12px] lg:py-[23px]">
+                  <p className="Jakarta text-[14px] font-bold text-[#111111] lg:text-[26px]">
+                    {formatPrice(item.price)} AED
+                  </p>
+                  <div
+                    className="px-[6px] lg:px-[11.8px] py-[3px] lg:py-[5px] rounded-[5px] lg:rounded-[10px] h-[18px] lg:h-[33px]"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, #C6A45A 0.02%, rgba(255, 255, 255, 0.00) 180.22%)",
+                    }}
+                  >
+                    <p className="Text-[#353635] text-[9px] lg:text-[17px] Jakarta font-bold leading-[12px] lg:leading-[22px]">
+                      {item.offering_type === "RS" ? "For SALE" : "For RENT"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between w-full">
+                  <div className="Jakarta flex items-center gap-[2px] text-[11px] font-bold text-[#111111] lg:gap-[5px] lg:text-[17px]">
+                    <p>{item.bedroom} beds</p>
+                    <div className="w-[2px] lg:w-[5px] aspect-square bg-[#353635] rounded-full" />
+                    <p>{item.bathroom} baths</p>
+                    <div className="w-[2px] lg:w-[5px] aspect-square bg-[#353635] rounded-full" />
+                    <p>1931 sqft</p>
+                  </div>
+                  <div className="flex items-center gap-[4px] lg:gap-[8px]">
+                    <img loading="lazy" src={icon.Clock} alt="" className="w-[12px] lg:w-[23px]" />
+                    <p className="Jakarta text-[11px] font-bold text-[#111111] lg:text-[17px]">
+                      {item.added_at}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <Link to={`/project/${item.slug}`}>
+                <img
+                  loading="lazy"
+                  src={item.photo}
+                  alt=""
+                  className="w-full aspect-[618/398] rounded-[9px] lg:rounded-[18px] object-cover"
+                />
+              </Link>
+              <Link
+                to={`/project/${item.slug}`}
+                className="text-[12px] font-bold leading-[19.5px] text-[#111111] lg:text-[23px] lg:leading-[35px]"
+              >
+                {item.title_en}
+              </Link>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      <div className="flex items-center justify-center gap-[44px] w-full mt-6">
+        <button
+          type="button"
+          className="cursor-pointer focus:outline-none"
+          onClick={() => swiperInstance?.slidePrev()}
+        >
+          <img loading="lazy" src={icon.propertiesPrev} alt="Previous" />
+        </button>
+
+        <button
+          type="button"
+          className="cursor-pointer focus:outline-none"
+          onClick={() => swiperInstance?.slideNext()}
+        >
+          <img loading="lazy" src={icon.propertiesNext} alt="Next" />
+        </button>
+      </div>
+    </div>
+  );
+}
