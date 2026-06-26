@@ -30,7 +30,7 @@ export default function SearchHero() {
         }}
       />
 
-      <div className="relative z-[25] w-full pt-[64px] lg:pt-[82px]">
+      <div className="relative z-[25] w-full pt-[44px] lg:pt-[68px]">
         <SearchFilter />
       </div>
 

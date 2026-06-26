@@ -14,7 +14,7 @@ export default function CareerHero() {
     <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
       <img
         loading="lazy"
-        src="/images/Career/career.jpeg"
+        src="/images/placeholders/hero.webp"
         alt=""
         className="h-screen w-full object-cover brightness-[0.55]"
       />
