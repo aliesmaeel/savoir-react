@@ -66,7 +66,7 @@ export default function SearchResults({ projects, currentPage }: Props) {
                   group absolute bottom-[12px] left-0 z-20 flex h-[42px] min-w-[176px]
                   items-center justify-center overflow-hidden rounded-[10px]
                   border border-[#C6A45A]/90
-                  bg-[linear-gradient(135deg,#0B0B0B_0%,#17120A_100%)] px-[16px]
+                  bg-transparent px-[16px] border-[2px] 
                   shadow-[0_14px_34px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.08)]
                   transition-all duration-300 hover:border-[#D8B96C] hover:shadow-[0_18px_38px_rgba(0,0,0,0.42),0_0_18px_rgba(198,164,90,0.14),inset_0_1px_0_rgba(255,255,255,0.12)]
                 "
@@ -85,7 +85,7 @@ export default function SearchResults({ projects, currentPage }: Props) {
                 />
               </Link>
 
-              <div className="absolute bottom-[-34px] right-[-18px] z-30">
+              <div className="absolute bottom-[-34px] right-[-18px] z-4">
                 <span className="absolute bottom-[18px] right-[6px] h-[72px] w-[132px] rounded-full bg-[#C6A45A]/12 blur-[18px]" />
                 <img
                   loading="lazy"

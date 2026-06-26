@@ -51,9 +51,7 @@ export default function GlobalProject() {
             country={currentCountry}
             description={currentGlobal?.project?.description ?? ""}
           />
-          {currentGlobal?.project?.user && (
-            <ProjectListedByContact user={currentGlobal.project.user} />
-          )}
+        
         </div>
         <GlobeLuxuryProperties
           country={currentCountry}

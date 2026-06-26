@@ -9,6 +9,7 @@ const headerNavItems = [
   { label: "Rent", to: "/search?interested=Rent" },
   { label: "Off plan", to: "/off-plan" },
   { label: "Global projects", to: "/global-projects" },
+  { label: "Savoir's Collection", to: "/savoirs-collection" },
   { label: "About", to: "/about-us" },
 ] as const;
 

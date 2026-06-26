@@ -47,6 +47,8 @@ const appRoutes: RouteConfig = [
 
     route("/global-projects", "routes/globalProject.tsx"),
 
+    route("/savoirs-collection", "routes/savoirsCollection.tsx"),
+
     route("/privacy-policy", "routes/privacy-policy.tsx"),
   ]),
   route("/ai-tool", "routes/ppsfTool.tsx"),

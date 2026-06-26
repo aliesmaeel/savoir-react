@@ -12,7 +12,7 @@ export default function CareerAgentExpectations() {
   return (
     <div
       className=" w-full bg-center bg-cover p-[16px] lg:px-[51px] lg:pt-[20px] lg:pb-[28px] relative mb-[20px]"
-      style={{ backgroundImage: 'url("/images/Career/career.jpeg")',backgroundBlendMode: 'darken',backgroundColor: '#939393' }}
+      style={{ backgroundImage: 'url("/images/Career/careerblack.jpeg")' }}
     >
       <div className="w-full max-w-[1226px] mx-auto flex flex-col items-start justify-center gap-[20px]">
         <p className="CormorantGaramond text-[28px] leading-[1.05] text-white lg:text-[44px]">The Way We Operate</p>

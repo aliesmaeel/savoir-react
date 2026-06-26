@@ -28,7 +28,7 @@ const ListHero = () => {
           <div className="w-full flex justify-center">
             <img
               loading="lazy"
-              src="/images/placeholders/list-with-us.jpg"
+              src="/images/listwithus/list-with-us-2.png"
               alt="Luxury homes in Dubai listing preview"
               className="w-full max-w-[760px] rounded-xl object-contain lg:max-w-[820px]"
             />
