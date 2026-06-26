@@ -134,7 +134,10 @@ export default function FilterBedroom({
   // );
 
   return (
-    <div className={`relative w-full ${maxWidthClass}`} ref={wrapperRef}>
+    <div
+      className={`relative w-full ${maxWidthClass} ${open ? "z-50" : ""}`}
+      ref={wrapperRef}
+    >
       {/* Trigger */}
       <button
         type="button"
@@ -191,7 +194,7 @@ export default function FilterBedroom({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
             style={{ overflow: "hidden" }}
-            className={`absolute flex flex-col items-start gap-[28px] rounded-[20px] bg-[#4A4A4A] px-[18px] py-[23px] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[307px] lg:w-[382px] top-[160%] z-10 ${
+            className={`absolute flex flex-col items-start gap-[28px] rounded-[20px] bg-[#4A4A4A] px-[18px] py-[23px] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[307px] lg:w-[382px] top-[160%] z-50 ${
               isListing ? "left-[-151px] lg:left-0" : ""
             }`}
           >

@@ -125,7 +125,9 @@ export default function FilterRent({
 
   return (
     <div
-      className={`relative ${isListing ? "w-full" : "w-fit shrink-0"} ${maxWidthClass}`}
+      className={`relative ${isListing ? "w-full" : "w-fit shrink-0"} ${maxWidthClass} ${
+        open ? "z-50" : ""
+      }`}
       ref={wrapperRef}
     >
       {/* Trigger */}
@@ -187,7 +189,7 @@ export default function FilterRent({
               duration: 0.18,
               ease: "easeOut",
             }}
-            className={`absolute top-[145%] z-10 w-[210px] rounded-[18px] border border-white/15 bg-[#3F3F3F]/95 p-[12px] backdrop-blur-[20px] shadow-[0_24px_60px_rgba(0,0,0,0.28)] ${
+            className={`absolute top-[145%] z-50 w-[210px] rounded-[18px] border border-white/15 bg-[#3F3F3F]/95 p-[12px] backdrop-blur-[20px] shadow-[0_24px_60px_rgba(0,0,0,0.28)] ${
               isListing ? "left-0" : "left-0"
             }`}
           >

@@ -68,7 +68,10 @@ export default function FilterType({
   }, [selected, options, placeholder]);
 
   return (
-    <div className={`relative w-full ${maxWidthClass}`} ref={wrapperRef}>
+    <div
+      className={`relative w-full ${maxWidthClass} ${open ? "z-50" : ""}`}
+      ref={wrapperRef}
+    >
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -133,7 +136,7 @@ export default function FilterType({
             style={{ overflow: "hidden" }}
             role="listbox"
             aria-multiselectable="true"
-            className="absolute py-[19px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[307px] lg:w-[382px] top-[160%] z-10 left-[-161px] lg:left-auto"
+            className="absolute py-[19px] rounded-[20px] bg-[#4A4A4A] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] w-[307px] lg:w-[382px] top-[160%] z-50 left-[-161px] lg:left-auto"
           >
             <div className="flex flex-col items-start gap-[14px] w-full h-[272px] overflow-y-scroll small-scroll">
               {options.map((opt, idx) => {

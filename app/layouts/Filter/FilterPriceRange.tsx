@@ -90,7 +90,10 @@ export default function FilterPriceRange({
   }, [draft, currency, placeholder]);
 
   return (
-    <div className={`relative w-full ${maxWidthClass}`} ref={wrapperRef}>
+    <div
+      className={`relative w-full ${maxWidthClass} ${open ? "z-50" : ""}`}
+      ref={wrapperRef}
+    >
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -145,7 +148,7 @@ export default function FilterPriceRange({
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
             style={{ overflow: "hidden" }}
-            className={`absolute top-[160%] z-10 flex w-[307px] flex-col items-start gap-[28px] rounded-[20px] bg-[#4A4A4A] px-[18px] py-[23px] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] lg:w-[382px] ${
+            className={`absolute top-[160%] z-50 flex w-[307px] flex-col items-start gap-[28px] rounded-[20px] bg-[#4A4A4A] px-[18px] py-[23px] backdrop-blur-[20px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] lg:w-[382px] ${
               isListing ? "right-0" : "left-[-161px] lg:left-auto"
             }`}
           >
