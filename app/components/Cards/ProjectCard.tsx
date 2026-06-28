@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import { formatPrice } from "~/utils/formatPrice";
+import styles from "./ProjectCard.module.css";
 
 type props = {
   project: any;
@@ -33,20 +34,20 @@ export default function ProjectCard({ project, compact = false }: props) {
     : "px-[20px] pb-[23px] pt-[22px]";
 
   const titleClass = compact
-    ? "CormorantGaramond min-h-[56px] text-black text-[18px] font-bold leading-[1.3] line-clamp-2"
-    : "CormorantGaramond min-h-[66px] text-black text-[24px] font-bold leading-[1.35] line-clamp-2";
+    ? `CormorantGaramond min-h-[56px] text-black text-[18px] font-bold leading-[1.3] line-clamp-2 ${styles.cardDisplayText}`
+    : `CormorantGaramond min-h-[66px] text-black text-[24px] font-bold leading-[1.35] line-clamp-2 ${styles.cardDisplayText}`;
 
   const locationClass = compact
-    ? "Jakarta mt-[4px] truncate text-black text-[14px] font-semibold leading-[1.2]"
-    : "Jakarta mt-[5px] truncate text-black text-[17px] font-bold leading-[1.25]";
+    ? `Jakarta mt-[4px] truncate text-black text-[14px] font-semibold leading-[1.2] ${styles.cardBodyText}`
+    : `Jakarta mt-[5px] truncate text-black text-[17px] font-bold leading-[1.25] ${styles.cardBodyText}`;
 
   const priceClass = compact
-    ? "CormorantGaramond mt-[8px] text-black text-[22px] font-semibold leading-none"
-    : "CormorantGaramond mt-[10px] text-black text-[30px] font-semibold leading-none";
+    ? `CormorantGaramond mt-[8px] text-black text-[22px] font-semibold leading-none ${styles.cardDisplayText}`
+    : `CormorantGaramond mt-[10px] text-black text-[30px] font-semibold leading-none ${styles.cardDisplayText}`;
 
   const metaClass = compact
-    ? "Jakarta mt-[12px] flex items-center gap-[10px] overflow-hidden text-black text-[14px] font-semibold leading-none"
-    : "Jakarta mt-[15px] flex items-center gap-[14px] text-black text-[17px] font-bold leading-none";
+    ? `Jakarta mt-[12px] flex items-center gap-[10px] overflow-hidden text-black text-[14px] font-semibold leading-none ${styles.cardBodyText}`
+    : `Jakarta mt-[15px] flex items-center gap-[14px] text-black text-[17px] font-bold leading-none ${styles.cardBodyText}`;
 
   const diamondClass = compact
     ? "h-[7px] w-[7px] shrink-0 rotate-45 bg-[#dec7b1]"

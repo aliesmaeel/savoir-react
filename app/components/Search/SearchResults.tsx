@@ -85,7 +85,7 @@ export default function SearchResults({ projects, currentPage }: Props) {
                 />
               </Link>
 
-              <div className="absolute bottom-[-34px] right-[-18px] z-4">
+              <div className="pointer-events-none absolute bottom-[-34px] right-[-18px] z-30">
                 <span className="absolute bottom-[18px] right-[6px] h-[72px] w-[132px] rounded-full bg-[#C6A45A]/12 blur-[18px]" />
                 <img
                   loading="lazy"

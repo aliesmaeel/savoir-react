@@ -28,14 +28,14 @@ export default function BlogCard({ blog }: Props) {
 
   return (
     <Card className="!rounded-[46px] p-[27px] pt-[24px]">
-      <div className="flex w-full flex-col items-start gap-[21px]">
+      <div className="flex h-full w-full flex-col items-start gap-[21px]">
         <img
           src={blog.blog_image[0].url}
           alt=""
           className="aspect-[369/190] w-full rounded-[10px] object-cover"
         />
 
-        <div className="flex w-full flex-col items-start gap-[15px]">
+        <div className="flex flex-1 w-full flex-col items-start gap-[15px]">
           <div className="flex w-full flex-col items-start gap-[7px]">
             <p
               className="text-[15px]"
@@ -79,7 +79,7 @@ export default function BlogCard({ blog }: Props) {
             </div>
           </div>
 
-          <div className="flex w-full flex-col items-start gap-[10px]">
+          <div className="flex flex-1 w-full flex-col items-start gap-[10px]">
             <p
               className="text-[15px] leading-[165%]"
               style={{
@@ -94,7 +94,7 @@ export default function BlogCard({ blog }: Props) {
             <Link
               to={`/blogs/${blog.slug}`}
               className="
-                flex h-[30px] items-center justify-center rounded-[6px]
+                mt-auto flex h-[30px] items-center justify-center rounded-[6px]
                 bg-[#111111] px-[13px]
                 text-[12px] font-semibold text-white
                 shadow-[0_8px_18px_rgba(17,17,17,0.14)]

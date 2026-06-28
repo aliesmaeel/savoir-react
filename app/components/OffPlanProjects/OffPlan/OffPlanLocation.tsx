@@ -9,13 +9,33 @@ export default function OffPlanLocation() {
   }
 
   return (
-    <div className="flex flex-col items-start gap-[17px] w-full mt-[67px]">
-      <p className="text-[21px] font-semibold">The Location</p>
+    <div className="mt-[67px] flex w-full flex-col items-start gap-[17px]">
+      <p
+        className="savoir-section-heading text-[38px] leading-[1.1] lg:text-[52px]"
+        style={{
+          color: "#111111",
+          fontWeight: 700,
+          opacity: 1,
+        }}
+      >
+        The Location
+      </p>
+
       {property.location && (
-        <p className="text-[16px] font-bold text-[#111111]">{property.location}</p>
+        <p
+          className="text-[16px]"
+          style={{
+            color: "#111111",
+            fontWeight: 700,
+            opacity: 1,
+          }}
+        >
+          {property.location}
+        </p>
       )}
+
       <div
-        className="w-full aspect-[794/464] rounded-[15px] overflow-hidden"
+        className="aspect-[794/464] w-full overflow-hidden rounded-[15px]"
         dangerouslySetInnerHTML={{ __html: property.map_link }}
       />
     </div>
