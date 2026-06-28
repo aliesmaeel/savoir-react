@@ -86,7 +86,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     "Malta",
   ];
 
-  // Premium black/gold theme
   const brandGold = "#C6A45A";
   const searchBoxBlack = "rgba(10, 12, 13, 0.94)";
   const searchBoxBorder = "rgba(214, 180, 95, 0.72)";
@@ -96,13 +95,11 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const transparentGlobeBase = "#FFFFFF";
   const transparentCountryFill = "rgba(255, 255, 255, 0)";
 
-  // Shiny premium mapping lines
   const globeMapLineGold = "rgba(255, 211, 112, 1)";
   const globeSideTransparent = "rgba(255, 211, 112, 0.08)";
   const selectedGlobeGold = "#D6B45F";
   const selectedStrokeGold = "#FFE9B0";
 
-  // read initial country from URL once
   useEffect(() => {
     if (!syncSelectedToUrl) return;
 
@@ -132,7 +129,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // write selection to URL without navigation
   useEffect(() => {
     if (!syncSelectedToUrl) return;
 
@@ -148,7 +144,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     } catch {}
   }, [selectedCountry, syncSelectedToUrl, selectedParamKey]);
 
-  // responsive canvas
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -174,7 +169,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     };
   }, []);
 
-  // globe setup ONCE
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -198,7 +192,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
 
       const globeMaterial = world.globeMaterial() as THREE.MeshPhongMaterial;
 
-      // Same transparent earth body, slightly polished
       globeMaterial.opacity = 0.045;
       globeMaterial.transparent = true;
       globeMaterial.color = new THREE.Color(transparentGlobeBase);
@@ -325,7 +318,6 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enableZoom, globeScale, initialAltitude]);
 
-  // update highlight and camera when selectedCountry changes
   useEffect(() => {
     const world = worldRef.current;
     if (!world) return;
@@ -398,8 +390,24 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const icon = useIcons();
 
   return (
-    <div className="flex flex-col lg:flex-row gap-[15px] items-center justify-between w-full relative z-10 mt-[20vh] lg:mt-0">
-      <div className="flex w-full flex-col items-start gap-[15px] lg:w-[390px] lg:gap-[26px]">
+    <div className="relative z-10 mt-[20vh] flex w-full flex-col items-center justify-between gap-[15px] overflow-visible lg:mt-0 lg:flex-row">
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[calc(100%+120px)] w-screen -translate-x-1/2 -translate-y-1/2"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(0,0,0,0.46) 0%, rgba(0,0,0,0.38) 42%, rgba(0,0,0,0.22) 72%, rgba(0,0,0,0.08) 100%)",
+        }}
+      />
+
+      <div
+        className="pointer-events-none absolute bottom-[-115px] left-1/2 z-[1] h-[240px] w-screen -translate-x-1/2"
+        style={{
+          background:
+            "linear-gradient(0deg, #FFFFFF 0%, rgba(255,255,255,0.96) 22%, rgba(255,255,255,0.72) 46%, rgba(255,255,255,0.32) 72%, rgba(255,255,255,0.00) 100%)",
+        }}
+      />
+
+      <div className="relative z-10 flex w-full flex-col items-start gap-[15px] lg:w-[390px] lg:gap-[26px]">
         <div className="flex flex-col items-start">
           <p className="CormorantGaramond text-[32px] font-semibold leading-[1.08] text-white drop-shadow-[0_3px_14px_rgba(0,0,0,0.75)] lg:text-[46px]">
             Explore properties in {selectedCountry}
@@ -452,7 +460,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
             }}
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <div className="flex items-center justify-between w-full">
+            <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-[10px]">
                 <span
                   style={{
@@ -520,12 +528,14 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
                   <li
                     key={c}
                     onClick={() => handleSelect(c)}
-                    className="flex items-center w-full py-[11px] px-[14px] border-l-[3px]"
+                    className="flex w-full items-center border-l-[3px] px-[14px] py-[11px]"
                     style={{
                       borderColor:
                         c === selectedCountry ? brandGold : "transparent",
                       background:
-                        c === selectedCountry ? dropdownHoverGold : "transparent",
+                        c === selectedCountry
+                          ? dropdownHoverGold
+                          : "transparent",
                     }}
                   >
                     <span
@@ -566,7 +576,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
         </div>
       </div>
 
-      <div className={`${className} hidden lg:block`} style={style}>
+      <div className={`${className} relative z-10 hidden lg:block`} style={style}>
         <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       </div>
     </div>

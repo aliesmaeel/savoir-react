@@ -45,19 +45,20 @@ export default function GlobalProject() {
         initialImage={currentGlobal?.project?.image}
         onCountryDataChange={handleCountryDataChange}
       />
-      <PageLayout>
-        <div className="flex flex-col lg:flex-row items-start gap-[50px] w-full">
-          <AboutGlobal
+      <div className="relative z-10 -mt-[55px] pb-[85px] lg:-mt-[65px] lg:pb-[120px]">
+        <PageLayout>
+          <div className="flex flex-col lg:flex-row items-start gap-[50px] w-full">
+            <AboutGlobal
+              country={currentCountry}
+              description={currentGlobal?.project?.description ?? ""}
+            />
+          </div>
+          <GlobeLuxuryProperties
             country={currentCountry}
-            description={currentGlobal?.project?.description ?? ""}
+            similarProperties={currentGlobal?.similar_properties ?? []}
           />
-        
-        </div>
-        <GlobeLuxuryProperties
-          country={currentCountry}
-          similarProperties={currentGlobal?.similar_properties ?? []}
-        />
-      </PageLayout>
+        </PageLayout>
+      </div>
     </div>
   );
 }

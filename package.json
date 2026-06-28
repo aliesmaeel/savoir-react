@@ -2,19 +2,15 @@
   "name": "savoir",
   "private": true,
   "type": "module",
-
   "homepage": "https://axsh-py.github.io/Savoir-website",
-
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "MAINTENANCE_MODE=false react-router typegen && tsc",
-
     "predeploy": "npm run build",
     "deploy": "node scripts/deploy-gh-pages.mjs"
   },
-
   "dependencies": {
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
@@ -24,18 +20,17 @@
     "framer-motion": "^12.23.12",
     "globe.gl": "^2.43.0",
     "isbot": "^5.1.27",
-    "nodemailer": "^7.0.10",
+    "nodemailer": "^9.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-international-phone": "^4.6.0",
     "react-router": "^7.7.1",
     "react-select": "^5.10.2",
     "recharts": "^3.6.0",
-    "swiper": "^11.2.10",
+    "swiper": "^14.0.0",
     "three": "^0.179.1",
     "typed.js": "^2.1.0"
   },
-
   "devDependencies": {
     "@react-router/dev": "^7.7.1",
     "@tailwindcss/vite": "^4.1.4",

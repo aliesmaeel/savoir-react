@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Card from "~/UI/Card";
-import CalculatorInput from "./CalculatorInput";
 import Button from "~/UI/Button";
 import { useLoaderData } from "react-router";
 
 function parseNumber(input: string | number): number {
   if (typeof input === "number") return isFinite(input) ? input : 0;
-  // keep digits and at most one dot
+
   const cleaned = (input || "")
     .toString()
     .replace(/[^\d.]/g, "")
     .replace(/(\..*)\./g, "$1");
+
   const n = parseFloat(cleaned);
   return isNaN(n) ? 0 : n;
 }
@@ -37,26 +37,121 @@ function monthlyPayment({
   const principal = Math.max(0, price - deposit);
   const n = Math.max(1, Math.floor(years * 12));
   const r = Math.max(0, annualRatePct) / 100 / 12;
+
   if (r === 0) return principal / n;
+
   return (principal * r) / (1 - Math.pow(1 + r, -n));
 }
 
+function MortgageField({
+  label,
+  unit,
+  value,
+  placeholder,
+  type = "text",
+  step,
+  min,
+  onChange,
+  onBlur,
+}: {
+  label: string;
+  unit: string;
+  value: string;
+  placeholder?: string;
+  type?: React.HTMLInputTypeAttribute;
+  step?: number | string;
+  min?: number;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+}) {
+  return (
+    <div className="flex w-full flex-col items-start gap-[12px]">
+      <label
+        className="text-[17px] leading-[1.2] lg:text-[18px]"
+        style={{
+          color: "#111111",
+          fontWeight: 800,
+          opacity: 1,
+        }}
+      >
+        {label}
+      </label>
+
+      <div className="relative w-full">
+        <input
+          type={type}
+          step={step}
+          min={min}
+          value={value}
+          placeholder={placeholder}
+          onChange={onChange}
+          onBlur={onBlur}
+          className="
+            h-[58px]
+            w-full
+            rounded-[8px]
+            border border-[#DDDDDD]
+            bg-white
+            px-[20px]
+            pr-[88px]
+            text-[18px]
+            outline-none
+            shadow-[0_12px_28px_rgba(0,0,0,0.035)]
+            lg:h-[60px]
+            lg:text-[20px]
+          "
+          style={{
+            color: "#111111",
+            fontWeight: 700,
+            opacity: 1,
+          }}
+        />
+
+        <span
+          className="
+            pointer-events-none
+            absolute
+            right-[18px]
+            top-1/2
+            -translate-y-1/2
+            text-right
+            text-[13px]
+            leading-none
+            lg:text-[14px]
+          "
+          style={{
+            color: "#111111",
+            fontWeight: 800,
+            opacity: 1,
+          }}
+        >
+          {unit}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function MortgageCalculator() {
-  const { property, similar } = useLoaderData() as { property: any; similar: any };
+  const { property } = useLoaderData() as { property: any; similar: any };
 
   const propertyPrice = parseNumber(property.price || 0);
   const defaultDeposit = Math.round(propertyPrice * 0.1);
   const currency = property.currency || "AED";
 
-  const [price, setPrice] = useState<string>(propertyPrice.toLocaleString("en-US"));
-  const [deposit, setDeposit] = useState<string>(defaultDeposit.toLocaleString("en-US"));
+  const [price, setPrice] = useState<string>(
+    propertyPrice.toLocaleString("en-US")
+  );
+  const [deposit, setDeposit] = useState<string>(
+    defaultDeposit.toLocaleString("en-US")
+  );
   const [years, setYears] = useState<string>("25");
   const [rate, setRate] = useState<string>("5");
 
-  // Update values when property changes
   useEffect(() => {
     const newPropertyPrice = parseNumber(property.price || 0);
     const newDefaultDeposit = Math.round(newPropertyPrice * 0.1);
+
     setPrice(newPropertyPrice.toLocaleString("en-US"));
     setDeposit(newDefaultDeposit.toLocaleString("en-US"));
   }, [property.price, property.currency]);
@@ -66,18 +161,25 @@ export default function MortgageCalculator() {
     const d = parseNumber(deposit);
     const y = parseNumber(years);
     const r = parseNumber(rate);
+
     return {
       p,
       d: Math.min(d, p),
       y,
       r,
-      m: monthlyPayment({ price: p, deposit: Math.min(d, p), annualRatePct: r, years: y }),
+      m: monthlyPayment({
+        price: p,
+        deposit: Math.min(d, p),
+        annualRatePct: r,
+        years: y,
+      }),
     };
   }, [price, deposit, years, rate]);
 
-  // Optional input formatting on blur with thousands separators
   const formatThousands = (v: string) =>
-    parseNumber(v).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    parseNumber(v).toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+    });
 
   const disabled =
     parseNumber(price) <= 0 ||
@@ -88,14 +190,33 @@ export default function MortgageCalculator() {
 
   return (
     <Card>
-      <div className="flex flex-col items-start gap-[30px] w-full p-[24px] lg:p-[45px] pt-[24px] lg:pt-[41px]">
-        <div className="flex flex-col items-start gap-[8px]">
-          <p className="text-[27px] font-semibold">Mortgage Calculator</p>
-          <p className="text-[#999999] text-[18px]">Estimate your monthly mortgage payments</p>
+      <div className="flex w-full flex-col items-start px-[24px] py-[34px] lg:px-[45px] lg:py-[42px]">
+        <div className="mb-[34px] flex w-full flex-col items-start gap-[10px]">
+          <p
+            className="CormorantGaramond text-[32px] leading-[1.05] lg:text-[42px]"
+            style={{
+              color: "#111111",
+              fontWeight: 700,
+              opacity: 1,
+            }}
+          >
+            Mortgage Calculator
+          </p>
+
+          <p
+            className="text-[16px] leading-[1.5] lg:text-[18px]"
+            style={{
+              color: "#111111",
+              fontWeight: 600,
+              opacity: 1,
+            }}
+          >
+            Estimate your monthly mortgage payments
+          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-[15px] gap-y-[27px] w-full">
-          <CalculatorInput
+        <div className="grid w-full grid-cols-1 gap-x-[26px] gap-y-[30px] lg:grid-cols-2">
+          <MortgageField
             label="Property Price"
             unit={currency}
             placeholder={propertyPrice.toLocaleString("en-US")}
@@ -104,7 +225,8 @@ export default function MortgageCalculator() {
             onChange={(e: any) => setPrice(e?.target?.value ?? "")}
             onBlur={() => setPrice(formatThousands(price))}
           />
-          <CalculatorInput
+
+          <MortgageField
             label="Deposit"
             unit={currency}
             placeholder={defaultDeposit.toLocaleString("en-US")}
@@ -113,7 +235,8 @@ export default function MortgageCalculator() {
             onChange={(e: any) => setDeposit(e?.target?.value ?? "")}
             onBlur={() => setDeposit(formatThousands(deposit))}
           />
-          <CalculatorInput
+
+          <MortgageField
             label="Mortgage Period"
             unit="Years"
             placeholder="25"
@@ -122,7 +245,8 @@ export default function MortgageCalculator() {
             onChange={(e: any) => setYears(e?.target?.value ?? "")}
             min={1}
           />
-          <CalculatorInput
+
+          <MortgageField
             label="Interest Rate"
             unit="%"
             placeholder="5"
@@ -134,22 +258,72 @@ export default function MortgageCalculator() {
           />
         </div>
 
-        <Button className="w-full text-[21px] h-[60px]" disabled={disabled}>
+        <Button
+          className="
+            mt-[34px]
+            h-[60px]
+            w-full
+            rounded-[10px]
+            bg-[#111111]
+            text-[20px]
+            font-bold
+            text-white
+            shadow-[0_18px_38px_rgba(0,0,0,0.12)]
+            lg:text-[22px]
+          "
+          disabled={disabled}
+        >
           Get Pre - approved
         </Button>
 
-        <div className="flex flex-col items-start gap-[4px]">
-          <p className="text-[18px]">Monthly Payment</p>
-          <p className="text-black text-[21px] font-semibold">{fmtCurrency(calc.m, currency)}</p>
-          <p className="text-[12px] text-[#888]">
-            Principal: {fmtCurrency(Math.max(0, calc.p - calc.d), currency)} • Term:{" "}
-            {Math.max(1, Math.floor(calc.y * 12))} months • Rate: {parseNumber(rate)}% APR
+        <div className="mt-[34px] flex w-full flex-col items-start gap-[8px]">
+          <p
+            className="text-[17px] leading-[1.4] lg:text-[18px]"
+            style={{
+              color: "#111111",
+              fontWeight: 600,
+              opacity: 1,
+            }}
+          >
+            Monthly Payment
+          </p>
+
+          <p
+            className="CormorantGaramond text-[24px] leading-[1.2] lg:text-[28px]"
+            style={{
+              color: "#111111",
+              fontWeight: 700,
+              opacity: 1,
+            }}
+          >
+            {fmtCurrency(calc.m, currency)}
+          </p>
+
+          <p
+            className="text-[12px] leading-[1.5] lg:text-[13px]"
+            style={{
+              color: "#111111",
+              fontWeight: 600,
+              opacity: 1,
+            }}
+          >
+            Principal: {fmtCurrency(Math.max(0, calc.p - calc.d), currency)} •
+            Term: {Math.max(1, Math.floor(calc.y * 12))} months • Rate:{" "}
+            {parseNumber(rate)}% APR
           </p>
         </div>
 
         {disabled && (
-          <p className="text-[12px] text-[#C44]">
-            Check inputs. Deposit must not exceed price. Years and price must be positive.
+          <p
+            className="mt-[16px] text-[13px] leading-[1.5]"
+            style={{
+              color: "#C44",
+              fontWeight: 700,
+              opacity: 1,
+            }}
+          >
+            Check inputs. Deposit must not exceed price. Years and price must be
+            positive.
           </p>
         )}
       </div>

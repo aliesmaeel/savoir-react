@@ -11,3 +11,12 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.cardDisplayText.cardDisplayText {
+  font-weight: 600;
+  text-shadow: 0 0 0.25px currentColor;
+}
+
+.cardBodyText.cardBodyText {
+  font-weight: 700;
+}

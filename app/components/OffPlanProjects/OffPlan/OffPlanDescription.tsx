@@ -165,12 +165,6 @@ export default function OffPlanDescription() {
                 />
               </button>
             </div>
-            <img
-              loading="lazy"
-              src={icon.popupPaterrn}
-              alt=""
-              className="absolute bottom-0 right-0 z-[-1] w-[187px] lg:w-[358px]"
-            />
             <div className="overflow-y-auto flex-1 px-[21px] lg:px-[40px] pb-[40px] lg:pb-[60px] pt-[20px]">
               <div
                 className="Jakarta text-[14px] font-semibold leading-[160%] text-[#111111] lg:text-[18px]"
