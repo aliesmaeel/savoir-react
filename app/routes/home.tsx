@@ -8,6 +8,7 @@ import NewsInsights from "~/components/Home/NewsInsights/NewsInsights";
 import HomeProperties from "~/components/Home/HomeProperties/HomeProperties";
 import GlobalAccess from "~/components/Home/GlobalAccess";
 import { getHomeInfo, getSuggestionSearch } from "~/api/home.service";
+import { getAllNews } from "~/api/news.service";
 import { useLoaderData } from "react-router";
 
 // Lazy load below-the-fold components for better performance
@@ -23,17 +24,20 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader({ request }: { request: Request }) {
-  try {
-    const res: any = await getHomeInfo();
-    const searchRes: any = await getSuggestionSearch();
+  const [homeResult, searchResult, latestNewsResult] = await Promise.allSettled([
+    getHomeInfo(),
+    getSuggestionSearch(),
+    getAllNews(1, 3),
+  ]);
 
-    const home = res;
-    const search = searchRes;
+  const home = homeResult.status === "fulfilled" ? homeResult.value : [];
+  const search = searchResult.status === "fulfilled" ? searchResult.value : [];
+  const latestNews =
+    latestNewsResult.status === "fulfilled"
+      ? ((latestNewsResult.value as any)?.data ?? [])
+      : [];
 
-    return { home, search };
-  } catch (error) {
-    return { home: [], search: [] };
-  }
+  return { home, search, latestNews };
 }
 
 export default function Home() {

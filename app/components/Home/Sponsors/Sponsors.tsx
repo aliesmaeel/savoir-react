@@ -180,7 +180,7 @@ export default function Sponsors() {
               Listing Reach
             </span>
 
-            <p className="CormorantGaramond text-left text-[40px] sm:text-[45px] lg:text-[52px] leading-[100%] text-[#0A0A0A]">
+            <p className="CormorantGaramond text-left text-[32px] sm:text-[38px] lg:text-[52px] leading-[1.08] lg:leading-[100%] text-[#0A0A0A]">
               Listing Syndication{" "}
               <em className="italic font-normal">and Affiliated Websites</em>
             </p>

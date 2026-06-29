@@ -390,7 +390,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
   const icon = useIcons();
 
   return (
-    <div className="relative z-10 mt-[20vh] flex w-full flex-col items-center justify-between gap-[15px] overflow-visible lg:mt-0 lg:flex-row">
+    <div className="relative z-10 mt-0 flex w-full flex-col items-center justify-between gap-[15px] overflow-visible lg:mt-0 lg:flex-row">
       <div
         className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[calc(100%+120px)] w-screen -translate-x-1/2 -translate-y-1/2"
         style={{
@@ -400,7 +400,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       />
 
       <div
-        className="pointer-events-none absolute bottom-[-115px] left-1/2 z-[1] h-[240px] w-screen -translate-x-1/2"
+        className="pointer-events-none absolute bottom-[-55px] left-1/2 z-[1] h-[150px] w-screen -translate-x-1/2 lg:bottom-[-115px] lg:h-[240px]"
         style={{
           background:
             "linear-gradient(0deg, #FFFFFF 0%, rgba(255,255,255,0.96) 22%, rgba(255,255,255,0.72) 46%, rgba(255,255,255,0.32) 72%, rgba(255,255,255,0.00) 100%)",
@@ -409,13 +409,13 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
 
       <div className="relative z-10 flex w-full flex-col items-start gap-[15px] lg:w-[390px] lg:gap-[26px]">
         <div className="flex flex-col items-start">
-          <p className="CormorantGaramond text-[32px] font-semibold leading-[1.08] text-white drop-shadow-[0_3px_14px_rgba(0,0,0,0.75)] lg:text-[46px]">
+          <p className="CormorantGaramond text-[30px] font-semibold leading-[1.08] text-white drop-shadow-[0_3px_14px_rgba(0,0,0,0.75)] lg:text-[46px]">
             Explore properties in {selectedCountry}
           </p>
         </div>
 
         <div
-          className="flex w-full max-w-[330px] items-center justify-between rounded-[18px] px-[26px] py-[18px] text-white backdrop-blur-[18px] lg:max-w-[315px] lg:px-[26px] lg:py-[18px]"
+          className="flex w-full max-w-[330px] items-center justify-between rounded-[18px] px-[22px] py-[16px] text-white backdrop-blur-[18px] lg:max-w-[315px] lg:px-[26px] lg:py-[18px]"
           style={{
             background:
               "linear-gradient(135deg, rgba(8,10,12,0.96) 0%, rgba(18,20,22,0.92) 52%, rgba(8,10,12,0.96) 100%)",
