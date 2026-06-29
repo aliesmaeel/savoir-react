@@ -34,19 +34,46 @@ export default function ContactUsForm() {
   const social = useMemo(
     () => [
       {
-        icon: icon.facebook,
+        kind: "facebook",
+        label: "Facebook",
         link: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/",
       },
       {
-        icon: icon.instagram,
+        kind: "instagram",
+        label: "Instagram",
         link: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==",
       },
-      { icon: icon.x, link: "https://x.com/savoirprive" },
-      {icon: icon.tiktok, link: "https://www.tiktok.com/@savoir_properties"},
-      {icon: icon.youtube, link: "http://youtube.com/@SavoirPriveProperties"},
+      { kind: "x", label: "X", link: "https://x.com/savoirprive" },
+      { kind: "tiktok", label: "TikTok", link: "https://www.tiktok.com/@savoir_properties" },
+      { kind: "youtube", label: "YouTube", link: "http://youtube.com/@SavoirPriveProperties" },
     ],
-    [icon]
+    []
   );
+
+  const renderSocialIcon = (kind: string) => {
+    if (kind === "facebook") {
+      return <span className="text-[20px] font-bold leading-none lg:text-[24px]">f</span>;
+    }
+
+    if (kind === "instagram") {
+      return (
+        <span className="relative h-[18px] w-[18px] rounded-[5px] border-[2px] border-white lg:h-[22px] lg:w-[22px] lg:rounded-[6px]">
+          <span className="absolute left-1/2 top-1/2 h-[6px] w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full border-[2px] border-white lg:h-[8px] lg:w-[8px]" />
+          <span className="absolute right-[3px] top-[3px] h-[3px] w-[3px] rounded-full bg-white" />
+        </span>
+      );
+    }
+
+    if (kind === "youtube") {
+      return (
+        <span className="flex h-[18px] w-[24px] items-center justify-center rounded-[5px] border-[2px] border-white lg:h-[20px] lg:w-[28px]">
+          <span className="ml-[2px] h-0 w-0 border-y-[5px] border-l-[8px] border-y-transparent border-l-white lg:border-y-[6px] lg:border-l-[10px]" />
+        </span>
+      );
+    }
+
+    return <span className="text-[16px] font-bold leading-none lg:text-[19px]">{kind === "tiktok" ? "t" : "X"}</span>;
+  };
 
   function validate() {
     if (!name.trim()) return "Name is required.";
@@ -112,13 +139,15 @@ export default function ContactUsForm() {
           </div>
           <div className="flex gap-[10px]">
             {social.map((s, index) => (
-              <a key={index} href={s.link} target="_blank" rel="noreferrer">
-                <img
-                  loading="lazy"
-                  src={s.icon}
-                  alt=""
-            className="h-[42px] w-[42px] lg:h-[52px] lg:w-[52px]"
-                />
+              <a
+                key={index}
+                href={s.link}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={s.label}
+                className="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-white/75 text-white transition-colors duration-300 hover:border-white hover:bg-white/10 lg:h-[52px] lg:w-[52px]"
+              >
+                {renderSocialIcon(s.kind)}
               </a>
             ))}
           </div>
@@ -186,9 +215,14 @@ export default function ContactUsForm() {
 
           <div className="flex flex-col lg:flex-row items-center gap-[17px]">
             <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
-            <Link to="https://wa.me/971505074686" target="_blank" rel="noreferrer" className="flex items-center gap-[9px]">
-              <img loading="lazy" src={icon.whatsappGold} alt="" className="w-[27px]" />
-              <p className="text-black text-[18px] font-semibold">Whatsapp</p>
+            <Link
+              to="https://wa.me/971505074686"
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-[44px] items-center justify-center gap-[8px] rounded-[13px] bg-[#111111] px-[18px] text-[16px] font-semibold text-white shadow-[0_10px_22px_rgba(17,17,17,0.18)] transition-colors hover:bg-[#000000]"
+            >
+              <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[22px]" />
+              <span>Whatsapp</span>
             </Link>
           </div>
         </form>

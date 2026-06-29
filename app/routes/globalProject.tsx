@@ -2,6 +2,7 @@
 import React, { useCallback, useState } from "react";
 import { useLoaderData } from "react-router";
 import { getGlobalProject } from "~/api/global.service";
+import ContactUsForm from "~/components/ContactUs/ContactUsForm";
 import AboutGlobal from "~/components/GlobalProject/AboutGlobal";
 import GlobalProjectHero from "~/components/GlobalProject/GlobalProjectHero";
 import GlobeLuxuryProperties from "~/components/GlobalProject/GlobeLuxuryProperties";
@@ -53,6 +54,7 @@ export default function GlobalProject() {
               description={currentGlobal?.project?.description ?? ""}
             />
           </div>
+          <ContactUsForm />
           <GlobeLuxuryProperties
             country={currentCountry}
             similarProperties={currentGlobal?.similar_properties ?? []}

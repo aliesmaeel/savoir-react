@@ -88,14 +88,16 @@ export default function offPlanProjects() {
   return (
     <div className="relative">
       <OffPlanHero />
-      <PageLayout>
-        <OffPlanResults offPlan={offPlan} />
-        <CustomPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      </PageLayout>
+      <div className="relative z-20 lg:-mt-[140px]">
+        <PageLayout>
+          <OffPlanResults offPlan={offPlan} />
+          <CustomPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </PageLayout>
+      </div>
     </div>
   );
 }

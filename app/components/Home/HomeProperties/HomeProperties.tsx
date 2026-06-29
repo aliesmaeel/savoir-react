@@ -73,7 +73,6 @@ export default function HomeProperties() {
       }`}
     >
       <div className="flex w-full flex-col">
-        {/* Header */}
         <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-[20px] px-[24px] pb-[24px] lg:flex-row lg:items-end lg:px-[52px] lg:pb-[32px]">
           <div>
             <div className="Jakarta mb-[10px] text-[10px] font-medium uppercase tracking-[0.22em] text-[#C6A45A]">
@@ -113,9 +112,7 @@ export default function HomeProperties() {
           </div>
         </div>
 
-        {/* Spotlight body */}
         <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 overflow-hidden border-y-[0.5px] border-[#35363540] bg-white shadow-[0_24px_70px_rgba(53,54,53,0.08)] lg:h-[580px] lg:grid-cols-[1.08fr_0.92fr] lg:rounded-[6px] lg:border-[0.5px]">
-          {/* Hero */}
           {hero ? (
             <Link
               to={`/project/${hero.slug}`}
@@ -185,7 +182,6 @@ export default function HomeProperties() {
             </div>
           )}
 
-          {/* Cards panel */}
           <div className="flex flex-col border-t-[0.5px] border-[#35363540] bg-white/95 [scrollbar-width:none] lg:overflow-y-auto lg:border-l-[0.5px] lg:border-t-0 [&::-webkit-scrollbar]:hidden">
             {properties.map((p, idx) => (
               <button
@@ -211,12 +207,12 @@ export default function HomeProperties() {
                   <div>
                     <div className="mb-[10px] flex flex-wrap gap-[6px]">
                       {p.property_type && (
-                        <span className="Jakarta border-[0.5px] border-[#C6A45A] px-[8px] py-[3px] text-[8px] font-semibold uppercase tracking-[0.16em] text-[#8C6E32]">
+                        <span className="Jakarta border-[0.5px] border-[#C6A45A] bg-[#C6A45A] px-[8px] py-[3px] text-[8px] font-semibold uppercase tracking-[0.16em] text-white">
                           {p.property_type}
                         </span>
                       )}
 
-                      <span className="Jakarta border-[0.5px] border-[#35363540] px-[8px] py-[3px] text-[8px] font-semibold uppercase tracking-[0.16em] text-[#0A0A0A]">
+                      <span className="Jakarta border-[0.5px] border-[#C6A45A] bg-[#C6A45A] px-[8px] py-[3px] text-[8px] font-semibold uppercase tracking-[0.16em] text-white">
                         {offeringShort(p.offering_type, tab)}
                       </span>
                     </div>
@@ -356,7 +352,6 @@ export default function HomeProperties() {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-[24px] pt-[16px] lg:px-[52px]">
           <p className="Jakarta text-[10px] font-medium tracking-[0.06em] text-[#0A0A0A]">
             Showing{" "}

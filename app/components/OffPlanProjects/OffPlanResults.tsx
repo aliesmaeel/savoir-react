@@ -16,7 +16,7 @@ export default function OffPlanResults({ offPlan }: Props) {
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex flex-col items-start gap-[50px] w-full">
+    <div className="flex flex-col items-start gap-[50px] lg:gap-[20px] w-full">
       <div className="flex items-center justify-between w-full">
         <div className="flex flex-col items-start gap-[9px] lg:gap-[15px] w-full">
           <div className="flex items-center justify-between w-full">
@@ -25,7 +25,7 @@ export default function OffPlanResults({ offPlan }: Props) {
         </div>
         {!isMobile && <SearchSortBy items={["Name", "Date"]} />}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 w-full gap-[37px]">
+      <div className="grid grid-cols-1 justify-items-center lg:grid-cols-3 w-full gap-[37px]">
         {offPlan.map((project: any, index: number) => (
           <OffPlanCard key={index} project={project} />
         ))}
