@@ -1,0 +1,1 @@
+import{A as a}from"./apiClient-Bl539U1V.js";const t=new a;async function i(e,n){return t.get(`/api/news?page=${e}&limit=${n}`)}async function r(e){return t.get(`/api/news/${e}`)}async function p(e){return t.get(`/api/updateShares/${e}?type=news`)}export{p as a,r as b,i as g};
