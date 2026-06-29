@@ -189,7 +189,7 @@ export default function Search() {
         <SearchHero />
       </div>
 
-      <div className="relative z-20 -mt-[142px] px-[16px] pb-[30px] lg:-mt-[225px] lg:px-[45px] lg:pb-[40px]">
+      <div className="relative z-20 -mt-[142px] px-[16px] pb-[30px] lg:-mt-[245px] lg:px-[45px] lg:pb-[40px]">
         <div className="mx-auto w-full max-w-[1404px]">
           <div
             style={{
@@ -199,7 +199,7 @@ export default function Search() {
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="flex flex-col items-start gap-[30px] lg:gap-[34px]">
+            <div className="flex flex-col items-start gap-[30px] lg:gap-[24px]">
               <SearchFIlterItems />
 
               <SearchResults projects={projects} currentPage={currentPage} />

@@ -14,7 +14,7 @@ export default function SearchHero() {
       : `Discover the Best Properties for ${interested === "Rent" ? "Rent" : "Sale"}`;
 
   return (
-    <div className="relative flex h-[420px] w-full flex-col overflow-hidden lg:h-[560px]">
+    <div className="relative flex h-[420px] w-full flex-col overflow-hidden lg:h-[485px]">
       <img
         loading="lazy"
         src="/images/placeholders/hero.webp"
@@ -24,17 +24,17 @@ export default function SearchHero() {
 
       <div className="absolute inset-0 bg-black/55" />
       <div
-        className="pointer-events-none absolute bottom-0 left-0 z-10 h-[230px] w-full lg:h-[270px]"
+        className="pointer-events-none absolute bottom-0 left-0 z-10 h-[230px] w-full lg:h-[225px]"
         style={{
           background: "linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.86) 18%, rgba(255, 255, 255, 0.00) 100%)",
         }}
       />
 
-      <div className="relative z-[25] w-full pt-[44px] lg:pt-[68px]">
+      <div className="relative z-[25] w-full pt-[44px] lg:pt-[58px]">
         <SearchFilter />
       </div>
 
-      <h1 className="CormorantGaramond pointer-events-none absolute left-1/2 top-[205px] z-10 w-full -translate-x-1/2 px-[16px] text-center text-[42px] font-medium leading-[1.02] text-white lg:top-[270px] lg:text-[86px]">
+      <h1 className="CormorantGaramond pointer-events-none absolute left-1/2 top-[205px] z-10 w-full -translate-x-1/2 px-[16px] text-center text-[42px] font-medium leading-[1.02] text-white lg:top-[225px] lg:text-[78px]">
         {title}
       </h1>
     </div>
