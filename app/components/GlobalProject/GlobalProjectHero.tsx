@@ -61,19 +61,19 @@ const GlobalProjectHero: React.FC<GlobalProjectHeroProps> = ({
   }, [selectedCountry]);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-[100vh] relative ">
+    <div className="relative flex h-[640px] w-full flex-col items-center justify-center lg:h-[100vh]">
       <div className="relative w-full">
         <img
           loading="lazy"
           src={backgroundImage}
           alt={selectedCountry}
-          className="w-full h-[100vh] object-cover transition-all duration-700 grayscale-25 brightness-50"
+          className="h-[640px] w-full object-cover transition-all duration-700 grayscale-25 brightness-50 lg:h-[100vh]"
           key={selectedCountry}
         />
         <div className="w-full h-full bg-[#00000026] absolute top-0 left-0" />
       </div>
 
-      <div className=" lg:flex flex-col items-center justify-center w-full h-[100vh] absolute top-0 left-0 px-[16px] lg:px-[45px]">
+      <div className="absolute left-0 top-0 flex h-[640px] w-full flex-col items-center justify-start px-[16px] pt-[128px] lg:flex lg:h-[100vh] lg:justify-center lg:px-[45px] lg:pt-0">
         <GlobalGlobe
           size={isMobile ? 400 : 559}
           globeScale={0.8}
@@ -83,7 +83,7 @@ const GlobalProjectHero: React.FC<GlobalProjectHeroProps> = ({
           selectedParamKey="country"
         />
         <div
-          className="absolute bottom-0 left-0 w-full h-[176px] z-1"
+          className="absolute bottom-0 left-0 z-1 h-[140px] w-full lg:h-[176px]"
           style={{ background: "linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%)" }}
         />
       </div>

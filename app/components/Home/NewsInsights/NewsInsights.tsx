@@ -3,7 +3,7 @@ import { Link, useLoaderData } from "react-router";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 export default function NewsInsights() {
-  const { home } = useLoaderData() as { home: any };
+  const { home, latestNews } = useLoaderData() as { home: any; latestNews?: any[] };
   const isMobile = useIsMobile();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -36,7 +36,8 @@ export default function NewsInsights() {
     return () => observer.disconnect();
   }, [isVisible, isMobile]);
 
-  const insights: any[] = (home?.insights || []).slice(0, 3);
+  const insightsSource = latestNews?.length ? latestNews : home?.insights || [];
+  const insights: any[] = insightsSource.slice(0, 3);
 
   if (insights.length === 0) {
     return null;
