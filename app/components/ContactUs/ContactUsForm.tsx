@@ -72,13 +72,16 @@ export default function ContactUsForm() {
       );
     }
 
-    return <span className="text-[16px] font-bold leading-none lg:text-[19px]">{kind === "tiktok" ? "t" : "X"}</span>;
+    return (
+      <span className="text-[16px] font-bold leading-none lg:text-[19px]">
+        {kind === "tiktok" ? "t" : "X"}
+      </span>
+    );
   };
 
   function validate() {
     if (!name.trim()) return "Name is required.";
     if (!email.trim()) return "Email is required.";
-    // simple RFC5322-lite check
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Email is invalid.";
     if (!message.trim()) return "Message is required.";
     return null;
@@ -86,7 +89,7 @@ export default function ContactUsForm() {
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     const v = validate();
     if (v) {
       notify.error(v, 4000);
@@ -114,29 +117,31 @@ export default function ContactUsForm() {
     } finally {
       setSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="mx-auto mt-[82px] flex w-full max-w-[1080px] flex-col items-start gap-[22px]">
       <div className="relative z-10 flex w-full flex-col items-center gap-[32px] overflow-hidden rounded-[9px] border border-[#9b957f] bg-white p-[10px] lg:flex-row">
         <div
           className="flex flex-col items-start justify-between gap-[20px] p-[16px] lg:p-[34px] w-full lg:max-w-[405px] lg:aspect-[405/560] rounded-[11px] text-white"
-          style={{ background: "black" }}
+          style={{ background: "#2B2B2B" }}
         >
           <div className="flex flex-col items-start gap-[20px] lg:gap-[58px]">
             <div className="flex flex-col items-start gap-[6px]">
               <p className="text-[31px] font-semibold CormorantGaramond">Contact Information</p>
               <p className="text-[21px]">Let's Connect!</p>
             </div>
+
             <div className="flex flex-col items-start gap-[20px] lg:gap-[48px]">
               {items.map((item, index) => (
                 <div key={index} className="flex items-start gap-[24px]">
-                  <img loading="lazy"  src={item.icon} alt="" />
+                  <img loading="lazy" src={item.icon} alt="" />
                   <div className="text-[17px]">{item.text}</div>
                 </div>
               ))}
             </div>
           </div>
+
           <div className="flex gap-[10px]">
             {social.map((s, index) => (
               <a
@@ -155,7 +160,7 @@ export default function ContactUsForm() {
 
         <form
           onSubmit={handleFormSubmit}
-          className="flex w-full flex-col items-center gap-[42px] relative"
+          className="relative flex w-full flex-col items-center gap-[42px]"
           noValidate
         >
           <div className="flex w-full flex-col items-start gap-[44px]">
@@ -170,6 +175,7 @@ export default function ContactUsForm() {
                 autoComplete="name"
                 ariaLabel="Enter your full name"
               />
+
               <BookingInput
                 type="tel"
                 placeholder="Enter Phone Number"
@@ -180,6 +186,7 @@ export default function ContactUsForm() {
                 ariaLabel="Enter your phone number"
                 inputMode="tel"
               />
+
               <BookingInput
                 type="email"
                 placeholder="Enter your Email"
@@ -190,6 +197,7 @@ export default function ContactUsForm() {
                 autoComplete="email"
                 ariaLabel="Enter your email address"
               />
+
               <BookingInput
                 type="textAria"
                 placeholder="Enter your Message here.."
@@ -202,9 +210,16 @@ export default function ContactUsForm() {
               />
             </div>
 
-            <div className="flex items-center justify-center lg:justify-end w-full">
+            <div className="flex w-full items-center justify-center lg:justify-end">
               <Button
-                className="h-[44px] !rounded-[4px] !bg-[#111111] !px-[78px] !py-[15px] text-[18px] hover:!bg-[#262626]"
+                className="
+                  h-[42px] !rounded-[13px]
+                  !bg-[#2B2B2B] !px-[24px] !py-[9px]
+                  text-[15px] font-semibold !text-white
+                  shadow-[0_10px_22px_rgba(43,43,43,0.18)]
+                  hover:!bg-[#242424]
+                  lg:h-[44px] lg:!px-[28px] lg:text-[16px]
+                "
                 htmlType="submit"
                 disabled={submitting}
               >
@@ -213,13 +228,29 @@ export default function ContactUsForm() {
             </div>
           </div>
 
-          <div className="flex flex-col lg:flex-row items-center gap-[17px]">
-            <p className="text-black text-[18px] font-medium">Or contact us right now via</p>
+          <div className="flex flex-col items-center gap-[17px] lg:flex-row">
+            <p
+              className="text-[18px]"
+              style={{
+                color: "#111111",
+                fontWeight: 600,
+                opacity: 1,
+              }}
+            >
+              Or contact us via
+            </p>
+
             <Link
               to="https://wa.me/971505074686"
               target="_blank"
               rel="noreferrer"
-              className="flex h-[44px] items-center justify-center gap-[8px] rounded-[13px] bg-[#111111] px-[18px] text-[16px] font-semibold text-white shadow-[0_10px_22px_rgba(17,17,17,0.18)] transition-colors hover:bg-[#000000]"
+              className="
+                flex h-[42px] items-center justify-center gap-[8px]
+                rounded-[13px] bg-[#2B2B2B] px-[18px]
+                text-[16px] font-semibold text-white
+                shadow-[0_10px_22px_rgba(43,43,43,0.18)]
+                transition-colors hover:bg-[#242424]
+              "
             >
               <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[22px]" />
               <span>Whatsapp</span>

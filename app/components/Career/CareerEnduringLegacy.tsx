@@ -48,7 +48,12 @@ export default function CareerEnduringLegacy() {
               loading="lazy"
               src="/images/Career/legacy1.jpg"
               alt=""
-              className="aspect-[502/200] w-full rounded-[14px] object-cover"
+              className="aspect-[502/200] w-full rounded-[14px] object-cover object-[center_42%]"
+              style={{
+                imageRendering: "auto",
+                filter: "none",
+                transform: "none",
+              }}
             />
 
             <div className="flex w-full gap-[8px]">
@@ -56,14 +61,24 @@ export default function CareerEnduringLegacy() {
                 loading="lazy"
                 src="/images/Career/legacy2.jpg"
                 alt=""
-                className="aspect-[251/185] w-[49%] flex-1 rounded-[14px] object-cover"
+                className="aspect-[251/185] w-[49%] flex-1 rounded-[14px] object-cover object-[center_48%]"
+                style={{
+                  imageRendering: "auto",
+                  filter: "none",
+                  transform: "none",
+                }}
               />
 
               <img
                 loading="lazy"
                 src="/images/Career/legacy3-img4916.jpg"
                 alt=""
-                className="aspect-[251/185] w-[49%] flex-1 rounded-[14px] object-cover object-top"
+                className="aspect-[251/185] w-[49%] flex-1 rounded-[14px] object-cover object-[center_58%]"
+                style={{
+                  imageRendering: "auto",
+                  filter: "none",
+                  transform: "none",
+                }}
               />
             </div>
           </div>

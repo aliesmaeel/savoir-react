@@ -8,6 +8,7 @@ type ServiceCardItem = {
 type ServiceContentCardsProps = {
   items: ServiceCardItem[];
   visitSiteIndexes?: number[];
+  stretchImageIndexes?: number[];
   getVisitLink?: (item: ServiceCardItem, index: number) => string;
 };
 
@@ -29,6 +30,7 @@ const headingBg =
 export default function ServiceContentCards({
   items,
   visitSiteIndexes = [],
+  stretchImageIndexes = [],
   getVisitLink,
 }: ServiceContentCardsProps) {
   return (
@@ -37,6 +39,7 @@ export default function ServiceContentCards({
         const imageRight = index % 2 === 0;
         const showVisitButton = visitSiteIndexes.includes(index);
         const isLongSection = item.text.length > 520;
+        const isStretchedImage = stretchImageIndexes.includes(index);
         const visitLink = getVisitLink?.(item, index) ?? item.link;
 
         const textBlock = (
@@ -80,7 +83,7 @@ export default function ServiceContentCards({
                   hover:shadow-[0_14px_32px_rgba(17,17,17,0.18)]
                 "
               >
-                Visit the Site
+                Visit The Site
               </a>
             )}
           </div>
@@ -89,7 +92,11 @@ export default function ServiceContentCards({
         const imageBlock = (
           <div
             className={`flex w-full shrink-0 justify-center lg:w-[420px] ${
-              isLongSection ? "lg:sticky lg:top-[130px]" : ""
+              isStretchedImage
+                ? ""
+                : isLongSection
+                  ? "lg:sticky lg:top-[130px]"
+                  : ""
             }`}
           >
             <img
@@ -97,7 +104,11 @@ export default function ServiceContentCards({
               src={item.image}
               alt={item.title}
               className={`w-full max-w-[420px] rounded-[18px] object-cover object-center shadow-[0_18px_44px_rgba(0,0,0,0.08)] ${
-                isLongSection ? "h-[250px] lg:h-[300px]" : "h-[235px] lg:h-[305px]"
+                isStretchedImage
+                  ? "h-[235px] lg:h-[520px]"
+                  : isLongSection
+                    ? "h-[250px] lg:h-[300px]"
+                    : "h-[235px] lg:h-[305px]"
               }`}
             />
           </div>
@@ -116,7 +127,11 @@ export default function ServiceContentCards({
               lg:px-[32px] lg:py-[32px]
             "
           >
-            <div className="flex w-full flex-col gap-[30px] lg:flex-row lg:items-start lg:gap-[46px]">
+            <div
+              className={`flex w-full flex-col gap-[30px] lg:flex-row lg:gap-[46px] ${
+                isStretchedImage ? "lg:items-start" : "lg:items-start"
+              }`}
+            >
               {imageRight ? (
                 <>
                   {textBlock}

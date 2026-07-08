@@ -47,11 +47,12 @@ function RentalField({
   return (
     <div className="flex w-full flex-col items-start gap-[12px]">
       <label
-        className="text-[17px] leading-[1.2] lg:text-[18px]"
+        className="CormorantGaramond text-[18px] leading-[1.2] lg:text-[20px]"
         style={{
           color: "#111111",
-          fontWeight: 800,
+          fontWeight: 550,
           opacity: 1,
+          textShadow: "0 0 0.12px #111111",
         }}
       >
         {label}
@@ -65,41 +66,44 @@ function RentalField({
           onChange={onChange}
           onBlur={onBlur}
           className="
+            CormorantGaramond
             h-[58px]
             w-full
             rounded-[8px]
-            border border-[#DDDDDD]
+            border border-[#D9D9D9]
             bg-white
             px-[20px]
             pr-[88px]
-            text-[18px]
+            text-[19px]
             outline-none
             shadow-[0_12px_28px_rgba(0,0,0,0.035)]
             lg:h-[60px]
-            lg:text-[20px]
+            lg:text-[22px]
           "
           style={{
             color: "#111111",
-            fontWeight: 700,
+            fontWeight: 550,
             opacity: 1,
+            textShadow: "0 0 0.12px #111111",
           }}
         />
 
         <span
           className="
+            Jakarta
             pointer-events-none
             absolute
             right-[18px]
             top-1/2
             -translate-y-1/2
             text-right
-            text-[13px]
+            text-[12px]
             leading-none
-            lg:text-[14px]
+            lg:text-[13px]
           "
           style={{
             color: "#111111",
-            fontWeight: 800,
+            fontWeight: 600,
             opacity: 1,
           }}
         >
@@ -166,22 +170,24 @@ export default function RentalYieldCalculator() {
       <div className="flex w-full flex-col items-start px-[24px] py-[34px] lg:px-[45px] lg:py-[42px]">
         <div className="mb-[34px] flex w-full flex-col items-start gap-[10px]">
           <p
-            className="CormorantGaramond text-[32px] leading-[1.05] lg:text-[42px]"
+            className="CormorantGaramond text-[28px] leading-[1.08] lg:text-[34px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 550,
               opacity: 1,
+              textShadow: "0 0 0.18px #050505",
             }}
           >
             Rental Yield Calculator
           </p>
 
           <p
-            className="text-[16px] leading-[1.5] lg:text-[18px]"
+            className="CormorantGaramond text-[17px] leading-[1.5] lg:text-[19px]"
             style={{
               color: "#111111",
-              fontWeight: 600,
+              fontWeight: 550,
               opacity: 1,
+              textShadow: "0 0 0.12px #111111",
             }}
           >
             Calculate the gross and net rental yields on a property.
@@ -234,33 +240,36 @@ export default function RentalYieldCalculator() {
           <div className="grid w-full grid-cols-2 gap-x-[26px]">
             <div className="flex flex-col items-start gap-[10px]">
               <p
-                className="text-[18px] leading-[1.4]"
+                className="CormorantGaramond text-[19px] leading-[1.4]"
                 style={{
                   color: "#111111",
-                  fontWeight: 600,
+                  fontWeight: 550,
                   opacity: 1,
+                  textShadow: "0 0 0.12px #111111",
                 }}
               >
                 Net Rent
               </p>
 
               <p
-                className="CormorantGaramond text-[24px] leading-[1.2] lg:text-[28px]"
+                className="CormorantGaramond text-[25px] leading-[1.2] lg:text-[30px]"
                 style={{
                   color: "#111111",
-                  fontWeight: 700,
+                  fontWeight: 550,
                   opacity: 1,
+                  textShadow: "0 0 0.14px #111111",
                 }}
               >
                 {fmtCurrency(calc.net, currency)}
               </p>
 
               <p
-                className="text-[14px]"
+                className="CormorantGaramond text-[15px]"
                 style={{
                   color: "#111111",
-                  fontWeight: 600,
+                  fontWeight: 550,
                   opacity: 1,
+                  textShadow: "0 0 0.1px #111111",
                 }}
               >
                 Gross ROI
@@ -269,33 +278,36 @@ export default function RentalYieldCalculator() {
 
             <div className="flex flex-col items-start gap-[10px]">
               <p
-                className="text-[18px] leading-[1.4]"
+                className="CormorantGaramond text-[19px] leading-[1.4]"
                 style={{
                   color: "#111111",
-                  fontWeight: 600,
+                  fontWeight: 550,
                   opacity: 1,
+                  textShadow: "0 0 0.12px #111111",
                 }}
               >
                 NET ROI
               </p>
 
               <p
-                className="CormorantGaramond text-[24px] leading-[1.2] lg:text-[28px]"
+                className="CormorantGaramond text-[25px] leading-[1.2] lg:text-[30px]"
                 style={{
                   color: "#111111",
-                  fontWeight: 700,
+                  fontWeight: 550,
                   opacity: 1,
+                  textShadow: "0 0 0.14px #111111",
                 }}
               >
                 {fmtPct(calc.netRoi)}
               </p>
 
               <p
-                className="text-[14px]"
+                className="CormorantGaramond text-[15px]"
                 style={{
                   color: "#111111",
-                  fontWeight: 700,
+                  fontWeight: 550,
                   opacity: 1,
+                  textShadow: "0 0 0.1px #111111",
                 }}
               >
                 {fmtPct(calc.grossRoi)}
@@ -305,10 +317,10 @@ export default function RentalYieldCalculator() {
 
           {invalid ? (
             <p
-              className="text-[13px] leading-[1.5]"
+              className="CormorantGaramond text-[14px] leading-[1.5]"
               style={{
                 color: "#C44",
-                fontWeight: 700,
+                fontWeight: 550,
                 opacity: 1,
               }}
             >
@@ -317,11 +329,12 @@ export default function RentalYieldCalculator() {
           ) : null}
 
           <p
-            className="text-[14px] leading-[160%] lg:text-[15px]"
+            className="CormorantGaramond text-[15px] leading-[160%] lg:text-[16px]"
             style={{
               color: "#111111",
-              fontWeight: 600,
+              fontWeight: 550,
               opacity: 1,
+              textShadow: "0 0 0.1px #111111",
             }}
           >
             *Net ROI is an estimate. Actuals vary by property type, location,

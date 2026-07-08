@@ -11,13 +11,21 @@ import useIcons from "~/hooks/imageHooks/useIcons";
 
 const SEARCH_PAGE_SIZE = 11;
 
-const getResponseProjects = (res: any) => (Array.isArray(res?.data) ? res.data : []);
+const getResponseProjects = (res: any) =>
+  Array.isArray(res?.data) ? res.data : [];
 
 const getResponseTotal = (res: any, fallbackLength: number) =>
-  Number(res?.total ?? res?.pagination?.total ?? res?.meta?.total ?? 0) || fallbackLength;
+  Number(res?.total ?? res?.pagination?.total ?? res?.meta?.total ?? 0) ||
+  fallbackLength;
 
 const getResponseTotalPages = (res: any) =>
-  Number(res?.total_pages ?? res?.last_page ?? res?.pagination?.total_pages ?? res?.meta?.last_page ?? 0) || 1;
+  Number(
+    res?.total_pages ??
+      res?.last_page ??
+      res?.pagination?.total_pages ??
+      res?.meta?.last_page ??
+      0
+  ) || 1;
 
 export async function clientLoader({ request }: { request: Request }) {
   const url = new URL(request.url);
@@ -26,8 +34,8 @@ export async function clientLoader({ request }: { request: Request }) {
   const status = params.get("status") || "All";
   const interested = params.get("interested") || "Buy";
 
-  // Determine FAQ type based on search params
-  let faqtype = "buy"; // default
+  let faqtype = "buy";
+
   if (status === "Off-plan") {
     faqtype = "offplan";
   } else if (interested === "Rent") {
@@ -39,6 +47,7 @@ export async function clientLoader({ request }: { request: Request }) {
   try {
     const searchRes: any = await getSuggestionSearch();
     const resFAQ: any = await getFAQ(faqtype);
+
     return { search: searchRes, faq: resFAQ };
   } catch (error) {
     return { search: [], faq: [] };
@@ -54,10 +63,10 @@ export function shouldRevalidate({
 }) {
   const currentStatus = currentUrl.searchParams.get("status") || "All";
   const currentInterested = currentUrl.searchParams.get("interested") || "Buy";
+
   const nextStatus = nextUrl.searchParams.get("status") || "All";
   const nextInterested = nextUrl.searchParams.get("interested") || "Buy";
 
-  // Revalidate if status or interested params change (affects FAQ type)
   return currentStatus !== nextStatus || currentInterested !== nextInterested;
 }
 
@@ -66,6 +75,7 @@ export default function Search() {
   const [projects, setProjects] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+
   const icon = useIcons();
   const location = useLocation();
 
@@ -76,12 +86,16 @@ export default function Search() {
 
     const query = params.get("query") ? params.get("query")!.split(",") : [];
     const types = params.get("types") ? params.get("types")!.split(",") : [];
+
     const interested = params.get("interested") || "Buy";
     const status = params.get("status") || "All";
+
     const bedroomsParam = params.get("bedrooms") || "Any";
     const bathroomsParam = params.get("bathrooms") || "Any";
+
     const minPrice = params.get("min") ? Number(params.get("min")) : null;
     const maxPrice = params.get("max") ? Number(params.get("max")) : null;
+
     const sortField = params.get("sort_field") || "title_en";
     const sortOrder = params.get("sort_order") || "desc";
 
@@ -89,17 +103,23 @@ export default function Search() {
       if (value === "Any") return null;
       if (value === "Studio") return 0;
       if (value === "5+") return 5;
+
       const n = Number(value);
       return isNaN(n) ? null : n;
     };
 
     const bedroom = parseCount(bedroomsParam);
     const bathroom = parseCount(bathroomsParam);
+
     const offering_type = interested === "Rent" ? "RR" : "RS";
 
     let completion_status: null | "completed" | "off_plan" = null;
-    if (status === "Ready") completion_status = "completed";
-    else if (status === "Off-plan") completion_status = "off_plan";
+
+    if (status === "Ready") {
+      completion_status = "completed";
+    } else if (status === "Off-plan") {
+      completion_status = "off_plan";
+    }
 
     const type = types.length ? types[0] : null;
 
@@ -115,14 +135,27 @@ export default function Search() {
     };
 
     try {
-      const metaRes: any = await searchApi(1, SEARCH_PAGE_SIZE, body, sortField, sortOrder);
+      const metaRes: any = await searchApi(
+        1,
+        SEARCH_PAGE_SIZE,
+        body,
+        sortField,
+        sortOrder
+      );
+
       const metaProjects = getResponseProjects(metaRes);
+
       const backendPageSize = Math.max(
         1,
         Number(metaRes?.per_page) || metaProjects.length || SEARCH_PAGE_SIZE
       );
+
       const backendTotalPages = getResponseTotalPages(metaRes);
-      const totalItems = getResponseTotal(metaRes, backendPageSize * backendTotalPages);
+      const totalItems = getResponseTotal(
+        metaRes,
+        backendPageSize * backendTotalPages
+      );
+
       const uiStartIndex = (page - 1) * SEARCH_PAGE_SIZE;
       const firstBackendPage = Math.floor(uiStartIndex / backendPageSize) + 1;
       const firstBackendOffset = uiStartIndex % backendPageSize;
@@ -130,12 +163,23 @@ export default function Search() {
       let aggregatedProjects: any[] = [];
       let backendPage = firstBackendPage;
 
-      while (aggregatedProjects.length < SEARCH_PAGE_SIZE && backendPage <= backendTotalPages) {
+      while (
+        aggregatedProjects.length < SEARCH_PAGE_SIZE &&
+        backendPage <= backendTotalPages
+      ) {
         const pageRes: any =
           backendPage === 1
             ? metaRes
-            : await searchApi(backendPage, SEARCH_PAGE_SIZE, body, sortField, sortOrder);
+            : await searchApi(
+                backendPage,
+                SEARCH_PAGE_SIZE,
+                body,
+                sortField,
+                sortOrder
+              );
+
         const pageProjects = getResponseProjects(pageRes);
+
         if (!pageProjects.length) break;
 
         const usableProjects =
@@ -148,8 +192,6 @@ export default function Search() {
       }
 
       setProjects(aggregatedProjects.slice(0, SEARCH_PAGE_SIZE));
-
-      // Desktop renders 11 listings + 1 promo tile for a complete 4x3 grid.
       setTotalPages(Math.max(1, Math.ceil(totalItems / SEARCH_PAGE_SIZE)));
     } catch (err) {
       console.error("Search API error:", err);
@@ -166,17 +208,20 @@ export default function Search() {
     fetchProjects(page);
   };
 
-  // Determine FAQ title based on search params
   const getFAQTitle = () => {
     const params = new URLSearchParams(location.search);
     const status = params.get("status") || "All";
     const interested = params.get("interested") || "Buy";
 
     if (status === "Off-plan") {
-      return "FAQs about offPlan properties in Dubai";
-    } else if (interested === "Rent") {
+      return "FAQs about off-plan properties in Dubai";
+    }
+
+    if (interested === "Rent") {
       return "FAQs about rental properties in Dubai";
-    } else if (interested === "Buy") {
+    }
+
+    if (interested === "Buy") {
       return "FAQs about properties for sale in Dubai";
     }
 
@@ -185,7 +230,7 @@ export default function Search() {
 
   return (
     <div className="relative">
-      <div className="[&_h1]:-translate-y-[32px] lg:[&_h1]:-translate-y-[70px] [&_h1]:transition-transform [&_h1]:duration-300">
+      <div className="[&_h1]:-translate-y-[32px] [&_h1]:transition-transform [&_h1]:duration-300 lg:[&_h1]:-translate-y-[70px]">
         <SearchHero />
       </div>
 
@@ -211,8 +256,23 @@ export default function Search() {
               />
             </div>
 
-            <div className="mt-[66px] flex w-full flex-col items-center gap-[22px] lg:gap-[53px]">
-              <p className="CormorantGaramond text-[28px] leading-[1.05] text-black lg:text-[44px]">
+            <div className="mt-[62px] flex w-full flex-col items-center gap-[22px] lg:mt-[64px] lg:gap-[46px]">
+              <p
+                className="
+                  CormorantGaramond
+                  max-w-[900px]
+                  text-center
+                  text-[24px]
+                  leading-[1.12]
+                  text-black
+                  lg:text-[36px]
+                "
+                style={{
+                  fontWeight: 500,
+                  opacity: 1,
+                  textShadow: "0 0 0.12px #111111",
+                }}
+              >
                 {getFAQTitle()}
               </p>
 

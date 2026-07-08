@@ -24,6 +24,7 @@ export default function propertyManagement() {
   ];
 
   const visitSiteIndexes: number[] = [];
+  const stretchImageIndexes: number[] = [1];
 
   return (
     <div className="mt-[100px]">
@@ -31,6 +32,7 @@ export default function propertyManagement() {
         <ServiceContentCards
           items={items}
           visitSiteIndexes={visitSiteIndexes}
+          stretchImageIndexes={stretchImageIndexes}
         />
       </PageLayout>
     </div>

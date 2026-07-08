@@ -36,7 +36,7 @@ export default function SavoirsCollectionHero() {
         }}
       />
 
-      <h1 className="CormorantGaramond pointer-events-none absolute left-1/2 top-1/2 z-20 w-full -translate-x-1/2 -translate-y-1/2 px-[16px] text-center text-[42px] font-medium leading-[1.02] text-white lg:text-[86px]">
+      <h1 className="CormorantGaramond pointer-events-none absolute left-1/2 top-1/2 z-20 w-full -translate-x-1/2 -translate-y-1/2 px-[16px] text-center text-[31px] font-medium leading-[1.12] text-white lg:text-[64px]">
         Savoir&apos;s Collection
       </h1>
     </div>

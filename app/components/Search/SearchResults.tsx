@@ -36,10 +36,10 @@ export default function SearchResults({ projects, currentPage }: Props) {
 
         {showPromoCard && (
           <div
-            className="relative hidden h-full min-h-[100%] flex-col items-start overflow-hidden rounded-[30px] border border-[#C6A45A] bg-[#111111] px-[24px] py-[32px] xl:flex"
+            className="relative hidden h-full min-h-[100%] flex-col items-start overflow-hidden rounded-[30px] bg-[#2B2B2B] px-[24px] py-[32px] xl:flex"
             style={{
               background:
-                "linear-gradient(145deg, #0E0E0F 0%, #171717 62%, #101010 100%)",
+                "linear-gradient(145deg, #2B2B2B 0%, #353535 62%, #2A2A2A 100%)",
               boxShadow:
                 "0 26px 62px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.08)",
             }}
@@ -51,9 +51,9 @@ export default function SearchResults({ projects, currentPage }: Props) {
                 with Savoir
               </p>
 
-              <span className="mt-[16px] block h-px w-[96px] bg-[#C6A45A]" />
+              <span className="mt-[16px] block h-px w-[96px] bg-white" />
 
-              <p className="mt-[18px] max-w-[255px] text-[15px] font-medium leading-[1.72] text-white/88">
+              <p className="CormorantGaramond mt-[18px] max-w-[255px] text-[20px] font-semibold leading-[1.25] text-white">
                 We unlock a world of real estate opportunities with leading
                 agents and real estate experts.
               </p>
@@ -65,15 +65,15 @@ export default function SearchResults({ projects, currentPage }: Props) {
                 className="
                   group absolute bottom-[12px] left-0 z-20 flex h-[42px] min-w-[176px]
                   items-center justify-center overflow-hidden rounded-[10px]
-                  border border-[#C6A45A]/90
+                  border border-white
                   bg-transparent px-[16px] border-[2px] 
                   shadow-[0_14px_34px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.08)]
-                  transition-all duration-300 hover:border-[#D8B96C] hover:shadow-[0_18px_38px_rgba(0,0,0,0.42),0_0_18px_rgba(198,164,90,0.14),inset_0_1px_0_rgba(255,255,255,0.12)]
+                  transition-all duration-300 hover:border-white hover:shadow-[0_18px_38px_rgba(0,0,0,0.42),0_0_18px_rgba(255,255,255,0.14),inset_0_1px_0_rgba(255,255,255,0.12)]
                 "
               >
                 <span className="absolute inset-x-[12px] top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
-                <p className="whitespace-nowrap text-[14px] font-semibold text-white">
+                <p className="CormorantGaramond whitespace-nowrap text-[14px] font-semibold text-white">
                   List your property
                 </p>
 
@@ -86,7 +86,7 @@ export default function SearchResults({ projects, currentPage }: Props) {
               </Link>
 
               <div className="pointer-events-none absolute bottom-[-34px] right-[-18px] z-30">
-                <span className="absolute bottom-[18px] right-[6px] h-[72px] w-[132px] rounded-full bg-[#C6A45A]/12 blur-[18px]" />
+                <span className="absolute bottom-[18px] right-[6px] h-[72px] w-[132px] rounded-full bg-white/12 blur-[18px]" />
                 <img
                   loading="lazy"
                   src={icon.Magazine}

@@ -14,7 +14,22 @@ export default function MainBlogsHero() {
         <div className="absolute inset-0 bg-black/20" />
 
         <div className="relative z-10 flex w-full max-w-[1226px] flex-col items-center">
-          <h1 className="text-center text-[34px] leading-[1.15] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[86px]">
+          <h1
+            className="
+              CormorantGaramond
+              text-center
+              text-[32px]
+              leading-[1.12]
+              text-white
+              drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)]
+              lg:text-[64px]
+            "
+            style={{
+              fontWeight: 500,
+              opacity: 1,
+              textShadow: "0 4px 18px rgba(0,0,0,0.75)",
+            }}
+          >
             Our Blogs
           </h1>
         </div>

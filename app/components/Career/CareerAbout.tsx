@@ -5,9 +5,9 @@ export default function CareerAbout() {
   return (
     <div className="flex w-full flex-col items-start gap-[14px]">
       <div className="career-about-heading-black">
-      <Header className="text-[28px] leading-[1.05] lg:text-[44px]">
-        We're Local, We're Global
-      </Header>
+        <Header className="text-[28px] leading-[1.05] lg:text-[44px]">
+          We're Local, We're Global
+        </Header>
       </div>
 
       <p
@@ -18,17 +18,17 @@ export default function CareerAbout() {
           opacity: 1,
         }}
       >
-        At Savoir Privé, we are more than a real estate agency — we are a
+        At Savoir Privé, we are more than a real estate agency. We are a
         close-knit family, united by a shared love for Dubai and a shared
         commitment to excellence. Our founders each bring over 20 years of UAE
-        real estate experience to the team they have built — a combined 40
-        years of Dubai market mastery that informs every decision, every
+        real estate experience to the team they have built. A combined 40 years
+        of Dubai market mastery that informs every decision, every
         recommendation, and every training session at Savoir.
         <br />
         <br className="hidden lg:block" />
         Surround yourself with the best. Our team collectively brings over 100
         years of real estate expertise, speaks ten languages, and draws on
-        experience from markets across the globe — all from our base on Sheikh
+        experience from markets across the globe, all from our base on Sheikh
         Zayed Road, Dubai. As proud members of Leading Real Estate Companies of
         the World®, we also offer our agents the global exposure, world-class
         tools, and international network of the most respected real estate

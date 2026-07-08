@@ -24,19 +24,49 @@ export default function mortgageServices() {
   ];
 
   const visitSiteIndexes: number[] = [1];
+  const stretchImageIndexes: number[] = [1];
 
   const linkToSite =
     "https://savoirprive.useholo.com/en/mortgage-products-services";
 
   return (
-    <div className="mt-[100px]">
+    <div className="mt-[100px] mortgage-services-page">
       <PageLayout>
         <ServiceContentCards
           items={items}
           visitSiteIndexes={visitSiteIndexes}
+          stretchImageIndexes={stretchImageIndexes}
           getVisitLink={() => linkToSite}
         />
       </PageLayout>
+
+      <style>
+        {`
+          .mortgage-services-page a,
+          .mortgage-services-page button {
+            border-color: transparent !important;
+          }
+
+          .mortgage-services-page a[href*="savoirprive.useholo.com"],
+          .mortgage-services-page a[target="_blank"] {
+            background: #2B2B2B !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 12px 28px rgba(43, 43, 43, 0.18) !important;
+          }
+
+          .mortgage-services-page a[href*="savoirprive.useholo.com"]:hover,
+          .mortgage-services-page a[target="_blank"]:hover {
+            background: #242424 !important;
+            color: #ffffff !important;
+          }
+
+          .mortgage-services-page a[href*="savoirprive.useholo.com"] *,
+          .mortgage-services-page a[target="_blank"] * {
+            color: #ffffff !important;
+          }
+        `}
+      </style>
     </div>
   );
 }

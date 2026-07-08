@@ -20,7 +20,7 @@ export default function ProjectCard({ project, compact = false }: props) {
   const isOffPlan = status.includes("off");
 
   const statusLabel = isOffPlan
-    ? "Off-plan"
+    ? "Off Plan"
     : project.offering_type === "RR"
       ? "For RENT"
       : "For SALE";
@@ -65,7 +65,7 @@ export default function ProjectCard({ project, compact = false }: props) {
           />
 
           <span
-            className={`Jakarta absolute left-[14px] top-[14px] rounded-[7px] bg-black text-white shadow-[0_2px_8px_rgba(0,0,0,0.12)] ${
+            className={`Jakarta absolute left-[14px] top-[14px] rounded-[7px] bg-[#2B2B2B] text-white shadow-[0_2px_8px_rgba(43,43,43,0.16)] ${
               compact ? "px-[11px] py-[6px] text-[12px]" : "px-[13px] py-[7px] text-[14px]"
             } font-semibold leading-none`}
           >

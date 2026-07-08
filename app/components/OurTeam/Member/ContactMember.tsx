@@ -23,6 +23,7 @@ export default function ContactMember() {
     if (url) {
       return;
     }
+
     event.preventDefault();
   };
 
@@ -33,9 +34,11 @@ export default function ContactMember() {
     if (event.key !== "Enter") {
       return;
     }
+
     if (url) {
       return;
     }
+
     event.preventDefault();
   };
 
@@ -54,6 +57,7 @@ export default function ContactMember() {
     );
 
     const mailtoLink = `mailto:${team.email}?subject=${subject}&body=${body}`;
+
     const tempAnchor = document.createElement("a");
     tempAnchor.href = mailtoLink;
     tempAnchor.target = "_self";
@@ -161,11 +165,20 @@ export default function ContactMember() {
       <div className="flex w-full flex-col items-start gap-[22px]">
         <Button
           className="
-            h-[42px] w-full !rounded-[8px]
-            !bg-[#111111] !px-[18px] !py-[10px]
-            text-[16px] font-semibold !text-white
-            shadow-[0_12px_26px_rgba(17,17,17,0.16)]
-            transition-all duration-300 hover:!bg-[#000000]
+            h-[42px]
+            w-full
+            !rounded-[13px]
+            !bg-[#2B2B2B]
+            !px-[24px]
+            !py-[9px]
+            text-[15px]
+            font-semibold
+            !text-white
+            shadow-[0_10px_22px_rgba(43,43,43,0.18)]
+            hover:!bg-[#242424]
+            lg:h-[44px]
+            lg:!px-[28px]
+            lg:text-[16px]
           "
           htmlType="submit"
           aria-label={`Send email to ${contactName}`}
@@ -178,41 +191,38 @@ export default function ContactMember() {
             className="text-center text-[16px] leading-[140%]"
             style={{
               color: "#111111",
-              fontWeight: 700,
+              fontWeight: 600,
               opacity: 1,
             }}
           >
             Or contact {contactName} right now via
           </p>
 
-          <div className="flex w-full flex-wrap items-center justify-center gap-[18px]">
-            <a
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                flex h-[42px] items-center justify-center gap-[9px]
-                rounded-[8px] bg-[#111111] px-[18px]
-                shadow-[0_10px_24px_rgba(17,17,17,0.16)]
-                transition-all duration-300 hover:bg-[#000000]
-              "
-              aria-label={`Chat with ${contactName} on WhatsApp`}
-              tabIndex={0}
-              onClick={(event) => handleLinkClick(event, whatsappLink)}
-              onKeyDown={(event) => handleLinkKeyDown(event, whatsappLink)}
-            >
-              <img
-                loading="lazy"
-                src={icon.whatsappGold}
-                alt=""
-                className="w-[23px]"
-              />
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              flex h-[42px] items-center justify-center gap-[8px]
+              rounded-[13px] bg-[#2B2B2B] px-[18px]
+              text-[16px] font-semibold text-white
+              shadow-[0_10px_22px_rgba(43,43,43,0.18)]
+              transition-colors hover:bg-[#242424]
+            "
+            aria-label={`Chat with ${contactName} on WhatsApp`}
+            tabIndex={0}
+            onClick={(event) => handleLinkClick(event, whatsappLink)}
+            onKeyDown={(event) => handleLinkKeyDown(event, whatsappLink)}
+          >
+            <img
+              loading="lazy"
+              src={icon.whatsappWhite}
+              alt=""
+              className="w-[22px]"
+            />
 
-              <p className="text-[16px] font-semibold text-white">
-                WhatsApp
-              </p>
-            </a>
-          </div>
+            <span>WhatsApp</span>
+          </a>
         </div>
       </div>
     </form>

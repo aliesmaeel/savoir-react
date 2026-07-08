@@ -46,7 +46,8 @@ export default function realEstateGuides() {
     const baseUrl = envConfig.baseUrl?.replace(/\/+$/, "") || "";
     return `${baseUrl}/${imagePath}`;
   };
-  /** Only items at these indexes show the “visit the site” button. */
+
+  /** Only items at these indexes show the “Visit The Site” button. */
   const visitSiteIndexes: number[] = [];
 
   return (
@@ -62,19 +63,27 @@ export default function realEstateGuides() {
               the Savior Properties guides are packed with essential information and key market insights.
             </p>
           </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-[40px] w-full">
             {guides.map((item: any, index: number) => (
               <div key={item.id ?? index} className="flex flex-col items-start gap-[18px] w-full">
-                <img
-                  src={getImageUrl(item.image)}
-                  alt={item.title || ""}
-                  className="w-full aspect-[414.75/292.5] rounded-[10.93px] object-cover"
-                />
+                <div className="w-full overflow-hidden rounded-[10.93px] bg-white">
+                  <img
+                    src={getImageUrl(item.image)}
+                    alt={item.title || ""}
+                    className="w-full aspect-[414.75/292.5] rounded-[10.93px] object-contain object-center"
+                    style={{
+                      imageRendering: "auto",
+                      filter: "none",
+                    }}
+                  />
+                </div>
+
                 <div className="flex items-center justify-between w-full">
                   <p className="text-[27px]">{item.title}</p>
                   <Button
                     onClick={() => handleDownloadClick(item.id, item.pdf)}
-                    className="!rounded-[4px] !py-[6px] !px-[12px] text-[16px] h-[37px] w-fit"
+                    className="!rounded-[6px] !bg-[#2B2B2B] !py-[6px] !px-[14px] text-[16px] h-[37px] w-fit !text-white shadow-[0_10px_22px_rgba(43,43,43,0.16)] hover:!bg-[#242424]"
                   >
                     Download
                   </Button>

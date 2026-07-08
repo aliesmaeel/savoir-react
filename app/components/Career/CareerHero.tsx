@@ -11,24 +11,23 @@ export default function CareerHero() {
   };
 
   return (
-    <div className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
+    <div className="relative flex h-[560px] w-full flex-col items-center justify-center overflow-hidden lg:h-screen">
       <img
         loading="lazy"
         src="/images/placeholders/hero.webp"
         alt=""
-        className="h-screen w-full object-cover brightness-[0.55]"
+        className="h-full w-full object-cover brightness-[0.48]"
       />
 
-      <div className="absolute left-0 top-0 flex h-screen w-full flex-col items-center justify-center px-[16px] lg:px-[45px]">
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/15" />
+      <div className="absolute left-0 top-0 flex h-full w-full flex-col items-center justify-center px-[16px] lg:px-[45px]">
+        <div className="absolute inset-0 bg-black/20" />
 
-        <div className="relative z-10 flex w-full flex-col items-center gap-[42px]">
+        <div className="relative z-10 flex w-full flex-col items-center gap-[34px]">
           <div
-            className="flex flex-col items-center gap-[16px]"
+            className="flex flex-col items-center gap-[15px]"
             data-aos="fade-down"
           >
-            <h1 className="text-center text-[34px] leading-[1.1] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[82px]">
+            <h1 className="CormorantGaramond text-center text-[31px] leading-[1.12] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[64px]">
               Savoir Careers
             </h1>
 
@@ -46,7 +45,6 @@ export default function CareerHero() {
             </p>
           </div>
 
-          {/* Updated Black Transparent Premium Button */}
           <div className="flex flex-col items-center gap-[13px] lg:flex-row">
             <Button
               type="white"

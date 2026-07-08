@@ -34,7 +34,7 @@ export default function SearchHero() {
         <SearchFilter />
       </div>
 
-      <h1 className="CormorantGaramond pointer-events-none absolute left-1/2 top-[205px] z-10 w-full -translate-x-1/2 px-[16px] text-center text-[42px] font-medium leading-[1.02] text-white lg:top-[225px] lg:text-[78px]">
+      <h1 className="CormorantGaramond pointer-events-none absolute left-1/2 top-[205px] z-10 w-full -translate-x-1/2 px-[16px] text-center text-[30px] font-medium leading-[1.16] text-white lg:top-[225px] lg:text-[56px]">
         {title}
       </h1>
     </div>

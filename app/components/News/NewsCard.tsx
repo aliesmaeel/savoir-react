@@ -46,10 +46,10 @@ export default function NewsCard({ newsItem }: Props) {
             to={`/news/${newsItem.slug}`}
             className="
               flex h-[30px] items-center justify-center rounded-[6px]
-              bg-[#111111] px-[13px]
+              bg-[#2B2B2B] px-[13px]
               text-[12px] font-semibold text-white
-              shadow-[0_8px_18px_rgba(17,17,17,0.14)]
-              transition-all duration-300 hover:bg-[#000000]
+              shadow-[0_8px_18px_rgba(43,43,43,0.16)]
+              transition-all duration-300 hover:bg-[#242424]
               lg:h-[32px] lg:px-[15px] lg:text-[13px]
             "
           >

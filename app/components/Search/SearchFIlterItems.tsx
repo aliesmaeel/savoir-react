@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import SearchSortBy from "./SearchSortBy";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
-// Local map for type codes -> labels (same options used in FilterType)
+
 const TYPE_LABEL: Record<string, string> = {
   AP: "Apartment",
   BU: "Bulk Units",
@@ -47,10 +47,9 @@ export default function SearchFIlterItems() {
   const isMobile = useIsMobile();
   const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
 
-  // Read current values
   const types = (params.get("types") || "").split(",").filter(Boolean);
   const typeCode = types[0] || null;
-  const typeLabel = typeCode ? (TYPE_LABEL[typeCode] ?? typeCode) : null;
+  const typeLabel = typeCode ? TYPE_LABEL[typeCode] ?? typeCode : null;
 
   const min = params.get("min");
   const max = params.get("max");
@@ -64,7 +63,6 @@ export default function SearchFIlterItems() {
   const interested = params.get("interested") || "Buy";
   const status = params.get("status") || "All";
 
-  // Helpers
   const updateParams = (updater: (p: URLSearchParams) => void) => {
     const p = new URLSearchParams(location.search);
     updater(p);
@@ -72,28 +70,32 @@ export default function SearchFIlterItems() {
   };
 
   const clearType = () => updateParams((p) => p.delete("types"));
+
   const clearPrice = () =>
     updateParams((p) => {
       p.delete("min");
       p.delete("max");
     });
+
   const clearBedrooms = () =>
     updateParams((p) => {
       p.set("bedrooms", "Any");
     });
+
   const clearBathrooms = () =>
     updateParams((p) => {
       p.set("bathrooms", "Any");
     });
+
   const clearInterested = () =>
     updateParams((p) => {
       p.set("interested", "Buy");
     });
+
   const clearStatus = () =>
     updateParams((p) => {
       p.set("status", "All");
     });
-  const clearQuery = () => updateParams((p) => p.delete("query"));
 
   const resetAll = () =>
     updateParams((p) => {
@@ -107,7 +109,6 @@ export default function SearchFIlterItems() {
       p.set("bathrooms", "Any");
     });
 
-  // Build active chips only for filters that deviate from defaults
   const items: Array<{
     key: string;
     icon: string;
@@ -126,6 +127,7 @@ export default function SearchFIlterItems() {
 
   if (hasPrice) {
     const priceLabel = min && max ? `${min}-${max}` : min ? `${min}+` : `0-${max}`;
+
     items.push({
       key: "price",
       icon: icon.searchPriceRange,
@@ -152,7 +154,6 @@ export default function SearchFIlterItems() {
     });
   }
 
-  // Always show interested filter (Rent or Buy)
   items.push({
     key: "interested",
     icon: icon.searchType,
@@ -164,7 +165,7 @@ export default function SearchFIlterItems() {
     items.push({
       key: "status",
       icon: icon.searchType,
-      label: status, // Ready or Off-plan
+      label: status,
       onClear: clearStatus,
     });
   }
@@ -173,10 +174,11 @@ export default function SearchFIlterItems() {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+
   for (const [i, q] of queryTerms.entries()) {
     items.push({
       key: `query-${i}`,
-      icon: icon.searchType, // use a location/search icon if you have one
+      icon: icon.searchType,
       label: q,
       onClear: () =>
         updateParams((p) => {
@@ -184,9 +186,14 @@ export default function SearchFIlterItems() {
             .split(",")
             .map((s) => s.trim())
             .filter(Boolean);
+
           arr.splice(i, 1);
-          if (arr.length) p.set("query", arr.join(","));
-          else p.delete("query");
+
+          if (arr.length) {
+            p.set("query", arr.join(","));
+          } else {
+            p.delete("query");
+          }
         }),
     });
   }
@@ -200,28 +207,58 @@ export default function SearchFIlterItems() {
           {items.map((item) => (
             <div
               key={item.label}
-              className="flex w-full items-center justify-between rounded-[8px] border border-[#111111] bg-white p-[9px] shadow-[0_10px_24px_rgba(0,0,0,0.08)] lg:h-[52px] lg:w-[168px] lg:p-[13px]"
+              className="
+                flex w-full items-center justify-between rounded-[8px]
+                border border-white/85 bg-white p-[9px]
+                shadow-[0_10px_24px_rgba(0,0,0,0.08)]
+                lg:h-[44px] lg:w-auto lg:min-w-[146px] lg:max-w-[190px] lg:px-[10px] lg:py-[9px]
+              "
             >
-              <div className="flex items-center gap-[4px] lg:gap-[8px]">
-                <img loading="lazy" src={item.icon} alt="" className="w-[9px] brightness-0 lg:w-[17px]" />
-                <hr className="border-0 w-[1px] h-[11px] lg:h-[20px] bg-[#111111]" />
-                <p className="text-[12px] font-bold text-[#111111] lg:text-[15px]">{item.label}</p>
+              <div className="flex min-w-0 items-center gap-[4px] lg:gap-[7px]">
+                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[4px] bg-[#2B2B2B] lg:h-[22px] lg:w-[22px]">
+                  <img
+                    loading="lazy"
+                    src={item.icon}
+                    alt=""
+                    className="w-[9px] shrink-0 brightness-0 invert lg:w-[12px]"
+                  />
+                </span>
+
+                <hr className="h-[11px] w-[1px] shrink-0 border-0 bg-[#2B2B2B] lg:h-[16px]" />
+
+                <p className="CormorantGaramond truncate text-[12px] font-semibold text-[#111111] lg:text-[14px]">
+                  {item.label}
+                </p>
               </div>
+
               <button
                 onClick={item.onClear}
                 aria-label={`clear ${item.key}`}
-                className="flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-[#111111] text-[12px] font-bold leading-none text-white lg:h-[26px] lg:w-[26px]"
+                className="
+                  ml-[8px] flex h-[22px] w-[22px] shrink-0 items-center justify-center
+                  rounded-full bg-[#2B2B2B] text-[12px] font-bold leading-none text-white
+                  shadow-[0_4px_10px_rgba(43,43,43,0.18)]
+                  transition-colors duration-300 hover:bg-[#242424]
+                  lg:h-[24px] lg:w-[24px] lg:text-[11px]
+                "
               >
                 x
               </button>
             </div>
           ))}
         </div>
-        {!isMobile && <div className="ml-auto shrink-0"><SearchSortBy /></div>}
+
+        {!isMobile && (
+          <div className="ml-auto shrink-0">
+            <SearchSortBy />
+          </div>
+        )}
       </div>
-     
+
       <button onClick={resetAll} aria-label="reset all filters">
-        <p className="text-[12px] font-semibold underline lg:text-[14px]">Reset all filters</p>
+        <p className="CormorantGaramond text-[12px] font-semibold text-white underline decoration-[#C6A45A] underline-offset-4 lg:text-[14px]">
+          Reset all filters
+        </p>
       </button>
     </div>
   );

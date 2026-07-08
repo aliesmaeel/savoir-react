@@ -27,7 +27,9 @@ type ReviewSlide = {
 };
 
 export default function MemberReviewSwiper() {
-  const { testimonials = [] } = useLoaderData() as { testimonials?: TestimonialApi[] };
+  const { testimonials = [] } = useLoaderData() as {
+    testimonials?: TestimonialApi[];
+  };
   const [isGrabbing, setIsGrabbing] = useState(false);
   const isMobile = useIsMobile();
 
@@ -52,11 +54,21 @@ export default function MemberReviewSwiper() {
 
   return (
     <>
-      <div className="hidden lg:flex flex-col items-center gap-[37px] w-full mt-[112px]">
-        <p className="text-black text-[42px] font-medium">The Reviews</p>
+      <div className="hidden w-full flex-col items-center gap-[37px] lg:mt-[112px] lg:flex">
+        <p
+          className="CormorantGaramond text-[42px] leading-[1.1]"
+          style={{
+            color: "#111111",
+            fontWeight: 500,
+            opacity: 1,
+            textShadow: "0 0 0.28px #111111",
+          }}
+        >
+          The Reviews
+        </p>
 
         <div
-          className={`w-full max-w-[1150px] mx-auto transition-colors duration-200 ${
+          className={`mx-auto w-full max-w-[1150px] transition-colors duration-200 ${
             isGrabbing ? "cursor-grabbing" : "cursor-grab"
           }`}
         >
@@ -97,8 +109,18 @@ export default function MemberReviewSwiper() {
       </div>
 
       {isMobile && (
-        <div className="flex flex-col items-center gap-[37px] w-full mt-[112px]">
-          <p className="text-black text-[42px] font-medium">The Reviews</p>
+        <div className="mt-[112px] flex w-full flex-col items-center gap-[37px]">
+          <p
+            className="CormorantGaramond text-[42px] leading-[1.1]"
+            style={{
+              color: "#111111",
+              fontWeight: 500,
+              opacity: 1,
+              textShadow: "0 0 0.28px #111111",
+            }}
+          >
+            The Reviews
+          </p>
 
           <ThreeSwiper>
             {items.map((item) => (
@@ -133,11 +155,27 @@ function SlideCard({ data }: { data: ReviewSlide }) {
       `}
     >
       <div className="flex h-[215px] w-full flex-col items-start">
-        <p className="mb-[24px] h-[22px] text-[42px] font-semibold leading-none text-[#C6A45A]">
+        <p
+          className="CormorantGaramond mb-[24px] h-[22px] text-[42px] leading-none"
+          style={{
+            color: "#111111",
+            fontWeight: 500,
+            opacity: 1,
+            textShadow: "0 0 0.25px #111111",
+          }}
+        >
           “
         </p>
 
-        <p className="line-clamp-6 max-w-[330px] text-left text-[20px] italic leading-[1.48] text-[#3F3F3F]">
+        <p
+          className="CormorantGaramond line-clamp-6 max-w-[330px] text-left text-[20px] italic leading-[1.48]"
+          style={{
+            color: "#3F3F3F",
+            fontWeight: 500,
+            opacity: 1,
+            textShadow: "0 0 0.18px #3F3F3F",
+          }}
+        >
           “{data.text}”
         </p>
       </div>
@@ -151,17 +189,33 @@ function SlideCard({ data }: { data: ReviewSlide }) {
             className="h-[52px] w-[52px] shrink-0 rounded-full object-cover"
           />
         ) : (
-          <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#6AA43A] text-[24px] font-semibold text-white">
+          <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#6AA43A] text-[24px] font-medium text-white">
             {data.author?.charAt(0) || "U"}
           </div>
         )}
 
         <div className="flex min-w-0 flex-col items-start">
-          <p className="line-clamp-1 text-[15px] font-semibold leading-[1.2] text-[#111111]">
+          <p
+            className="CormorantGaramond line-clamp-1 text-[15px] leading-[1.2]"
+            style={{
+              color: "#111111",
+              fontWeight: 500,
+              opacity: 1,
+              textShadow: "0 0 0.18px #111111",
+            }}
+          >
             {data.author}
           </p>
 
-          <p className="line-clamp-1 text-[13px] leading-[1.35] text-[#555555]">
+          <p
+            className="CormorantGaramond line-clamp-1 text-[13px] leading-[1.35]"
+            style={{
+              color: "#555555",
+              fontWeight: 500,
+              opacity: 1,
+              textShadow: "0 0 0.14px #555555",
+            }}
+          >
             {data.role}
           </p>
 

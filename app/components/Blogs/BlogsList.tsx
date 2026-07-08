@@ -21,6 +21,7 @@ export default function BlogsList() {
   const handlePageChange = (nextPage: number) => {
     const url = new URL(window.location.href);
     url.searchParams.set("page", String(nextPage));
+
     navigate(`${location.pathname}?${url.searchParams.toString()}`, {
       preventScrollReset: true,
     });
@@ -44,10 +45,10 @@ export default function BlogsList() {
         <div className="flex max-w-[835px] flex-col items-start gap-[9px] lg:gap-[15px]">
           <div className="flex flex-col items-start gap-[4px]">
             <p
-              className="text-[14px] leading-[1.45] lg:text-[22px]"
+              className="CormorantGaramond text-[14px] leading-[1.45] lg:text-[22px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 700,
                 opacity: 1,
               }}
             >
@@ -55,7 +56,7 @@ export default function BlogsList() {
             </p>
 
             <p
-              className="text-[14px] leading-[1.2] lg:text-[22px]"
+              className="CormorantGaramond text-[14px] leading-[1.2] lg:text-[22px]"
               style={{
                 color: "#111111",
                 fontWeight: 700,
@@ -73,9 +74,9 @@ export default function BlogsList() {
             onClick={() => setSortOpen((prev) => !prev)}
             className="
               flex h-[38px] min-w-[190px] items-center justify-between
-              rounded-[10px] bg-[#111111] px-[16px]
-              shadow-[0_10px_24px_rgba(17,17,17,0.18)]
-              transition-all duration-300 hover:bg-[#000000]
+              rounded-[10px] bg-[#2B2B2B] px-[16px]
+              shadow-[0_10px_24px_rgba(43,43,43,0.18)]
+              transition-all duration-300 hover:bg-[#242424]
               lg:h-[40px] lg:min-w-[205px] lg:px-[17px]
             "
           >
@@ -91,17 +92,17 @@ export default function BlogsList() {
               </span>
             </div>
 
-            <span className="flex h-[24px] w-[24px] items-center justify-center rounded-full border border-white bg-[#111111] text-[14px] font-bold leading-none text-white">
+            <span className="flex h-[24px] w-[24px] items-center justify-center rounded-full border border-white/70 bg-[#2B2B2B] text-[14px] font-bold leading-none text-white">
               {sortOpen ? "⌃" : "⌄"}
             </span>
           </button>
 
           {sortOpen && (
-            <div className="absolute right-0 top-[48px] z-30 w-full overflow-hidden rounded-[10px] bg-[#111111] shadow-[0_12px_28px_rgba(17,17,17,0.22)]">
+            <div className="absolute right-0 top-[48px] z-30 w-full overflow-hidden rounded-[10px] bg-[#2B2B2B] shadow-[0_12px_28px_rgba(43,43,43,0.22)]">
               <button
                 type="button"
                 onClick={() => handleSortChange("title")}
-                className="flex h-[38px] w-full items-center px-[16px] text-left text-[13px] font-semibold text-white transition-all duration-200 hover:bg-[#000000]"
+                className="flex h-[38px] w-full items-center px-[16px] text-left text-[13px] font-semibold text-white transition-all duration-200 hover:bg-[#242424]"
               >
                 Title
               </button>
@@ -109,7 +110,7 @@ export default function BlogsList() {
               <button
                 type="button"
                 onClick={() => handleSortChange("date")}
-                className="flex h-[38px] w-full items-center px-[16px] text-left text-[13px] font-semibold text-white transition-all duration-200 hover:bg-[#000000]"
+                className="flex h-[38px] w-full items-center px-[16px] text-left text-[13px] font-semibold text-white transition-all duration-200 hover:bg-[#242424]"
               >
                 Date
               </button>

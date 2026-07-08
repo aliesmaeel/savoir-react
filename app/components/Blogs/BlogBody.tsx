@@ -14,27 +14,22 @@ export default function BlogBody() {
         relative z-10 flex w-full flex-col items-start gap-[53px]
 
         [&_article]:!text-[#111111]
-        [&_article]:!font-semibold
         [&_article]:!opacity-100
         [&_article_p]:!text-[#111111]
-        [&_article_p]:!font-semibold
         [&_article_p]:!opacity-100
         [&_article_span]:!text-[#111111]
-        [&_article_span]:!font-semibold
         [&_article_span]:!opacity-100
         [&_article_li]:!text-[#111111]
-        [&_article_li]:!font-semibold
         [&_article_strong]:!text-[#111111]
-        [&_article_strong]:!font-bold
       "
     >
       {/* title_details */}
       {blog.title_details && (
         <article
-          className="description-body article-heading-body text-[14px] leading-[160%] lg:text-[18px]"
+          className="description-body article-heading-body article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
           style={{
             color: "#111111",
-            fontWeight: 600,
+            fontWeight: 400,
             opacity: 1,
           }}
           dangerouslySetInnerHTML={{ __html: blog.title_details }}
@@ -47,9 +42,10 @@ export default function BlogBody() {
           <h2
             className="CormorantGaramond article-point-heading text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {blog.description_one_title}
@@ -57,10 +53,10 @@ export default function BlogBody() {
 
           {blog.description_one && (
             <article
-              className="description-body text-[14px] leading-[160%] lg:text-[18px]"
+              className="description-body article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: blog.description_one }}
@@ -107,9 +103,10 @@ export default function BlogBody() {
           <h2
             className="CormorantGaramond article-point-heading text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {blog.description_two_title}
@@ -117,10 +114,10 @@ export default function BlogBody() {
 
           {blog.description_two && (
             <article
-              className="description-body text-[14px] leading-[160%] lg:text-[18px]"
+              className="description-body article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: blog.description_two }}
@@ -135,9 +132,10 @@ export default function BlogBody() {
           <h2
             className="CormorantGaramond article-point-heading text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {blog.description_three_title}
@@ -145,10 +143,10 @@ export default function BlogBody() {
 
           {blog.description_three && (
             <article
-              className="description-body text-[14px] leading-[160%] lg:text-[18px]"
+              className="description-body article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: blog.description_three }}
@@ -163,9 +161,10 @@ export default function BlogBody() {
           <h2
             className="CormorantGaramond article-point-heading text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {blog.description_four_title}
@@ -173,10 +172,10 @@ export default function BlogBody() {
 
           {blog.description_four && (
             <article
-              className="description-body text-[14px] leading-[160%] lg:text-[18px]"
+              className="description-body article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: blog.description_four }}

@@ -8,12 +8,23 @@ export default function OurAgents() {
   const { teams } = useLoaderData() as { teams: any };
 
   return (
-    <div className="flex flex-col items-center gap-[37px] w-full mt-[112px]">
-      <p className="text-black text-[42px] font-medium">Our Team</p>
+    <div className="mt-[112px] flex w-full flex-col items-center gap-[37px]">
+      <p
+        className="CormorantGaramond text-[42px] leading-[1.1]"
+        style={{
+          color: "#111111",
+          fontWeight: 500,
+          opacity: 1,
+          textShadow: "0 0 0.28px #111111",
+        }}
+      >
+        Our Team
+      </p>
+
       <ThreeSwiper spaceBetween={21}>
         {teams.map((member: any, index: number) => (
-          <SwiperSlide>
-            <TeamCard key={index} member={member} />
+          <SwiperSlide key={index}>
+            <TeamCard member={member} />
           </SwiperSlide>
         ))}
       </ThreeSwiper>

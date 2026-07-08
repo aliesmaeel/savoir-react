@@ -6,7 +6,7 @@ export default function FooterContactUs() {
   const icon = useIcons();
 
   return (
-    <div className="flex flex-col items-start gap-[8px] lg:gap-[20px] w-full max-w-[272px]">
+    <div className="flex w-full max-w-[272px] flex-col items-start gap-[8px] lg:gap-[20px]">
       <p
         className="text-[14px] font-semibold lg:text-[24px]"
         style={{
@@ -18,9 +18,14 @@ export default function FooterContactUs() {
         CONTACT US
       </p>
 
-      <div className="flex flex-col items-start gap-[20px] lg:gap-[27px] w-full">
+      <div className="flex w-full flex-col items-start gap-[20px] lg:gap-[27px]">
         <Link to={`tel:+71505074686`} className="flex items-center gap-[10px]">
-          <img loading="lazy" src={icon.phoneGold} alt="" className="w-[16px] lg:w-[18px]" />
+          <img
+            loading="lazy"
+            src={icon.phoneGold}
+            alt=""
+            className="w-[16px] lg:w-[18px]"
+          />
           <p
             className="text-[16px] lg:text-[18px]"
             style={{
@@ -33,8 +38,16 @@ export default function FooterContactUs() {
           </p>
         </Link>
 
-        <Link to={`mailto:info@savoirproperties.com`} className="flex items-center gap-[10px]">
-          <img loading="lazy" src={icon.emailGold} alt="" className="w-[16px] lg:w-[18px]" />
+        <Link
+          to={`mailto:info@savoirproperties.com`}
+          className="flex items-center gap-[10px]"
+        >
+          <img
+            loading="lazy"
+            src={icon.emailGold}
+            alt=""
+            className="w-[16px] lg:w-[18px]"
+          />
           <p
             className="text-[16px] lg:text-[18px]"
             style={{
@@ -48,19 +61,34 @@ export default function FooterContactUs() {
         </Link>
       </div>
 
-      <div className="flex flex-col gap-[10px]">
-        <img
-          loading="lazy"
-          src="/images/footer1.png"
-          alt=""
-          className="w-full brightness-[0.62] contrast-[1.35]"
-        />
-        <img
-          loading="lazy"
-          src="/images/footer2.png"
-          alt=""
-          className="w-full brightness-[0.62] contrast-[1.35]"
-        />
+      <div className="flex w-full flex-col gap-[12px]">
+        <a
+          href="https://www.luxuryportfolio.com/"
+          target="_blank"
+          rel="noreferrer"
+          className="block w-full transition-all duration-300 hover:opacity-80"
+        >
+          <img
+            loading="lazy"
+            src="/images/footer1.png"
+            alt=""
+            className="w-full brightness-[0.42] contrast-[1.35] grayscale"
+          />
+        </a>
+
+        <a
+          href="https://www.leadingre.com/"
+          target="_blank"
+          rel="noreferrer"
+          className="block w-full transition-all duration-300 hover:opacity-80"
+        >
+          <img
+            loading="lazy"
+            src="/images/footer2.png"
+            alt=""
+            className="w-full brightness-[0.42] contrast-[1.35] grayscale"
+          />
+        </a>
       </div>
     </div>
   );
