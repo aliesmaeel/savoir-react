@@ -53,25 +53,41 @@ export default function realEstateGuides() {
   return (
     <div className="mt-[100px]">
       <PageLayout>
-        <div className="flex flex-col items-start gap-[89px] w-full">
-          <div className="flex flex-col items-start gap-[24px] w-full">
+        <div className="flex w-full flex-col items-start gap-[58px]">
+          <div className="flex w-full flex-col items-start gap-[22px]">
             <p className="CormorantGaramond text-[28px] font-semibold leading-[1.05] capitalize text-[#111111] lg:text-[44px]">
               Real estate guides from industry experts
             </p>
+
             <p className="text-[14px] font-semibold leading-[160%] text-[#111111] lg:text-[18px]">
               From buying or selling a property to discovering Dubai's key areas and investments,
               the Savior Properties guides are packed with essential information and key market insights.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-[40px] w-full">
+          <div className="grid w-full grid-cols-1 gap-[28px] md:grid-cols-2 lg:grid-cols-3">
             {guides.map((item: any, index: number) => (
-              <div key={item.id ?? index} className="flex flex-col items-start gap-[18px] w-full">
-                <div className="w-full overflow-hidden rounded-[10.93px] bg-white">
+              <div
+                key={item.id ?? index}
+                className="
+                  flex w-full flex-col items-center
+                  rounded-[16px]
+                  border border-[#E8DFD2]
+                  bg-white
+                  px-[16px]
+                  py-[18px]
+                  shadow-[0_14px_38px_rgba(17,17,17,0.045)]
+                  transition-all
+                  duration-300
+                  hover:-translate-y-[2px]
+                  hover:shadow-[0_20px_48px_rgba(17,17,17,0.08)]
+                "
+              >
+                <div className="flex h-[260px] w-full items-center justify-center overflow-hidden rounded-[12px] bg-[#FBFAF7] lg:h-[280px]">
                   <img
                     src={getImageUrl(item.image)}
                     alt={item.title || ""}
-                    className="w-full aspect-[414.75/292.5] rounded-[10.93px] object-contain object-center"
+                    className="h-full w-auto max-w-full object-contain object-center"
                     style={{
                       imageRendering: "auto",
                       filter: "none",
@@ -79,11 +95,32 @@ export default function realEstateGuides() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between w-full">
-                  <p className="text-[27px]">{item.title}</p>
+                <div className="mt-[16px] flex w-full items-center justify-between gap-[12px]">
+                  <p className="CormorantGaramond text-[20px] leading-[1.1] text-[#111111] lg:text-[23px]">
+                    {item.title}
+                  </p>
+
                   <Button
                     onClick={() => handleDownloadClick(item.id, item.pdf)}
-                    className="!rounded-[6px] !bg-[#2B2B2B] !py-[6px] !px-[14px] text-[16px] h-[37px] w-fit !text-white shadow-[0_10px_22px_rgba(43,43,43,0.16)] hover:!bg-[#242424]"
+                    className="
+                      h-[30px]
+                      w-fit
+                      shrink-0
+                      !rounded-[5px]
+                      !bg-[#2B2B2B]
+                      !px-[10px]
+                      !py-[4px]
+                      text-[12px]
+                      font-semibold
+                      !text-white
+                      shadow-[0_8px_18px_rgba(43,43,43,0.14)]
+                      transition-all
+                      duration-300
+                      hover:!bg-[#242424]
+                      lg:h-[32px]
+                      lg:px-[12px]
+                      lg:text-[13px]
+                    "
                   >
                     Download
                   </Button>
