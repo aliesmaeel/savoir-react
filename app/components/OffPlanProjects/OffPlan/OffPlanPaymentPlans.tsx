@@ -25,26 +25,19 @@ export default function OffPlanPaymentPlans() {
   ];
 
   return (
-    <div className="mt-[50px] flex w-full flex-col items-start gap-[29px]">
-      <p
-        className="savoir-section-heading text-[38px] leading-[1.1] lg:text-[52px]"
-        style={{
-          color: "#111111",
-          fontWeight: 700,
-          opacity: 1,
-        }}
-      >
+    <div className="mt-[50px] flex w-full flex-col items-start gap-[24px]">
+      <p className="CormorantGaramond text-[28px] font-[900] leading-[1.08] text-[#050505] [text-shadow:0_0_0.45px_#050505] lg:text-[34px]">
         Payment Plan
       </p>
 
-      <div className="grid w-full grid-cols-1 gap-[14px] lg:grid-cols-3">
+      <div className="grid w-full max-w-[820px] grid-cols-1 gap-[12px] lg:grid-cols-3">
         {plans.map((plan: any, index: any) => (
           <div
             key={index}
             className="
-              flex min-h-[178px] w-full items-start gap-[16px]
-              rounded-[7px] border border-[#111111] bg-white
-              px-[30px] py-[24px]
+              flex min-h-[150px] w-full items-start gap-[14px]
+              rounded-[7px] border border-[#353635] bg-white
+              px-[24px] py-[22px]
               shadow-[0_12px_30px_rgba(17,17,17,0.05)]
               transition-all duration-300
               hover:-translate-y-[2px]
@@ -55,14 +48,14 @@ export default function OffPlanPaymentPlans() {
               loading="lazy"
               src={plan.icon}
               alt=""
-              className="w-[45px] brightness-0"
+              className="w-[45px] brightness-0 opacity-80"
             />
 
             <div className="mt-[5px] flex flex-col items-start gap-[7px]">
               <p
                 className="flex min-h-[42px] items-center text-[15px]"
                 style={{
-                  color: "#111111",
+                  color: "#353635",
                   fontWeight: 700,
                   opacity: 1,
                 }}
@@ -73,7 +66,7 @@ export default function OffPlanPaymentPlans() {
               <p
                 className="text-[24px]"
                 style={{
-                  color: "#111111",
+                  color: "#353635",
                   fontWeight: 700,
                   opacity: 1,
                 }}

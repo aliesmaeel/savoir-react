@@ -13,12 +13,12 @@ export default function AboutHero() {
       <div className="absolute left-0 top-0 flex h-[85vh] w-full flex-col items-center justify-center px-[16px] lg:h-screen lg:px-[45px]">
         <div className="absolute inset-0 bg-black/20" />
 
-        <div className="relative z-10 flex w-full flex-col items-center">
-          <h1 className="text-center text-[30px] leading-[1.15] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[86px]">
+        <div className="relative z-10 flex w-full max-w-[980px] flex-col items-center">
+          <h1 className="text-center text-[31px] leading-[1.12] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[64px]">
             About Us
           </h1>
 
-          <p className="mt-[12px] text-center text-[22px] leading-[1.2] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[58px]">
+          <p className="mt-[12px] text-center text-[24px] leading-[1.16] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[46px]">
             Savoir Beyond Excellence
           </p>
         </div>

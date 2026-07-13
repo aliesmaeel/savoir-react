@@ -40,27 +40,27 @@ export default function AboutWhoWeAre() {
         }}
       >
         Savoir Privé Properties is a boutique luxury real estate agency based in
-        Dubai, UAE — and at our core, we are a family business built on an
+        Dubai, UAE. At our core, we are a family business built on an
         extraordinary foundation of expertise. Our founders arrived in the
         Emirates 26 years ago and have made Dubai their permanent home ever
         since. Each brings over 20 years of Dubai real estate experience to
-        Savoir — a combined 40 years of on-the-ground market knowledge between
-        them alone.
+        Savoir, creating a combined 40 years of on-the-ground market knowledge
+        between them alone.
         <br />
         <br />
         Four years ago, they channelled that lifetime of expertise into founding
         Savoir Privé Properties. They were joined by a team of equally committed
-        professionals — multilingual, internationally experienced, and deeply
-        invested in the UAE. Together, the collective expertise within Savoir
-        exceeds 100 years, spanning Dubai and real estate markets across the
-        globe.
+        professionals who are multilingual, internationally experienced, and
+        deeply invested in the UAE. Together, the collective expertise within
+        Savoir exceeds 100 years, spanning Dubai and real estate markets across
+        the globe.
         <br />
         <br />
         As proud members of Leading Real Estate Companies of the World® and
-        Luxury Portfolio International®, we combine that unrivalled depth of
-        knowledge with the reach of the world's most powerful real estate
-        network — offering every client an experience that is as personally
-        attentive as it is globally connected.
+        Luxury Portfolio International®, we combine unrivalled market knowledge
+        with the reach of one of the world's most powerful real estate networks.
+        This allows us to offer every client an experience that is personally
+        attentive, globally connected, and shaped around their goals.
       </p>
     </div>
   );

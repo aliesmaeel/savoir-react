@@ -50,7 +50,7 @@ export default function TeamCard({ member }: Props) {
                   View Profile
                 </span>
 
-                <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full border border-[#111111] bg-[#111111] text-white shadow-[0_8px_18px_rgba(17,17,17,0.14)] transition-all duration-300 group-hover:scale-[1.08] group-hover:bg-[#000000]">
+                <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full border border-[#2B2B2B] bg-[#2B2B2B] text-white shadow-[0_8px_18px_rgba(43,43,43,0.14)] transition-all duration-300 group-hover:scale-[1.08] group-hover:border-[#242424] group-hover:bg-[#242424]">
                   <svg
                     viewBox="0 0 24 24"
                     className="h-[14px] w-[14px]"

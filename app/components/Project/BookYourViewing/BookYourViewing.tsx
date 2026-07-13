@@ -4,7 +4,7 @@ import BookingInput from "./BookingInput";
 import BookingDropdown from "./BookingDropdown";
 import BookingCheckbox from "./BookingCheckbox";
 import Button from "~/UI/Button";
-import { Link, useLoaderData } from "react-router";
+import { useLoaderData } from "react-router";
 
 type Agent = {
   name?: string;
@@ -23,7 +23,7 @@ const DEFAULT_AGENT: Agent = {
   email: "info@savoirproperties.com",
   image: "/images/placeholders/user.webp",
   Job_Description: "Property Consultant",
-  phone: "",
+  phone: "971505074686",
 };
 
 export default function BookYourViewing({ agent }: Props) {
@@ -47,8 +47,10 @@ export default function BookYourViewing({ agent }: Props) {
   const agentName = activeAgent.name || DEFAULT_AGENT.name;
   const agentImage = activeAgent.image || DEFAULT_AGENT.image;
   const agentRole = activeAgent.Job_Description || DEFAULT_AGENT.Job_Description;
-  const agentPhone = activeAgent.phone || "";
-  const whatsappLink = agentPhone ? `https://wa.me/${agentPhone}` : undefined;
+  const agentPhone = activeAgent.phone || DEFAULT_AGENT.phone || "";
+
+  const cleanWhatsappNumber = String(agentPhone).replace(/[^\d]/g, "");
+  const whatsappLink = `https://wa.me/${cleanWhatsappNumber || "971505074686"}`;
 
   const handleSendEmail = () => {
     if (!TO_EMAIL || typeof window === "undefined" || typeof document === "undefined") {
@@ -120,14 +122,7 @@ export default function BookYourViewing({ agent }: Props) {
   return (
     <div className="mt-[60px] flex w-full flex-col items-start gap-[22px]">
       <div className="flex flex-col items-start gap-[7px]">
-        <p
-          className="CormorantGaramond text-[28px] leading-[1.05] lg:text-[44px]"
-          style={{
-            color: "#111111",
-            fontWeight: 700,
-            opacity: 1,
-          }}
-        >
+        <p className="CormorantGaramond text-[28px] font-[900] leading-[1.08] text-[#050505] [text-shadow:0_0_0.45px_#050505] lg:text-[34px]">
           Book a Viewing
         </p>
       </div>
@@ -157,7 +152,7 @@ export default function BookYourViewing({ agent }: Props) {
         "
         noValidate={false}
       >
-        <div className="hidden w-full max-w-[270px] shrink-0 overflow-hidden rounded-[14px] bg-[#111111] lg:flex lg:flex-col">
+        <div className="hidden w-full max-w-[270px] shrink-0 overflow-hidden rounded-[14px] bg-[#2B2B2B] lg:flex lg:flex-col">
           <div className="relative h-[330px] w-full overflow-hidden">
             <img
               loading="lazy"
@@ -166,10 +161,10 @@ export default function BookYourViewing({ agent }: Props) {
               className="h-full w-full object-cover"
             />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/18 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2B2B2B] via-[#2B2B2B]/18 to-transparent" />
           </div>
 
-          <div className="flex flex-col items-center gap-[4px] bg-[#111111] px-[16px] pb-[20px] pt-[16px]">
+          <div className="flex flex-col items-center gap-[4px] bg-[#2B2B2B] px-[16px] pb-[20px] pt-[16px]">
             <p className="text-center text-[24px] font-semibold leading-[1.1] text-white">
               {agentName}
             </p>
@@ -279,11 +274,16 @@ export default function BookYourViewing({ agent }: Props) {
 
               <Button
                 className="
-                  h-[42px] w-full !rounded-[8px] !bg-[#111111]
-                  !px-[26px] !py-[10px] text-[16px] font-semibold
-                  !text-white shadow-[0_12px_26px_rgba(17,17,17,0.18)]
-                  transition-all duration-300 hover:!bg-[#000000]
-                  lg:w-auto lg:min-w-[250px] lg:!px-[46px]
+                  h-[44px] w-full
+                  !rounded-[8px]
+                  !border-0 !border-none
+                  !bg-[#2B2B2B]
+                  !px-[24px] !py-[8px]
+                  text-[16px] font-semibold !text-white
+                  shadow-[0_10px_24px_rgba(43,43,43,0.16)]
+                  transition-all duration-300
+                  hover:!bg-[#242424]
+                  lg:w-auto lg:min-w-[210px]
                 "
                 htmlType="submit"
                 aria-label={`Send email to ${agentName}`}
@@ -294,56 +294,41 @@ export default function BookYourViewing({ agent }: Props) {
           </div>
 
           <div className="flex flex-col items-center gap-[13px] lg:flex-row">
-            <p className="text-[18px] font-semibold text-[#111111]">
-              Or contact us right now via
+            <p
+              className="text-[18px] leading-[1.2]"
+              style={{
+                color: "#111111",
+                fontWeight: 700,
+                opacity: 1,
+              }}
+            >
+              Or contact us via
             </p>
 
-            {whatsappLink ? (
-              <Link
-                to={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="
-                  flex h-[48px] items-center justify-center gap-[10px]
-                  rounded-[10px] bg-[#111111] px-[22px]
-                  text-[18px] font-semibold text-white
-                  shadow-[0_10px_24px_rgba(17,17,17,0.16)]
-                  transition-all duration-300 hover:bg-[#000000]
-                "
-                aria-label={`Chat with ${agentName} on WhatsApp`}
-              >
-                <img
-                  loading="lazy"
-                  src={icon.whatsappGold}
-                  alt=""
-                  className="w-[26px]"
-                />
-
-                <p className="text-[18px] font-semibold text-white">
-                  Whatsapp
-                </p>
-              </Link>
-            ) : (
-              <div
-                className="
-                  flex h-[48px] items-center justify-center gap-[10px]
-                  rounded-[10px] bg-[#111111] px-[22px]
-                  text-[18px] font-semibold text-white
-                  shadow-[0_10px_24px_rgba(17,17,17,0.16)]
-                "
-              >
-                <img
-                  loading="lazy"
-                  src={icon.whatsappGold}
-                  alt=""
-                  className="w-[26px]"
-                />
-
-                <p className="text-[18px] font-semibold text-white">
-                  Whatsapp
-                </p>
-              </div>
-            )}
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                flex h-[44px] items-center justify-center gap-[8px]
+                rounded-[13px]
+                border-0 border-none
+                bg-[#2B2B2B] px-[18px]
+                text-[16px] font-semibold text-white
+                shadow-[0_10px_22px_rgba(43,43,43,0.16)]
+                transition-colors duration-300
+                hover:bg-[#242424]
+              "
+              aria-label={`Chat with ${agentName} on WhatsApp`}
+            >
+              <img
+                loading="lazy"
+                src={icon.whatsappWhite}
+                alt=""
+                className="w-[22px]"
+              />
+              <span>Whatsapp</span>
+            </a>
           </div>
         </div>
       </form>

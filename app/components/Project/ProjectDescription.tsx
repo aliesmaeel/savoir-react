@@ -187,13 +187,14 @@ export default function ProjectDescription() {
     <div className="mt-[34px] flex w-full flex-col items-start gap-[53px] lg:flex-row">
       <div className="flex w-full flex-col items-start gap-[31px]">
         <div className="flex w-full flex-col items-start gap-[17px]">
-          <p className="CormorantGaramond text-[24px] font-[900] leading-[1.12] text-[#050505] [text-shadow:0_0_0.4px_#050505] lg:text-[30px]">
+          <p className="CormorantGaramond text-[28px] font-[900] leading-[1.08] text-[#050505] [text-shadow:0_0_0.45px_#050505] lg:text-[34px]">
             {property.title_en}
           </p>
 
           <div className="flex w-full flex-col items-start gap-[4px]">
             <div
-              className="Jakarta text-[14px] font-semibold leading-[165%] text-[#111111] lg:text-[18px]"
+              className="CormorantGaramond text-[14px] font-normal leading-[165%] tracking-[0.01em] text-[#050505] lg:text-[18px] [&_*]:!font-normal"
+              style={{ textShadow: "0 0 0.22px currentColor" }}
               dangerouslySetInnerHTML={{
                 __html: truncatedDescription,
               }}
@@ -208,7 +209,8 @@ export default function ProjectDescription() {
                     handleOpenPopup();
                   }
                 }}
-                className="Jakarta mt-[8px] text-[14px] font-bold text-[#111111] underline hover:opacity-70 focus:outline-none focus:underline lg:text-[17px]"
+                className="CormorantGaramond mt-[4px] text-[13px] font-normal leading-[1.2] text-[#050505] transition-opacity duration-200 hover:opacity-70 focus:outline-none lg:text-[15px]"
+                style={{ textShadow: "0 0 0.16px currentColor" }}
                 aria-label="Read more"
                 tabIndex={0}
               >
@@ -268,7 +270,8 @@ export default function ProjectDescription() {
 
             <div className="flex-1 overflow-y-auto bg-white px-[21px] pb-[40px] pt-[20px] lg:px-[40px] lg:pb-[60px]">
               <div
-                className="text-[14px] leading-[160%] text-[#111111] lg:text-[18px]"
+                className="CormorantGaramond text-[14px] font-normal leading-[160%] tracking-[0.01em] text-[#050505] lg:text-[18px] [&_*]:!font-normal"
+                style={{ textShadow: "0 0 0.22px currentColor" }}
                 dangerouslySetInnerHTML={{
                   __html: property.description_en,
                 }}

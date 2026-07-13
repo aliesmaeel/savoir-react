@@ -93,7 +93,7 @@ export default function HomeProperties() {
                   onClick={() => setTab(t)}
                   className={`Jakarta cursor-pointer whitespace-nowrap rounded-full border-[0.5px] px-[16px] py-[7px] text-[11px] font-semibold tracking-[0.06em] transition-all duration-200 lg:px-[20px] ${
                     tab === t
-                      ? "border-[#0A0A0A] bg-[#0A0A0A] text-white"
+                      ? "border-[#C6A45A] bg-[#2B2B2B] text-white shadow-[0_10px_22px_rgba(43,43,43,0.16)]"
                       : "border-[#35363540] bg-transparent text-[#0A0A0A] hover:border-[#C6A45A] hover:text-[#C6A45A]"
                   }`}
                 >
@@ -147,7 +147,7 @@ export default function HomeProperties() {
                 </div>
 
                 <p
-                  className="CormorantGaramond mb-[10px] line-clamp-2 text-[24px] leading-[1.2] lg:text-[34px]"
+                  className="CormorantGaramond mb-[24px] line-clamp-2 text-[24px] leading-[1.2] lg:text-[34px]"
                   style={{
                     color: "#FFFFFF",
                     fontWeight: 500,
@@ -155,17 +155,6 @@ export default function HomeProperties() {
                   }}
                 >
                   {hero.title_en}
-                </p>
-
-                <p
-                  className="Jakarta mb-[24px] line-clamp-1 text-[12px] tracking-[0.06em]"
-                  style={{
-                    color: "rgba(255,255,255,0.9)",
-                    fontWeight: 500,
-                    opacity: 1,
-                  }}
-                >
-                  {formatLocation(hero)}
                 </p>
 
                 <span className="Jakarta inline-flex items-center gap-[12px] text-[10px] font-semibold uppercase tracking-[0.2em] text-[#E0C98A] transition-all duration-300 group-hover:gap-[18px]">

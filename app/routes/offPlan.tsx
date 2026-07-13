@@ -13,7 +13,7 @@ import ProjectPageSwiper from "~/components/Project/ProjectPageSwiper";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import PageLayout from "~/layouts/PageLayout";
 import FAQs from "~/UI/FAQs";
-import { formatPrice } from "~/utils/formatPrice";
+import { formatCompactPrice } from "~/utils/formatPrice";
 
 const stripHtml = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
@@ -109,7 +109,7 @@ export default function offPlan() {
             <div className="flex flex-col items-start gap-[2px]">
               <p className="Jakarta text-[14px] font-bold text-[#111111]">Price</p>
               <p className="CormorantGaramond text-[27px] font-[900] text-[#050505] [text-shadow:0_0_0.45px_#050505]">
-                {formatPrice(property.starting_price)}
+                {formatCompactPrice(property.starting_price)}
               </p>
             </div>
           </div>
@@ -129,8 +129,8 @@ export default function offPlan() {
         </div>
         <ProjectFeatures />
         <div className="flex flex-col items-center gap-[53px] w-full mt-[90px]">
-          <p className="CormorantGaramond text-[28px] leading-[1.05] text-black lg:text-[44px]">
-            FAQs about offPlan properties in Dubai
+          <p className="CormorantGaramond text-[28px] font-[900] leading-[1.08] text-[#050505] [text-shadow:0_0_0.45px_#050505] lg:text-[34px]">
+            FAQs about OffPlan properties in Dubai
           </p>
           <FAQs questions={faq} />
         </div>

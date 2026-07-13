@@ -43,12 +43,18 @@ export default function CareerGlobalExposure() {
           </p>
         </div>
 
-        <div className="w-full overflow-hidden rounded-[20px] shadow-[0_16px_36px_rgba(17,17,17,0.07)] lg:w-[360px] lg:justify-self-end">
+        <div className="w-full overflow-hidden rounded-[20px] bg-white shadow-[0_16px_36px_rgba(17,17,17,0.07)] lg:w-[360px] lg:justify-self-end">
           <img
             loading="lazy"
             src="/images/Career/Globalexposure.jpg"
             alt=""
-            className="aspect-[396/336] w-full rounded-[20px] object-cover"
+            className="aspect-[396/336] w-full rounded-[20px] object-cover object-center"
+            style={{
+              imageRendering: "auto",
+              transform: "translateZ(0) scale(1.01)",
+              filter: "blur(0.25px) contrast(1.02) saturate(1.02)",
+              backfaceVisibility: "hidden",
+            }}
           />
         </div>
       </div>

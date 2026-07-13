@@ -61,7 +61,7 @@ export default function ContactUsItems() {
         >
           <div className="flex flex-col items-center justify-between gap-[42px] px-[14px] py-[44px] lg:w-full lg:aspect-[318/435] lg:gap-0">
             <div className="flex flex-col items-center gap-[16px]">
-              <div className="flex h-[70px] w-[70px] items-center justify-center rounded-full bg-[#111111] shadow-[0_12px_28px_rgba(17,17,17,0.16)]">
+              <div className="flex h-[70px] w-[70px] items-center justify-center rounded-full bg-[#2B2B2B] shadow-[0_12px_28px_rgba(43,43,43,0.16)]">
                 <img
                   loading="lazy"
                   src={item.icon}
@@ -98,9 +98,9 @@ export default function ContactUsItems() {
               onClick={item.onClick}
               className="
                 flex h-[44px] w-full items-center justify-center
-                rounded-[11px] bg-[#111111] px-[18px]
-                shadow-[0_12px_26px_rgba(17,17,17,0.16)]
-                transition-all duration-300 hover:bg-[#000000]
+                rounded-[11px] bg-[#2B2B2B] px-[18px]
+                shadow-[0_12px_26px_rgba(43,43,43,0.16)]
+                transition-all duration-300 hover:bg-[#242424]
               "
             >
               <p className="text-[16px] font-semibold text-white">

@@ -11,8 +11,14 @@ export default function FooterAbout() {
   const [loading, setLoading] = useState(false);
 
   const icons = [
-    { icon: icon.facebook, path: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/" },
-    { icon: icon.instagram, path: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==" },
+    {
+      icon: icon.facebook,
+      path: "https://www.facebook.com/Savoir-Priv%C3%A9-Properties-114526231138380/",
+    },
+    {
+      icon: icon.instagram,
+      path: "https://instagram.com/savoirpriveproperties?igshid=MzRlODBiNWFlZA==",
+    },
     { icon: icon.x, path: "https://x.com/savoirprive" },
     { icon: icon.tiktok, path: "https://www.tiktok.com/@savoir_properties" },
     { icon: icon.youtube, path: "http://youtube.com/@SavoirPriveProperties" },
@@ -43,12 +49,12 @@ export default function FooterAbout() {
   };
 
   return (
-    <div className="flex flex-col items-start gap-[23px] lg:gap-[30px] w-full max-w-[456px]">
+    <div className="flex w-full max-w-[456px] flex-col items-start gap-[23px] lg:gap-[30px]">
       <img
         loading="lazy"
-        src={icon.logoFooter}
+        src={icon.logoFooterPriveClean}
         alt=""
-        className="w-[183px] brightness-[0.58] contrast-[1.3]"
+        className="w-[168px] translate-y-[8px] lg:w-[172px]"
       />
 
       <p
@@ -74,13 +80,13 @@ export default function FooterAbout() {
         </Link>
       </p>
 
-      <div className="flex items-center w-full rounded-full border border-black bg-white h-[39px] lg:h-[54px] overflow-hidden">
+      <div className="flex h-[42px] w-full max-w-[305px] items-center overflow-hidden rounded-full border border-[#2B2B2B] bg-white shadow-[0_10px_24px_rgba(43,43,43,0.08)] lg:h-[52px] lg:max-w-[330px]">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={onKeyDown}
-          className="w-full border-0 bg-white px-[16px] py-[11px] text-[14px] text-black outline-0 placeholder:text-black/70 lg:px-[22px] lg:py-[15px] lg:text-[16px]"
+          className="h-full w-full border-0 bg-white px-[18px] text-[14px] font-medium text-[#111111] outline-0 placeholder:text-[#111111]/65 lg:px-[22px] lg:text-[16px]"
           placeholder="Your email"
           aria-label="Email address"
         />
@@ -88,9 +94,9 @@ export default function FooterAbout() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="h-[39px] bg-black py-[11px] pl-[13px] pr-[7px] transition-colors duration-200 hover:bg-[#1A1A1A] disabled:opacity-60 lg:h-[54px] lg:py-[15px] lg:pl-[18px] lg:pr-[10px]"
+          className="flex h-full shrink-0 items-center justify-center bg-[#2B2B2B] px-[18px] text-white transition-colors duration-300 hover:bg-[#242424] disabled:opacity-60 lg:px-[22px]"
         >
-          <p className="text-[14px] text-white lg:text-[16px]">
+          <p className="text-[13px] font-semibold text-white lg:text-[15px]">
             {loading ? "..." : "Subscribe"}
           </p>
         </button>
@@ -109,7 +115,7 @@ export default function FooterAbout() {
               loading="lazy"
               src={i.icon}
               alt=""
-              className="w-[35px] h-[35px] lg:w-[48px] lg:h-[48px] brightness-0 contrast-[1.4]"
+              className="h-[35px] w-[35px] object-contain brightness-0 opacity-[0.82] contrast-[1.15] lg:h-[48px] lg:w-[48px]"
             />
           </a>
         ))}

@@ -5,22 +5,22 @@ export default function AboutCoreValues() {
   const items = [
     {
       title: "Unrivalled expertise",
-      text: "Our founders each bring 20+ years of Dubai real estate experience — 40 years combined. With the full Savoir team, that collective knowledge exceeds 100 years of local and global expertise. This is the depth behind every recommendation we make.",
+      text: "Our founders each bring over 20 years of Dubai real estate experience, creating a combined 40 years of market knowledge. With the full Savoir team, that collective expertise exceeds 100 years across local and international real estate. This is the depth behind every recommendation we make.",
       image: "/images/about/Excellence.jpeg",
     },
     {
       title: "Truly multilingual service",
-      text: "We speak your language — literally. English, Arabic, French, Spanish, Italian, Russian, Bulgarian, Romanian, Hindi, and Urdu. Ten languages, one team, one commitment: to serve every client with the fluency and cultural sensitivity they deserve.",
+      text: "We speak your language in every sense. English, Arabic, French, Spanish, Italian, Russian, Bulgarian, Romanian, Hindi, and Urdu. Ten languages, one team, and one commitment to serving every client with fluency, care, and cultural understanding.",
       image: "/images/about/passion.jpeg",
     },
     {
       title: "A family-centric culture",
-      text: "Savoir was founded as a family business and carries that warmth through every client relationship. We are a close-knit team united by a shared love for Dubai, the UAE, and the people we serve. Personal connections define everything we do.",
+      text: "Savoir was founded as a family business, and that warmth continues through every client relationship. We are a close-knit team united by a shared love for Dubai, the UAE, and the people we serve. Personal connections define everything we do.",
       image: "/images/about/Trust.jpg",
     },
     {
       title: "Global reach from Dubai",
-      text: "As members of LeadingRE and Luxury Portfolio International®, our Dubai-based team connects clients to 4,600+ offices across 70+ countries — with the personal attention of a boutique and the power of the world's finest real estate network.",
+      text: "As members of LeadingRE and Luxury Portfolio International®, our Dubai-based team connects clients to more than 4,600 offices across over 70 countries. We combine the personal attention of a boutique agency with the strength of one of the world's finest real estate networks.",
       image: "/images/about/Knowledge.jpeg",
     },
   ];

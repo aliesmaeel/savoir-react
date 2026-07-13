@@ -17,8 +17,18 @@ export default function OffPlanHero() {
         <div className="flex w-full flex-col items-center gap-[12px] lg:gap-[20px]">
           <OffPlanFilter />
 
-          <div className="mt-[55px] flex w-full flex-col items-center px-[16px] lg:mt-[20px] lg:px-[45px]">
-            <h1 className="max-w-[1250px] text-center text-[34px] leading-[1.15] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] lg:text-[68px]">
+          <div className="mt-[55px] flex w-full flex-col items-center px-[16px] lg:mt-[24px] lg:px-[45px]">
+            <h1
+              className="
+                max-w-[1100px]
+                text-center
+                text-[30px]
+                leading-[1.16]
+                text-white
+                drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)]
+                lg:text-[56px]
+              "
+            >
               Discover the Best Off-Plan Projects
             </h1>
           </div>

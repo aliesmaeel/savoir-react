@@ -6,8 +6,7 @@ type Props = {
   user: any;
 };
 
-const shareUrl = () =>
-  typeof window !== "undefined" ? window.location.href : "";
+const shareUrl = () => (typeof window !== "undefined" ? window.location.href : "");
 
 export default function ProjectListedByContact({ user }: Props) {
   const icon = useIcons();
@@ -22,11 +21,14 @@ export default function ProjectListedByContact({ user }: Props) {
         setDropdownOpen(false);
       }
     };
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") setDropdownOpen(false);
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
@@ -38,9 +40,18 @@ export default function ProjectListedByContact({ user }: Props) {
   const url = shareUrl();
   const shareLocation =
     [property?.community, property?.city].filter(Boolean).join(", ") || "Dubai";
+
   const shareMessage = `I have found this amazing property in ${shareLocation}\n\nlink : ${url}`;
   const encodedUrl = encodeURIComponent(url);
   const encodedShareMessage = encodeURIComponent(shareMessage);
+
+  const userImage = user?.image || "/images/placeholders/user-placeholder.png";
+  const userName = user?.name || "Agent";
+  const userRole = user?.Job_Description || "Property Consultant";
+
+  const rawPhone = user?.phone || "971505074686";
+  const cleanPhone = String(rawPhone).replace(/[^\d]/g, "");
+  const finalPhone = cleanPhone || "971505074686";
 
   const handleCopyLink = async () => {
     try {
@@ -109,11 +120,6 @@ export default function ProjectListedByContact({ user }: Props) {
     )}&body=${encodeURIComponent(body)}`;
   };
 
-  const userImage = user?.image || "/images/placeholders/user-placeholder.png";
-  const userName = user?.name || "Agent";
-  const userPhone = (user?.phone || "").replace(/\s/g, "");
-  const userRole = user?.Job_Description || "Property Consultant";
-
   return (
     <div className="relative z-10 flex w-full max-w-[390px] shrink-0 flex-col gap-[20px] rounded-[18px] border border-[#E4C97F] bg-white px-[18px] py-[20px] shadow-[0_14px_34px_rgba(17,17,17,0.08)]">
       <div className="flex items-center gap-[14px] rounded-[15px] border border-[#F1E5C3] bg-white px-[14px] py-[14px]">
@@ -121,37 +127,67 @@ export default function ProjectListedByContact({ user }: Props) {
           loading="lazy"
           src={userImage}
           alt=""
-          className="w-[68px] aspect-square rounded-full object-cover ring-4 ring-white shadow-[0_8px_18px_rgba(17,17,17,0.14)]"
+          className="aspect-square w-[68px] rounded-full object-cover ring-4 ring-white shadow-[0_8px_18px_rgba(17,17,17,0.14)]"
         />
 
         <div className="flex flex-col items-start gap-[3px]">
           <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#8A6A2F]">
             Listed By
           </p>
-          <p className="text-[24px] leading-[1.15] text-[#111111]">{userName}</p>
-          <p className="text-[14px] font-medium text-[#3A3A3A]">{userRole}</p>
+
+          <p className="text-[24px] leading-[1.15] text-[#111111]">
+            {userName}
+          </p>
+
+          <p className="text-[14px] font-semibold text-[#111111]">
+            {userRole}
+          </p>
         </div>
       </div>
 
-      {userPhone && (
+      {finalPhone && (
         <div className="grid w-full grid-cols-1 gap-[12px] sm:grid-cols-2">
-          <Link
-            to={`tel:${userPhone}`}
-            className="flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[13px] bg-[#111111] px-[14px] text-[16px] font-semibold text-white shadow-[0_10px_22px_rgba(17,17,17,0.18)]"
+          <a
+            href={`tel:+${finalPhone}`}
+            className="
+              flex h-[44px] w-full items-center justify-center gap-[8px]
+              rounded-[13px] border-0 border-none
+              bg-[#2B2B2B] px-[14px]
+              text-[16px] font-semibold text-white
+              shadow-[0_10px_22px_rgba(43,43,43,0.16)]
+              transition-all duration-300 hover:bg-[#242424]
+            "
           >
-            <img loading="lazy" src={icon.phoneWhite} alt="" className="w-[22px]" />
-            Call
-          </Link>
+            <img
+              loading="lazy"
+              src={icon.phoneWhite}
+              alt=""
+              className="w-[20px]"
+            />
+            <span>Call</span>
+          </a>
 
-          <Link
-            to={`https://wa.me/${userPhone}`}
+          <a
+            href={`https://wa.me/${finalPhone}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-[48px] w-full items-center justify-center gap-[8px] rounded-[13px] bg-[#111111] px-[14px] text-[16px] font-semibold text-white shadow-[0_10px_22px_rgba(17,17,17,0.18)]"
+            className="
+              flex h-[44px] w-full items-center justify-center gap-[8px]
+              rounded-[13px] border-0 border-none
+              bg-[#2B2B2B] px-[14px]
+              text-[16px] font-semibold text-white
+              shadow-[0_10px_22px_rgba(43,43,43,0.16)]
+              transition-all duration-300 hover:bg-[#242424]
+            "
           >
-            <img loading="lazy" src={icon.whatsappWhite} alt="" className="w-[22px]" />
-            Whatsapp
-          </Link>
+            <img
+              loading="lazy"
+              src={icon.whatsappWhite}
+              alt=""
+              className="w-[21px]"
+            />
+            <span>Whatsapp</span>
+          </a>
         </div>
       )}
 
@@ -176,6 +212,7 @@ export default function ProjectListedByContact({ user }: Props) {
             tabIndex={0}
           >
             <img loading="lazy" src={icon.shareBlack} alt="" className="w-[22px]" />
+
             <p className="text-[16px] font-medium underline decoration-black underline-offset-4">
               {copied ? "Copied!" : "Share this Listing"}
             </p>

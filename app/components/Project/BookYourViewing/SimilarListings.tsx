@@ -12,14 +12,7 @@ export default function SimilarListings() {
 
   return (
     <div className="flex w-full flex-col items-start gap-[33px] mt-[90px]">
-      <p
-        className="savoir-section-heading text-[38px] leading-[1.1] lg:text-[52px]"
-        style={{
-          color: "#111111",
-          fontWeight: 700,
-          opacity: 1,
-        }}
-      >
+      <p className="CormorantGaramond text-[28px] font-[900] leading-[1.08] text-[#050505] [text-shadow:0_0_0.45px_#050505] lg:text-[34px]">
         Similar Listings
       </p>
 

@@ -48,9 +48,7 @@ export default function FAQs({ questions }: Props) {
                 onClick={() => toggle(idx)}
                 aria-expanded={isOpen}
                 aria-controls={`faq-panel-${idx}`}
-                className={`flex h-[22px] w-[28px] items-center justify-center rounded-[4px] border border-[#111111] text-[20px] font-semibold leading-none transition lg:h-[32px] lg:w-[40px] lg:rounded-[8px] lg:text-[28px] ${
-                  isOpen ? "bg-white text-[#111111]" : "bg-[#111111] text-white"
-                }`}
+                className="flex h-[22px] w-[28px] items-center justify-center rounded-[4px] border border-[#353635] bg-[#353635] text-[20px] font-semibold leading-none text-white transition hover:bg-[#2B2B2B] lg:h-[32px] lg:w-[40px] lg:rounded-[8px] lg:text-[28px]"
               >
                 {isOpen ? "-" : "+"}
               </button>

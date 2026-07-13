@@ -10,12 +10,14 @@ type Props = {
 
 const decodeHtmlEntities = (html: string): string => {
   if (typeof window === "undefined") return html;
+
   const textarea = document.createElement("textarea");
   textarea.innerHTML = html;
   const decoded = textarea.value;
 
   const div = document.createElement("div");
   div.innerHTML = decoded;
+
   return div.textContent || div.innerText || "";
 };
 
@@ -35,7 +37,7 @@ export default function BlogCard({ blog }: Props) {
           className="aspect-[369/190] w-full rounded-[10px] object-cover"
         />
 
-        <div className="flex flex-1 w-full flex-col items-start gap-[15px]">
+        <div className="flex w-full flex-1 flex-col items-start gap-[15px]">
           <div className="flex w-full flex-col items-start gap-[7px]">
             <p
               className="text-[15px]"
@@ -51,6 +53,7 @@ export default function BlogCard({ blog }: Props) {
             <div className="flex w-full items-center gap-[15px]">
               <div className="flex items-center gap-[4px]">
                 <img src={icon.calendarGray} alt="" className="brightness-0" />
+
                 <p
                   className="text-[12px]"
                   style={{
@@ -65,6 +68,7 @@ export default function BlogCard({ blog }: Props) {
 
               <div className="flex items-center gap-[4px]">
                 <img src={icon.folderGray} alt="" className="brightness-0" />
+
                 <p
                   className="text-[12px]"
                   style={{
@@ -79,7 +83,7 @@ export default function BlogCard({ blog }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-1 w-full flex-col items-start gap-[10px]">
+          <div className="flex w-full flex-1 flex-col items-start gap-[10px]">
             <p
               className="text-[15px] leading-[165%]"
               style={{
@@ -95,10 +99,10 @@ export default function BlogCard({ blog }: Props) {
               to={`/blogs/${blog.slug}`}
               className="
                 mt-auto flex h-[30px] items-center justify-center rounded-[6px]
-                bg-[#111111] px-[13px]
+                bg-[#2B2B2B] px-[13px]
                 text-[12px] font-semibold text-white
-                shadow-[0_8px_18px_rgba(17,17,17,0.14)]
-                transition-all duration-300 hover:bg-[#000000]
+                shadow-[0_8px_18px_rgba(43,43,43,0.16)]
+                transition-all duration-300 hover:bg-[#242424]
                 lg:h-[32px] lg:px-[15px] lg:text-[13px]
               "
             >

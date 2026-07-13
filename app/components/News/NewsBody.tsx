@@ -12,14 +12,32 @@ export default function NewsBody() {
         relative z-10 flex w-full flex-col items-start gap-[53px]
 
         [&_article]:!text-[#111111]
-        [&_article]:!font-semibold
         [&_article]:!opacity-100
         [&_article_p]:!text-[#111111]
-        [&_article_p]:!font-semibold
         [&_article_p]:!opacity-100
         [&_article_span]:!text-[#111111]
-        [&_article_span]:!font-semibold
         [&_article_span]:!opacity-100
+
+        [&_article_h1]:!text-[#111111]
+        [&_article_h1]:!opacity-100
+        [&_article_h1]:!leading-[1.2]
+        [&_article_h1]:!font-normal
+        [&_article_h1]:!max-w-[1180px]
+        [&_article_h1]:!mb-[24px]
+
+        [&_article_h2]:!text-[#111111]
+        [&_article_h2]:!opacity-100
+        [&_article_h2]:!leading-[1.2]
+        [&_article_h2]:!font-normal
+        [&_article_h2]:!max-w-[1180px]
+        [&_article_h2]:!mb-[22px]
+
+        [&_article_h3]:!text-[#111111]
+        [&_article_h3]:!opacity-100
+        [&_article_h3]:!leading-[1.2]
+        [&_article_h3]:!font-normal
+        [&_article_h3]:!max-w-[1180px]
+        [&_article_h3]:!mb-[20px]
 
         [&_.news-share-icons_a]:!bg-[#111111]
         [&_.news-share-icons_button]:!bg-[#111111]
@@ -30,10 +48,10 @@ export default function NewsBody() {
       {/* title_details */}
       {newsItem.title_details && (
         <article
-          className="text-[14px] leading-[160%] lg:text-[18px]"
+          className="article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
           style={{
             color: "#111111",
-            fontWeight: 600,
+            fontWeight: 400,
             opacity: 1,
           }}
           dangerouslySetInnerHTML={{ __html: newsItem.title_details }}
@@ -46,9 +64,10 @@ export default function NewsBody() {
           <h2
             className="CormorantGaramond text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {newsItem.description_one_title}
@@ -56,10 +75,10 @@ export default function NewsBody() {
 
           {newsItem.description_one && (
             <article
-              className="text-[14px] leading-[160%] lg:text-[18px]"
+              className="article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: newsItem.description_one }}
@@ -106,9 +125,10 @@ export default function NewsBody() {
           <h2
             className="CormorantGaramond text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {newsItem.description_two_title}
@@ -116,10 +136,10 @@ export default function NewsBody() {
 
           {newsItem.description_two && (
             <article
-              className="text-[14px] leading-[160%] lg:text-[18px]"
+              className="article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: newsItem.description_two }}
@@ -134,9 +154,10 @@ export default function NewsBody() {
           <h2
             className="CormorantGaramond text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {newsItem.description_three_title}
@@ -144,10 +165,10 @@ export default function NewsBody() {
 
           {newsItem.description_three && (
             <article
-              className="text-[14px] leading-[160%] lg:text-[18px]"
+              className="article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: newsItem.description_three }}
@@ -162,9 +183,10 @@ export default function NewsBody() {
           <h2
             className="CormorantGaramond text-[20px] leading-[1.18] lg:text-[28px]"
             style={{
-              color: "#111111",
-              fontWeight: 700,
+              color: "#050505",
+              fontWeight: 400,
               opacity: 1,
+              textShadow: "0 0 0.28px currentColor",
             }}
           >
             {newsItem.description_four_title}
@@ -172,10 +194,10 @@ export default function NewsBody() {
 
           {newsItem.description_four && (
             <article
-              className="text-[14px] leading-[160%] lg:text-[18px]"
+              className="article-rich-copy text-[14px] leading-[160%] lg:text-[18px]"
               style={{
                 color: "#111111",
-                fontWeight: 600,
+                fontWeight: 400,
                 opacity: 1,
               }}
               dangerouslySetInnerHTML={{ __html: newsItem.description_four }}

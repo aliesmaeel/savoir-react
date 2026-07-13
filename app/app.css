@@ -220,6 +220,48 @@ article {
   font-weight: 600;
 }
 
+.article-rich-copy,
+.article-rich-copy :where(p, span, li, div) {
+  font-family: "CormorantGaramond", serif;
+  color: #111111 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.01em;
+}
+
+.article-rich-copy :where(p, li) {
+  line-height: 1.68 !important;
+  margin: 0;
+  text-shadow: 0 0 0.16px currentColor;
+}
+
+.article-rich-copy :where(p + p) {
+  margin-top: 12px;
+}
+
+.article-rich-copy :where(h1, h2, h3, h4, h5, h6) {
+  font-family: "CormorantGaramond", serif;
+  color: #050505 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0;
+  line-height: 1.14 !important;
+  margin: 0 0 16px;
+  text-shadow: 0 0 0.28px currentColor;
+}
+
+.article-rich-copy :where(p, ul, ol) + :where(h1, h2, h3, h4, h5, h6) {
+  margin-top: 46px;
+}
+
+.article-rich-copy :where(strong, b) {
+  color: #050505 !important;
+  font-weight: 500 !important;
+}
+
+.article-rich-copy :where(ul, ol) {
+  margin: 14px 0 0 20px;
+  padding-left: 18px;
+}
+
 /* Jaha bhi Tailwind text-white use hua hai, wo actual white hi rahe */
 .text-white,
 [class*="text-white"] {

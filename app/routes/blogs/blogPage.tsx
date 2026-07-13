@@ -47,7 +47,9 @@ export default function blogPage() {
 
         {blogs.length > 0 && (
           <div className="flex flex-col items-start gap-[37px] w-full mt-[75px]">
-            <p className="text-black text-[31px] font-medium">You might also be interested in...</p>
+            <p className="CormorantGaramond text-black text-[31px] font-medium">
+              You might also be interested in...
+            </p>
             <ThreeSwiper>
               {blogs.map((blogItem: any, index: number) => (
                 <SwiperSlide key={blogItem.id || index}>

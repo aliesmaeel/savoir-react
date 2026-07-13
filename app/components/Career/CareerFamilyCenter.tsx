@@ -67,12 +67,18 @@ export default function CareerFamilyCenter() {
             ))}
           </div>
 
-          <div className="w-full overflow-hidden rounded-[20px] shadow-[0_16px_36px_rgba(17,17,17,0.07)] lg:w-[360px] lg:justify-self-end">
+          <div className="w-full overflow-hidden rounded-[20px] bg-white shadow-[0_16px_36px_rgba(17,17,17,0.07)] lg:w-[360px] lg:justify-self-end">
             <img
               loading="lazy"
               src="/images/Career/Familycentric.jpeg"
               alt=""
-              className="aspect-[576/336] w-full rounded-[20px] object-cover"
+              className="h-[230px] w-full rounded-[20px] object-cover object-center lg:h-[250px]"
+              style={{
+                imageRendering: "auto",
+                transform: "translateZ(0)",
+                filter: "none",
+                backfaceVisibility: "hidden",
+              }}
             />
           </div>
         </div>
@@ -93,7 +99,7 @@ export default function CareerFamilyCenter() {
 
         <a
           href="/our-team"
-          className="flex h-[40px] items-center justify-center rounded-[8px] bg-[#111111] px-[22px] text-[14px] font-semibold text-white shadow-[0_10px_24px_rgba(17,17,17,0.16)] transition-all duration-300 hover:bg-[#000000] lg:h-[42px] lg:px-[28px] lg:text-[15px]"
+          className="flex h-[40px] items-center justify-center rounded-[8px] border-none bg-[#2B2B2B] px-[22px] text-[14px] font-semibold text-white shadow-[0_10px_24px_rgba(43,43,43,0.16)] transition-all duration-300 hover:bg-[#242424] lg:h-[42px] lg:px-[28px] lg:text-[15px]"
         >
           Meet Our Team
         </a>

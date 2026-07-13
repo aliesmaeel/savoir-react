@@ -20,6 +20,7 @@ export default function OffPlanDescription() {
   }, [showPopup]);
 
   const icon = useIcons();
+
   const addBreakAfterFullStop = (html: string): string => {
     if (!html) return "";
     return html.replace(/\.\s*/g, ".<br/>");
@@ -79,6 +80,7 @@ export default function OffPlanDescription() {
         if (remainingChars > 0 && node.textContent) {
           node.textContent = node.textContent.substring(0, remainingChars);
         }
+
         // Remove all following nodes
         let nextNode: Node | null = node.nextSibling;
         while (nextNode) {
@@ -123,17 +125,20 @@ export default function OffPlanDescription() {
   };
 
   return (
-    <div className="flex flex-col items-start gap-[29px] w-full">
-      <p className="CormorantGaramond text-[24px] font-[900] leading-[1.12] text-[#050505] [text-shadow:0_0_0.4px_#050505] lg:text-[30px]">
+    <div className="flex w-full flex-col items-start gap-[29px]">
+      <p className="CormorantGaramond text-[28px] font-[900] leading-[1.08] text-[#050505] [text-shadow:0_0_0.45px_#050505] lg:text-[34px]">
         {property.title}
       </p>
-      <div className="flex flex-col items-start gap-[4px] w-full">
+
+      <div className="flex w-full flex-col items-start gap-[4px]">
         <div
-          className="Jakarta text-[14px] font-semibold leading-[165%] text-[#111111] lg:text-[18px]"
+          className="CormorantGaramond text-[14px] font-normal leading-[165%] tracking-[0.01em] text-[#050505] lg:text-[18px] [&_*]:!font-normal"
+          style={{ textShadow: "0 0 0.22px currentColor" }}
           dangerouslySetInnerHTML={{
             __html: truncatedDescription,
           }}
         />
+
         {shouldShowReadMore && (
           <button
             onClick={handleOpenPopup}
@@ -143,7 +148,8 @@ export default function OffPlanDescription() {
                 handleOpenPopup();
               }
             }}
-            className="Jakarta mt-[8px] text-[14px] font-bold text-[#111111] underline hover:opacity-70 focus:outline-none focus:underline lg:text-[17px]"
+            className="CormorantGaramond mt-[4px] text-[13px] font-normal leading-[1.2] text-[#050505] transition-opacity duration-200 hover:opacity-70 focus:outline-none lg:text-[15px]"
+            style={{ textShadow: "0 0 0.16px currentColor" }}
             aria-label="Read more"
             tabIndex={0}
           >
@@ -151,11 +157,15 @@ export default function OffPlanDescription() {
           </button>
         )}
       </div>
+
       {showPopup && (
-        <div className="flex items-center justify-center w-full h-screen fixed top-0 left-0 z-[99999] bg-[#00000066] px-[16px]">
-          <div className="w-full max-w-[759.75px] max-h-[75vh] rounded-[15.711px] lg:rounded-[37.5px] bg-white relative z-10 flex flex-col">
-            <div className="flex items-center justify-between w-full px-[21px] lg:px-[40px] py-[14px] lg:py-[27px] bg-[#111111] flex-shrink-0">
-              <p className="text-[15px] lg:text-[29px] font-bold text-white">{property.title}</p>
+        <div className="fixed left-0 top-0 z-[99999] flex h-screen w-full items-center justify-center bg-[#00000066] px-[16px]">
+          <div className="relative z-10 flex max-h-[75vh] w-full max-w-[759.75px] flex-col rounded-[15.711px] bg-white lg:rounded-[37.5px]">
+            <div className="flex w-full flex-shrink-0 items-center justify-between bg-[#111111] px-[21px] py-[14px] lg:px-[40px] lg:py-[27px]">
+              <p className="text-[15px] font-bold text-white lg:text-[29px]">
+                {property.title}
+              </p>
+
               <button onClick={handleClosePopup}>
                 <img
                   loading="lazy"
@@ -165,9 +175,11 @@ export default function OffPlanDescription() {
                 />
               </button>
             </div>
-            <div className="overflow-y-auto flex-1 px-[21px] lg:px-[40px] pb-[40px] lg:pb-[60px] pt-[20px]">
+
+            <div className="flex-1 overflow-y-auto px-[21px] pb-[40px] pt-[20px] lg:px-[40px] lg:pb-[60px]">
               <div
-                className="Jakarta text-[14px] font-semibold leading-[160%] text-[#111111] lg:text-[18px]"
+                className="CormorantGaramond text-[14px] font-normal leading-[160%] tracking-[0.01em] text-[#050505] lg:text-[18px] [&_*]:!font-normal"
+                style={{ textShadow: "0 0 0.22px currentColor" }}
                 dangerouslySetInnerHTML={{
                   __html: fullDescriptionWithBreaks,
                 }}

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLoaderData } from "react-router";
 import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
-import { formatPrice } from "~/utils/formatPrice";
+import { formatCompactPrice } from "~/utils/formatPrice";
 
 export default function OffPlanProjects() {
   const { home } = useLoaderData() as { home: any };
@@ -162,7 +162,7 @@ export default function OffPlanProjects() {
                           opacity: 1,
                         }}
                       >
-                        From {formatPrice(p.starting_price)}
+                        From {formatCompactPrice(p.starting_price)}
                       </span>
                     ) : (
                       <span

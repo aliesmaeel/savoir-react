@@ -107,8 +107,12 @@ export default function GlobalAccess() {
           variants={variants}
           initial="hidden"
           animate={textCtrl}
-          className="description-body flex-1 lg:min-w-0"
-          style={{ willChange: "transform, opacity" }}
+          className="CormorantGaramond flex-1 lg:min-w-0 text-[16px] leading-[1.65]"
+          style={{
+            willChange: "transform, opacity",
+            color: "#111111",
+            fontWeight: 500,
+          }}
         >
           We unlock a world of real estate opportunities with leading agents and real estate
           professionals through our membership in the largest real estate network in the world. We

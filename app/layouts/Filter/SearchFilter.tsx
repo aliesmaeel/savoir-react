@@ -124,117 +124,207 @@ export default function SearchFilter() {
   const isHome = location.pathname === "/";
 
   return (
-    <div
-      className={
-        isHome
-          ? "Jakarta search-filter-white-text relative z-20 flex rounded-[17.6px] bg-[#FFFFFF40] py-[12px] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] lg:py-[14px] mx-auto w-full max-w-full flex-col gap-[10px] px-3 sm:px-4 lg:w-fit lg:px-[18px]"
-          : "Jakarta relative z-20 flex w-full flex-col bg-white shadow-[0_12px_34px_rgba(0,0,0,0.1)] lg:h-[58px] lg:flex-row lg:items-stretch"
-      }
-      data-aos="fade-up"
-    >
-      {isHome ? (
-        <>
-          <div className="flex w-full flex-col gap-[10px] lg:hidden">
-            <SelectSearch
-              variant="home"
-              search={search}
-              onChange={setQuery}
-              value={query}
-            />
+    <>
+      <style>
+        {`
+          .search-filter-cormorant,
+          .search-filter-cormorant *,
+          .search-filter-cormorant input,
+          .search-filter-cormorant button,
+          .search-filter-cormorant span,
+          .search-filter-cormorant p,
+          .search-filter-cormorant div {
+            font-family: CormorantGaramond, "Cormorant Garamond", serif !important;
+            font-weight: 600 !important;
+            color: #111111 !important;
+            opacity: 1 !important;
+          }
 
-            <FilterRent
-              value={rentFilters}
-              onChange={setRentFilters}
-              maxWidthClass="max-w-full"
-            />
+          .search-filter-cormorant input::placeholder {
+            font-family: CormorantGaramond, "Cormorant Garamond", serif !important;
+            font-weight: 600 !important;
+            color: #111111 !important;
+            opacity: 1 !important;
+          }
 
-            <SearchButton onClick={handleSearch} />
-          </div>
+          .search-filter-white-text input::placeholder {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            opacity: 1 !important;
+          }
 
-          <div className="hidden w-fit flex-nowrap items-center gap-[6px] lg:flex">
-            <div className="w-[560px] min-w-0 shrink-0">
+          .search-filter-white-text .community__placeholder {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+          }
+
+          .search-filter-cormorant [class*="absolute"][class*="bg-"] *,
+          .search-filter-cormorant [class*="fixed"][class*="bg-"] *,
+          .search-filter-cormorant [class*="rounded"][class*="bg-"] *,
+          .search-filter-cormorant [class*="shadow"] [class*="cursor"] *,
+          .search-filter-cormorant [class*="shadow"] button,
+          .search-filter-cormorant [class*="shadow"] button *,
+          .search-filter-cormorant [class*="shadow"] li,
+          .search-filter-cormorant [class*="shadow"] li *,
+          .search-filter-cormorant [class*="shadow"] p,
+          .search-filter-cormorant [class*="shadow"] span,
+          .search-filter-cormorant [role="listbox"] *,
+          .search-filter-cormorant [role="menu"] *,
+          .search-filter-cormorant [role="option"],
+          .search-filter-cormorant [role="option"] *,
+          .search-filter-cormorant [role="menuitem"],
+          .search-filter-cormorant [role="menuitem"] * {
+            font-family: CormorantGaramond, "Cormorant Garamond", serif !important;
+            font-weight: 600 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            opacity: 1 !important;
+          }
+
+          .search-filter-cormorant [class*="shadow"] [class*="bg-[#C6A45A]"] *,
+          .search-filter-cormorant [class*="shadow"] [class*="bg-\\[\\#C6A45A\\]"] *,
+          .search-filter-cormorant [class*="shadow"] [style*="198,164,90"] *,
+          .search-filter-cormorant [class*="shadow"] [style*="#C6A45A"] * {
+            color: #111111 !important;
+            -webkit-text-fill-color: #111111 !important;
+          }
+
+          body [data-radix-popper-content-wrapper] *,
+          body [role="listbox"] *,
+          body [role="menu"] *,
+          body [role="option"],
+          body [role="option"] *,
+          body [role="menuitem"],
+          body [role="menuitem"] *,
+          body [class*="dropdown"] *,
+          body [class*="Dropdown"] *,
+          body [class*="popover"] *,
+          body [class*="Popover"] *,
+          body [class*="menu"] li,
+          body [class*="menu"] li *,
+          body [class*="Menu"] li,
+          body [class*="Menu"] li * {
+            font-family: CormorantGaramond, "Cormorant Garamond", serif !important;
+            font-weight: 600 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            opacity: 1 !important;
+          }
+        `}
+      </style>
+
+      <div
+        className={
+          isHome
+            ? "CormorantGaramond search-filter-cormorant search-filter-white-text relative z-20 flex rounded-[17.6px] bg-[#FFFFFF40] py-[12px] backdrop-blur-[13.8px] drop-shadow-[0_41.656px_83.312px_-20.828px_rgba(143,144,188,0.15)] lg:py-[14px] mx-auto w-full max-w-full flex-col gap-[10px] px-3 sm:px-4 lg:w-fit lg:px-[18px]"
+            : "CormorantGaramond search-filter-cormorant relative z-20 flex w-full flex-col bg-white shadow-[0_12px_34px_rgba(0,0,0,0.1)] lg:h-[58px] lg:flex-row lg:items-stretch"
+        }
+        data-aos="fade-up"
+      >
+        {isHome ? (
+          <>
+            <div className="flex w-full flex-col gap-[10px] lg:hidden">
               <SelectSearch
                 variant="home"
                 search={search}
                 onChange={setQuery}
                 value={query}
               />
-            </div>
 
-            <div className="flex h-[49.28px] w-[86px] shrink-0 items-center justify-center">
               <FilterRent
                 value={rentFilters}
                 onChange={setRentFilters}
-                maxWidthClass="max-w-[86px]"
+                maxWidthClass="max-w-full"
               />
-            </div>
 
-            <div className="w-fit shrink-0">
               <SearchButton onClick={handleSearch} />
             </div>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="grid w-full grid-cols-2 border-b border-[#E6E6E6] lg:flex lg:w-auto lg:border-b-0">
-            <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[150px]">
-              <FilterRent
-                value={rentFilters}
-                onChange={setRentFilters}
-                placeholder="Select Your Type"
-                maxWidthClass="max-w-full"
+
+            <div className="hidden w-fit flex-nowrap items-center gap-[6px] lg:flex">
+              <div className="w-[560px] min-w-0 shrink-0">
+                <SelectSearch
+                  variant="home"
+                  search={search}
+                  onChange={setQuery}
+                  value={query}
+                />
+              </div>
+
+              <div className="flex h-[49.28px] w-[86px] shrink-0 items-center justify-center">
+                <FilterRent
+                  value={rentFilters}
+                  onChange={setRentFilters}
+                  maxWidthClass="max-w-[86px]"
+                />
+              </div>
+
+              <div className="w-fit shrink-0">
+                <SearchButton onClick={handleSearch} />
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="grid w-full grid-cols-2 border-b border-[#E6E6E6] lg:flex lg:w-auto lg:border-b-0">
+              <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[150px]">
+                <FilterRent
+                  value={rentFilters}
+                  onChange={setRentFilters}
+                  placeholder="Select Your Type"
+                  maxWidthClass="max-w-full"
+                  variant="listing"
+                />
+              </div>
+
+              <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[190px]">
+                <FilterType
+                  options={TYPE_OPTIONS}
+                  selected={types}
+                  onChange={setTypes}
+                  label="Type"
+                  placeholder="Select Your Type"
+                  maxWidthClass="max-w-full"
+                  variant="listing"
+                />
+              </div>
+
+              <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[190px]">
+                <FilterBedroom
+                  value={bedBath}
+                  onChange={setBedBath}
+                  maxWidthClass="max-w-full"
+                  variant="listing"
+                />
+              </div>
+
+              <div className="flex min-h-[54px] items-center px-[16px] lg:h-[58px] lg:w-[220px] lg:border-r lg:border-[#D5D5D5]">
+                <FilterPriceRange
+                  value={price}
+                  onChange={setPrice}
+                  onDraftChange={(draft) => setPrice(draft)}
+                  maxWidthClass="max-w-full"
+                  variant="listing"
+                />
+              </div>
+            </div>
+
+            <div className="flex min-h-[54px] min-w-0 flex-1 items-center px-[10px] lg:h-[58px] lg:min-w-[320px]">
+              <SelectSearch
                 variant="listing"
+                search={search}
+                onChange={setQuery}
+                value={query}
+                placeholder="Search by location, project or keyword..."
+                hideIndicators
               />
             </div>
 
-            <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[190px]">
-              <FilterType
-                options={TYPE_OPTIONS}
-                selected={types}
-                onChange={setTypes}
-                label="Type"
-                placeholder="Select Your Type"
-                maxWidthClass="max-w-full"
-                variant="listing"
-              />
+            <div className="w-full shrink-0 lg:w-[112px]">
+              <SearchButton onClick={handleSearch} variant="listing" showIcon={false} />
             </div>
-
-            <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[190px]">
-              <FilterBedroom
-                value={bedBath}
-                onChange={setBedBath}
-                maxWidthClass="max-w-full"
-                variant="listing"
-              />
-            </div>
-
-            <div className="flex min-h-[54px] items-center px-[16px] lg:h-[58px] lg:w-[220px] lg:border-r lg:border-[#D5D5D5]">
-              <FilterPriceRange
-                value={price}
-                onChange={setPrice}
-                onDraftChange={(draft) => setPrice(draft)}
-                maxWidthClass="max-w-full"
-                variant="listing"
-              />
-            </div>
-          </div>
-
-          <div className="flex min-h-[54px] min-w-0 flex-1 items-center px-[10px] lg:h-[58px] lg:min-w-[320px]">
-            <SelectSearch
-              variant="listing"
-              search={search}
-              onChange={setQuery}
-              value={query}
-              placeholder="Search by location, project or keyword..."
-              hideIndicators
-            />
-          </div>
-
-          <div className="w-full shrink-0 lg:w-[112px]">
-            <SearchButton onClick={handleSearch} variant="listing" showIcon={false} />
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   );
 }

@@ -25,14 +25,7 @@ export default function ProjectFeatures() {
 
   return (
     <div className="flex flex-col items-start gap-[23px] w-full mt-[45px]">
-      <p
-        className="CormorantGaramond text-[28px] leading-[1.05] lg:text-[44px]"
-        style={{
-          color: "#000000",
-          fontWeight: 600,
-          opacity: 1,
-        }}
-      >
+      <p className="CormorantGaramond text-[28px] font-[900] leading-[1.08] text-[#050505] [text-shadow:0_0_0.45px_#050505] lg:text-[34px]">
         Features & Amenities
       </p>
 

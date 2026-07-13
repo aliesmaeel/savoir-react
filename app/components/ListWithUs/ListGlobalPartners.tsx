@@ -55,13 +55,13 @@ export default function ListGlobalPartners() {
             className="mx-auto w-full !max-w-[1080px] !rounded-[22px] border border-[#e9dfcf] px-[16px] py-[20px] shadow-[0_16px_42px_rgba(17,17,17,0.07)] lg:px-[30px] lg:py-[28px]"
           >
             <div
-              className={`grid w-full grid-cols-1 items-start gap-[24px] lg:gap-[34px] ${
+              className={`grid w-full grid-cols-1 items-center gap-[24px] lg:gap-[34px] ${
                 item.reverse
-                  ? "lg:grid-cols-[390px_minmax(0,1fr)] lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
-                  : "lg:grid-cols-[minmax(0,1fr)_390px]"
+                  ? "lg:grid-cols-[360px_minmax(0,1fr)] lg:[&>*:first-child]:order-2 lg:[&>*:last-child]:order-1"
+                  : "lg:grid-cols-[minmax(0,1fr)_360px]"
               }`}
             >
-              <div className="flex w-full flex-col items-start justify-start gap-[22px] lg:gap-[26px]">
+              <div className="flex h-full w-full flex-col items-start justify-center gap-[22px] lg:gap-[24px]">
                 <div
                   className="flex w-full items-center border-l-[3px] border-[#111111] px-[14px] py-[12px] lg:px-[18px] lg:py-[15px]"
                   style={{
@@ -89,17 +89,17 @@ export default function ListGlobalPartners() {
                 </p>
 
                 <Link to={item.link}>
-                  <Button className="h-[42px] !rounded-[8px] !bg-[#111111] !px-[24px] !py-[11px] text-[15px] font-semibold !text-white shadow-[0_12px_26px_rgba(17,17,17,0.16)] hover:!bg-[#000000] lg:!px-[38px] lg:text-[17px]">
-                    visit the site
+                  <Button className="h-[42px] !rounded-[8px] !border-none !bg-[#2B2B2B] !px-[24px] !py-[11px] text-[15px] font-semibold !text-white shadow-[0_12px_26px_rgba(43,43,43,0.16)] hover:!bg-[#242424] lg:!px-[38px] lg:text-[17px]">
+                    Visit The Site
                   </Button>
                 </Link>
               </div>
 
               <div
-                className={`flex w-full flex-col items-center ${
+                className={`flex h-full w-full flex-col items-center justify-center ${
                   item.reverse
-                    ? "lg:w-[390px] lg:justify-self-start"
-                    : "lg:w-[390px] lg:justify-self-end"
+                    ? "lg:w-[360px] lg:justify-self-start"
+                    : "lg:w-[360px] lg:justify-self-end"
                 }`}
               >
                 {item.images.length > 1 ? (
@@ -115,7 +115,7 @@ export default function ListGlobalPartners() {
                           [index]: swiper,
                         }))
                       }
-                      className="w-full overflow-hidden rounded-[20px] shadow-[0_16px_36px_rgba(17,17,17,0.07)]"
+                      className="w-full overflow-hidden rounded-[18px] shadow-[0_16px_36px_rgba(17,17,17,0.07)]"
                     >
                       {item.images.map((image, imageIndex) => (
                         <SwiperSlide key={imageIndex}>
@@ -123,16 +123,16 @@ export default function ListGlobalPartners() {
                             loading="eager"
                             src={image}
                             alt=""
-                            className="aspect-[576/360] w-full rounded-[20px] object-cover"
+                            className="aspect-[576/360] w-full rounded-[18px] object-cover"
                           />
                         </SwiperSlide>
                       ))}
                     </Swiper>
 
-                    <div className="mt-[18px] flex w-full items-center justify-center gap-[58px]">
+                    <div className="mt-[16px] flex w-full items-center justify-center gap-[50px]">
                       <button
                         type="button"
-                        className="flex h-[78px] w-[78px] cursor-pointer items-center justify-center rounded-full transition-transform duration-200 hover:scale-[1.06] focus:outline-none lg:h-[86px] lg:w-[86px]"
+                        className="flex h-[72px] w-[72px] cursor-pointer items-center justify-center rounded-full transition-transform duration-200 hover:scale-[1.06] focus:outline-none lg:h-[78px] lg:w-[78px]"
                         onClick={() => swiperInstances[index]?.slidePrev()}
                         aria-label="Previous slide"
                       >
@@ -140,13 +140,13 @@ export default function ListGlobalPartners() {
                           loading="lazy"
                           src={icon.propertiesPrev}
                           alt="Previous"
-                          className="w-[74px] lg:w-[82px]"
+                          className="w-[68px] lg:w-[74px]"
                         />
                       </button>
 
                       <button
                         type="button"
-                        className="flex h-[78px] w-[78px] cursor-pointer items-center justify-center rounded-full transition-transform duration-200 hover:scale-[1.06] focus:outline-none lg:h-[86px] lg:w-[86px]"
+                        className="flex h-[72px] w-[72px] cursor-pointer items-center justify-center rounded-full transition-transform duration-200 hover:scale-[1.06] focus:outline-none lg:h-[78px] lg:w-[78px]"
                         onClick={() => swiperInstances[index]?.slideNext()}
                         aria-label="Next slide"
                       >
@@ -154,18 +154,18 @@ export default function ListGlobalPartners() {
                           loading="lazy"
                           src={icon.propertiesNext}
                           alt="Next"
-                          className="w-[74px] lg:w-[82px]"
+                          className="w-[68px] lg:w-[74px]"
                         />
                       </button>
                     </div>
                   </>
                 ) : (
-                  <div className="w-full overflow-hidden rounded-[20px] shadow-[0_16px_36px_rgba(17,17,17,0.07)]">
+                  <div className="w-full overflow-hidden rounded-[18px] shadow-[0_16px_36px_rgba(17,17,17,0.07)]">
                     <img
                       loading="eager"
                       src={item.images[0]}
                       alt=""
-                      className="aspect-[576/360] w-full rounded-[20px] object-cover"
+                      className="aspect-[576/360] w-full rounded-[18px] object-cover"
                     />
                   </div>
                 )}

@@ -65,10 +65,10 @@ export default function NewsShare() {
   }, [pending, hasShared, shares, shareUrl, newsItem?.id, isClient, STORAGE_KEY]);
 
   const iconBoxClass =
-    "flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#111111] shadow-[0_10px_24px_rgba(17,17,17,0.18)] transition-all duration-300 hover:bg-[#000000] hover:scale-[1.04] lg:h-[58px] lg:w-[58px]";
+    "flex h-[52px] w-[52px] items-center justify-center rounded-full !bg-[#2B2B2B] !text-white shadow-[0_10px_24px_rgba(43,43,43,0.22)] transition-all duration-300 hover:!bg-[#242424] hover:scale-[1.04] lg:h-[58px] lg:w-[58px]";
 
   const iconTextClass =
-    "flex items-center justify-center text-[24px] font-bold leading-none text-white lg:text-[27px]";
+    "flex items-center justify-center text-[24px] font-bold leading-none !text-white lg:text-[27px]";
 
   return (
     <div className="flex flex-row items-start gap-[33.6px] lg:flex-col">
@@ -99,8 +99,9 @@ export default function NewsShare() {
           target="_blank"
           className={iconBoxClass}
         >
-          <span className="flex h-[24px] w-[24px] items-center justify-center rounded-[7px] border-[2px] border-white text-[15px] font-bold leading-none text-white lg:h-[27px] lg:w-[27px] lg:text-[16px]">
-            ◎
+          <span className="relative flex h-[24px] w-[24px] items-center justify-center rounded-[7px] border-[2px] border-white lg:h-[27px] lg:w-[27px]">
+            <span className="h-[8px] w-[8px] rounded-full border-[2px] border-white lg:h-[9px] lg:w-[9px]" />
+            <span className="absolute right-[4px] top-[4px] h-[3px] w-[3px] rounded-full bg-white" />
           </span>
         </Link>
 
@@ -111,7 +112,7 @@ export default function NewsShare() {
           target="_blank"
           className={iconBoxClass}
         >
-          <span className="text-[19px] font-bold leading-none text-white lg:text-[21px]">
+          <span className="text-[19px] font-bold leading-none !text-white lg:text-[21px]">
             in
           </span>
         </Link>
@@ -125,14 +126,16 @@ export default function NewsShare() {
             pending
               ? "Working..."
               : hasShared
-              ? "Link copied. Already counted."
-              : "Copy link"
+                ? "Link copied. Already counted."
+                : "Copy link"
           }
-          className={`${iconBoxClass} ${pending ? "cursor-not-allowed opacity-60" : ""}`}
+          className={`${iconBoxClass} ${
+            pending ? "cursor-not-allowed opacity-60" : ""
+          }`}
         >
           <span className="relative h-[24px] w-[24px] lg:h-[27px] lg:w-[27px]">
             <span className="absolute left-[2px] top-[5px] h-[17px] w-[14px] rounded-[2px] border-[2px] border-white lg:h-[19px] lg:w-[16px]" />
-            <span className="absolute left-[8px] top-[1px] h-[17px] w-[14px] rounded-[2px] border-[2px] border-white bg-[#111111] lg:h-[19px] lg:w-[16px]" />
+            <span className="absolute left-[8px] top-[1px] h-[17px] w-[14px] rounded-[2px] border-[2px] border-white bg-[#2B2B2B] lg:h-[19px] lg:w-[16px]" />
           </span>
         </button>
       </div>

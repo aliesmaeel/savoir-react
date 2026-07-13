@@ -48,7 +48,7 @@ export default function HomeAbout() {
               <span className="italic">ESTATE EXCELLENCE</span>
             </p>
 
-            <div className="mt-[8px] h-[2px] w-full bg-[linear-gradient(90deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.62)_50%,rgba(0,0,0,0)_100%)]" />
+            <div className="mt-[8px] h-[2px] w-full bg-[linear-gradient(90deg,rgba(198,164,90,0)_0%,rgba(198,164,90,0.95)_50%,rgba(198,164,90,0)_100%)]" />
           </div>
         </motion.div>
 
@@ -57,7 +57,7 @@ export default function HomeAbout() {
           transition={{ duration: 0.9, ease: "easeOut", delay: 1 }}
           className="description-body text-[#111111]"
           style={{
-            fontWeight: 600,
+            fontWeight: 500,
             opacity: 1,
             willChange: "transform, opacity",
           }}
@@ -83,7 +83,7 @@ export default function HomeAbout() {
           style={{ willChange: "transform, opacity" }}
         >
           <Link to="/about-us" className="inline-block">
-            <Button className="h-[40px] w-[145px] !rounded-[8px] !bg-[#111111] !px-[18px] !py-[8px] text-[15px] font-semibold !text-white shadow-[0_12px_28px_rgba(17,17,17,0.18)] hover:!bg-[#000000] lg:h-[42px] lg:w-[170px] lg:text-[16px]">
+            <Button className="h-[40px] w-[145px] !rounded-[8px] !bg-[#2B2B2B] !px-[18px] !py-[8px] text-[15px] font-semibold !text-white shadow-[0_12px_28px_rgba(43,43,43,0.18)] hover:!bg-[#242424] lg:h-[42px] lg:w-[170px] lg:text-[16px]">
               Read more{" "}
               <img
                 loading="lazy"

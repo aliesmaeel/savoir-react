@@ -5,19 +5,19 @@ export default function WhyListWithUs() {
   const items = [
     {
       title: "Unmatched expertise",
-      text: "40+ years of combined founder experience in Dubai. 100+ years across the Savoir team. The depth behind every property recommendation, pricing decision, and negotiation we undertake on your behalf.",
+      text: "Our founders bring over 40 years of combined Dubai real estate experience, supported by more than 100 years of collective knowledge across the Savoir team. This depth guides every property recommendation, pricing decision, and negotiation we handle on your behalf.",
     },
     {
       title: "Multilingual reach",
-      text: "We speak English, Arabic, French, Spanish, Italian, Russian, Bulgarian, Romanian, Hindi, and Urdu — serving the full international spectrum of buyers actively looking for luxury property in Dubai, UAE.",
+      text: "We speak English, Arabic, French, Spanish, Italian, Russian, Bulgarian, Romanian, Hindi, and Urdu. This allows us to serve a truly international audience of buyers actively searching for luxury property in Dubai and across the UAE.",
     },
     {
       title: "Award-winning reputation",
-      text: "Recognised as an award-winning Dubai real estate agency and exclusive GCC representative of the World's Best Property 2024–2025 — a credibility that elevates every listing we carry.",
+      text: "Savoir is recognised as an award-winning Dubai real estate agency and the exclusive GCC representative of the World's Best Property 2024–2025. This reputation strengthens the credibility and visibility of every listing we represent.",
     },
     {
       title: "Global platform",
-      text: "Through LeadingRE and Luxury Portfolio International®, your Dubai property is placed before 4 million+ affluent buyers in 70+ countries via the world's most prestigious media channels.",
+      text: "Through LeadingRE and Luxury Portfolio International®, your Dubai property reaches a global network of affluent buyers across more than 70 countries. We combine boutique service with access to some of the world's most respected real estate and media channels.",
     },
   ];
 
