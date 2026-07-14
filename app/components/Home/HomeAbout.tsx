@@ -83,8 +83,8 @@ export default function HomeAbout() {
           style={{ willChange: "transform, opacity" }}
         >
           <Link to="/about-us" className="inline-block">
-            <Button className="h-[40px] w-[145px] !rounded-[8px] !bg-[#2B2B2B] !px-[18px] !py-[8px] text-[15px] font-semibold !text-white shadow-[0_12px_28px_rgba(43,43,43,0.18)] hover:!bg-[#242424] lg:h-[42px] lg:w-[170px] lg:text-[16px]">
-              Read more{" "}
+            <Button className="h-[40px] w-[145px] shrink-0 flex-nowrap whitespace-nowrap !rounded-[8px] !bg-[#2B2B2B] !px-[18px] !py-[8px] text-[15px] font-semibold !leading-none !text-white shadow-[0_12px_28px_rgba(43,43,43,0.18)] hover:!bg-[#242424] lg:h-[42px] lg:w-[170px] lg:text-[16px]">
+              <span className="whitespace-nowrap">Read more</span>
               <img
                 loading="lazy"
                 src={arrow.longWhite}
