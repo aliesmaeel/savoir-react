@@ -17,9 +17,9 @@ import { useEffect } from "react";
 import { NotificationsProvider } from "./components/notifications/NotificationsProvider";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", type: "image/png", href: "/images/vletternew.png" },
+  { rel: "icon", type: "image/svg+xml", href: "/images/icons/logo.svg" },
   { rel: "icon", href: "/favicon.ico", sizes: "any" },
-  { rel: "apple-touch-icon", href: "/images/vletternew.png" },
+  { rel: "apple-touch-icon", href: "/images/icons/logo.svg" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
