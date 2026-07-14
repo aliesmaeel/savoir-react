@@ -52,13 +52,13 @@ export default function ProjectPageSwiper({ mainImage, sliderImages }: Props) {
             loading="lazy"
             src={mainImage}
             alt=""
-            className="rounded-[8px] w-full h-full object-cover"
+            className="rounded-[8px] w-full h-full object-contain"
           />
           <img
             loading="lazy"
             src={mainImage}
             alt=""
-            className="rounded-[8px] w-full h-full object-cover hidden lg:block"
+            className="rounded-[8px] w-full h-full object-contain hidden lg:block"
           />
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function ProjectPageSwiper({ mainImage, sliderImages }: Props) {
           loading="lazy"
           src={mainImage}
           alt=""
-          className="rounded-[8px] w-full h-full object-cover hidden lg:block"
+          className="rounded-[8px] w-full h-full object-contain hidden lg:block"
         />
       </div>
 
@@ -209,7 +209,7 @@ function SlideCard({ item, arrow }: { item: any; arrow: ReturnType<typeof useArr
   const { isActive } = useSwiperSlide();
   return (
     <div className="h-full">
-      <img loading="lazy" src={item.url} alt={item.id} className="w-full h-full object-cover" />
+      <img loading="lazy" src={item.url} alt={item.id} className="w-full h-full object-contain" />
     </div>
   );
 }

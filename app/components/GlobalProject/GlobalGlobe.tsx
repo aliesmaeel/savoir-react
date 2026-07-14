@@ -393,10 +393,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
     <div className="relative z-10 mt-0 flex w-full flex-col items-center justify-between gap-[15px] overflow-visible lg:mt-0 lg:flex-row">
       <div
         className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[calc(100%+120px)] w-screen -translate-x-1/2 -translate-y-1/2"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(0,0,0,0.46) 0%, rgba(0,0,0,0.38) 42%, rgba(0,0,0,0.22) 72%, rgba(0,0,0,0.08) 100%)",
-        }}
+      
       />
 
       <div
@@ -406,6 +403,7 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
             "linear-gradient(0deg, #FFFFFF 0%, rgba(255,255,255,0.96) 22%, rgba(255,255,255,0.72) 46%, rgba(255,255,255,0.32) 72%, rgba(255,255,255,0.00) 100%)",
         }}
       />
+ 
 
       <div className="relative z-10 flex w-full flex-col items-start gap-[15px] lg:w-[390px] lg:gap-[26px]">
         <div className="flex flex-col items-start">
@@ -579,6 +577,8 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       <div className={`${className} relative z-10 hidden lg:block`} style={style}>
         <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       </div>
+
+
     </div>
   );
 };

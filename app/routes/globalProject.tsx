@@ -46,7 +46,7 @@ export default function GlobalProject() {
         initialImage={currentGlobal?.project?.image}
         onCountryDataChange={handleCountryDataChange}
       />
-      <div className="relative z-10 -mt-[55px] pb-[85px] lg:-mt-[65px] lg:pb-[120px]">
+      <div className="relative z-10 -mt-[55px] pb-[85px] lg:-mt-[65px] lg:pb-[120px] mt-[20px]">
         <PageLayout>
           <div className="flex flex-col lg:flex-row items-start gap-[50px] w-full">
             <AboutGlobal
