@@ -396,6 +396,13 @@ const GlobalGlobe: React.FC<GlobalGlobeProps> = ({
       
       />
 
+      <div
+        className="pointer-events-none absolute bottom-[-55px] left-1/2 z-[1] hidden h-[150px] w-screen -translate-x-1/2 lg:block lg:bottom-[-115px] lg:h-[240px]"
+        style={{
+          background:
+            "linear-gradient(0deg, #FFFFFF 0%, rgba(255,255,255,0.96) 22%, rgba(255,255,255,0.72) 46%, rgba(255,255,255,0.32) 72%, rgba(255,255,255,0.00) 100%)",
+        }}
+      />
  
 
       <div className="relative z-10 flex w-full flex-col items-start gap-[15px] lg:w-[390px] lg:gap-[26px]">

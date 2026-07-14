@@ -55,7 +55,7 @@ export default function MemberHero() {
 
       <div className="relative z-20 w-full max-w-[1160px] pb-[80px] lg:pb-[105px]">
         <div
-          className="relative min-h-[520px] w-full overflow-hidden rounded-[8px] border border-white/80 bg-white/55 ring-1 ring-white/70 backdrop-blur-[18px]"
+          className="relative w-full overflow-hidden rounded-[8px] border border-white/80 bg-white/55 ring-1 ring-white/70 backdrop-blur-[18px] lg:min-h-[520px]"
           style={{
             backdropFilter: "blur(18px) saturate(150%) contrast(103%)",
             WebkitBackdropFilter: "blur(18px) saturate(150%) contrast(103%)",
@@ -67,11 +67,11 @@ export default function MemberHero() {
             loading="lazy"
             src={team.image}
             alt={team.name}
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-65 lg:left-auto lg:right-0 lg:w-[46%] lg:opacity-100"
+            className="relative h-[360px] w-full object-cover object-top opacity-100 lg:absolute lg:inset-0 lg:left-auto lg:right-0 lg:h-full lg:w-[46%] lg:object-center lg:opacity-100"
           />
 
           <div
-            className="pointer-events-none absolute inset-0"
+            className="pointer-events-none absolute inset-0 hidden lg:block"
             style={{
               background:
                 "linear-gradient(90deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.94) 40%, rgba(255,255,255,0.32) 49%, rgba(255,255,255,0.06) 55%, rgba(255,255,255,0.00) 59%)",
@@ -79,7 +79,7 @@ export default function MemberHero() {
           />
 
           <div
-            className="pointer-events-none absolute inset-0 backdrop-blur-[8px] lg:backdrop-blur-[4px]"
+            className="pointer-events-none absolute inset-0 hidden backdrop-blur-[8px] lg:block lg:backdrop-blur-[4px]"
             style={{
               background:
                 "linear-gradient(90deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.12) 31%, rgba(255,255,255,0.025) 46%, rgba(255,255,255,0.00) 55%)",
@@ -91,7 +91,7 @@ export default function MemberHero() {
           />
 
           <div
-            className="pointer-events-none absolute inset-0 opacity-70"
+            className="pointer-events-none absolute inset-0 hidden opacity-70 lg:block"
             style={{
               background:
                 "radial-gradient(100% 70% at 13% 3%, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.40) 27%, rgba(255,255,255,0.00) 50%), linear-gradient(128deg, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.10) 20%, rgba(255,255,255,0.00) 46%, rgba(255,255,255,0.12) 62%, rgba(255,255,255,0.00) 100%)",
@@ -104,7 +104,7 @@ export default function MemberHero() {
           />
 
           <div
-            className="pointer-events-none absolute inset-0 opacity-[0.05]"
+            className="pointer-events-none absolute inset-0 hidden opacity-[0.05] lg:block"
             style={{
               background:
                 "repeating-linear-gradient(90deg, rgba(255,255,255,0.65) 0px, rgba(255,255,255,0.35) 1px, rgba(255,255,255,0.00) 70px, rgba(255,255,255,0.28) 86px)",
@@ -116,14 +116,14 @@ export default function MemberHero() {
           />
 
           <div
-            className="pointer-events-none absolute inset-0 rounded-[8px]"
+            className="pointer-events-none absolute inset-0 hidden rounded-[8px] lg:block"
             style={{
               boxShadow:
                 "inset 0 0 0 1px rgba(255,255,255,0.64), inset 1px 1px 2px rgba(255,255,255,0.94), inset 22px 22px 54px rgba(255,255,255,0.34), inset -18px -18px 46px rgba(0,0,0,0.08)",
             }}
           />
 
-          <div className="relative z-10 flex min-h-[520px] w-full flex-col justify-center gap-[24px] px-[24px] py-[42px] lg:w-[58%] lg:gap-[34px] lg:px-[58px] lg:py-[56px]">
+          <div className="relative z-10 flex w-full flex-col justify-center gap-[20px] bg-white px-[20px] py-[24px] lg:min-h-[520px] lg:w-[58%] lg:gap-[34px] lg:bg-transparent lg:px-[58px] lg:py-[56px]">
             <div className="flex flex-col items-center gap-[6px] lg:items-start lg:gap-[8px]">
               <p
                 className="text-center text-[22px] leading-[1.12] lg:text-left lg:text-[36px]"
