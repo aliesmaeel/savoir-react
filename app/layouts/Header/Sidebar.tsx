@@ -87,7 +87,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </svg>
         </button>
         <Link to="/" onClick={onClose}>
-          <img loading="lazy" src={icon.logo} alt="" className="w-[188.47px] brightness-[0.7] " />
+          <img loading="lazy" src={icon.logoFooterPriveClean} alt="" className="w-[188.47px]" />
         </Link>
       </div>
       <div className="flex flex-col items-center gap-[26.79px]">

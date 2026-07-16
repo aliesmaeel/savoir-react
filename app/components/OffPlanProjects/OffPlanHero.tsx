@@ -3,7 +3,7 @@ import OffPlanFilter from "./OffPlanFilter";
 
 export default function OffPlanHero() {
   return (
-    <div className="relative flex h-[520px] w-full flex-col items-center justify-center overflow-hidden lg:h-[350px]">
+    <div className="relative flex h-[520px] w-full flex-col items-center justify-center lg:h-[350px]">
       <img
         loading="lazy"
         src="/images/placeholders/hero.webp"
@@ -13,7 +13,7 @@ export default function OffPlanHero() {
 
       <div className="absolute inset-0 bg-black/20" />
 
-      <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-start pt-[74px] lg:pt-[54px]">
+      <div className="absolute left-0 top-0 flex h-full w-full flex-col items-center justify-start pt-[74px] lg:pt-[54px]">
         <div className="flex w-full flex-col items-center gap-[12px] lg:gap-[20px]">
           <OffPlanFilter />
 
