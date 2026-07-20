@@ -33,7 +33,7 @@ export default function HeroSection() {
                   "0 3px 16px rgba(0,0,0,0.82), 0 8px 34px rgba(0,0,0,0.45), 0 0 1px rgba(255,255,255,0.95)",
               }}
             >
-              Search Luxury Homes in Dubai
+              Every life has its address. Find yours.
             </h1>
 
             <div className="relative z-10 h-[1.5px] w-[120px] bg-[linear-gradient(90deg,rgba(198,164,90,0)_0%,rgba(198,164,90,1)_50%,rgba(198,164,90,0)_100%)] lg:w-[210px]" />
