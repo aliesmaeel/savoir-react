@@ -28,9 +28,9 @@ export default function ListGlobalPartners() {
       text:
         "As a cornerstone of the global real estate landscape, LeadingRE shapes industry standards, fosters innovation, and facilitates cross-border collaboration. Bringing together top real estate professionals worldwide, LeadingRE serves as a vital conduit for sharing information and promoting excellence beyond geographical confines.",
       images: [
-        "/images/listwithus/4.jpg",
+        "/images/listwithus/1.jpg",
         "/images/listwithus/5.jpg",
-        "/images/listwithus/6.jpg",
+        "/images/listwithus/3.jpg",
       ],
       link: "https://www.leadingre.com/",
       reverse: false,

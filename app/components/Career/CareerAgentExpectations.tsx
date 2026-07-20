@@ -5,9 +5,9 @@ export default function CareerAgentExpectations() {
     "Embrace failures as opportunities for growth.",
     "Operate with integrity in all interactions.",
     "Demonstrate self-motivation and self-sufficiency.",
-    "Reflect on their performance and seek continuous improvement.",
-    "Prioritize honesty and kindness in their dealings.",
-    "Maintain consistency in their work ethic.",
+    "Reflect on our performance and seek continuous improvement.",
+    "Prioritize honesty and kindness in our dealings.",
+    "Maintain consistency in our work ethic.",
   ];
 
   return (

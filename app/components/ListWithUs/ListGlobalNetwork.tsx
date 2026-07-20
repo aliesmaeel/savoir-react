@@ -11,9 +11,9 @@ export default function ListGlobalNetwork() {
   const icon = useIcons();
 
   const images = [
-    "/images/listwithus/1.jpg",
-    "/images/listwithus/2.jpg",
-    "/images/listwithus/3.jpg",
+    "/images/listwithus/Leading_RE_Global_Enhanced.png",
+    "/images/listwithus/4.jpg",
+    "/images/listwithus/6.jpg",
   ];
 
   return (

@@ -140,7 +140,7 @@ export default function OffPlanFilter() {
         `}
       </style>
 
-      <div className="CormorantGaramond offplan-filter-cormorant relative z-20 flex w-full flex-col bg-white shadow-[0_12px_34px_rgba(0,0,0,0.1)] lg:h-[58px] lg:flex-row lg:items-stretch">
+      <div className="CormorantGaramond offplan-filter-cormorant relative z-[25] flex w-full flex-col bg-white shadow-[0_12px_34px_rgba(0,0,0,0.1)] lg:h-[58px] lg:flex-row lg:items-stretch">
         {/* Single-select components that keep array API for compatibility */}
         <div className="grid w-full grid-cols-1 border-b border-[#E6E6E6] sm:grid-cols-2 lg:flex lg:w-auto lg:border-b-0">
           <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[220px]">

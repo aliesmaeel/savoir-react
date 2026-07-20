@@ -59,17 +59,6 @@ export default function aboutUs() {
                 >
                   Anthony Hitt
                 </p>
-
-                <p
-                  className="text-center text-[13px] uppercase tracking-[0.12em] lg:text-[17px]"
-                  style={{
-                    color: "#111111",
-                    fontWeight: 600,
-                    opacity: 1,
-                  }}
-                >
-                  CEO, LeadingRE
-                </p>
               </div>
             </div>
           </section>

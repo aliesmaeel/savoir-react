@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, useNavigate } from "react-router";
 import { formatPrice } from "~/utils/formatPrice";
 
 type TabKey = "For Rent" | "For Sale" | "Off Plan";
@@ -20,11 +20,9 @@ const offeringShort = (t: string | undefined, tab: TabKey) => {
   return tab;
 };
 
-const formatLocation = (p: any) =>
-  [p?.subcommunity, p?.community, p?.city].filter(Boolean).join(", ");
-
 export default function HomeProperties() {
   const { home } = useLoaderData() as { home: any };
+  const navigate = useNavigate();
   const [tab, setTab] = useState<TabKey>("For Rent");
   const [activeIdx, setActiveIdx] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -138,12 +136,6 @@ export default function HomeProperties() {
                   <span className="Jakarta border-[0.5px] border-white/40 px-[12px] py-[4px] text-[9px] font-semibold uppercase tracking-[0.18em] text-white/90">
                     {offeringLabel(hero.offering_type, tab)}
                   </span>
-
-                  {(hero.community || hero.city) && (
-                    <span className="Jakarta border-[0.5px] border-white/40 px-[12px] py-[4px] text-[9px] font-semibold uppercase tracking-[0.18em] text-white/90">
-                      {hero.community || hero.city}
-                    </span>
-                  )}
                 </div>
 
                 <p
@@ -183,7 +175,13 @@ export default function HomeProperties() {
                     : "hover:bg-white"
                 } group`}
               >
-                <div className="relative min-h-[142px] w-[112px] overflow-hidden bg-white lg:min-h-[165px] lg:w-[150px]">
+                <div
+                  className="relative min-h-[142px] w-[112px] overflow-hidden bg-white lg:min-h-[165px] lg:w-[150px]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/project/${p.slug}`);
+                  }}
+                >
                   <img
                     loading="lazy"
                     src={p.photo}
@@ -215,17 +213,6 @@ export default function HomeProperties() {
                       }}
                     >
                       {p.title_en}
-                    </p>
-
-                    <p
-                      className="Jakarta mb-[12px] line-clamp-1 text-[10px] tracking-[0.03em]"
-                      style={{
-                        color: "#111111",
-                        fontWeight: 500,
-                        opacity: 1,
-                      }}
-                    >
-                      {formatLocation(p)}
                     </p>
 
                     <div className="flex flex-wrap gap-x-[16px] gap-y-[6px]">

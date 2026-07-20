@@ -6,13 +6,13 @@ export default function realEstateAdvisory() {
     {
       title: "Real Estate Advisory",
       text: "Embark on an extraordinary journey where the complex decisions that often consume your time are transformed into seamless, effortless choices. At SAVOIR, our real estate advisory solutions redefine how you engage with the Dubai property market, offering more than conventional services. Here, we promise a personalized approach to investing that not only aligns with your primary goals but anticipates your specific requirements.",
-      image: "/images/real-estate-advisory/advisory1.jpg",
+      image: "/images/real-estate-advisory/advisory-collage.png",
       link: "/contact-us",
     },
     {
       title: "Ready To Redefine Your Real Estate Success?",
       text: "Get in touch with us today to find out how our real estate consultancy can help you maximize the return on your real estate assets. Our team of experts, specialized in formulating strategic suggestions designed to fit your specific property objectives and investment ambitions, is here to advise and support you whether you are an experienced investor or are just entering in the market. Navigating the complexities of the dynamic real estate landscape in Dubai requires more than routine solutions. That's why our advisory services stand out, promising customized investment plans that provide not just guidance but a transformative experience that complement your key goals. We support you every step of the way, drawing on our specific knowledge to make sure the journey goes well.",
-      image: "/images/real-estate-advisory/advisory2.jpg",
+      image: "/images/real-estate-advisory/advisory-meeting.png",
       link: "/contact-us",
     },
     {
