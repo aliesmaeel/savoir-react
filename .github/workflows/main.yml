@@ -39,6 +39,11 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
+      - name: Test
+        run: pnpm run test
+        env:
+          VITE_BASE_URL: "https://cms.savoirproperties.com/"
+
       - name: Build app
         run: pnpm run build
 

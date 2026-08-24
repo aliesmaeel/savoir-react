@@ -2,6 +2,13 @@ import { type RouteConfig, index, layout, route } from "@react-router/dev/routes
 
 const maintenanceMode = process.env.MAINTENANCE_MODE === "true";
 
+const seoRoutes: RouteConfig = [
+  route("/robots.txt", "routes/robots[.]txt.ts"),
+  route("/sitemap.xml", "routes/sitemap[.]xml.ts"),
+  route("/sitemap-pages.xml", "routes/sitemap-pages[.]xml.ts"),
+  route("/sitemaps/:type/:page.xml", "routes/sitemaps.ts"),
+];
+
 const appRoutes: RouteConfig = [
   layout("layouts/MainLayout.tsx", [
     index("routes/home.tsx"),
@@ -57,8 +64,9 @@ const appRoutes: RouteConfig = [
 export default (
   maintenanceMode
     ? [
+        ...seoRoutes,
         index("routes/comingSoon.ts", { id: "comingSoonIndex" }),
         route("*", "routes/comingSoon.ts", { id: "comingSoonSplat" }),
       ]
-    : appRoutes
+    : [...seoRoutes, ...appRoutes]
 ) satisfies RouteConfig;

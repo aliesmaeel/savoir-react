@@ -15,6 +15,7 @@ import "aos/dist/aos.css";
 import "./app.css";
 import { useEffect } from "react";
 import { NotificationsProvider } from "./components/notifications/NotificationsProvider";
+import { getCanonicalUrlForPathname } from "./seo/canonical";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/svg+xml", href: "/images/icons/logo.svg" },
@@ -42,8 +43,10 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const matches = useMatches();
+  const location = useLocation();
   const currentMatch = matches[matches.length - 1] as any;
   const seoImage = currentMatch?.data?.seo?.image;
+  const canonicalUrl = getCanonicalUrlForPathname(location.pathname);
 
   return (
     <html lang="en">
@@ -51,6 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
+        {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
         {seoImage && <link rel="preload" as="image" href={seoImage} />}
         <Links />
       </head>
