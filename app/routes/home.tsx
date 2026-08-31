@@ -1,4 +1,3 @@
-import { Suspense, lazy } from "react";
 import PageLayout from "~/layouts/PageLayout";
 import type { Route } from "./+types/home";
 import HeroSection from "~/components/Home/HeroSection";
@@ -7,23 +6,53 @@ import HomeOurData from "~/components/Home/HomeOurData";
 import NewsInsights from "~/components/Home/NewsInsights/NewsInsights";
 import HomeProperties from "~/components/Home/HomeProperties/HomeProperties";
 import GlobalAccess from "~/components/Home/GlobalAccess";
+import GlobalProjects from "~/components/Home/GlobalProjects/GlobalProjects";
+import Locations from "~/components/Home/Locations/Locations";
+import OurCustomers from "~/components/Home/OurCustomers/OurCustomers";
+import OffPlanProjects from "~/components/Home/OffPlanProjects/OffPlanProjects";
+import LuxuryPortfolio from "~/components/Home/LuxuryPortfolio";
+import Sponsors from "~/components/Home/Sponsors/Sponsors";
 import { getHomeInfo, getSuggestionSearch } from "~/api/home.service";
 import { getAllNews } from "~/api/news.service";
-import { useLoaderData } from "react-router";
 
-// Lazy load below-the-fold components for better performance
-const GlobalProjects = lazy(() => import("~/components/Home/GlobalProjects/GlobalProjects"));
-const Locations = lazy(() => import("~/components/Home/Locations/Locations"));
-const OurCustomers = lazy(() => import("~/components/Home/OurCustomers/OurCustomers"));
-const OffPlanProjects = lazy(() => import("~/components/Home/OffPlanProjects/OffPlanProjects"));
-const LuxuryPortfolio = lazy(() => import("~/components/Home/LuxuryPortfolio"));
-const Sponsors = lazy(() => import("~/components/Home/Sponsors/Sponsors"));
+const HOME_TITLE = "Savoir | Luxury Real Estate in Dubai";
+const HOME_DESCRIPTION =
+  "Savoir Privé Properties is a Dubai luxury real estate agency with over 100 years of combined expertise. Discover exclusive properties for sale and rent in the UAE and worldwide.";
 
-export function meta({}: Route.MetaArgs) {
-  return [{ title: "Savoir" }];
+export function meta({ data }: Route.MetaArgs) {
+  const title = data?.seo?.title || HOME_TITLE;
+  const description = data?.seo?.description || HOME_DESCRIPTION;
+  const image = data?.seo?.image || "";
+
+  const metaTags = [
+    { title },
+    { name: "description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+  ];
+
+  if (image) {
+    metaTags.push(
+      { property: "og:image", content: image },
+      { name: "twitter:image", content: image }
+    );
+  }
+
+  return metaTags;
 }
 
-export async function clientLoader({ request }: { request: Request }) {
+export async function loader({ request }: Route.LoaderArgs) {
+  const origin = new URL(request.url).origin;
+  const seo = {
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    image: `${origin}/images/placeholders/hero.webp`,
+  };
+
   const [homeResult, searchResult, latestNewsResult] = await Promise.allSettled([
     getHomeInfo(),
     getSuggestionSearch(),
@@ -37,17 +66,14 @@ export async function clientLoader({ request }: { request: Request }) {
       ? ((latestNewsResult.value as any)?.data ?? [])
       : [];
 
-  return { home, search, latestNews };
+  return { home, search, latestNews, seo };
 }
 
 export default function Home() {
-  const { home, search } = useLoaderData() as { home: any; search: any };
-
   return (
     <div className="relative ">
       <HeroSection />
       <div className="absolute w-full  top-[calc(100vh+100px)] z-[-1]">
-      
         <div
           className="absolute bottom-0 left-0 w-full h-[250px]"
           style={{
@@ -64,44 +90,29 @@ export default function Home() {
         <HomeProperties />
       </div>
       <div className="w-full">
-        <Suspense fallback={<div className="w-full h-[500px] bg-white" />}>
-          <OffPlanProjects />
-        </Suspense>
+        <OffPlanProjects />
       </div>
       <div className="w-full mt-[31px] lg:mt-[60px]">
-        <Suspense fallback={<div className="w-full h-[400px] bg-[#0A0A0A]" />}>
-          <GlobalProjects />
-        </Suspense>
+        <GlobalProjects />
       </div>
       <div className="w-full mt-[42px] lg:mt-[88px]">
         <GlobalAccess />
       </div>
       <div className="w-full">
-        <Suspense fallback={<div className="w-full h-[500px] bg-white" />}>
-          <NewsInsights />
-        </Suspense>
+        <NewsInsights />
       </div>
-        
-        <div className="w-full">
-          <Suspense fallback={<div className="w-full h-[600px] bg-white" />}>
-            <Locations />
-          </Suspense>
-        </div>
-        <div className="w-full">
-          <Suspense fallback={<div className="w-full h-[500px] bg-white" />}>
-            <OurCustomers />
-          </Suspense>
-        </div>
-        <div className="w-full">
-          <Suspense fallback={<div className="w-full h-[600px] bg-[#0A0A0A]" />}>
-            <LuxuryPortfolio />
-          </Suspense>
-        </div>
 
-      <Suspense fallback={null}>
-        <Sponsors />
-      </Suspense>
+      <div className="w-full">
+        <Locations />
+      </div>
+      <div className="w-full">
+        <OurCustomers />
+      </div>
+      <div className="w-full">
+        <LuxuryPortfolio />
+      </div>
 
+      <Sponsors />
     </div>
   );
 }
