@@ -40,6 +40,7 @@ const TYPE_OPTIONS: TypeOption[] = [
 const INTERESTED_VALUES = ["Buy", "Rent"] as const;
 const STATUS_VALUES = ["All", "Ready", "Off-plan"] as const;
 const COUNT_LABELS = ["Any", "Studio", "1", "2", "3", "4", "5+"] as const;
+const APARTMENT_TYPE = "AP";
 
 export default function SearchFilter() {
   const { search } = useLoaderData() as { search: any };
@@ -97,11 +98,23 @@ export default function SearchFilter() {
     });
   }, [location.search]);
 
+  const handleBedBathChange = (next: BedBathValue) => {
+    setBedBath(next);
+
+    if (next.bedrooms === "Studio") {
+      setTypes([APARTMENT_TYPE]);
+    }
+  };
+
   const handleSearch = () => {
     const params = new URLSearchParams();
+    const selectedTypes =
+      bedBath.bedrooms === "Studio" && !types.includes(APARTMENT_TYPE)
+        ? [APARTMENT_TYPE]
+        : types;
 
     if (query.length) params.set("query", query.join(","));
-    if (types.length) params.set("types", types.join(","));
+    if (selectedTypes.length) params.set("types", selectedTypes.join(","));
 
     params.set("interested", rentFilters.interested);
     params.set("status", rentFilters.status);
@@ -291,7 +304,7 @@ export default function SearchFilter() {
               <div className="flex min-h-[54px] items-center border-r border-[#D5D5D5] px-[16px] lg:h-[58px] lg:w-[190px]">
                 <FilterBedroom
                   value={bedBath}
-                  onChange={setBedBath}
+                  onChange={handleBedBathChange}
                   maxWidthClass="max-w-full"
                   variant="listing"
                 />
