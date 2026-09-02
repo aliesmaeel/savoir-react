@@ -18,6 +18,7 @@ const TYPE_LABEL: Record<string, string> = {
   LC: "Labor Camp",
   LP: "Land/Plot",
   OF: "Office Space",
+  "Office-space": "Office Space",
   BC: "Business Centre",
   PH: "Penthouse",
   RE: "Retail",

@@ -94,11 +94,14 @@ const buildSearchBody = (params: URLSearchParams) => {
     completion_status = "off_plan";
   }
 
+  const selectedType = types.length ? types[0] : null;
+  const requestType = selectedType === "OF" ? "Office-space" : selectedType;
+
   return {
     query,
     offering_type: interested === "Rent" ? "RR" : "RS",
     completion_status,
-    type: types.length ? types[0] : null,
+    type: requestType,
     bedroom: parseCount(bedroomsParam),
     bathroom: parseCount(bathroomsParam),
     min_price: minPrice,

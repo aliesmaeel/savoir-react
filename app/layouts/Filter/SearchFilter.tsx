@@ -20,7 +20,7 @@ const TYPE_OPTIONS: TypeOption[] = [
   { code: "HF", label: "Half Floor" },
   { code: "LC", label: "Labor Camp" },
   { code: "LP", label: "Land/Plot" },
-  { code: "OF", label: "Office Space" },
+  { code: "Office-space", label: "Office Space" },
   { code: "BC", label: "Business Centre" },
   { code: "PH", label: "Penthouse" },
   { code: "RE", label: "Retail" },
