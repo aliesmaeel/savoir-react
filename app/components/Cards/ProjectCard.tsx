@@ -63,7 +63,7 @@ export default function ProjectCard({ project, compact = false }: props) {
             loading="lazy"
             src={project.photo}
             alt=""
-            className="block aspect-[386/238] w-full object-cover"
+            className="block aspect-[386/238] h-full w-full object-fill"
           />
 
           <span
