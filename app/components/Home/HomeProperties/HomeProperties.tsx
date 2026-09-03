@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
 import { formatPrice } from "~/utils/formatPrice";
+import { shouldHideBedBath } from "~/utils/propertyType";
 
 type TabKey = "For Rent" | "For Sale" | "Off Plan";
 
@@ -216,6 +217,8 @@ export default function HomeProperties() {
                     </p>
 
                     <div className="flex flex-wrap gap-x-[16px] gap-y-[6px]">
+                      {!shouldHideBedBath(p) && (
+                        <>
                       <div className="flex flex-col gap-[1px]">
                         <span
                           className="Jakarta text-[12px]"
@@ -261,6 +264,8 @@ export default function HomeProperties() {
                           Baths
                         </span>
                       </div>
+                        </>
+                      )}
 
                       {p.size && (
                         <div className="flex flex-col gap-[1px]">

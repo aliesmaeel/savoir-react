@@ -11,6 +11,7 @@ import { Navigation } from "swiper/modules";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import { Link } from "react-router";
 import { formatPrice } from "~/utils/formatPrice";
+import { shouldHideBedBath } from "~/utils/propertyType";
 
 type Props = {
   properties: any;
@@ -53,10 +54,14 @@ export default function PropertiesSwiper({ properties }: any) {
                 </div>
                 <div className="flex items-center justify-between w-full">
                   <div className="Jakarta flex items-center gap-[2px] text-[11px] font-bold text-[#111111] lg:gap-[5px] lg:text-[17px]">
+                    {!shouldHideBedBath(item) && (
+                      <>
                     <p>{item.bedroom} beds</p>
                     <div className="w-[2px] lg:w-[5px] aspect-square bg-[#353635] rounded-full" />
                     <p>{item.bathroom} baths</p>
                     <div className="w-[2px] lg:w-[5px] aspect-square bg-[#353635] rounded-full" />
+                      </>
+                    )}
                     <p>1931 sqft</p>
                   </div>
                   <div className="flex items-center gap-[4px] lg:gap-[8px]">
