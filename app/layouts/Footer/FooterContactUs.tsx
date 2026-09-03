@@ -2,6 +2,42 @@ import React from "react";
 import { Link } from "react-router";
 import useIcons from "~/hooks/imageHooks/useIcons";
 
+type FooterLogoProps = {
+  src: string;
+  alt: string;
+  canvas: { width: number; height: number };
+  visibleBounds: { left: number; top: number; width: number; height: number };
+  className?: string;
+};
+
+function FooterLogo({
+  src,
+  alt,
+  canvas,
+  visibleBounds,
+  className = "",
+}: FooterLogoProps) {
+  return (
+    <span
+      className="relative block w-full overflow-hidden"
+      style={{ aspectRatio: `${visibleBounds.width} / ${visibleBounds.height}` }}
+    >
+      <img
+        loading="lazy"
+        src={src}
+        alt={alt}
+        className={`absolute max-w-none ${className}`}
+        style={{
+          width: `${(canvas.width / visibleBounds.width) * 100}%`,
+          height: "auto",
+          left: `${(-visibleBounds.left / visibleBounds.width) * 100}%`,
+          top: `${(-visibleBounds.top / visibleBounds.height) * 100}%`,
+        }}
+      />
+    </span>
+  );
+}
+
 export default function FooterContactUs() {
   const icon = useIcons();
 
@@ -61,34 +97,45 @@ export default function FooterContactUs() {
         </Link>
       </div>
 
-      <div className="flex w-full flex-col gap-[12px]">
+      <div className="flex w-full flex-col gap-[12px] lg:gap-[38px]">
         <a
-          href="https://www.luxuryportfolio.com/"
+          href="https://ues.bg/en"
           target="_blank"
           rel="noreferrer"
           className="block w-full transition-all duration-300 hover:opacity-80"
         >
-          <img
-            loading="lazy"
+          <FooterLogo
             src="/images/footer1.png"
-            alt=""
-            className="w-full brightness-[0.42] contrast-[1.35] grayscale"
+            alt="Unique Estates"
+            canvas={{ width: 2100, height: 720 }}
+            visibleBounds={{ left: 19, top: 200, width: 2062, height: 320 }}
+            className="brightness-[0.42] contrast-[1.35] grayscale"
           />
         </a>
 
         <a
-          href="https://www.leadingre.com/"
+          href="https://www.realto.group/en"
           target="_blank"
           rel="noreferrer"
           className="block w-full transition-all duration-300 hover:opacity-80"
         >
-          <img
-            loading="lazy"
+          <FooterLogo
             src="/images/footer2.png"
-            alt=""
-            className="w-full brightness-[0.42] contrast-[1.35] grayscale"
+            alt="Realto Group"
+            canvas={{ width: 2100, height: 720 }}
+            visibleBounds={{ left: 43, top: 166, width: 2014, height: 388 }}
+            className="brightness-[0.42] contrast-[1.35] grayscale"
           />
         </a>
+
+        <div className="block w-full">
+          <FooterLogo
+            src="/images/bulgarian-business-council.png"
+            alt="Member of Bulgarian Business Council"
+            canvas={{ width: 2172, height: 724 }}
+            visibleBounds={{ left: 57, top: 126, width: 2049, height: 414 }}
+          />
+        </div>
       </div>
     </div>
   );
