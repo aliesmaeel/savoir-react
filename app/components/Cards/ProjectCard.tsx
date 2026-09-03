@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import { formatPrice } from "~/utils/formatPrice";
+import { shouldHideBedBath } from "~/utils/propertyType";
 import styles from "./ProjectCard.module.css";
 
 type props = {
@@ -52,6 +53,7 @@ export default function ProjectCard({ project, compact = false }: props) {
   const diamondClass = compact
     ? "h-[7px] w-[7px] shrink-0 rotate-45 bg-[#dec7b1]"
     : "h-[8px] w-[8px] shrink-0 rotate-45 bg-[#dec7b1]";
+  const hideBedBath = shouldHideBedBath(project);
 
   return (
     <div className={cardClass}>
@@ -102,10 +104,14 @@ export default function ProjectCard({ project, compact = false }: props) {
           </p>
 
           <div className={metaClass}>
-            <span className="whitespace-nowrap">{project.bedroom} Bedroom</span>
-            <span className={diamondClass} />
-            <span className="whitespace-nowrap">{project.bathroom} Baths</span>
-            <span className={diamondClass} />
+            {!hideBedBath && (
+              <>
+                <span className="whitespace-nowrap">{project.bedroom} Bedroom</span>
+                <span className={diamondClass} />
+                <span className="whitespace-nowrap">{project.bathroom} Baths</span>
+                <span className={diamondClass} />
+              </>
+            )}
             <span className="whitespace-nowrap">
               {area ? `${area} sq ft` : project.size}
             </span>

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import useIcons from "~/hooks/imageHooks/useIcons";
 import ProjectListedByContact from "./ProjectListedByContact";
 import { useLoaderData } from "react-router";
+import { shouldHideBedBath } from "~/utils/propertyType";
 
 export default function ProjectDescription() {
   const { property } = useLoaderData() as { property: any };
@@ -166,16 +167,20 @@ export default function ProjectDescription() {
       icon: icon.searchSquare,
       value: `${property.size?.toLocaleString()} sq.ft`,
     },
-    {
-      title: "Bedrooms",
-      icon: icon.searchBedroom,
-      value: property.bedroom,
-    },
-    {
-      title: "Bathrooms",
-      icon: icon.searchBathRoom,
-      value: property.bathroom,
-    },
+    ...(!shouldHideBedBath(property)
+      ? [
+          {
+            title: "Bedrooms",
+            icon: icon.searchBedroom,
+            value: property.bedroom,
+          },
+          {
+            title: "Bathrooms",
+            icon: icon.searchBathRoom,
+            value: property.bathroom,
+          },
+        ]
+      : []),
     {
       title: "Status",
       icon: icon.searchType,
