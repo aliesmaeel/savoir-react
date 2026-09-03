@@ -1,0 +1,1 @@
+import{a as t}from"./chunk-OIYGIGL5-D79BV_4A.js";const r=1024,d=(e=r)=>{const[s,i]=t.useState(()=>typeof window<"u"?window.innerWidth<=e:!1);return t.useEffect(()=>{const n=()=>{i(window.innerWidth<=e)};return window.addEventListener("resize",n),()=>window.removeEventListener("resize",n)},[e]),s};export{d as u};
