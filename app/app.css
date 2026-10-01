@@ -132,6 +132,12 @@ input[type="number"] {
   right: 30px !important;
 }
 
+/* Chat panel sits above the 60px toggle button (bottom: 70px) with a 16px gap */
+#chatbot-container {
+  bottom: 146px !important;
+  max-height: calc(100vh - 166px);
+}
+
 #chatbot-iframe-container {
   padding-top: 15px;
 }
