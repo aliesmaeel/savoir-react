@@ -90,12 +90,15 @@ export default function App() {
     // Create chatbot container
     const container = document.createElement("div");
     container.id = "chatbot-container";
+    // Desktop position is overridden in app.css (#chatbot-container) so the
+    // panel sits above the toggle button instead of sharing its corner.
     container.style.cssText = `
       position: fixed;
-      bottom: 40px;
-      right: 40px;
+      bottom: 146px;
+      right: 30px;
       width: 400px;
       height: 600px;
+      max-height: calc(100vh - 166px);
       z-index: 9999;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
