@@ -1,0 +1,1 @@
+import{A as r}from"./apiClient-Bl539U1V.js";const t=new r;async function i(a,e,n,s="updated_at",f="desc"){return t.post(`/api/search-offplan?page=${a}&sort_field=${s}&sort_order=${f}&limit=${e}`,n)}async function p(a){return t.get(`/api/offplan-projects/${a}`)}async function c(){return t.get("/api/search-offplan-suggestions")}export{i as a,p as b,c as g};
