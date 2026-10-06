@@ -12,6 +12,15 @@ export interface AppConfig {
   cmsBaseUrl: string;
   /** Public website origin used to build canonical listing URLs. */
   publicSiteUrl: string;
+  /** Public origin of this MCP server (for shortlist share links), e.g. https://mcp.savoirproperties.com */
+  publicMcpUrl: string;
+  /** Directory for small persistent data (shortlists). null = in-memory only. */
+  dataDir: string | null;
+  /**
+   * Add utm_* parameters to website links the app generates. Off by default: the website has
+   * no analytics to read them (verified Oct 2026), and they make shared messages harder to read.
+   */
+  attributionUtm: boolean;
   /** Per-request timeout for CMS calls. */
   cmsTimeoutMs: number;
   /**
@@ -99,6 +108,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     cmsBaseUrl: httpsOrigin(cmsBaseUrl, "CMS_BASE_URL", true),
     publicSiteUrl: httpsOrigin(env.PUBLIC_SITE_URL?.trim() || "https://savoirproperties.com", "PUBLIC_SITE_URL", true),
+    publicMcpUrl: httpsOrigin(env.PUBLIC_MCP_URL?.trim() || "https://mcp.savoirproperties.com", "PUBLIC_MCP_URL", true),
+    dataDir: env.DATA_DIR?.trim() ? env.DATA_DIR.trim() : null,
+    attributionUtm: env.ATTRIBUTION_UTM?.trim() === "on",
     cmsTimeoutMs: int(env.CMS_TIMEOUT_MS, 8000, 1000, 30000, "CMS_TIMEOUT_MS"),
     cmsMaxRequestsPerMinute: int(env.CMS_MAX_REQUESTS_PER_MINUTE, 45, 1, 600, "CMS_MAX_REQUESTS_PER_MINUTE"),
     host: env.HOST?.trim() || "127.0.0.1",

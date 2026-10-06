@@ -39,7 +39,12 @@ module.exports = {
       restart_delay: 2000,
       max_restarts: 10,
       time: true,
-      env: { NODE_ENV: "production", ...readEnv(envFile) },
+      env: (() => {
+        const env = { NODE_ENV: "production", ...readEnv(envFile) };
+        // Shortlists live in shared/ so they survive release switches and rollbacks.
+        if (!env.DATA_DIR) env.DATA_DIR = path.join(appRoot, "shared", "data");
+        return env;
+      })(),
     },
   ],
 };

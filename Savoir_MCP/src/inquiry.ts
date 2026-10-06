@@ -13,14 +13,14 @@
  * described as a booked or confirmed viewing.
  */
 import { createHmac, randomBytes, timingSafeEqual, createHash } from "node:crypto";
+import type { Requirements } from "./cms/discovery.js";
+import { requirementLines } from "./handoff.js";
 
 export const TOKEN_TTL_MS = 10 * 60_000;
 
 export type InquiryType = "viewing_request" | "more_information" | "general";
 
 export interface InquiryInput {
-  listing_kind?: "property" | "offplan";
-  slug?: string;
   inquiry_type: InquiryType;
   name: string;
   email: string;
@@ -28,6 +28,10 @@ export interface InquiryInput {
   message?: string;
   preferred_date?: string;
   preferred_time?: string;
+  /** Customer requirements stated in the conversation (no contact details). */
+  requirements?: Requirements;
+  /** Reference code from prepare_inquiry, so the lead can be matched to the app. */
+  reference_code?: string;
 }
 
 export interface ListingRef {
@@ -52,13 +56,16 @@ const TYPE_LABEL: Record<InquiryType, string> = {
 };
 
 /** Compose the exact /api/contact-us body (same shape as the website's contact form). */
-export function buildContactPayload(input: InquiryInput, listing: ListingRef | null): ContactUsPayload {
+export function buildContactPayload(input: InquiryInput, listings: ListingRef[]): ContactUsPayload {
   const lines = ["Inquiry sent via the Savoir Properties AI assistant app.", `Inquiry type: ${TYPE_LABEL[input.inquiry_type]}`];
-  if (listing) {
+  if (input.reference_code) lines.push(`App reference: ${input.reference_code}`);
+  for (const listing of listings) {
     lines.push(`${listing.kind === "offplan" ? "Off-plan project" : "Property"}: ${listing.title}`);
     if (listing.reference_number) lines.push(`Reference: ${listing.reference_number}`);
     lines.push(`Link: ${listing.url}`);
   }
+  const req = requirementLines(input.requirements, "en");
+  if (req.length) lines.push("Requirements:", ...req.map((l) => `- ${l}`));
   if (input.preferred_date) lines.push(`Preferred date: ${input.preferred_date}`);
   if (input.preferred_time) lines.push(`Preferred time: ${input.preferred_time}`);
   const msg = input.message?.trim();

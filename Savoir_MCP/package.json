@@ -1,6 +1,6 @@
 {
   "name": "savoir-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Savoir Properties MCP server (ChatGPT app / MCP Apps) backed by the Savoir CMS",
   "type": "module",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-assets.mjs",
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
@@ -19,7 +19,8 @@
     "release": "node scripts/package-release.mjs",
     "verify:deployment": "tsx scripts/verify-deployment.ts",
     "submission:check": "node scripts/build-submission.mjs",
-    "submission:build": "node scripts/build-submission.mjs --zip --check-urls"
+    "submission:build": "node scripts/build-submission.mjs --zip --check-urls",
+    "smoke:journey": "tsx scripts/journey-smoke.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/express": "^2.0.2",

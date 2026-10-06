@@ -24,6 +24,7 @@ import {
 const SUGGESTIONS_TTL_MS = 10 * 60_000;
 const DETAILS_TTL_MS = 2 * 60_000;
 const SEARCH_TTL_MS = 60_000;
+const INVENTORY_TTL_MS = 10 * 60_000;
 const MAX_AREA_MATCHES = 8;
 const MAX_HANDOVER_VARIANTS = 6;
 
@@ -33,7 +34,11 @@ export interface SearchOutcome<T> {
   pagination: Pagination;
   applied_filters: Record<string, unknown>;
   notes: string[];
+  /** When the CMS data behind these results was fetched (ISO), or null if the CMS was not queried. */
+  data_as_of: string | null;
 }
+
+const iso = (ms: number) => new Date(ms).toISOString();
 
 export interface PropertySearchParams {
   areas?: string[];
@@ -54,8 +59,28 @@ export interface OffplanSearchParams {
   developers?: string[];
   handover?: string;
   area?: string;
+  /** Matches projects whose parsed "starting from" price is within budget (cheapest unit only). */
+  max_starting_price_aed?: number;
   page: number;
   page_size: number;
+}
+
+/** Minimal listing facts kept in the inventory snapshot (used for area statistics only). */
+export interface InventoryItem {
+  community: string | null;
+  sub_community: string | null;
+  purpose: "sale" | "rent" | null;
+  completion: "ready" | "off_plan" | null;
+  bedrooms: number | null;
+  price: number | null;
+  type: string | null;
+}
+
+export interface InventorySnapshot {
+  items: InventoryItem[];
+  total: number;
+  complete: boolean;
+  fetchedAt: number;
 }
 
 export interface OffplanSuggestions {
@@ -243,7 +268,7 @@ export class SavoirCms {
         notes.push(`No Savoir listings are recorded for location(s): ${res.unmatched.join(", ")}.`);
       }
       if (!res.matched.length) {
-        return { status: "no_results", items: [], pagination: emptyPagination(p.page, p.page_size), applied_filters: { areas: p.areas }, notes };
+        return { status: "no_results", items: [], pagination: emptyPagination(p.page, p.page_size), applied_filters: { areas: p.areas }, notes, data_as_of: null };
       }
       query = res.matched;
       applied.areas = res.matched;
@@ -276,7 +301,7 @@ export class SavoirCms {
       sort_field: sort.sort_field,
       sort_order: sort.sort_order,
     });
-    const raw = await this.client.post<Record<string, unknown>>(`/api/search?${qs}`, body, { cacheTtlMs: SEARCH_TTL_MS });
+    const { data: raw, fetchedAt } = await this.client.postMeta<Record<string, unknown>>(`/api/search?${qs}`, body, { cacheTtlMs: SEARCH_TTL_MS });
     if (!raw || typeof raw !== "object" || !Array.isArray(raw.data)) throw new CmsError("cms_invalid_response");
 
     const items = raw.data.map((d) => mapPropertySummary(d, this.ctx)).filter((x): x is PropertySummary => x !== null);
@@ -292,21 +317,51 @@ export class SavoirCms {
     if (total > 0 && !items.length && p.page > totalPages) {
       notes.push(`Page ${p.page} is beyond the last page (${totalPages}).`);
     }
-    return { status: total === 0 ? "no_results" : "ok", items, pagination, applied_filters: applied, notes };
+    return { status: total === 0 ? "no_results" : "ok", items, pagination, applied_filters: applied, notes, data_as_of: iso(fetchedAt) };
   }
 
   async propertyDetails(slug: string): Promise<PropertyDetails | null> {
-    const raw = await this.client.get<unknown>(`/api/property/${encodeURIComponent(slug)}`, {
+    return (await this.propertyDetailsMeta(slug)).details;
+  }
+
+  /** Listing details plus when they were fetched. `fresh` bypasses the cache (used before a contact handoff). */
+  async propertyDetailsMeta(slug: string, fresh = false): Promise<{ details: PropertyDetails | null; fetchedAt: number }> {
+    const { data: raw, fetchedAt } = await this.client.getMeta<unknown>(`/api/property/${encodeURIComponent(slug)}`, {
       cacheTtlMs: DETAILS_TTL_MS,
       notFoundOnMissingRecord: true,
+      fresh,
     });
     const mapped = mapPropertyDetails(raw, this.ctx);
     if (!mapped) {
       const property = raw && typeof raw === "object" ? (raw as Record<string, unknown>).property : undefined;
-      if (property === null || property === undefined) return null;
+      if (property === null || property === undefined) return { details: null, fetchedAt };
       throw new CmsError("cms_invalid_response");
     }
-    return mapped;
+    return { details: mapped, fetchedAt };
+  }
+
+  /**
+   * Snapshot of the current listing inventory (minimal fields), for area statistics only.
+   * Bounded to 5 CMS pages; `complete` is false if the inventory is larger.
+   */
+  async inventory(): Promise<InventorySnapshot> {
+    const items: InventoryItem[] = [];
+    let total = 0;
+    let fetchedAt = Number.MAX_SAFE_INTEGER;
+    for (let page = 1; page <= 5; page++) {
+      const qs = new URLSearchParams({ page: String(page), limit: String(CMS_MAX_LIMIT), sort_field: "price", sort_order: "asc" });
+      const r = await this.client.postMeta<Record<string, unknown>>(`/api/search?${qs}`, { query: [] }, { cacheTtlMs: INVENTORY_TTL_MS });
+      fetchedAt = Math.min(fetchedAt, r.fetchedAt);
+      if (!r.data || !Array.isArray(r.data.data)) throw new CmsError("cms_invalid_response");
+      total = num(r.data.total) ?? total;
+      for (const d of r.data.data) {
+        const s = mapPropertySummary(d, this.ctx);
+        if (s) items.push({ community: s.location.community, sub_community: s.location.sub_community, purpose: s.purpose, completion: s.completion, bedrooms: s.bedrooms, price: s.price, type: s.property_type });
+      }
+      const pages = num(r.data.total_pages) ?? 1;
+      if (page >= pages) break;
+    }
+    return { items, total, complete: items.length >= total, fetchedAt };
   }
 
   async searchOffplan(p: OffplanSearchParams): Promise<SearchOutcome<OffplanSummary>> {
@@ -318,6 +373,7 @@ export class SavoirCms {
       pagination: emptyPagination(p.page, p.page_size),
       applied_filters: filters,
       notes,
+      data_as_of: null,
     });
 
     const needsSuggestions = !!(p.developers?.length || p.handover || p.area);
@@ -356,7 +412,7 @@ export class SavoirCms {
     }
 
     const fetchPage = (completion_date: string | null, page: number, limit: number) =>
-      this.client.post<Record<string, unknown>>(
+      this.client.postMeta<Record<string, unknown>>(
         `/api/search-offplan?${new URLSearchParams({ page: String(page), limit: String(limit), sort_field: "updated_at", sort_order: "desc" })}`,
         { developers, completion_date, locations },
         { cacheTtlMs: SEARCH_TTL_MS },
@@ -367,8 +423,11 @@ export class SavoirCms {
       return num(pg?.total);
     };
 
-    if (variants.length === 1) {
-      const raw = await fetchPage(variants[0] ?? null, p.page, p.page_size);
+    const budget = p.max_starting_price_aed;
+    if (budget !== undefined) applied.max_starting_price_aed = budget;
+
+    if (variants.length === 1 && budget === undefined) {
+      const { data: raw, fetchedAt } = await fetchPage(variants[0] ?? null, p.page, p.page_size);
       if (!raw || !Array.isArray(raw.data)) throw new CmsError("cms_invalid_response");
       const items = raw.data.map((d) => mapOffplanSummary(d, this.ctx)).filter((x): x is OffplanSummary => x !== null);
       const total = totalOf(raw) ?? items.length;
@@ -380,15 +439,19 @@ export class SavoirCms {
         pagination: { page: p.page, page_size: p.page_size, total_results: total, total_pages: totalPages, has_more: p.page < totalPages },
         applied_filters: applied,
         notes,
+        data_as_of: iso(fetchedAt),
       };
     }
 
-    // Several stored spellings of the same handover: the CMS accepts only one
-    // completion_date per request, so fetch each (bounded) and merge.
+    // Merge path: several stored spellings of the same handover (the CMS accepts only one
+    // completion_date per request) and/or a budget, which must be applied to the whole set
+    // before paginating. Each fetch is bounded to the CMS maximum page size.
     const merged = new Map<string, { raw: Record<string, unknown>; updated: string }>();
     let incomplete = false;
+    let oldest = Number.MAX_SAFE_INTEGER;
     for (const v of variants) {
-      const raw = await fetchPage(v, 1, CMS_MAX_LIMIT);
+      const { data: raw, fetchedAt } = await fetchPage(v, 1, CMS_MAX_LIMIT);
+      oldest = Math.min(oldest, fetchedAt);
       if (!raw || !Array.isArray(raw.data)) throw new CmsError("cms_invalid_response");
       if ((totalOf(raw) ?? 0) > CMS_MAX_LIMIT) incomplete = true;
       for (const d of raw.data) {
@@ -398,10 +461,18 @@ export class SavoirCms {
         merged.set(key, { raw: r, updated: typeof r.updated_at === "string" ? r.updated_at : "" });
       }
     }
-    const all = [...merged.values()]
+    let all = [...merged.values()]
       .sort((a, b) => Date.parse(b.updated || "0") - Date.parse(a.updated || "0"))
       .map((e) => mapOffplanSummary(e.raw, this.ctx))
       .filter((x): x is OffplanSummary => x !== null);
+    if (budget !== undefined) {
+      const unpriced = all.filter((x) => x.starting_price_aed === null).length;
+      all = all.filter((x) => x.starting_price_aed !== null && x.starting_price_aed <= budget);
+      notes.push(
+        `Matched on each project's published "starting from" price (its cheapest unit). Larger units cost more; exact unit prices are not published.`,
+      );
+      if (unpriced) notes.push(`${unpriced} matching project(s) publish no starting price (e.g. "Call Us") and are not included; ask Savoir about them.`);
+    }
     if (incomplete) notes.push("Results may be incomplete: one handover period has more than 100 projects.");
     const total = all.length;
     const totalPages = Math.ceil(total / p.page_size);
@@ -413,18 +484,28 @@ export class SavoirCms {
       pagination: { page: p.page, page_size: p.page_size, total_results: total, total_pages: totalPages, has_more: p.page < totalPages },
       applied_filters: applied,
       notes,
+      data_as_of: iso(oldest),
     };
   }
 
   async offplanDetails(slug: string): Promise<OffplanDetails | null> {
-    const raw = await this.client.get<unknown>(`/api/offplan-projects/${encodeURIComponent(slug)}`, {
+    return (await this.offplanDetailsMeta(slug)).details;
+  }
+
+  async offplanDetailsMeta(slug: string, fresh = false): Promise<{ details: OffplanDetails | null; fetchedAt: number }> {
+    const { data: raw, fetchedAt } = await this.client.getMeta<unknown>(`/api/offplan-projects/${encodeURIComponent(slug)}`, {
       cacheTtlMs: DETAILS_TTL_MS,
       notFoundOnMissingRecord: true,
+      fresh,
     });
-    if (raw === null || (Array.isArray(raw) && raw.length === 0)) return null;
+    if (raw === null || (Array.isArray(raw) && raw.length === 0)) return { details: null, fetchedAt };
     const mapped = mapOffplanDetails(raw, this.ctx);
     if (!mapped) throw new CmsError("cms_invalid_response");
-    return mapped;
+    return { details: mapped, fetchedAt };
+  }
+
+  budgetRemaining(): number {
+    return this.client.budgetRemaining();
   }
 
   /**

@@ -10,18 +10,20 @@ An MCP server that lets ChatGPT, Claude and other MCP clients search Savoir Prop
 
 | Tool | Kind | What it does |
 |---|---|---|
-| `search_properties` | read | Searches listings by area, buy/rent, property type, exact bedrooms (studio supported), exact bathrooms, AED price range and ready/off-plan. Supports pagination and sorting (newest, price ascending or descending, title). |
-| `get_property_details` | read | Gets one listing by CMS slug: photos, price and currency, location, size, amenities, reference/permit number, the listing agent's public contact, the website URL and similar listings. |
-| `search_offplan_projects` | read | Searches off-plan projects by developer, handover period and area. These are the only filters the off-plan API honours. |
-| `get_offplan_project_details` | read | Gets one off-plan project: developer, starting price, handover, payment plan, unit sizes, amenities, images and website URL. Each field appears only when the CMS has it. |
-| `get_contact_options` | read | Returns company WhatsApp, phone, email, contact page and office. With a property slug, it also returns that listing's agent and a WhatsApp link pre-filled with the listing URL. |
-| `submit_property_inquiry` | **write** | Sends an inquiry through `/api/contact-us`. **Disabled by default.** It always previews first and needs explicit user confirmation. It never books a viewing. |
+| `get_area_guide` | read | Areas that fit purpose/budget/bedrooms, with live listing counts and price ranges plus editorial tags and nearby areas. |
+| `search_properties` | read | Listing search (area, buy/rent, type, exact beds incl. studio, exact baths, AED range, ready/off-plan, sort). Optional `must_have` amenities are verified on the results. Returns missing-preference hints and, when nothing matches, labelled alternatives. |
+| `get_property_details` | read | Gallery, price, price per sq ft (sale), size, amenities, reference/permit, agent, similar listings. |
+| `search_offplan_projects` | read | Developer, handover, area, and an optional budget matched on "starting from" prices. |
+| `get_offplan_project_details` | read | Developer, handover, payment plan, unit sizes. With `unit_price_aed` (a customer-quoted price) it adds an illustrative schedule. |
+| `compare_listings` | read | 2–4 listings side by side, with suitability against stated requirements. |
+| `update_shortlist` / `get_shortlist` | write / read | Conversation shortlist (listing references only, 30 days after the last change). |
+| `share_shortlist` | write | Create or stop a read-only share link (`/s/<token>`). |
+| `delete_shortlist` | write (destructive) | Delete the shortlist and its link. |
+| `prepare_inquiry` | read | Re-verifies listings and composes the exact WhatsApp/email message (reference code, requirements, viewing request). Sends nothing. |
+| `get_contact_options` | read | WhatsApp, phone, email, office and listing agent. |
+| `submit_property_inquiry` | write | **Disabled by default.** Preview + confirmation token, then POST /api/contact-us. Never books a viewing. |
 
-The read tools are annotated `readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false`, because they read Savoir's own bounded catalogue.
-
-`submit_property_inquiry` is annotated `readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true`. It sends the user's details to a party outside the conversation (a write-style outbound action), but it deletes and overwrites nothing.
-
-The four search and detail tools link to the card UI `ui://savoir/listings-v1.html` (`text/html;profile=mcp-app`) through `_meta.ui.resourceUri`. They also set the ChatGPT compatibility alias `openai/outputTemplate`. The card widget's CSP allows only the three verified image hosts, and `connectDomains` is empty.
+All read tools are annotated `readOnlyHint: true, destructiveHint: false, openWorldHint: false`. The cards resource is `ui://savoir/listings-v2.html` (`text/html;profile=mcp-app`); its CSP allows the three image hosts and the Savoir website (for the logo), and `connectDomains` is empty. The UI is English/Arabic with RTL. See [docs/RELEASE_M1.md](docs/RELEASE_M1.md) for what is verified and what is not.
 
 ## Local setup
 
@@ -44,9 +46,10 @@ Checks:
 
 ```bash
 npm run typecheck
-npm test                    # 67 tests, no network access
+npm test                    # 127 tests, no network access
 npm run smoke               # read-only live calls against a running server (~10 CMS requests)
-npm run preview:widget      # renders the cards in local Chrome/Edge via the MCP Apps host bridge
+npm run preview:widget      # 17 checks in local Chrome/Edge via the MCP Apps host bridge (a simulated host)
+npm run smoke:journey       # live read-only customer journey against a running server
 ```
 
 `preview:widget` writes screenshots to `./preview-output`. It hosts the widget with the official `AppBridge` under the same CSP the server declares, and clicks through the Details, Website, WhatsApp, Ask Savoir and Back buttons.

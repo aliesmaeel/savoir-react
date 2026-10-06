@@ -19,14 +19,14 @@ const listing = {
 
 describe("contact-us payload", () => {
   it("uses exactly the website's contact form shape", () => {
-    const p = buildContactPayload(input, listing);
+    const p = buildContactPayload(input, [listing]);
     expect(Object.keys(p).sort()).toEqual(["email", "message", "name", "phone", "type"]);
     expect(p.type).toBe("contact_us");
     expect(p.name).toBe("Jane Doe");
   });
 
   it("includes the property reference and link, and frames the viewing as a request", () => {
-    const { message } = buildContactPayload(input, listing);
+    const { message } = buildContactPayload(input, [listing]);
     expect(message).toContain("Reference: 2974-25427458");
     expect(message).toContain(`Link: ${listing.url}`);
     expect(message).toContain("Preferred date: 2026-11-02");
@@ -35,7 +35,7 @@ describe("contact-us payload", () => {
   });
 
   it("always has a non-empty message (the website requires one)", () => {
-    const { message } = buildContactPayload({ inquiry_type: "general", name: "Jo", email: "jo@example.com" }, null);
+    const { message } = buildContactPayload({ inquiry_type: "general", name: "Jo", email: "jo@example.com" }, []);
     expect(message.trim().length).toBeGreaterThan(10);
   });
 });
@@ -43,7 +43,7 @@ describe("contact-us payload", () => {
 describe("confirmation tokens", () => {
   it("accepts a token only for the exact previewed payload, once", () => {
     const tokens = new ConfirmationTokens("x".repeat(32));
-    const payload = buildContactPayload(input, listing);
+    const payload = buildContactPayload(input, [listing]);
     const { token } = tokens.issue(payload);
     expect(tokens.redeem(token, { ...payload, email: "attacker@example.com" })).toBe("invalid");
     expect(tokens.redeem(token, payload)).toBe("ok");
@@ -53,7 +53,7 @@ describe("confirmation tokens", () => {
   it("rejects missing, malformed, forged and expired tokens", () => {
     let now = 1_000_000;
     const tokens = new ConfirmationTokens(undefined, () => now);
-    const payload = buildContactPayload(input, null);
+    const payload = buildContactPayload(input, []);
     expect(tokens.redeem(undefined, payload)).toBe("missing");
     expect(tokens.redeem("garbage", payload)).toBe("invalid");
     const { token } = tokens.issue(payload);
@@ -66,7 +66,7 @@ describe("confirmation tokens", () => {
 
   it("allows a retry after release (failed send)", () => {
     const tokens = new ConfirmationTokens(undefined);
-    const payload = buildContactPayload(input, null);
+    const payload = buildContactPayload(input, []);
     const { token } = tokens.issue(payload);
     expect(tokens.redeem(token, payload)).toBe("ok");
     tokens.release(token);

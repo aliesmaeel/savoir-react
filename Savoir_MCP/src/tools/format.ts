@@ -168,3 +168,97 @@ export function contactText(c: ContactOptions): string {
   );
   return lines.join("\n");
 }
+
+// ---------- customer journey (Milestone 1) ----------
+
+import type { Alternative, CompareRef, ComparedOffplan, ComparedProperty, MissingPreference, Suitability } from "../cms/discovery.js";
+import type { PaymentSchedule } from "../cms/offplanPrice.js";
+import type { ShortlistView } from "../schemas.js";
+
+const aed = (n: number) => `AED ${n.toLocaleString("en-US")}`;
+
+export function asOfLine(iso: string | null): string {
+  return iso ? `Listing data as of ${iso.replace("T", " ").slice(0, 16)} UTC.` : "";
+}
+
+export function missingText(m: MissingPreference[]): string {
+  return m.length ? `\nTo narrow this down, ask the customer (at most these two): ${m.map((x) => `"${x.question}"`).join(" and ")}` : "";
+}
+
+export function alternativesText(alts: Alternative[], skipped: string | null): string {
+  if (!alts.length) return skipped ? `\n${skipped}` : "\nNo close alternatives were found by relaxing one requirement at a time.";
+  const lines = alts.map(
+    (a, i) =>
+      `${i + 1}. ${a.description}: ${a.total_results} listing${a.total_results === 1 ? "" : "s"}` +
+      (a.sample.length ? ` — e.g. ${a.sample.map((s) => `${s.title} (${s.price_label ?? "price on request"}, ${s.location.label ?? "location n/a"})`).join("; ")}` : "") +
+      `\n   to show them, call search_properties with ${JSON.stringify(a.search_args)}`,
+  );
+  return `\nALTERNATIVES — these do NOT match every requirement; tell the customer exactly what was relaxed:\n${lines.join("\n")}`;
+}
+
+function suitabilityLine(s: Suitability | null): string {
+  if (!s || s.summary === "no_requirements") return "";
+  const label = { fits_all_stated: "meets all stated requirements", partly_fits: "meets some requirements", does_not_fit: "does not meet the stated requirements", some_unknown: "could not be fully checked", no_requirements: "" }[s.summary];
+  return `   Suitability: ${label}. ${s.checks.map((c) => `${c.requirement}: ${c.fit === "meets" ? "yes" : c.fit === "does_not_meet" ? "no" : "unknown"} (${c.detail})`).join("; ")}`;
+}
+
+const na = (v: unknown) => (v === null || v === undefined || v === "" ? "not provided" : String(v));
+
+export function compareText(items: Array<ComparedProperty | ComparedOffplan>, asOf: string): string {
+  const out: string[] = [`Comparison of ${items.length} listings (${asOfLine(asOf)} Missing values are shown as "not provided".)`];
+  items.forEach((it, i) => {
+    if (!it.available || !it.details) {
+      out.push(`${i + 1}. ${it.slug}: no longer available or not found.`);
+      return;
+    }
+    if (it.kind === "property") {
+      const d = it.details;
+      out.push(
+        `${i + 1}. ${d.title} — ${d.url}`,
+        `   Price: ${na(d.price_label)}${d.purpose === "rent" ? " (rent; period not stated)" : ""} · Price/sq ft: ${d.price_per_sqft_aed !== null ? aed(d.price_per_sqft_aed) : "not available"}`,
+        `   ${na(d.bedrooms_label)} · ${na(d.bathrooms)} baths · Size: ${d.size_sqft !== null ? `${d.size_sqft.toLocaleString("en-US")} sq ft` : "not provided"} · ${na(d.property_type)} · ${d.completion === "off_plan" ? "Off-plan" : d.completion === "ready" ? "Ready" : "status not provided"}`,
+        `   Location: ${na([d.building, d.location.label].filter(Boolean).join(", "))}`,
+        `   Amenities: ${d.amenities.length ? d.amenities.join(", ") : "none listed"}`,
+        `   Agent: ${d.agent ? [d.agent.name, d.agent.phone, d.agent.email].filter(Boolean).join(" · ") : "Savoir Properties"}`,
+      );
+    } else {
+      const d = it.details;
+      const plan = d.payment_plan ? [d.payment_plan.down_payment, d.payment_plan.during_construction, d.payment_plan.on_handover].map(na).join(" / ") : "not provided";
+      out.push(
+        `${i + 1}. ${d.title} (off-plan project) — ${d.url}`,
+        `   Starting from: ${na(d.starting_price_label)} (cheapest unit) · Developer: ${na(d.developer)} · Handover: ${na(d.handover)}`,
+        `   Payment plan (down / construction / handover): ${plan} · Unit sizes: ${na(d.unit_sizes)} · Lifestyle: ${na(d.lifestyle)}`,
+        `   Location: ${na(d.location)}`,
+      );
+    }
+    const s = suitabilityLine(it.suitability);
+    if (s) out.push(s);
+  });
+  out.push(AVAILABILITY_DISCLAIMER);
+  return out.join("\n");
+}
+
+export function shortlistText(s: ShortlistView, headline: string): string {
+  const lines = s.items.map(
+    (i, n) => `${n + 1}. ${i.title ?? i.slug}${i.available === false ? " — NO LONGER AVAILABLE" : ""}${i.price_label ? ` — ${i.price_label}` : ""}${i.location_label ? ` · ${i.location_label}` : ""}${i.url ? ` · ${i.url}` : ""} (${i.kind}, slug ${i.slug})`,
+  );
+  return [
+    headline,
+    `shortlist_id: ${s.shortlist_id} (pass it to later tool calls to keep using this shortlist)`,
+    s.items.length ? lines.join("\n") : "The shortlist is empty.",
+    s.share_url ? `Share link (read-only, no personal details): ${s.share_url}` : "",
+    `Expires: ${s.expires_at}. ${s.persistence}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+export function scheduleText(s: PaymentSchedule): string {
+  return [
+    `Illustrative payment schedule for a unit priced at ${aed(s.unit_price_aed)}:`,
+    ...s.stages.map((st) => `- ${st.label}: ${st.percent}% = ${aed(st.amount_aed)}`),
+    ...s.notes.map((n) => `Note: ${n}`),
+  ].join("\n");
+}
+
+export type { CompareRef };

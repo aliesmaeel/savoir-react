@@ -50,32 +50,49 @@ async function start(opts: { inquiryMode?: InquiryMode; routes?: Route[] } = {})
 }
 
 describe("MCP surface", () => {
-  it("lists read-only tools with annotations and the UI template; no write tool when inquiries are disabled", async () => {
+  it("lists the journey tools with accurate annotations; no inquiry-sending tool when inquiries are disabled", async () => {
     const { client } = await start();
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual([
+      "compare_listings",
+      "delete_shortlist",
+      "get_area_guide",
       "get_contact_options",
       "get_offplan_project_details",
       "get_property_details",
+      "get_shortlist",
+      "prepare_inquiry",
       "search_offplan_projects",
       "search_properties",
+      "share_shortlist",
+      "update_shortlist",
     ]);
+    const readOnly = ["compare_listings", "get_area_guide", "get_contact_options", "get_offplan_project_details", "get_property_details", "get_shortlist", "prepare_inquiry", "search_offplan_projects", "search_properties"];
     for (const t of tools) {
-      expect(t.annotations).toMatchObject({ readOnlyHint: true, destructiveHint: false, openWorldHint: false });
       expect(t.outputSchema).toBeDefined();
+      if (readOnly.includes(t.name)) expect(t.annotations, t.name).toMatchObject({ readOnlyHint: true, destructiveHint: false, openWorldHint: false });
     }
-    const search = tools.find((t) => t.name === "search_properties")!;
-    expect(search._meta).toMatchObject({ ui: { resourceUri: "ui://savoir/listings-v1.html" }, "openai/outputTemplate": "ui://savoir/listings-v1.html" });
+    const byName = (n: string) => tools.find((t) => t.name === n)!;
+    expect(byName("update_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, openWorldHint: false });
+    expect(byName("share_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, openWorldHint: true });
+    expect(byName("delete_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: true });
+    expect(byName("search_properties")._meta).toMatchObject({ ui: { resourceUri: "ui://savoir/listings-v2.html" }, "openai/outputTemplate": "ui://savoir/listings-v2.html" });
   });
 
-  it("serves the widget as an MCP Apps resource with a CSP limited to image hosts", async () => {
+  it("serves the widget as an MCP Apps resource with a CSP limited to image hosts and the Savoir logo", async () => {
     const { client } = await start();
-    const res = await client.readResource({ uri: "ui://savoir/listings-v1.html" });
+    const res = await client.readResource({ uri: "ui://savoir/listings-v2.html" });
     const item = res.contents[0] as { mimeType: string; text: string; _meta: any };
     expect(item.mimeType).toBe("text/html;profile=mcp-app");
     expect(item.text).toContain("__savoirMcpApps");
+    expect(item.text).toContain('id="sv-i18n"');
     expect(item._meta.ui.csp.connectDomains).toEqual([]);
-    expect(item._meta.ui.csp.resourceDomains).toContain("https://static.shared.propertyfinder.ae");
+    expect(item._meta.ui.csp.resourceDomains).toEqual([
+      "https://static.shared.propertyfinder.ae",
+      "https://res.cloudinary.com",
+      "https://savoirbucket.s3.eu-north-1.amazonaws.com",
+      "https://savoirproperties.com",
+    ]);
   });
 
   it("exposes health, readiness and the domain-verification challenge", async () => {
@@ -157,8 +174,7 @@ describe("read tools", () => {
 
 describe("submit_property_inquiry", () => {
   const details = {
-    listing_kind: "property",
-    slug: "unfurnished-vacant-skyline-view-2974-25427458",
+    listings: [{ kind: "property", slug: "unfurnished-vacant-skyline-view-2974-25427458" }],
     inquiry_type: "viewing_request",
     name: "Jane Doe",
     email: "jane@example.com",
@@ -249,7 +265,7 @@ describe("submit_property_inquiry", () => {
   it("rejects invalid contact details and unknown listings before previewing", async () => {
     const { call, calls } = await start({ inquiryMode: "live" });
     expect((await call("submit_property_inquiry", { ...details, email: "not-an-email" })).structuredContent!.status).toBe("invalid_input");
-    expect((await call("submit_property_inquiry", { ...details, slug: "does-not-exist-123" })).structuredContent!.status).toBe("invalid_input");
+    expect((await call("submit_property_inquiry", { ...details, listings: [{ kind: "property", slug: "does-not-exist-123" }] })).structuredContent!.status).toBe("invalid_input");
     expect(contactPosts(calls)).toHaveLength(0);
   });
 });

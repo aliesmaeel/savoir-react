@@ -3,6 +3,8 @@ import { toNodeHandler } from "@modelcontextprotocol/node";
 import { createMcpHandler } from "@modelcontextprotocol/server";
 import type { Express, NextFunction, Request, Response } from "express";
 import { createMcpServer, SERVER_NAME, SERVER_VERSION, type AppContext } from "./server.js";
+import { renderSharePage, shareNotFoundPage, sharePageCsp } from "./sharePage.js";
+import { SAVOIR_LOGO_URL } from "./ui/widget.js";
 
 export function createHttpApp(ctx: AppContext): { app: Express; close: () => Promise<void> } {
   const { config, logger } = ctx;
@@ -20,7 +22,8 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
     const started = Date.now();
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.on("finish", () => {
-      const path = req.path === "/mcp" || req.path.startsWith("/.well-known/") || req.path === "/health" || req.path === "/ready" ? req.path : "other";
+      // Never log share tokens: /s/<token> is logged as /s/:token.
+      const path = req.path.startsWith("/s/") ? "/s/:token" : req.path === "/mcp" || req.path.startsWith("/.well-known/") || req.path === "/health" || req.path === "/ready" ? req.path : "other";
       logger.info("http.request", { method: req.method, path, status: res.statusCode, ms: Date.now() - started });
     });
     next();
@@ -38,6 +41,21 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
     } catch {
       res.status(503).json({ status: "degraded", cms: "unavailable" });
     }
+  });
+
+  // Read-only shared shortlist page (no CMS calls, no personal data).
+  app.get("/s/:token", (req, res) => {
+    res.setHeader("Content-Security-Policy", sharePageCsp(config.imageHosts, config.publicSiteUrl));
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    res.setHeader("Referrer-Policy", "no-referrer");
+    res.setHeader("Cache-Control", "no-store");
+    const record = ctx.shortlists.getByShareToken(String(req.params.token ?? ""));
+    if (!record) {
+      res.status(404).type("html").send(shareNotFoundPage(config.publicSiteUrl));
+      return;
+    }
+    ctx.analytics.record("shared_page_view", { items: record.items.length });
+    res.type("html").send(renderSharePage(record, config.publicSiteUrl, SAVOIR_LOGO_URL, config.attributionUtm));
   });
 
   app.get("/.well-known/openai-apps-challenge", (_req, res) => {

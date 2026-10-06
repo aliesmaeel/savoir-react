@@ -45,6 +45,8 @@ export const PropertyDetailsSchema = PropertySummarySchema.extend({
   permit_number: nullableString,
   building: nullableString,
   size_sqft: nullableNumber,
+  /** Sale listings with a verified size only (the rent period is not published). */
+  price_per_sqft_aed: nullableNumber,
   amenities: z.array(z.string()),
   photos: z.array(z.string()),
   floor_plan_url: nullableString,
@@ -63,6 +65,8 @@ export const OffplanSummarySchema = z.object({
   location: nullableString,
   handover: nullableString,
   starting_price_label: nullableString,
+  /** Parsed "starting from" price (cheapest unit) in AED; null when not a price (e.g. "Call Us"). */
+  starting_price_aed: nullableNumber,
   image: nullableString,
 });
 export type OffplanSummary = z.infer<typeof OffplanSummarySchema>;
@@ -115,3 +119,93 @@ export const ContactOptionsSchema = z.object({
   online_inquiries_enabled: z.boolean(),
 });
 export type ContactOptions = z.infer<typeof ContactOptionsSchema>;
+
+// ---------- customer journey (Milestone 1) ----------
+
+export const AmenityCheckSchema = z.object({ matched: z.array(z.string()), not_listed: z.array(z.string()) });
+
+export const PropertyListItemSchema = PropertySummarySchema.extend({
+  saved: z.boolean(),
+  /** null = amenities not checked for this listing. */
+  amenity_check: AmenityCheckSchema.nullable(),
+});
+export type PropertyListItem = z.infer<typeof PropertyListItemSchema>;
+
+export const OffplanListItemSchema = OffplanSummarySchema.extend({ saved: z.boolean() });
+
+export const MissingPreferenceSchema = z.object({ field: z.enum(["purpose", "budget", "bedrooms", "area"]), question: z.string() });
+
+export const AlternativeSchema = z.object({
+  kind: z.enum(["higher_budget", "nearby_areas", "any_bedrooms", "any_type", "ready_or_off_plan"]),
+  description: z.string(),
+  total_results: z.number(),
+  sample: z.array(PropertySummarySchema),
+  search_args: z.record(z.string(), z.unknown()),
+});
+
+export const SuitabilitySchema = z.object({
+  summary: z.enum(["fits_all_stated", "partly_fits", "does_not_fit", "some_unknown", "no_requirements"]),
+  checks: z.array(z.object({ requirement: z.string(), fit: z.enum(["meets", "does_not_meet", "unknown"]), detail: z.string(), hard: z.boolean().optional() })),
+});
+
+export const PaymentScheduleSchema = z.object({
+  unit_price_aed: z.number(),
+  stages: z.array(z.object({ stage: z.string(), label: z.string(), percent: z.number(), amount_aed: z.number() })),
+  total_percent: z.number(),
+  notes: z.array(z.string()),
+});
+
+export const ShortlistEntrySchema = z.object({
+  kind: z.enum(["property", "offplan"]),
+  slug: z.string(),
+  added_at: z.string(),
+  available: z.boolean().nullable(),
+  title: z.string().nullable(),
+  url: z.string().nullable(),
+  price_label: z.string().nullable(),
+  photo: z.string().nullable(),
+  location_label: z.string().nullable(),
+  bedrooms_label: z.string().nullable(),
+});
+
+export const ShortlistSchema = z.object({
+  shortlist_id: z.string(),
+  items: z.array(ShortlistEntrySchema),
+  expires_at: z.string(),
+  share_url: z.string().nullable(),
+  persistence: z.string(),
+});
+export type ShortlistView = z.infer<typeof ShortlistSchema>;
+
+export const AreaGuideSchema = z.object({
+  areas: z.array(
+    z.object({
+      area: z.string(),
+      matching_listings: z.number(),
+      price_range_aed: z.object({ min: z.number(), max: z.number() }).nullable(),
+      tags: z.array(z.string()),
+      nearby: z.array(z.string()),
+    }),
+  ),
+  inventory_listings: z.number(),
+  inventory_complete: z.boolean(),
+  data_as_of: z.string(),
+  editorial_status: z.string(),
+  notes: z.array(z.string()),
+});
+
+export const HandoffSchema = z.object({
+  reference_code: z.string(),
+  language: z.enum(["en", "ar"]),
+  message: z.string(),
+  listings: z.array(z.object({ kind: z.enum(["property", "offplan"]), slug: z.string(), title: z.string(), url: z.string(), price_label: z.string().nullable(), verified_at: z.string() })),
+  unavailable: z.array(z.object({ kind: z.enum(["property", "offplan"]), slug: z.string() })),
+  channels: z.object({
+    whatsapp_company: z.string(),
+    whatsapp_agent: z.object({ name: z.string(), url: z.string() }).nullable(),
+    email: z.string(),
+    phone: z.string(),
+  }),
+  shared_information: z.string(),
+  live_submission_available: z.boolean(),
+});

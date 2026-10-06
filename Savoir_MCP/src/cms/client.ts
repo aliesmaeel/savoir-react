@@ -67,13 +67,35 @@ export interface CmsClientOptions {
 class RequestBudget {
   private stamps: number[] = [];
   constructor(private readonly limit: number, private readonly now: () => number) {}
-  take(): boolean {
+  private prune(): void {
     const t = this.now();
     this.stamps = this.stamps.filter((s) => t - s < 60_000);
+  }
+  take(): boolean {
+    this.prune();
     if (this.stamps.length >= this.limit) return false;
-    this.stamps.push(t);
+    this.stamps.push(this.now());
     return true;
   }
+  remaining(): number {
+    this.prune();
+    return Math.max(0, this.limit - this.stamps.length);
+  }
+}
+
+/** A CMS response together with when it was actually fetched from the CMS. */
+export interface Fetched<T> {
+  data: T;
+  /** Epoch ms of the CMS response (older than "now" when served from cache). */
+  fetchedAt: number;
+}
+
+export interface RequestOptions {
+  cacheTtlMs?: number;
+  notFoundOnMissingRecord?: boolean;
+  acceptNonJsonSuccess?: boolean;
+  /** Skip the cache read (still coalesces with an identical in-flight request and refreshes the cache). */
+  fresh?: boolean;
 }
 
 /** Small TTL cache with a size cap (insertion-order eviction). */
@@ -108,37 +130,68 @@ function looksLikeMissingRecord(body: unknown): boolean {
 export class CmsClient {
   private readonly fetchImpl: FetchLike;
   private readonly budget: RequestBudget;
-  private readonly cache: TtlCache<unknown>;
+  private readonly cache: TtlCache<Fetched<unknown>>;
+  private readonly inflight = new Map<string, Promise<Fetched<unknown>>>();
   private readonly logger: Logger;
+  private readonly now: () => number;
 
   constructor(private readonly opts: CmsClientOptions) {
-    const now = opts.now ?? Date.now;
+    this.now = opts.now ?? Date.now;
     this.fetchImpl = opts.fetchImpl ?? ((input, init) => fetch(input, init));
-    this.budget = new RequestBudget(opts.maxRequestsPerMinute, now);
-    this.cache = new TtlCache(500, now);
+    this.budget = new RequestBudget(opts.maxRequestsPerMinute, this.now);
+    this.cache = new TtlCache(500, this.now);
     this.logger = opts.logger;
   }
 
-  async get<T = unknown>(path: string, opts: { cacheTtlMs?: number; notFoundOnMissingRecord?: boolean } = {}): Promise<T> {
+  /** Requests still allowed in the current one-minute window (for optional extra lookups). */
+  budgetRemaining(): number {
+    return this.budget.remaining();
+  }
+
+  async get<T = unknown>(path: string, opts: RequestOptions = {}): Promise<T> {
+    return (await this.request<T>("GET", path, undefined, opts)).data;
+  }
+
+  async post<T = unknown>(path: string, body: unknown, opts: RequestOptions = {}): Promise<T> {
+    return (await this.request<T>("POST", path, body, opts)).data;
+  }
+
+  /** Like get(), plus when the data was fetched from the CMS. */
+  async getMeta<T = unknown>(path: string, opts: RequestOptions = {}): Promise<Fetched<T>> {
     return this.request<T>("GET", path, undefined, opts);
   }
 
-  async post<T = unknown>(path: string, body: unknown, opts: { cacheTtlMs?: number; acceptNonJsonSuccess?: boolean } = {}): Promise<T> {
+  async postMeta<T = unknown>(path: string, body: unknown, opts: RequestOptions = {}): Promise<Fetched<T>> {
     return this.request<T>("POST", path, body, opts);
   }
 
-  private async request<T>(
-    method: "GET" | "POST",
-    path: string,
-    body: unknown,
-    opts: { cacheTtlMs?: number; notFoundOnMissingRecord?: boolean; acceptNonJsonSuccess?: boolean },
-  ): Promise<T> {
-    const cacheKey = opts.cacheTtlMs ? `${method} ${path} ${body === undefined ? "" : JSON.stringify(body)}` : undefined;
-    if (cacheKey) {
-      const hit = this.cache.get(cacheKey);
-      if (hit !== undefined) return hit as T;
+  private async request<T>(method: "GET" | "POST", path: string, body: unknown, opts: RequestOptions): Promise<Fetched<T>> {
+    // Writes (acceptNonJsonSuccess) are never cached or coalesced.
+    const isRead = !opts.acceptNonJsonSuccess;
+    const key = isRead ? `${method} ${path} ${body === undefined ? "" : JSON.stringify(body)}` : undefined;
+    if (key && opts.cacheTtlMs && !opts.fresh) {
+      const hit = this.cache.get(key);
+      if (hit !== undefined) return hit as Fetched<T>;
     }
+    if (key) {
+      const pending = this.inflight.get(key);
+      if (pending) return pending as Promise<Fetched<T>>;
+    }
+    const p = this.send<T>(method, path, body, opts).then((data) => {
+      const entry: Fetched<T> = { data, fetchedAt: this.now() };
+      if (key && opts.cacheTtlMs) this.cache.set(key, entry, opts.cacheTtlMs);
+      return entry;
+    });
+    if (!key) return p;
+    this.inflight.set(key, p as Promise<Fetched<unknown>>);
+    try {
+      return await p;
+    } finally {
+      this.inflight.delete(key);
+    }
+  }
 
+  private async send<T>(method: "GET" | "POST", path: string, body: unknown, opts: RequestOptions): Promise<T> {
     if (!this.budget.take()) {
       this.logger.warn("cms.request.local_rate_limited", { method, endpoint: endpointLabel(path) });
       throw new CmsError("local_rate_limited");
@@ -200,7 +253,6 @@ export class CmsClient {
     }
 
     this.logger.debug("cms.request.ok", logFields);
-    if (cacheKey && opts.cacheTtlMs) this.cache.set(cacheKey, parsed, opts.cacheTtlMs);
     return parsed as T;
   }
 }

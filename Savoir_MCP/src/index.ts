@@ -29,6 +29,11 @@ function main(): void {
   const shutdown = (signal: string) => {
     logger.info("server.stopping", { signal });
     server.close(() => {
+      try {
+        ctx.shortlists.flush();
+      } catch {
+        logger.error("shortlist.flush_failed");
+      }
       void close().finally(() => process.exit(0));
     });
     setTimeout(() => process.exit(1), 10_000).unref();

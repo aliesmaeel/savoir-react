@@ -17,6 +17,7 @@
  */
 import type { Agent, OffplanDetails, OffplanSummary, PropertyDetails, PropertySummary } from "../schemas.js";
 import { cleanLine, cleanText, safeEmail, safeHttpsUrl, safePhone, toNumber, whatsappUrl, isValidSlug } from "./sanitize.js";
+import { parseStartingPrice } from "./offplanPrice.js";
 import { propertyTypeLabel } from "./vocab.js";
 
 type Raw = Record<string, unknown>;
@@ -121,6 +122,12 @@ function stringList(values: unknown, maxItems: number, maxLength: number): strin
   return out;
 }
 
+/** AED per sq ft for sale listings with a positive verified size; null otherwise. */
+export function pricePerSqft(purpose: string | null, price: number | null, size: number | null): number | null {
+  if (purpose !== "sale" || price === null || size === null || size <= 0) return null;
+  return Math.round(price / size);
+}
+
 export function mapPropertyDetails(response: unknown, ctx: MapContext): PropertyDetails | null {
   const body = asRecord(response);
   const raw = asRecord(body?.property);
@@ -142,6 +149,7 @@ export function mapPropertyDetails(response: unknown, ctx: MapContext): Property
     permit_number: cleanLine(raw.permit_number, 40),
     building: cleanLine(raw.property_name, 100),
     size_sqft: toNumber(raw.size),
+    price_per_sqft_aed: pricePerSqft(summary.purpose, summary.price, toNumber(raw.size)),
     amenities: amenities.slice(0, 30),
     photos: photos.slice(0, 12),
     floor_plan_url: safeHttpsUrl(raw.floor_plan, ctx.imageHosts),
@@ -176,6 +184,7 @@ export function mapOffplanSummary(rawValue: unknown, ctx: MapContext): OffplanSu
     location: cleanLine(raw.location, 120),
     handover: cleanLine(raw.completion_date, 40),
     starting_price_label: priceLabel(raw.starting_price),
+    starting_price_aed: parseStartingPrice(priceLabel(raw.starting_price)),
     image: safeHttpsUrl(raw.image, ctx.imageHosts),
   };
 }

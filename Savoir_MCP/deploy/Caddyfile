@@ -13,7 +13,7 @@
 	}
 
 	# Only the MCP endpoint, health checks and the OpenAI domain-verification file are public.
-	@public path /mcp /health /ready /.well-known/openai-apps-challenge
+	@public path /mcp /health /ready /.well-known/openai-apps-challenge /s/*
 	handle @public {
 		reverse_proxy mcp:8787 {
 			# Streamable HTTP may stream responses (SSE); do not buffer.

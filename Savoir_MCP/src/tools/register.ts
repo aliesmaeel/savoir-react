@@ -1,83 +1,49 @@
 import { registerAppTool } from "@modelcontextprotocol/ext-apps/server";
 import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
+import { AMENITY_KEYS, type AmenityKey } from "../cms/amenities.js";
 import { CmsError } from "../cms/client.js";
+import { missingPreferences, recoverySearches, verifyAmenities, type Alternative } from "../cms/discovery.js";
+import { paymentSchedule } from "../cms/offplanPrice.js";
 import { isValidSlug, safeEmail } from "../cms/sanitize.js";
-import type { SavoirCms } from "../cms/service.js";
 import { PROPERTY_TYPE_KEYS, SORT_KEYS } from "../cms/vocab.js";
-import type { AppConfig } from "../config.js";
 import { companyContact, privacyPolicyUrl } from "../contact.js";
-import { buildContactPayload, type ConfirmationTokens, type InquiryInput, type ListingRef } from "../inquiry.js";
-import type { Logger } from "../logger.js";
+import { REFERENCE_CODE_RE } from "../handoff.js";
+import { buildContactPayload, type InquiryInput, type ListingRef } from "../inquiry.js";
 import {
+  AlternativeSchema,
   ContactOptionsSchema,
   ErrorInfoSchema,
+  MissingPreferenceSchema,
   OffplanDetailsSchema,
-  OffplanSummarySchema,
+  OffplanListItemSchema,
   PaginationSchema,
+  PaymentScheduleSchema,
   PropertyDetailsSchema,
-  PropertySummarySchema,
+  PropertyListItemSchema,
   StatusSchema,
+  type PropertyListItem,
 } from "../schemas.js";
-import { WIDGET_URI } from "../ui/widget.js";
-import { contactText, offplanDetailsText, offplanSearchText, propertyDetailsText, propertySearchText } from "./format.js";
+import { budgetBand, cmsNotFound, instrument, ListingRefInput, pageInput, READ_ONLY, RequirementsInput, shortlistIdInput, slugInput, text, toErrorInfo, widgetMeta, type ToolDeps } from "./common.js";
+import { alternativesText, asOfLine, contactText, missingText, offplanDetailsText, offplanSearchText, propertyDetailsText, propertySearchText, scheduleText } from "./format.js";
+import { registerJourneyTools } from "./journey.js";
 
-export interface ToolDeps {
-  cms: SavoirCms;
-  config: AppConfig;
-  logger: Logger;
-  tokens: ConfirmationTokens;
-}
-
-type ErrorInfo = z.infer<typeof ErrorInfoSchema>;
-
-const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false } as const;
-
-function widgetMeta(invoking: string, invoked: string) {
-  return {
-    ui: { resourceUri: WIDGET_URI },
-    // ChatGPT compatibility aliases (documented as legacy but still honoured).
-    "openai/outputTemplate": WIDGET_URI,
-    "openai/toolInvocation/invoking": invoking,
-    "openai/toolInvocation/invoked": invoked,
-  };
-}
-
-function toErrorInfo(err: unknown): ErrorInfo {
-  if (err instanceof CmsError) return { code: err.code, message: err.publicMessage };
-  return { code: "internal_error", message: "Something went wrong while handling this request. Please try again." };
-}
-
-const text = (t: string) => [{ type: "text" as const, text: t }];
-
-/** Wrap a handler with timing/outcome logging. Arguments are never logged. */
-function instrument<A, R extends { structuredContent?: { status?: string } }>(
-  logger: Logger,
-  tool: string,
-  fn: (args: A) => Promise<R>,
-): (args: A) => Promise<R> {
-  return async (args: A) => {
-    const started = Date.now();
-    try {
-      const result = await fn(args);
-      logger.info("tool.call", { tool, status: result.structuredContent?.status ?? "unknown", ms: Date.now() - started });
-      return result;
-    } catch (err) {
-      logger.error("tool.call.unhandled", { tool, error: err instanceof Error ? err.name : "unknown", ms: Date.now() - started });
-      throw err;
-    }
-  };
-}
+export type { ToolDeps } from "./common.js";
 
 // ---------- output schemas ----------
 
 const PropertyListOutput = z.object({
   view: z.literal("property_list"),
   status: StatusSchema,
-  items: z.array(PropertySummarySchema),
+  items: z.array(PropertyListItemSchema),
   pagination: PaginationSchema.nullable(),
   applied_filters: z.record(z.string(), z.unknown()),
   notes: z.array(z.string()),
+  data_as_of: z.string().nullable(),
+  missing_preferences: z.array(MissingPreferenceSchema),
+  alternatives: z.array(AlternativeSchema),
+  amenity_note: z.string().nullable(),
+  shortlist_id: z.string().nullable(),
   error: ErrorInfoSchema.nullable(),
 });
 
@@ -85,16 +51,21 @@ const PropertyDetailOutput = z.object({
   view: z.literal("property_detail"),
   status: StatusSchema,
   property: PropertyDetailsSchema.nullable(),
+  saved: z.boolean(),
+  shortlist_id: z.string().nullable(),
+  data_as_of: z.string().nullable(),
   error: ErrorInfoSchema.nullable(),
 });
 
 const OffplanListOutput = z.object({
   view: z.literal("offplan_list"),
   status: StatusSchema,
-  items: z.array(OffplanSummarySchema),
+  items: z.array(OffplanListItemSchema),
   pagination: PaginationSchema.nullable(),
   applied_filters: z.record(z.string(), z.unknown()),
   notes: z.array(z.string()),
+  data_as_of: z.string().nullable(),
+  shortlist_id: z.string().nullable(),
   error: ErrorInfoSchema.nullable(),
 });
 
@@ -102,14 +73,15 @@ const OffplanDetailOutput = z.object({
   view: z.literal("offplan_detail"),
   status: StatusSchema,
   project: OffplanDetailsSchema.nullable(),
+  payment_schedule: PaymentScheduleSchema.nullable(),
+  payment_schedule_note: z.string().nullable(),
+  saved: z.boolean(),
+  shortlist_id: z.string().nullable(),
+  data_as_of: z.string().nullable(),
   error: ErrorInfoSchema.nullable(),
 });
 
-const ContactOutput = z.object({
-  status: StatusSchema,
-  contact: ContactOptionsSchema,
-  notes: z.array(z.string()),
-});
+const ContactOutput = z.object({ status: StatusSchema, contact: ContactOptionsSchema, notes: z.array(z.string()) });
 
 const InquiryOutput = z.object({
   status: StatusSchema,
@@ -121,7 +93,7 @@ const InquiryOutput = z.object({
       email: z.string(),
       phone: z.string(),
       message: z.string(),
-      listing_url: z.string().nullable(),
+      listing_urls: z.array(z.string()),
       privacy_policy_url: z.string(),
     })
     .nullable(),
@@ -132,18 +104,6 @@ const InquiryOutput = z.object({
 });
 
 // ---------- input schemas ----------
-
-const pageInput = {
-  page: z.number().int().min(1).max(50).default(1).describe("1-based page number."),
-  page_size: z.number().int().min(1).max(12).default(6).describe("Results per page (1–12)."),
-};
-
-const slugInput = z
-  .string()
-  .trim()
-  .min(1)
-  .max(240)
-  .describe("The listing slug exactly as returned by a search result (the `slug` field), not a title.");
 
 export const SearchPropertiesInput = z.object({
   areas: z
@@ -161,7 +121,13 @@ export const SearchPropertiesInput = z.object({
   min_price_aed: z.number().min(0).max(10_000_000_000).optional().describe("Minimum price in AED (inclusive)."),
   max_price_aed: z.number().min(0).max(10_000_000_000).optional().describe("Maximum price in AED (inclusive)."),
   completion: z.enum(["ready", "off_plan"]).optional().describe("ready = completed, off_plan = under construction (resale/off-plan listings)."),
+  must_have: z
+    .array(z.enum(AMENITY_KEYS))
+    .max(6)
+    .optional()
+    .describe("Lifestyle needs to VERIFY on the listings shown (e.g. private_pool, water_view). Not a search filter: listings are checked and ordered, never hidden."),
   sort: z.enum(SORT_KEYS).optional().describe("Default: newest."),
+  shortlist_id: shortlistIdInput,
   ...pageInput,
 });
 
@@ -171,20 +137,22 @@ export const SearchOffplanInput = z.object({
     .max(5)
     .optional()
     .describe('Developer names, e.g. ["Emaar"], ["Sobha Group", "Binghatti"]. Matched against Savoir\'s developer list.'),
-  handover: z
-    .string()
-    .trim()
-    .min(1)
-    .max(40)
-    .optional()
-    .describe('Handover/completion period: a quarter ("Q3 2028"), a year ("2028") or "ready".'),
+  handover: z.string().trim().min(1).max(40).optional().describe('Handover/completion period: a quarter ("Q3 2028"), a year ("2028") or "ready".'),
   area: z.string().trim().min(1).max(80).optional().describe('Area or community, e.g. "Business Bay", "Dubai Hills".'),
+  max_starting_price_aed: z
+    .number()
+    .min(10_000)
+    .max(10_000_000_000)
+    .optional()
+    .describe("Budget: matches projects whose published 'starting from' price (cheapest unit) is at or below this. Not the price of any specific unit."),
+  shortlist_id: shortlistIdInput,
   ...pageInput,
 });
 
 export const InquiryInputSchema = z.object({
-  listing_kind: z.enum(["property", "offplan"]).optional().describe("Kind of listing the inquiry is about. Required when slug is given."),
-  slug: slugInput.optional(),
+  listings: z.array(ListingRefInput).max(4).optional().describe("Listings the inquiry is about (from prepare_inquiry)."),
+  requirements: RequirementsInput.optional(),
+  reference_code: z.string().regex(REFERENCE_CODE_RE).optional().describe("The SAV-XXXXXX code from prepare_inquiry."),
   inquiry_type: z.enum(["viewing_request", "more_information", "general"]).default("more_information"),
   name: z.string().trim().min(2).max(100).describe("The user's full name, as they provided it."),
   email: z.string().trim().min(3).max(254).describe("The user's email address, as they provided it."),
@@ -192,17 +160,17 @@ export const InquiryInputSchema = z.object({
   message: z.string().max(1500).optional().describe("The user's own message to Savoir."),
   preferred_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Preferred viewing date YYYY-MM-DD (a request, not a booking)."),
   preferred_time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional().describe("Preferred time HH:MM, 24h (a request, not a booking)."),
-  confirm: z
-    .boolean()
-    .default(false)
-    .describe("Leave false on the first call to get a preview. Set true only after the user has explicitly approved that exact preview."),
+  confirm: z.boolean().default(false).describe("Leave false on the first call to get a preview. Set true only after the user has explicitly approved that exact preview."),
   confirmation_token: z.string().max(200).optional().describe("Token from the preview call. Required when confirm is true."),
 });
 
 // ---------- registration ----------
 
 export function registerTools(server: McpServer, deps: ToolDeps): void {
-  const { cms, config, logger, tokens } = deps;
+  const { cms, config, logger, shortlists, analytics } = deps;
+
+  const savedKeys = (id: string | undefined) => new Set((id ? shortlists.get(id)?.items ?? [] : []).map((i) => `${i.kind}:${i.slug}`));
+  const knownShortlist = (id: string | undefined) => (id && shortlists.get(id) ? id : null);
 
   registerAppTool(
     server,
@@ -212,36 +180,101 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
       description:
         "Search Savoir Properties' current listings in Dubai (sale and rent, ready and off-plan resale). " +
         "Filters: area, buy/rent, property type, exact bedrooms (studio supported), exact bathrooms, AED price range, ready/off-plan. " +
-        "Returns listing cards with slug, price, beds, location, photo and website link. Use get_property_details with a slug for full details. " +
-        "For new developer projects use search_offplan_projects instead.",
+        "Optional must_have verifies lifestyle needs (pool, water view, maid's room…) on the listings shown. " +
+        "If the customer is vague, search anyway and ask at most the two questions in missing_preferences. " +
+        "When nothing matches, the result includes labelled ALTERNATIVES (what was relaxed); never present them as exact matches. " +
+        "For new developer projects use search_offplan_projects. If the customer doesn't know Dubai, use get_area_guide first.",
       inputSchema: SearchPropertiesInput,
       outputSchema: PropertyListOutput,
       annotations: READ_ONLY,
       _meta: widgetMeta("Searching Savoir listings…", "Savoir listings ready"),
     },
     instrument(logger, "search_properties", async (a: z.infer<typeof SearchPropertiesInput>) => {
-      const base = { view: "property_list" as const, items: [], pagination: null, applied_filters: {}, notes: [] as string[] };
+      const base = {
+        view: "property_list" as const,
+        items: [] as PropertyListItem[],
+        pagination: null,
+        applied_filters: {},
+        notes: [] as string[],
+        data_as_of: null,
+        missing_preferences: [],
+        alternatives: [] as Alternative[],
+        amenity_note: null,
+        shortlist_id: knownShortlist(a.shortlist_id),
+      };
       if (a.min_price_aed !== undefined && a.max_price_aed !== undefined && a.min_price_aed > a.max_price_aed) {
         const error = { code: "invalid_input", message: "min_price_aed must not be greater than max_price_aed." };
         return { content: text(error.message), structuredContent: { ...base, status: "invalid_input" as const, error }, isError: true };
       }
+      const params = {
+        areas: a.areas,
+        purpose: a.purpose,
+        property_type: a.property_type,
+        bedrooms: a.bedrooms === "studio" ? 0 : a.bedrooms,
+        bathrooms: a.bathrooms,
+        min_price: a.min_price_aed,
+        max_price: a.max_price_aed,
+        completion: a.completion,
+        sort: a.sort,
+        page: a.page,
+        page_size: a.page_size,
+      };
       try {
-        const out = await cms.searchProperties({
-          areas: a.areas,
-          purpose: a.purpose,
-          property_type: a.property_type,
-          bedrooms: a.bedrooms === "studio" ? 0 : a.bedrooms,
-          bathrooms: a.bathrooms,
-          min_price: a.min_price_aed,
-          max_price: a.max_price_aed,
-          completion: a.completion,
-          sort: a.sort,
-          page: a.page,
-          page_size: a.page_size,
+        const out = await cms.searchProperties(params);
+        const missing = missingPreferences(params);
+        let alternatives: Alternative[] = [];
+        let recoveryText = "";
+        if (out.status === "no_results" && a.page === 1) {
+          if (out.data_as_of === null) {
+            recoveryText = "\nThe location wasn't recognised. Use get_area_guide to suggest Savoir areas that fit the customer's budget and lifestyle.";
+          } else {
+            const resolved = (out.applied_filters.areas as string[] | undefined) ?? [];
+            const r = await recoverySearches(cms, params, resolved);
+            alternatives = r.alternatives;
+            recoveryText = alternativesText(r.alternatives, r.skipped);
+          }
+        }
+        const wanted = (a.must_have ?? []) as AmenityKey[];
+        let ordered = out.items.map((item) => ({ item, amenity_check: null as { matched: string[]; not_listed: string[] } | null }));
+        let amenityNote: string | null = null;
+        if (wanted.length && out.items.length) {
+          const v = await verifyAmenities(cms, out.items, wanted);
+          ordered = v.annotated.map((x) => ({ item: x.item, amenity_check: x.amenity_check ? { matched: x.amenity_check.matched, not_listed: x.amenity_check.not_listed } : null }));
+          amenityNote = v.note;
+        }
+        const saved = savedKeys(a.shortlist_id);
+        const items: PropertyListItem[] = ordered.map((o) => ({ ...o.item, saved: saved.has(`property:${o.item.slug}`), amenity_check: o.amenity_check }));
+
+        analytics.record("search", {
+          purpose: a.purpose ?? "any",
+          budget_band: budgetBand(a.max_price_aed, a.purpose),
+          bedrooms: a.bedrooms === undefined ? "any" : String(a.bedrooms),
+          type: a.property_type ?? "any",
+          completion: a.completion ?? "any",
+          must_have: wanted.length > 0,
+          outcome: out.status,
+          alternatives: alternatives.length,
         });
+        for (const area of (out.applied_filters.areas as string[] | undefined) ?? []) analytics.record("search_area", { area, outcome: out.status });
+
+        const amenityText = amenityNote
+          ? `\n${amenityNote}\n${items
+              .filter((i) => i.amenity_check)
+              .map((i) => `- ${i.title}: ${i.amenity_check!.matched.length ? `has ${i.amenity_check!.matched.join(", ")}` : "none of the requested amenities listed"}${i.amenity_check!.not_listed.length ? `; not listed: ${i.amenity_check!.not_listed.join(", ")}` : ""}`)
+              .join("\n")}`
+          : "";
+        const textOut = propertySearchText({ ...out, items }) + amenityText + recoveryText + missingText(missing) + `\n${asOfLine(out.data_as_of)}`;
         return {
-          content: text(propertySearchText(out)),
-          structuredContent: { view: "property_list" as const, ...out, error: null },
+          content: text(textOut),
+          structuredContent: {
+            ...base,
+            ...out,
+            items,
+            missing_preferences: missing,
+            alternatives,
+            amenity_note: amenityNote,
+            error: null,
+          },
         };
       } catch (err) {
         const error = toErrorInfo(err);
@@ -260,29 +293,35 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
     {
       title: "Get Savoir property details",
       description:
-        "Full details for one Savoir listing by slug: photos, price and currency, location, size, amenities, reference and permit number, " +
-        "the listing agent's public contact, the website link and similar listings.",
-      inputSchema: z.object({ slug: slugInput }),
+        "Full details for one Savoir listing by slug: photos, price and currency, price per sq ft (sale listings with a known size), location, size, amenities, " +
+        "reference and permit number, the listing agent's public contact, the website link and similar listings.",
+      inputSchema: z.object({ slug: slugInput, shortlist_id: shortlistIdInput }),
       outputSchema: PropertyDetailOutput,
       annotations: READ_ONLY,
       _meta: widgetMeta("Loading property…", "Property loaded"),
     },
-    instrument(logger, "get_property_details", async ({ slug }: { slug: string }) => {
-      const base = { view: "property_detail" as const, property: null };
+    instrument(logger, "get_property_details", async ({ slug, shortlist_id }: { slug: string; shortlist_id?: string }) => {
+      const base = { view: "property_detail" as const, property: null, saved: false, shortlist_id: knownShortlist(shortlist_id), data_as_of: null };
       if (!isValidSlug(slug)) {
         const error = { code: "invalid_input", message: "That is not a valid listing slug. Use the slug from a search result." };
         return { content: text(error.message), structuredContent: { ...base, status: "invalid_input" as const, error }, isError: true };
       }
       try {
-        const property = await cms.propertyDetails(slug);
+        const { details: property, fetchedAt } = await cms.propertyDetailsMeta(slug);
         if (!property) {
           const error = { code: "not_found", message: "No Savoir listing exists with that slug. It may have been removed." };
           return { content: text(error.message), structuredContent: { ...base, status: "not_found" as const, error } };
         }
-        return { content: text(propertyDetailsText(property)), structuredContent: { ...base, status: "ok" as const, property, error: null } };
+        analytics.record("detail_view", { kind: "property" }, { kind: "property", slug });
+        const asOf = new Date(fetchedAt).toISOString();
+        const saved = savedKeys(shortlist_id).has(`property:${slug}`);
+        return {
+          content: text(`${propertyDetailsText(property)}\n${asOfLine(asOf)}`),
+          structuredContent: { ...base, status: "ok" as const, property, saved, data_as_of: asOf, error: null },
+        };
       } catch (err) {
-        if (err instanceof CmsError && err.code === "cms_not_found") {
-          const error = { code: "not_found", message: err.publicMessage };
+        if (cmsNotFound(err)) {
+          const error = { code: "not_found", message: (err as CmsError).publicMessage };
           return { content: text(error.message), structuredContent: { ...base, status: "not_found" as const, error } };
         }
         const error = toErrorInfo(err);
@@ -297,22 +336,30 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
     {
       title: "Search Savoir off-plan projects",
       description:
-        "Search new off-plan developer projects marketed by Savoir Properties. Filters supported by the CMS: developer, handover period, area. " +
-        "Results are ordered by most recently updated (the CMS supports no other ordering). Use get_offplan_project_details with a slug for payment plans.",
+        "Search new off-plan developer projects marketed by Savoir Properties. Filters supported by the CMS: developer, handover period, area; " +
+        "plus an optional budget matched against each project's published 'starting from' price (cheapest unit only). " +
+        "Results are ordered by most recently updated. Use get_offplan_project_details for payment plans.",
       inputSchema: SearchOffplanInput,
       outputSchema: OffplanListOutput,
       annotations: READ_ONLY,
       _meta: widgetMeta("Searching off-plan projects…", "Off-plan projects ready"),
     },
     instrument(logger, "search_offplan_projects", async (a: z.infer<typeof SearchOffplanInput>) => {
+      const sid = knownShortlist(a.shortlist_id);
       try {
-        const out = await cms.searchOffplan({ developers: a.developers, handover: a.handover, area: a.area, page: a.page, page_size: a.page_size });
-        return { content: text(offplanSearchText(out)), structuredContent: { view: "offplan_list" as const, ...out, error: null } };
+        const out = await cms.searchOffplan({ developers: a.developers, handover: a.handover, area: a.area, max_starting_price_aed: a.max_starting_price_aed, page: a.page, page_size: a.page_size });
+        const saved = savedKeys(a.shortlist_id);
+        const items = out.items.map((i) => ({ ...i, saved: saved.has(`offplan:${i.slug}`) }));
+        analytics.record("offplan_search", { budget_band: budgetBand(a.max_starting_price_aed, "buy"), developer: (a.developers?.length ?? 0) > 0, handover: !!a.handover, area: !!a.area, outcome: out.status });
+        return {
+          content: text(`${offplanSearchText(out)}\n${asOfLine(out.data_as_of)}`),
+          structuredContent: { view: "offplan_list" as const, ...out, items, shortlist_id: sid, error: null },
+        };
       } catch (err) {
         const error = toErrorInfo(err);
         return {
           content: text(`Off-plan search failed: ${error.message} (This is a service error, not an empty result.)`),
-          structuredContent: { view: "offplan_list" as const, status: "error" as const, items: [], pagination: null, applied_filters: {}, notes: [], error },
+          structuredContent: { view: "offplan_list" as const, status: "error" as const, items: [], pagination: null, applied_filters: {}, notes: [], data_as_of: null, shortlist_id: sid, error },
           isError: true,
         };
       }
@@ -325,28 +372,46 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
     {
       title: "Get off-plan project details",
       description:
-        "Details for one off-plan project by slug: developer, location, starting price, handover, payment plan, unit sizes, amenities, images and website link. " +
-        "Fields are included only when the CMS provides them.",
-      inputSchema: z.object({ slug: slugInput }),
+        "Details for one off-plan project by slug: developer, location, starting price, handover, payment plan, unit sizes, lifestyle, amenities, images and website link. " +
+        "Pass unit_price_aed ONLY when the customer gives the actual price of a specific unit; the tool then shows an illustrative payment schedule. " +
+        "Never use the project's starting price as a unit price. Do not state ROI or returns.",
+      inputSchema: z.object({
+        slug: slugInput,
+        unit_price_aed: z.number().min(10_000).max(5_000_000_000).optional().describe("Actual price of a specific unit, as quoted to the customer."),
+        shortlist_id: shortlistIdInput,
+      }),
       outputSchema: OffplanDetailOutput,
       annotations: READ_ONLY,
       _meta: widgetMeta("Loading project…", "Project loaded"),
     },
-    instrument(logger, "get_offplan_project_details", async ({ slug }: { slug: string }) => {
-      const base = { view: "offplan_detail" as const, project: null };
+    instrument(logger, "get_offplan_project_details", async ({ slug, unit_price_aed, shortlist_id }: { slug: string; unit_price_aed?: number; shortlist_id?: string }) => {
+      const base = { view: "offplan_detail" as const, project: null, payment_schedule: null, payment_schedule_note: null, saved: false, shortlist_id: knownShortlist(shortlist_id), data_as_of: null };
       if (!isValidSlug(slug)) {
         const error = { code: "invalid_input", message: "That is not a valid project slug. Use the slug from a search result." };
         return { content: text(error.message), structuredContent: { ...base, status: "invalid_input" as const, error }, isError: true };
       }
       try {
-        const project = await cms.offplanDetails(slug);
+        const { details: project, fetchedAt } = await cms.offplanDetailsMeta(slug);
         if (!project) {
           const error = { code: "not_found", message: "No Savoir off-plan project exists with that slug." };
           return { content: text(error.message), structuredContent: { ...base, status: "not_found" as const, error } };
         }
-        return { content: text(offplanDetailsText(project)), structuredContent: { ...base, status: "ok" as const, project, error: null } };
+        analytics.record("detail_view", { kind: "offplan", schedule: unit_price_aed !== undefined }, { kind: "offplan", slug });
+        let schedule = null;
+        let scheduleNote: string | null = null;
+        if (unit_price_aed !== undefined) {
+          const r = paymentSchedule(project.payment_plan, unit_price_aed, project.starting_price_aed);
+          schedule = r.schedule;
+          scheduleNote = r.reason;
+        }
+        const asOf = new Date(fetchedAt).toISOString();
+        const extra = schedule ? `\n${scheduleText(schedule)}` : scheduleNote ? `\nPayment schedule: ${scheduleNote}` : "";
+        return {
+          content: text(`${offplanDetailsText(project)}${extra}\n${asOfLine(asOf)}`),
+          structuredContent: { ...base, status: "ok" as const, project, payment_schedule: schedule, payment_schedule_note: scheduleNote, saved: savedKeys(shortlist_id).has(`offplan:${slug}`), data_as_of: asOf, error: null },
+        };
       } catch (err) {
-        if (err instanceof CmsError && err.code === "cms_not_found") {
+        if (cmsNotFound(err)) {
           const error = { code: "not_found", message: "No Savoir off-plan project exists with that slug." };
           return { content: text(error.message), structuredContent: { ...base, status: "not_found" as const, error } };
         }
@@ -362,7 +427,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
       title: "Get Savoir contact options",
       description:
         "Savoir Properties' WhatsApp, phone, email, contact page and office address. Pass a property slug to also get that listing's agent contact " +
-        "and a WhatsApp link prefilled with the listing link.",
+        "and a WhatsApp link prefilled with the listing link. For a message that includes the customer's requirements and several listings, use prepare_inquiry.",
       inputSchema: z.object({ property_slug: slugInput.optional() }),
       outputSchema: ContactOutput,
       annotations: READ_ONLY,
@@ -381,9 +446,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
               contact.property_agent = p.agent
                 ? {
                     ...p.agent,
-                    whatsapp_url: p.agent.phone
-                      ? `https://wa.me/${p.agent.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hello, I'm interested in this property: ${p.url}`)}`
-                      : null,
+                    whatsapp_url: p.agent.phone ? `https://wa.me/${p.agent.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hello, I'm interested in this property: ${p.url}`)}` : null,
                   }
                 : null;
               contact.whatsapp_url = `${contact.whatsapp_url}?text=${encodeURIComponent(`Hello, I'm interested in this property: ${p.url}`)}`;
@@ -396,6 +459,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
           }
         }
       }
+      analytics.record("contact_options", { with_listing: !!property_slug });
       return {
         content: text(contactText(contact) + (notes.length ? `\nNotes:\n${notes.map((n) => `- ${n}`).join("\n")}` : "")),
         structuredContent: { status: "ok" as const, contact, notes },
@@ -403,20 +467,20 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
     }),
   );
 
-  if (config.inquiryMode !== "disabled") {
-    registerInquiryTool(server, deps);
-  }
+  registerJourneyTools(server, deps);
+
+  if (config.inquiryMode !== "disabled") registerInquiryTool(server, deps);
 }
 
-function registerInquiryTool(server: McpServer, { cms, config, logger, tokens }: ToolDeps): void {
+function registerInquiryTool(server: McpServer, { cms, config, logger, tokens, analytics }: ToolDeps): void {
   server.registerTool(
     "submit_property_inquiry",
     {
       title: "Send an inquiry to Savoir",
       description:
-        "Send the user's inquiry (optionally about a specific listing) to Savoir Properties via the website contact form. " +
-        "This shares the user's name, email and phone with Savoir. Two steps are mandatory: first call with confirm=false to get a preview; " +
-        "show the preview to the user and ask them to confirm; only then call again with confirm=true and the confirmation_token, with identical details. " +
+        "Send the user's inquiry to Savoir Properties via the website contact form. This shares the user's name, email and phone with Savoir. " +
+        "Two steps are mandatory: first call with confirm=false to get a preview; show the preview to the user and ask them to confirm; " +
+        "only then call again with confirm=true and the confirmation_token, with identical details. " +
         "Never invent contact details — use only what the user provided. This does NOT book a viewing: a consultant follows up to arrange one.",
       inputSchema: InquiryInputSchema,
       outputSchema: InquiryOutput,
@@ -432,36 +496,36 @@ function registerInquiryTool(server: McpServer, { cms, config, logger, tokens }:
 
       if (!safeEmail(a.email)) return invalid("The email address is not valid. Ask the user to check it.");
       if (a.phone && !/^\+?[\d\s()-]{6,25}$/.test(a.phone)) return invalid("The phone number is not valid. Ask the user to check it.");
-      if (a.slug && !a.listing_kind) return invalid("listing_kind is required when a slug is given.");
-      if (a.slug && !isValidSlug(a.slug)) return invalid("That is not a valid listing slug.");
 
-      let listing: ListingRef | null = null;
-      if (a.slug) {
+      // Re-verify every listing live before anything is previewed or sent.
+      const listings: ListingRef[] = [];
+      for (const ref of a.listings ?? []) {
+        if (!isValidSlug(ref.slug)) return invalid("A listing slug is not valid.");
         try {
-          if (a.listing_kind === "offplan") {
-            const p = await cms.offplanDetails(a.slug);
-            if (p) listing = { kind: "offplan", title: p.title, reference_number: null, url: p.url };
+          if (ref.kind === "offplan") {
+            const p = (await cms.offplanDetailsMeta(ref.slug, true)).details;
+            if (p) listings.push({ kind: "offplan", title: p.title, reference_number: null, url: p.url });
+            else return invalid(`The off-plan project ${ref.slug} was not found. Nothing was sent.`);
           } else {
-            const p = await cms.propertyDetails(a.slug);
-            if (p) listing = { kind: "property", title: p.title, reference_number: p.reference_number, url: p.url };
+            const p = (await cms.propertyDetailsMeta(ref.slug, true)).details;
+            if (p) listings.push({ kind: "property", title: p.title, reference_number: p.reference_number, url: p.url });
+            else return invalid(`The listing ${ref.slug} is no longer available. Nothing was sent.`);
           }
         } catch (err) {
-          if (!(err instanceof CmsError && err.code === "cms_not_found")) {
-            const error = toErrorInfo(err);
-            return { content: text(`Could not verify the listing: ${error.message} Nothing was sent.`), structuredContent: { ...base, status: "error" as const, message: "Nothing was sent.", error }, isError: true };
-          }
+          if (cmsNotFound(err)) return invalid(`The listing ${ref.slug} is no longer available. Nothing was sent.`);
+          const error = toErrorInfo(err);
+          return { content: text(`Could not verify the listings: ${error.message} Nothing was sent.`), structuredContent: { ...base, status: "error" as const, message: "Nothing was sent.", error }, isError: true };
         }
-        if (!listing) return invalid("That listing was not found, so the inquiry cannot reference it. Nothing was sent.");
       }
 
-      const payload = buildContactPayload(a as InquiryInput, listing);
+      const payload = buildContactPayload(a as InquiryInput, listings);
       const preview = {
         to: "Savoir Properties (website contact form)",
         name: payload.name,
         email: payload.email,
         phone: payload.phone,
         message: payload.message,
-        listing_url: listing?.url ?? null,
+        listing_urls: listings.map((l) => l.url),
         privacy_policy_url: privacyPolicyUrl(config.publicSiteUrl),
       };
 
@@ -486,18 +550,13 @@ function registerInquiryTool(server: McpServer, { cms, config, logger, tokens }:
         return { content: text(message), structuredContent: { ...base, status: "invalid_input" as const, message, error: { code: "already_sent", message } }, isError: true };
       }
       if (check !== "ok") {
-        const reason =
-          check === "expired"
-            ? "The confirmation expired. "
-            : check === "missing"
-              ? "A confirmation token is required. "
-              : "The details differ from the confirmed preview (or the token is invalid). ";
+        const reason = check === "expired" ? "The confirmation expired. " : check === "missing" ? "A confirmation token is required. " : "The details differ from the confirmed preview (or the token is invalid). ";
         return askToConfirm(reason);
       }
 
       if (config.inquiryMode === "dry_run") {
         const message = "DRY RUN: the inquiry was confirmed but NOT sent (INQUIRY_MODE=dry_run). No one at Savoir has received it.";
-        logger.info("inquiry.dry_run", { has_listing: !!listing, inquiry_type: a.inquiry_type });
+        logger.info("inquiry.dry_run", { listings: listings.length, inquiry_type: a.inquiry_type });
         return { content: text(message), structuredContent: { status: "dry_run" as const, sent: false, preview, confirmation_token: null, expires_at: null, message, error: null } };
       }
 
@@ -514,7 +573,8 @@ function registerInquiryTool(server: McpServer, { cms, config, logger, tokens }:
         return { content: text(message), structuredContent: { status: "error" as const, sent: false, preview, confirmation_token: null, expires_at: null, message, error }, isError: true };
       }
 
-      logger.info("inquiry.sent", { has_listing: !!listing, inquiry_type: a.inquiry_type });
+      analytics.record("inquiry_submitted", { listings: listings.length, type: a.inquiry_type, has_reference: !!a.reference_code });
+      logger.info("inquiry.sent", { listings: listings.length, inquiry_type: a.inquiry_type });
       const message =
         "The inquiry was sent to Savoir Properties. A Savoir consultant will follow up by email or phone. " +
         (a.inquiry_type === "viewing_request" ? "This is a viewing request, not a confirmed booking — the consultant will confirm a time." : "");
