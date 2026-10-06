@@ -93,6 +93,22 @@ describe("MCP surface", () => {
       "https://savoirbucket.s3.eu-north-1.amazonaws.com",
       "https://savoirproperties.com",
     ]);
+    expect(item._meta["openai/widgetCSP"]).toEqual({ connect_domains: [], resource_domains: item._meta.ui.csp.resourceDomains });
+    expect(item._meta["openai/widgetPrefersBorder"]).toBe(true);
+    expect(item._meta.ui.domain).toBeUndefined();
+  });
+
+  it("keeps serving the v0.1 widget URI so hosts with cached tool metadata still render cards", async () => {
+    const { client } = await start();
+    const current = (await client.readResource({ uri: "ui://savoir/listings-v2.html" })).contents[0] as any;
+    const legacy = (await client.readResource({ uri: "ui://savoir/listings-v1.html" })).contents[0] as any;
+    expect(legacy.uri).toBe("ui://savoir/listings-v1.html");
+    expect(legacy.mimeType).toBe("text/html;profile=mcp-app");
+    expect(legacy.text).toBe(current.text);
+    expect(legacy._meta).toEqual(current._meta);
+    const { resources } = await client.listResources();
+    expect(resources.map((r) => r.uri).sort()).toEqual(["ui://savoir/listings-v1.html", "ui://savoir/listings-v2.html"]);
+    expect(resources.every((r) => r.mimeType === "text/html;profile=mcp-app")).toBe(true);
   });
 
   it("exposes health, readiness and the domain-verification challenge", async () => {

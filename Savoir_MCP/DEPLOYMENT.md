@@ -1,6 +1,6 @@
 # Production deployment: mcp.savoirproperties.com (read-only launch)
 
-**Status: prepared, not deployed.** No server, DNS or GitHub change has been made. Everything below is waiting for your approval.
+**Status: live since 2026-10-06.** v0.3.0 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.1 (card fix, §6) is ready and awaiting deploy approval.
 
 ## 1. The existing server
 
@@ -119,4 +119,26 @@ None of these touch `savoir-react`, the website's or CMS's nginx blocks, or thei
 | 12 | Repeat tests 1, 3 and 4 on the mobile app | renders, and links open | ChatGPT iOS/Android | |
 | 13 | **Error path:** run action `stop`, ask a search, then restore with `rollback` + `rollback_to=<current release>` (or `deploy`) | ChatGPT reports the service is unavailable, not "no results" | ChatGPT web | |
 
-**Hosts tested so far: none.**
+### Host test log
+
+| Date (Dubai) | Server | Host | Test | Result | Evidence |
+|---|---|---|---|---|---|
+| 2026-10-06 18:32 | v0.3.0 | ChatGPT web (Chrome) | 1, plus a comparison follow-up | **FAIL (UI).** Tool calls returned correct data, and ChatGPT wrote a text comparison table. Each tool row showed "Couldn't open … / Retry" with a "CSP off" chip. No cards rendered (no photos, heart or compare buttons) | Screenshot from Savoir; chat "Compare Dubai Apartments" |
+
+**Root cause (most likely; not yet confirmed in ChatGPT):**
+- **Cached metadata.** v0.3.0 renamed the card resource from `ui://savoir/listings-v1.html` (v0.1) to `listings-v2.html`, and the server stopped serving v1 (the post-deploy verifier got "Resource not found" for v1). ChatGPT caches a connector's tool metadata, so a cached tool still points at the old URI. When that URI can't be read, the card can't open even though the tool call succeeds. OpenAI's community forum reports this exact symptom after a URI change ("Failed to fetch template"; thread 1380454, May 2026).
+- **Weaker contributing factor.** ChatGPT has been reported to ignore the standard `ui.csp` unless the legacy `openai/widgetCSP` is also present (thread 1374446). That could explain the "CSP off" chip. The meaning of that chip is not documented, so this is unconfirmed.
+
+**Checked and found correct (production v0.3.0 vs the official OpenAI UI docs):**
+- MIME type is `text/html;profile=mcp-app`.
+- Tools carry `_meta.ui.resourceUri` and the `openai/outputTemplate` alias.
+- The resource is listed in `resources/list` and `_meta.ui.csp` is present on both the list entry and the read contents.
+- The HTML is self-contained, with no external scripts or styles.
+
+**Fix (v0.3.1):**
+- Serve the v1 URI again, with identical content, alongside v2.
+- Add the `openai/widgetCSP`, `openai/widgetPrefersBorder` and `openai/widgetDescription` aliases.
+- Log which card URI a host reads (`mcp.resource.read`, URI only) so the next host test has server evidence.
+- Keep `ui.domain` unset (it defaults to the ChatGPT sandbox). It is **required before directory submission** and is configured with `WIDGET_DOMAIN`.
+
+**Hosts tested so far: ChatGPT web (failed UI, see the log above).** No Claude test yet.

@@ -5,7 +5,7 @@
  * behaviour inside ChatGPT or Claude.
  *
  *   npm run dev   (or a built server)       then   npm run preview:widget
- * Env: MCP_URL (default http://127.0.0.1:8787/mcp), PREVIEW_OUT, BROWSER_PATH
+ * Env: MCP_URL (default http://127.0.0.1:8787/mcp), PREVIEW_OUT, BROWSER_PATH, PREVIEW_WIDGET_URI
  */
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { build } from "esbuild";
@@ -54,7 +54,8 @@ async function main() {
 
   const client = new Client({ name: "widget-preview", version: "2.0.0" });
   await client.connect(new StreamableHTTPClientTransport(new URL(MCP_URL)));
-  const res = await client.readResource({ uri: "ui://savoir/listings-v2.html" });
+  // PREVIEW_WIDGET_URI lets the run simulate a host that cached an older tool list (e.g. listings-v1).
+  const res = await client.readResource({ uri: process.env.PREVIEW_WIDGET_URI ?? "ui://savoir/listings-v2.html" });
   const widget = res.contents[0] as { text?: string; mimeType?: string };
   if (!widget?.text) throw new Error("widget resource empty");
   console.log(`widget resource: ${widget.mimeType}, ${(widget.text.length / 1024).toFixed(0)} KiB`);

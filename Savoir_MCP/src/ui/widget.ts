@@ -11,6 +11,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 export const WIDGET_URI = "ui://savoir/listings-v2.html";
+/** URIs advertised by earlier releases (v0.1: listings-v1). Keep serving them: hosts cache tool metadata. */
+export const LEGACY_WIDGET_URIS = ["ui://savoir/listings-v1.html"] as const;
 export const SAVOIR_LOGO_URL = "https://savoirproperties.com/images/icons/logo.svg";
 
 let cachedBundle: string | undefined;

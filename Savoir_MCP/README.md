@@ -50,7 +50,7 @@ Checks:
 
 ```bash
 npm run typecheck
-npm test                    # 148 tests, no network access
+npm test                    # 149 tests, no network access
 npm run insights -- --data-dir ./data --out insights.html   # staff report from aggregate metrics
 npm run smoke               # read-only live calls against a running server (~10 CMS requests)
 npm run preview:widget      # 17 checks in local Chrome/Edge via the MCP Apps host bridge (a simulated host)
@@ -120,7 +120,7 @@ All configuration comes from environment variables. See [.env.example](.env.exam
 | `INQUIRY_MODE` | `disabled` | `disabled`, `dry_run` or `live`. |
 | `INQUIRY_TOKEN_SECRET` | random per process | HMAC key for confirmation tokens. Required if you run more than one instance. |
 | `OPENAI_APPS_CHALLENGE_TOKEN` | — | Served as plain text at `/.well-known/openai-apps-challenge`. |
-| `WIDGET_DOMAIN` | — | Optional `_meta.ui.domain`, for hosts that require a dedicated widget origin. |
+| `WIDGET_DOMAIN` | — | `_meta.ui.domain` (and the ChatGPT alias `openai/widgetDomain`). Unset, ChatGPT uses its default sandbox; OpenAI requires a unique value **before directory submission**. |
 | `LOG_LEVEL` | `info` | Logs are JSON lines. |
 
 ## How the CMS actually behaves (verified October 2026)
