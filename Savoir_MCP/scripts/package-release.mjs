@@ -30,6 +30,7 @@ const files = [
   "deploy/server/preflight.sh",
   "deploy/server/deploy.sh",
   "deploy/server/rollback.sh",
+  "deploy/server/activity.sh",
   "deploy/server/configure-https.sh",
 ];
 for (const f of files) if (!existsSync(f)) throw new Error(`missing ${f}`);
