@@ -1,6 +1,6 @@
 # Production deployment: mcp.savoirproperties.com (read-only launch)
 
-**Status: live since 2026-10-06.** v0.3.2 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.4 (UI redesign plus review round 2, no tool or API changes) is ready and awaiting design approval before deploy.
+**Status: live since 2026-10-06.** v0.3.4 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.5 (button reliability fixes) is ready and awaiting deploy approval.
 
 ## 1. The existing server
 
@@ -126,6 +126,7 @@ None of these touch `savoir-react`, the website's or CMS's nginx blocks, or thei
 |---|---|---|---|---|---|
 | 2026-10-06 18:32 | v0.3.0 | ChatGPT web (Chrome) | 1, plus a comparison follow-up | **FAIL (UI).** Tool calls returned correct data, and ChatGPT wrote a text comparison table. Each tool row showed "Couldn't open … / Retry" with a "CSP off" chip. No cards rendered (no photos, heart or compare buttons) | Screenshot from Savoir; chat "Compare Dubai Apartments" |
 | 2026-10-06 ~18:56 | v0.3.1 | ChatGPT web (Chrome) | "Save these two to my shortlist and give me a share link" | **FAIL (shortlist).** ChatGPT replied that the connection (named "Savoir Privé Properties" in its reply) has no shortlist or share-link action | Screenshot from Savoir. Server activity 14:00–15:30 UTC (workflow `activity` run 37484225475): **every** `update_shortlist`/`share_shortlist`/`compare_listings` call came from our own two smoke runs (2 each); ChatGPT called none of them. After the v0.3.1 deploy, ChatGPT read `ui://savoir/listings-v1.html`, the URI that only the **v0.1** tool list references. Conclusion: ChatGPT is still using its cached v0.1 tool list (5 tools); the server offers all 12 |
+| 2026-10-06 ~20:26–20:31 | v0.3.4 | ChatGPT web | Button test after redesign | **FAIL (some buttons).** Reported by Savoir: some buttons do nothing | `activity` (counts only): in that window ChatGPT called search ×1, get_property_details ×2, update_shortlist ×2, get_shortlist ×2, share_shortlist ×3, prepare_inquiry ×2, all `ok`, so tool-backed buttons reached the server. **Zero `/go/` requests all day**, so no card WhatsApp/Website link opened. Control run of the v0.3.4 build in a simulated host that ignores requests: an unanswered link request does nothing, and an unanswered tool call leaves the card dimmed with "Loading…" and every button disabled. Fixed in v0.3.5 (time limits, `window.openai.openExternal` first, visible fallbacks with reason codes) |
 
 **Root cause (most likely; not yet confirmed in ChatGPT):**
 - **Cached metadata.** v0.3.0 renamed the card resource from `ui://savoir/listings-v1.html` (v0.1) to `listings-v2.html`, and the server stopped serving v1 (the post-deploy verifier got "Resource not found" for v1). ChatGPT caches a connector's tool metadata, so a cached tool still points at the old URI. When that URI can't be read, the card can't open even though the tool call succeeds. OpenAI's community forum reports this exact symptom after a URI change ("Failed to fetch template"; thread 1380454, May 2026).
