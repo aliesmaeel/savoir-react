@@ -13,16 +13,17 @@ name: Deploy Savoir MCP (manual)
 #   rollback         return to the previous healthy release (or rollback_to)
 #   stop             stop the MCP pm2 process (website unaffected)
 #   set-challenge-token  publish the OpenAI domain-verification token at /.well-known/openai-apps-challenge
+#   activity         read-only: counts of tool calls, widget reads and MCP methods in a UTC window (no request contents)
 on:
   workflow_dispatch:
     inputs:
       action:
         description: "What to do"
         type: choice
-        options: [inspect, create-user, deploy, configure-https, rollback, stop, set-challenge-token]
+        options: [inspect, activity, create-user, deploy, configure-https, rollback, stop, set-challenge-token]
         default: inspect
       confirm:
-        description: "Type the action name again to confirm (not needed for inspect)"
+        description: "Type the action name again to confirm (not needed for inspect or activity)"
         required: false
         default: ""
       run_as:
@@ -35,6 +36,10 @@ on:
         default: ""
       acme_email:
         description: "configure-https on plain nginx only (certbot contact email); CloudPanel ignores it"
+        required: false
+        default: ""
+      window:
+        description: "activity only: UTC window FROM/TO, e.g. 2026-10-06T14:30/2026-10-06T15:10"
         required: false
         default: ""
       challenge_token:
@@ -69,10 +74,11 @@ jobs:
           ROLLBACK_TO: ${{ inputs.rollback_to }}
           ACME_EMAIL: ${{ inputs.acme_email }}
           CHALLENGE_TOKEN: ${{ inputs.challenge_token }}
+          WINDOW: ${{ inputs.window }}
         working-directory: .
         run: |
           set -euo pipefail
-          if [ "$ACTION" != "inspect" ] && [ "$CONFIRM" != "$ACTION" ]; then
+          if [ "$ACTION" != "inspect" ] && [ "$ACTION" != "activity" ] && [ "$CONFIRM" != "$ACTION" ]; then
             echo "::error::Type '$ACTION' in the confirm field to run this action."; exit 1
           fi
           [[ -z "$RUN_AS" || "$RUN_AS" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { echo "::error::invalid run_as"; exit 1; }
@@ -81,6 +87,9 @@ jobs:
           [[ -z "$ACME_EMAIL" || "$ACME_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]] || { echo "::error::invalid acme_email"; exit 1; }
           [[ -z "$CHALLENGE_TOKEN" || "$CHALLENGE_TOKEN" =~ ^[A-Za-z0-9._~+/=-]{8,512}$ ]] || { echo "::error::invalid challenge_token"; exit 1; }
           if [ "$ACTION" = "set-challenge-token" ] && [ -z "$CHALLENGE_TOKEN" ]; then echo "::error::challenge_token is required"; exit 1; fi
+          if [ "$ACTION" = "activity" ]; then
+            [[ "$WINDOW" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}$ ]] || { echo "::error::window must be YYYY-MM-DDTHH:MM/YYYY-MM-DDTHH:MM (UTC)"; exit 1; }
+          fi
 
       - uses: actions/checkout@v4
 
@@ -123,6 +132,7 @@ jobs:
           ROLLBACK_TO: ${{ inputs.rollback_to }}
           ACME_EMAIL: ${{ inputs.acme_email }}
           CHALLENGE_TOKEN: ${{ inputs.challenge_token }}
+          WINDOW: ${{ inputs.window }}
           REL_NAME: ${{ steps.pkg.outputs.name }}
         with:
           host: ${{ secrets.HOST }}
@@ -130,7 +140,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           command_timeout: 15m
-          envs: ACTION,RUN_AS,ROLLBACK_TO,ACME_EMAIL,CHALLENGE_TOKEN,REL_NAME,MCP_DOMAIN,MCP_PORT
+          envs: ACTION,RUN_AS,ROLLBACK_TO,ACME_EMAIL,CHALLENGE_TOKEN,WINDOW,REL_NAME,MCP_DOMAIN,MCP_PORT
           script: |
             # Run under bash regardless of the remote login shell. The script goes to a file first
             # (not bash -s) so commands that read stdin cannot swallow the rest of it.
@@ -180,6 +190,10 @@ jobs:
             case "$ACTION" in
               inspect)
                 RUN_AS="$RUN_AS" MCP_DOMAIN="$MCP_DOMAIN" bash "$WORK/deploy/server/preflight.sh" "$MCP_PORT"
+                ;;
+              activity)
+                # WINDOW was validated to digits, dashes, colons, T and one slash.
+                as_app "bash $WORK/deploy/server/activity.sh ${WINDOW%%/*} ${WINDOW##*/}"
                 ;;
               create-user)
                 [ "$(id -u)" -eq 0 ] || { echo "::error::create-user needs root"; exit 1; }
