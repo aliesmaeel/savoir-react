@@ -1,6 +1,6 @@
 # Production deployment: mcp.savoirproperties.com (read-only launch)
 
-**Status: live since 2026-10-06.** v0.3.2 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.3 (UI redesign, no tool or API changes) is ready and awaiting design approval before deploy.
+**Status: live since 2026-10-06.** v0.3.2 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.4 (UI redesign plus review round 2, no tool or API changes) is ready and awaiting design approval before deploy.
 
 ## 1. The existing server
 

@@ -36,8 +36,8 @@
     "amenNote": "Amenities checked against each listing's published list.",
     "asOf": "Listing data as of {t}",
     "disclaimer": "Prices and availability to be confirmed with Savoir.",
-    "prepare": "Prepare message",
-    "prepareSaved": "Message about saved",
+    "prepare": "Contact Savoir",
+    "prepareSaved": "Ask about my shortlist",
     "prepareThese": "Message about these",
     "shortlist": "Your shortlist",
     "viewShortlist": "My shortlist ({n})",
@@ -140,7 +140,11 @@
     "shareTitle": "Share",
     "shareIntro": "Create a link anyone can open to see these listings.",
     "keptShort": "Kept for 30 days after your last change. Reopen it by asking “Show my shortlist” in this chat.",
-    "aboutShortlist": "About your shortlist"
+    "aboutShortlist": "About your shortlist",
+    "diffRent": "For rent, unlike this listing",
+    "diffSale": "For sale, unlike this listing",
+    "similarMixedSale": "This listing is for sale. Some similar listings are for rent.",
+    "similarMixedRent": "This listing is for rent. Some similar listings are for sale."
   },
   "ar": {
     "listings": "عقارات Savoir",
@@ -179,8 +183,8 @@
     "amenNote": "تم التحقق من المرافق وفق القائمة المنشورة لكل عقار.",
     "asOf": "بيانات العقارات حتى {t}",
     "disclaimer": "الأسعار والتوفر خاضعة للتأكيد من Savoir.",
-    "prepare": "تجهيز رسالة",
-    "prepareSaved": "رسالة عن المحفوظات",
+    "prepare": "تواصل مع Savoir",
+    "prepareSaved": "استفسر عن قائمتي المختصرة",
     "prepareThese": "رسالة عن هذه العقارات",
     "shortlist": "قائمتك المختصرة",
     "viewShortlist": "قائمتي المختصرة ({n})",
@@ -300,6 +304,10 @@
     "shareTitle": "مشاركة",
     "shareIntro": "أنشئ رابطاً يمكن لأي شخص فتحه لرؤية هذه العقارات.",
     "keptShort": "تُحفظ لمدة 30 يوماً بعد آخر تعديل. لإعادة فتحها اكتب «اعرض قائمتي المختصرة» في هذه المحادثة.",
-    "aboutShortlist": "عن قائمتك المختصرة"
+    "aboutShortlist": "عن قائمتك المختصرة",
+    "diffRent": "للإيجار، بخلاف هذا العقار",
+    "diffSale": "للبيع، بخلاف هذا العقار",
+    "similarMixedSale": "هذا العقار للبيع. بعض العقارات المشابهة للإيجار.",
+    "similarMixedRent": "هذا العقار للإيجار. بعض العقارات المشابهة للبيع."
   }
 }

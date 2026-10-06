@@ -395,11 +395,15 @@ function errorBox(d) {
 }
 
 // ---------- components ----------
+function purposeLabel(p) {
+  return p.purpose === "rent" ? t("forRent") : p.purpose === "sale" ? t("forSale") : null;
+}
+function completionLabel(p) {
+  return p.completion === "off_plan" ? t("offPlan") : p.completion === "ready" ? t("ready") : null;
+}
+/** Listing status shown in results, details and comparison, e.g. "For sale · Ready". */
 function badgeFor(p) {
-  if (p.completion === "off_plan") return t("offPlan");
-  if (p.purpose === "rent") return t("forRent");
-  if (p.purpose === "sale") return t("forSale");
-  return null;
+  return [purposeLabel(p), completionLabel(p)].filter(Boolean).join(" · ") || null;
 }
 function heart(ref) {
   const saved = state.saved.has(ref.kind + ":" + ref.slug);
@@ -442,12 +446,13 @@ function card(o) {
       o.loc ? h("div", { class: "sv-loc", dir: "auto", text: o.loc }) : null,
       o.meta ? h("div", { class: "sv-meta", text: o.meta }) : null,
       o.chips || null,
+      o.flag ? h("div", { class: "sv-flag", text: o.flag }) : null,
       h("div", { class: "sv-card-actions" }, btn(t("details"), o.onDetails, { primary: true, grow: true, aria: t("details") + ": " + o.title }), btn(t("whatsapp"), o.onWa, { aria: t("whatsapp") + ": " + o.title })),
       h("div", { class: "sv-card-sub" }, compareCheck(o.ref)),
     ),
   );
 }
-function propertyCard(p) {
+function propertyCard(p, flag) {
   const ref = { kind: "property", slug: p.slug, title: p.title };
   const meta = [bedsLabel(p.bedrooms), p.bathrooms !== null && p.bathrooms !== undefined ? t("baths", { n: p.bathrooms }) : null, typeLabel(p.property_type)].filter(Boolean).join(" · ");
   const chips = p.amenity_check
@@ -462,6 +467,7 @@ function propertyCard(p) {
     loc: p.location && p.location.label,
     meta: meta,
     chips: chips,
+    flag: flag || null,
     selected: state.compare.some((c) => c.kind === "property" && c.slug === p.slug),
     onDetails: () => openDetail("property", p.slug, p.title),
     onWa: () => openLink((p.links && p.links.whatsapp) || waFor(p.url)),
@@ -542,7 +548,7 @@ function renderPropertyList(d) {
       );
     }
   } else {
-    out.push(h("div", { class: "sv-row" }, d.items.map(propertyCard)));
+    out.push(h("div", { class: "sv-row" }, d.items.map((p) => propertyCard(p))));
     if (d.amenity_note) out.push(h("div", { class: "sv-note", text: t("amenNote") }));
   }
   out.push(moreButton("search_properties", pg), footer(d.data_as_of), compareBar());
@@ -592,6 +598,7 @@ function renderPropertyDetail(d) {
       h(
         "div",
         { class: "sv-dhead" },
+        badgeFor(p) ? h("div", { class: "sv-status", text: badgeFor(p) }) : null,
         h("h2", { class: "sv-dtitle", dir: "auto", text: cleanTitle(p.title) }),
         h("div", { class: "sv-loc", dir: "auto", text: [p.building, p.location && p.location.label].filter(Boolean).join(", ") }),
         h("div", { class: "sv-dprice" }, h("span", { class: "sv-price", text: aed(p.price) || t("priceOnRequest") }), ppsf ? h("span", { class: "sv-note", text: ppsf }) : null),
@@ -605,7 +612,20 @@ function renderPropertyDetail(d) {
       disclosure(t("moreDetails"), more),
     ),
   );
-  if (p.similar_properties && p.similar_properties.length) out.push(h("section", { class: "sv-similar" }, h("h2", { class: "sv-section-t", text: t("similar") }), h("div", { class: "sv-row" }, p.similar_properties.map((s) => propertyCard(Object.assign({ saved: false, amenity_check: null }, s))))));
+  if (p.similar_properties && p.similar_properties.length) {
+    const differs = (s) => !!(s.purpose && p.purpose && s.purpose !== p.purpose);
+    const mixed = p.similar_properties.some(differs);
+    const flagFor = (s) => (differs(s) ? t(s.purpose === "rent" ? "diffRent" : "diffSale") : null);
+    out.push(
+      h(
+        "section",
+        { class: "sv-similar" },
+        h("h2", { class: "sv-section-t", text: t("similar") }),
+        mixed ? h("div", { class: "sv-note", text: t(p.purpose === "sale" ? "similarMixedSale" : "similarMixedRent") }) : null,
+        h("div", { class: "sv-row" }, p.similar_properties.map((s) => propertyCard(Object.assign({ saved: false, amenity_check: null }, s), flagFor(s)))),
+      ),
+    );
+  }
   out.push(footer(d.data_as_of), compareBar());
   return out;
 }
@@ -658,6 +678,7 @@ function renderOffplanDetail(d) {
       h(
         "div",
         { class: "sv-dhead" },
+        h("div", { class: "sv-status", text: t("offPlan") }),
         h("h2", { class: "sv-dtitle", dir: "auto", text: cleanTitle(p.title) }),
         h("div", { class: "sv-loc", dir: "auto", text: [p.location, p.area].filter(Boolean).join(" — ") }),
         h("div", { class: "sv-dprice" }, h("span", { class: "sv-price", text: p.starting_price_aed ? t("from", { p: aed(p.starting_price_aed) }) : t("priceOnRequest") })),

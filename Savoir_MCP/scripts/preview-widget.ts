@@ -105,8 +105,8 @@ async function main() {
   const browser = await chromium.launch({ executablePath: browserPath, headless: true });
   const errors: string[] = [];
 
-  const open = async (q: string, vw = 800, vh = 800): Promise<{ page: Page; f: FrameLocator }> => {
-    const page = await browser.newPage({ viewport: { width: vw, height: vh } });
+  const open = async (q: string, vw = 800, vh = 800, touch = false): Promise<{ page: Page; f: FrameLocator }> => {
+    const page = await browser.newPage({ viewport: { width: vw, height: vh }, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
     await page.context().grantPermissions(["clipboard-read", "clipboard-write"], { origin: `http://127.0.0.1:${port}` }).catch(() => {});
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && errors.push(m.text()));
@@ -114,6 +114,60 @@ async function main() {
     return { page, f: page.frameLocator("iframe") };
   };
   const g = <T>(page: Page, expr: string) => page.evaluate(expr) as Promise<T>;
+  const AUDIT_JS = String.raw`(minT) => {
+      const parse = (c) => { const m = c.match(/[\d.]+/g).map(Number); return { r: m[0], g: m[1], b: m[2], a: m.length > 3 ? m[3] : 1 }; };
+      const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+      const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+      const over = (top, under) => ({ r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1 });
+      // Background behind an element: composite translucent layers; over a photo assume worst case (black or white).
+      const bgOf = (el) => {
+        const layers = [];
+        for (let n = el; n; n = n.parentElement) {
+          const c = parse(getComputedStyle(n).backgroundColor);
+          if (c.a > 0) layers.push(c);
+          if (c.a >= 1) { return [layers.reduceRight((acc, l) => (acc ? over(l, acc) : l), null)]; }
+          if (n.classList.contains("sv-ph") || n.classList.contains("sv-gal")) {
+            return [{ r: 0, g: 0, b: 0, a: 1 }, { r: 255, g: 255, b: 255, a: 1 }].map((base) => layers.reduceRight((acc, l) => over(l, acc), base));
+          }
+        }
+        return [{ r: 255, g: 255, b: 255, a: 1 }];
+      };
+      const vis = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none" && !el.closest("[hidden]") && !el.closest(".sr"); };
+      const label = (el) => (el.tagName.toLowerCase() + "." + (el.getAttribute("class") || "").split(" ")[0] + " \"" + (el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 28) + "\"");
+      let minFont = 99, minFontAt = "", minRatio = 99, minRatioAt = "";
+      const lowContrast = [];
+      const seen = new Set();
+      for (const el of Array.from(document.querySelectorAll("#root *"))) {
+        const own = Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim());
+        if (!own || !vis(el)) continue;
+        const cs = getComputedStyle(el);
+        const size = parseFloat(cs.fontSize);
+        if (size < minFont) { minFont = size; minFontAt = label(el); }
+        const large = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700);
+        const fg = parse(cs.color);
+        for (const bg of bgOf(el)) {
+          const r = ratio(fg.a < 1 ? over(fg, bg) : fg, bg);
+          if (r < minRatio) { minRatio = r; minRatioAt = label(el); }
+          if (r < (large ? 3 : 4.5)) { const k = label(el) + " " + r.toFixed(2); if (!seen.has(k)) { seen.add(k); lowContrast.push(k); } break; }
+        }
+      }
+      const smallTargets = [];
+      let minTarget = 99;
+      for (const el of Array.from(document.querySelectorAll("#root button, #root summary, #root label.sv-chk, #root a, #root input:not([type=checkbox])"))) {
+        if (!vis(el)) continue;
+        const r = el.getBoundingClientRect();
+        const m = Math.min(r.width, r.height);
+        if (m < minTarget) minTarget = m;
+        if (m < minT - 0.5) smallTargets.push(label(el) + " " + Math.round(r.width) + "x" + Math.round(r.height));
+      }
+      return { minFont, minFontAt, minRatio, minRatioAt, lowContrast, smallTargets, minTarget, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+}`;
+  type Audit = { minFont: number; minFontAt: string; minRatio: number; minRatioAt: string; lowContrast: string[]; smallTargets: string[]; minTarget: number; overflow: number };
+  /** Text size, contrast (WCAG 2.x ratio vs the composited background) and tap-target sizes of visible elements. */
+  const audit = async (page: Page, minTarget: number): Promise<Audit> => {
+    const frame = page.frames().find((fr) => fr.url().includes("/widget"))!;
+    return frame.evaluate(`(${AUDIT_JS})(${minTarget})`) as Promise<Audit>;
+  };
   const shot = (page: Page, name: string) => page.screenshot({ path: join(OUT, `${name}.png`), fullPage: true });
   const waitImgs = async (f: FrameLocator) => {
     const imgs = f.locator(".sv-card img, .sv-gal img, .sv-brand img");
@@ -247,6 +301,68 @@ async function main() {
       await f.locator(".sv-notice.ok", { hasText: "Removed from your shortlist." }).waitFor({ timeout: 15000 });
       check((await f.locator(".sv-li").count()) === 1, "remove updates the shortlist view immediately (1 left)");
       await shot(page, "A2b-removed");
+      await page.close();
+    }
+
+    // ---------- F: readability and tap targets at real ChatGPT / phone widths ----------
+    console.log("F. Text size, contrast and tap targets (ChatGPT desktop 760px light; phone 390px dark; phone 360px light, touch)");
+    for (const cfg of [
+      { name: "desktop-760-light", w: 760, theme: "light", touch: false, minTarget: 24 },
+      { name: "phone-390-dark", w: 390, theme: "dark", touch: true, minTarget: 44 },
+      { name: "phone-360-light", w: 360, theme: "light", touch: true, minTarget: 44 },
+    ]) {
+      await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+      const { page, f } = await open(`theme=${cfg.theme}&locale=en-US&w=${cfg.w - 20}&h=700`, cfg.w, 800, cfg.touch);
+      await f.locator(".sv-card").first().waitFor({ timeout: 20000 });
+      await waitImgs(f);
+      const results: Array<[string, Audit]> = [["results", await audit(page, cfg.minTarget)]];
+      const status = await f.locator(".sv-card .sv-badge").first().innerText();
+      check(/Ready|Off-plan/.test(status), `${cfg.name}: result card shows ready/off-plan status ("${status}")`);
+      check((await f.locator(".sv-row .sv-flag").count()) === 0, `${cfg.name}: search results carry no purpose flags`);
+      await f.locator(".sv-heart").first().click();
+      await f.locator('.sv-heart[aria-pressed="true"]').first().waitFor({ timeout: 15000 });
+      await f.getByRole("button", { name: /^Details:/ }).first().click();
+      await f.locator(".sv-detail").waitFor({ timeout: 20000 });
+      await f.getByText("More details").click();
+      await waitImgs(f);
+      const dstatus = await f.locator(".sv-status").innerText();
+      check(/Ready|Off-plan/.test(dstatus), `${cfg.name}: detail shows ready/off-plan status ("${dstatus}")`);
+      check(await f.getByRole("button", { name: "Contact Savoir" }).isVisible(), `${cfg.name}: main detail action reads "Contact Savoir"`);
+      results.push(["details", await audit(page, cfg.minTarget)]);
+      if (cfg.name === "desktop-760-light") {
+        const flags = await f.locator(".sv-similar .sv-flag").allInnerTexts();
+        const purposes = await f.locator(".sv-similar .sv-card .sv-badge").allInnerTexts();
+        const selfPurpose = /For sale/.test(dstatus) ? "For sale" : "For rent";
+        const differing = purposes.filter((p) => !p.startsWith(selfPurpose)).length;
+        check(flags.length === differing && (differing === 0 || /unlike this listing/.test(flags[0]!)), `similar listings: ${differing} with a different purpose, ${flags.length} flagged ("${flags[0] ?? "none needed"}")`);
+        await shot(page, "F1-detail-similar");
+      }
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator(".sv-card").first().waitFor({ timeout: 10000 });
+      const boxes = f.locator('.sv-card input[type="checkbox"]');
+      await boxes.nth(0).check();
+      await boxes.nth(1).check();
+      await f.getByRole("button", { name: "Compare (2)" }).click();
+      await f.locator("table.sv-cmp").waitFor({ timeout: 20000 });
+      await f.getByRole("button", { name: "Show all details" }).click();
+      await waitImgs(f);
+      results.push(["comparison", await audit(page, cfg.minTarget)]);
+      await f.getByRole("button", { name: /^My shortlist \(1\)/ }).first().click();
+      await f.locator(".sv-li").first().waitFor({ timeout: 15000 });
+      check(await f.getByRole("button", { name: "Ask about my shortlist" }).isVisible(), `${cfg.name}: shortlist action reads "Ask about my shortlist"`);
+      await f.getByText("About your shortlist").click();
+      results.push(["shortlist", await audit(page, cfg.minTarget)]);
+      await shot(page, `F-${cfg.name}-shortlist`);
+      for (const [view, a] of results) {
+        check(a.minFont >= 12, `${cfg.name} ${view}: smallest text ${a.minFont}px (${a.minFontAt})`);
+        check(a.lowContrast.length === 0, `${cfg.name} ${view}: text contrast ≥ 4.5:1 (lowest ${a.minRatio.toFixed(1)}:1, ${a.minRatioAt})${a.lowContrast.length ? " — low: " + a.lowContrast.slice(0, 4).join(" | ") : ""}`);
+        check(a.smallTargets.length === 0, `${cfg.name} ${view}: tap targets ≥ ${cfg.minTarget}px (smallest ${Math.round(a.minTarget)}px)${a.smallTargets.length ? " — " + a.smallTargets.slice(0, 4).join(" | ") : ""}`);
+        check(a.overflow <= 0, `${cfg.name} ${view}: no sideways scroll`);
+      }
+      // clean up the shortlist this run created
+      await f.getByRole("button", { name: "Delete shortlist" }).click();
+      await f.getByRole("button", { name: "Yes, delete" }).click();
+      await f.locator(".sv-empty", { hasText: "Shortlist deleted." }).waitFor({ timeout: 15000 });
       await page.close();
     }
 
