@@ -14,13 +14,16 @@ name: Deploy Savoir MCP (manual)
 #   stop             stop the MCP pm2 process (website unaffected)
 #   set-challenge-token  publish the OpenAI domain-verification token at /.well-known/openai-apps-challenge
 #   activity         read-only: counts of tool calls, widget reads and MCP methods in a UTC window (no request contents)
+#   widget-domain-on   set WIDGET_DOMAIN=https://<MCP_DOMAIN> (the card's _meta.ui.domain, required for directory submission)
+#   widget-domain-off  remove WIDGET_DOMAIN again (undo)
+#   log-rotation     pm2-logrotate for the MCP user's pm2 only: daily, keep 30, compress; reports nginx rotation (read-only)
 on:
   workflow_dispatch:
     inputs:
       action:
         description: "What to do"
         type: choice
-        options: [inspect, activity, create-user, deploy, configure-https, rollback, stop, set-challenge-token]
+        options: [inspect, activity, create-user, deploy, configure-https, rollback, stop, set-challenge-token, widget-domain-on, widget-domain-off, log-rotation]
         default: inspect
       confirm:
         description: "Type the action name again to confirm (not needed for inspect or activity)"
@@ -245,6 +248,32 @@ jobs:
                 [ "$served" = "$CHALLENGE_TOKEN" ] && echo "challenge token served locally" || { echo "::error::served token does not match"; exit 1; }
                 local_checks
                 ;;
+              widget-domain-on|widget-domain-off)
+                # Replace (or remove) WIDGET_DOMAIN in shared/.env, reload, and check what the card resource now declares.
+                if [ "$ACTION" = "widget-domain-on" ]; then line="WIDGET_DOMAIN=https://$MCP_DOMAIN"; else line=""; fi
+                as_app 'f=~/savoir-mcp/shared/.env; { grep -v "^WIDGET_DOMAIN=" "$f"; [ -z "'"$line"'" ] || echo "'"$line"'"; } > "$f.new" && install -m 600 "$f.new" "$f" && rm -f "$f.new"'
+                as_app "grep -qx 'INQUIRY_MODE=disabled' ~/savoir-mcp/shared/.env" || { echo "::error::INQUIRY_MODE must stay disabled"; exit 1; }
+                as_app "pm2 reload ~/savoir-mcp/current/deploy/ecosystem.config.cjs --update-env >/dev/null && pm2 save >/dev/null"
+                sleep 3
+                as_app "curl -fsS -m 15 -X POST -H 'Host: $MCP_DOMAIN' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+                  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"resources/read\",\"params\":{\"uri\":\"ui://savoir/listings-v2.html\"}}' http://127.0.0.1:$MCP_PORT/mcp" > "$WORK/card.txt"
+                if [ "$ACTION" = "widget-domain-on" ]; then
+                  grep -q "\"domain\":\"https://$MCP_DOMAIN\"" "$WORK/card.txt" && echo "card declares ui.domain https://$MCP_DOMAIN" || { echo "::error::card does not declare the widget domain"; exit 1; }
+                else
+                  grep -q '"domain":' "$WORK/card.txt" && { echo "::error::card still declares a widget domain"; exit 1; } || echo "card declares no ui.domain (host default)"
+                fi
+                local_checks
+                ;;
+              log-rotation)
+                # Only the MCP user's own pm2 daemon; the website's pm2 (root) is not touched.
+                as_app 'pm2 describe pm2-logrotate >/dev/null 2>&1 || pm2 install pm2-logrotate >/dev/null 2>&1 || { echo "::error::pm2 install pm2-logrotate failed"; exit 1; }'
+                as_app 'pm2 set pm2-logrotate:retain 30 >/dev/null && pm2 set pm2-logrotate:rotateInterval "0 0 * * *" >/dev/null && pm2 set pm2-logrotate:max_size 100M >/dev/null && pm2 set pm2-logrotate:compress true >/dev/null && pm2 save >/dev/null'
+                as_app 'pm2 jlist | node -e "let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{for(const p of JSON.parse(s))console.log(\"pm2 \"+p.name+\": \"+p.pm2_env.status)})"'
+                as_app 'cat ~/.pm2/module_conf.json 2>/dev/null | node -e "let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>{const c=(JSON.parse(s||\"{}\")[\"pm2-logrotate\"])||{};console.log(\"pm2-logrotate retain=\"+c.retain+\" rotateInterval=\"+c.rotateInterval+\" max_size=\"+c.max_size+\" compress=\"+c.compress)})"'
+                echo "--- nginx log rotation (read-only)"
+                for lr in /etc/logrotate.d/nginx /etc/logrotate.d/clp* /etc/logrotate.d/cloudpanel*; do [ -f "$lr" ] && echo "$lr: $(grep -hoE '^\s*(daily|weekly|monthly|rotate [0-9]+|maxage [0-9]+)' "$lr" | tr -s ' \n' ' ')"; done || true
+                local_checks
+                ;;
               stop)
                 as_app "bash ~/savoir-mcp/current/deploy/server/rollback.sh --stop"
                 curl -s -o /dev/null -w "https://savoirproperties.com/ -> %{http_code}\n" -m 15 https://savoirproperties.com/ || true
@@ -254,7 +283,7 @@ jobs:
             bash "$MCP_REMOTE_SCRIPT" < /dev/null; rc=$?; rm -f "$MCP_REMOTE_SCRIPT"; exit $rc
 
       - name: Public endpoint verification
-        if: inputs.action == 'deploy' || inputs.action == 'configure-https' || inputs.action == 'rollback' || inputs.action == 'set-challenge-token'
+        if: inputs.action == 'deploy' || inputs.action == 'configure-https' || inputs.action == 'rollback' || inputs.action == 'set-challenge-token' || inputs.action == 'widget-domain-on' || inputs.action == 'widget-domain-off'
         env:
           CHALLENGE_TOKEN: ${{ inputs.challenge_token }}
         run: |

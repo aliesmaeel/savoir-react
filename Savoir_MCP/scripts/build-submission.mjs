@@ -17,7 +17,11 @@ const errors = [];
 const warnings = [];
 const err = (m) => errors.push(m);
 
-const TOOLS = new Set(["search_properties", "get_property_details", "search_offplan_projects", "get_offplan_project_details", "get_contact_options"]);
+// The tools the read-only launch advertises (submit_property_inquiry stays disabled).
+const TOOLS = new Set([
+  "search_properties", "get_property_details", "search_offplan_projects", "get_offplan_project_details", "get_contact_options",
+  "get_area_guide", "compare_listings", "update_shortlist", "get_shortlist", "share_shortlist", "delete_shortlist", "prepare_inquiry",
+]);
 
 const plugin = JSON.parse(readFileSync(join(DIR, "plugin.json"), "utf8"));
 const mcp = JSON.parse(readFileSync(join(DIR, "mcp.json"), "utf8"));
@@ -103,6 +107,23 @@ if (args.has("--check-urls")) {
   }
   const h = await fetch(server.url.replace(/\/mcp$/, "/health")).catch(() => null);
   if (!h?.ok) err(`MCP server health ${server.url.replace(/\/mcp$/, "/health")} -> ${h?.status ?? "unreachable"}`);
+  // Live readiness: what OpenAI checks on the running server and the published pages.
+  const origin = server.url.replace(/\/mcp$/, "");
+  const rpc = (method, params) =>
+    fetch(server.url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+    }).then((r) => r.text()).catch(() => "");
+  const challenge = await fetch(`${origin}/.well-known/openai-apps-challenge`).catch(() => null);
+  if (!challenge?.ok) err(`domain verification token not served at ${origin}/.well-known/openai-apps-challenge (${challenge?.status ?? "unreachable"})`);
+  const card = await rpc("resources/read", { uri: "ui://savoir/listings-v2.html" });
+  if (!/"domain":"https:\/\/[^"]+"/.test(card)) err("card resource has no _meta.ui.domain (required when submitting an app with UI): set WIDGET_DOMAIN on the server");
+  const live = new Set([...(await rpc("tools/list", {})).matchAll(/"name":"([a-z_]+)"/g)].map((m) => m[1]).filter((n) => TOOLS.has(n) || n === "submit_property_inquiry"));
+  if (live.has("submit_property_inquiry")) err("the live server advertises submit_property_inquiry; the read-only launch requires INQUIRY_MODE=disabled");
+  for (const name of TOOLS) if (!live.has(name)) err(`tool ${name} is not advertised by the live server`);
+  const privacy = await fetch(ui.privacyPolicyURL).then((r) => r.text()).catch(() => "");
+  if (!/ChatGPT|AI assistant/i.test(privacy)) err(`${ui.privacyPolicyURL} does not mention the ChatGPT app yet (publish the approved section from submission/legal)`);
 }
 
 for (const w of warnings) console.log(`warn: ${w}`);

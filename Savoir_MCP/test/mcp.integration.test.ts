@@ -22,7 +22,7 @@ afterEach(async () => {
   while (open.length) await open.pop()!();
 });
 
-async function start(opts: { inquiryMode?: InquiryMode; routes?: Route[] } = {}) {
+async function start(opts: { inquiryMode?: InquiryMode; routes?: Route[]; env?: Record<string, string> } = {}) {
   const { fetch, calls } = fakeFetch([...(opts.routes ?? []), ...defaultRoutes]);
   const logs: string[] = [];
   const config = loadConfig({
@@ -30,6 +30,7 @@ async function start(opts: { inquiryMode?: InquiryMode; routes?: Route[] } = {})
     INQUIRY_MODE: opts.inquiryMode ?? "disabled",
     PORT: "8787",
     OPENAI_APPS_CHALLENGE_TOKEN: "challenge-abc",
+    ...opts.env,
   });
   const ctx = createAppContext(config, createLogger("debug", (l) => logs.push(l)), fetch);
   const { app, close } = createHttpApp(ctx);
@@ -109,6 +110,15 @@ describe("MCP surface", () => {
     }
     const item = (await client.readResource({ uri: "ui://savoir/listings-v2.html" })).contents[0] as any;
     expect(item._meta.ui.permissions).toEqual({ clipboardWrite: {} });
+  });
+
+  it("declares the dedicated widget domain (standard and ChatGPT alias) when WIDGET_DOMAIN is set", async () => {
+    const { client } = await start({ env: { WIDGET_DOMAIN: "https://mcp.savoirproperties.com" } });
+    for (const uri of ["ui://savoir/listings-v2.html", "ui://savoir/listings-v1.html"]) {
+      const item = (await client.readResource({ uri })).contents[0] as any;
+      expect(item._meta.ui.domain).toBe("https://mcp.savoirproperties.com");
+      expect(item._meta["openai/widgetDomain"]).toBe("https://mcp.savoirproperties.com");
+    }
   });
 
   it("keeps serving the v0.1 widget URI so hosts with cached tool metadata still render cards", async () => {

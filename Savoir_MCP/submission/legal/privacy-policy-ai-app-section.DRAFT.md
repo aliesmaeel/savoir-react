@@ -1,6 +1,7 @@
 > **DRAFT for review by Savoir Properties' legal counsel. This is not legal advice.**
 > Add this as a new section to https://savoirproperties.com/privacy-policy. The statements
-> below describe the system as deployed on 6 October 2026, read-only, with inquiries disabled.
+> below describe the system as deployed on 6 October 2026 (v0.3.5): listings, shortlists and share
+> links, prepared messages that the customer sends themselves, with online inquiries disabled.
 > **Keep them true:** if inquiries are enabled later, or logging or retention changes, this
 > section must be updated first.
 >
@@ -31,6 +32,6 @@ You can search Savoir's property listings through our app in third-party AI assi
 
 **Images and links.** Listing photos in the App are loaded by the assistant directly from our image providers ([Property Finder's image CDN, Cloudinary, Amazon S3]). If you open a WhatsApp, website or email link from the App, that service's own privacy policy applies.
 
-**Contacting us about a property.** The App does not send your details to Savoir. If you contact us yourself, for example by WhatsApp, phone or email, we handle that information as described in the rest of this Privacy Policy.
+**Contacting us about a property.** The App can prepare a message about the listings you choose, with a reference code, for you to send yourself by WhatsApp or email. The App does not send anything to Savoir and does not receive your contact details. If you contact us yourself, for example by WhatsApp, phone or email, we handle that information as described in the rest of this Privacy Policy.
 
 **Your rights.** You can ask us about any data we hold about you, or ask us to delete it, using the contact details in this policy.

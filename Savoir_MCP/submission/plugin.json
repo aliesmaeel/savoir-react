@@ -2,14 +2,16 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "savoir-properties",
   "version": "1.0.0",
-  "description": "Search Savoir Properties' Dubai listings and off-plan projects.",
-  "author": { "name": "Savoir Properties" },
+  "description": "Search, compare and shortlist Savoir Properties' Dubai listings and off-plan projects.",
+  "author": {
+    "name": "Savoir Properties"
+  },
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "Savoir Properties",
         "shortDescription": "Dubai homes & off-plan",
-        "longDescription": "Search the live property portfolio of Savoir Properties, a Dubai real-estate brokerage, directly in ChatGPT.\n\nWhat you can do:\n- Find apartments, villas, townhouses, penthouses and offices for sale or rent across Dubai communities such as Dubai Marina, Palm Jumeirah, Downtown Dubai, JBR and JVC.\n- Filter by area, purpose (buy or rent), property type, number of bedrooms (including studios), bathrooms, price range in AED, and ready or off-plan status.\n- Open a listing to see its photos, price, size, amenities, reference and permit number, the listing agent's public contact details and similar properties.\n- Explore new off-plan developer projects by developer, handover period or area, including starting prices and payment plans where the developer has published them.\n- Get Savoir's WhatsApp, phone, email and website links, including a WhatsApp message pre-filled with the listing you are looking at.\n\nAll information comes from Savoir's own listings system and is shown as published. Prices and availability must be confirmed with a Savoir consultant. This app does not book viewings, take payments or collect your personal details; to arrange a viewing, contact Savoir using the links provided.",
+        "longDescription": "Search the live property portfolio of Savoir Properties, a Dubai real-estate brokerage, directly in ChatGPT.\n\nWhat you can do:\n- Find apartments, villas, townhouses, penthouses and offices for sale or rent across Dubai, filtered by area, budget in AED, bedrooms, property type and ready or off-plan status. When nothing matches exactly, you see clearly labelled close alternatives.\n- Not sure where to look? Get an area guide with live listing counts and price ranges for your budget.\n- Open a listing for photos, price per sq ft, size, amenities, reference and permit numbers, and similar properties.\n- Compare up to four listings side by side, including how each one fits the requirements you gave.\n- Save listings to a shortlist, reopen it later in the same chat, and create a read-only share link to send to family or a partner.\n- Explore off-plan projects with starting prices and published payment plans, and see what each stage would cost for a unit price you enter.\n- Prepare a message to Savoir about the listings you like, with a reference code, and send it yourself on WhatsApp or by email.\n\nAll information comes from Savoir's own listings system and is shown as published. Prices and availability must be confirmed with a Savoir consultant. The app does not book viewings, take payments or ask for your name, phone number or email, and nothing is sent to Savoir unless you send the prepared message yourself. Shortlists hold listing references only and are deleted 30 days after the last change.",
         "developerName": "TODO: exact legal/verified name from OpenAI business verification",
         "category": "TODO: choose from the dashboard category list (closest: Lifestyle)",
         "websiteURL": "https://savoirproperties.com/",
@@ -19,56 +21,56 @@
         "logo": "./assets/logo.png",
         "defaultPrompt": [
           "Show me 2-bedroom apartments for sale in Dubai Marina",
-          "Find studios for rent in JVC, cheapest first",
-          "Which Emaar off-plan projects hand over in 2029?"
+          "Which Dubai areas suit a AED 2M budget for a 2-bed?",
+          "Off-plan projects under AED 1.5M with payment plans"
         ],
-        "brandColor": "#2B2B2B"
+        "brandColor": "#1F1E1D"
       },
       "review": {
         "test_cases": {
           "positive": [
             {
-              "description": "Area + purpose + bedroom search returns matching listings with photos, AED prices and website links.",
+              "description": "Search by area, purpose and bedrooms returns real listings as cards.",
               "prompt": "Find 2-bedroom apartments for sale in Dubai Marina.",
               "tools_triggered": "search_properties",
-              "expected_behavior": "Calls search_properties with areas [Dubai Marina], purpose buy, bedrooms 2, property_type apartment. Shows listing cards (photo, AED price, 2 bedrooms, Dubai Marina location, Website/WhatsApp/Details buttons) and a text summary with savoirproperties.com links. No invented listings."
+              "expected_behavior": "Calls search_properties with areas [Dubai Marina], purpose buy, bedrooms 2. Shows listing cards with photo, AED price, a status such as \"For sale · Ready\", location, bed/bath, and Details and WhatsApp buttons, plus a short text summary. No invented listings."
             },
             {
-              "description": "Studio rentals sorted by price.",
-              "prompt": "Show me studios for rent, cheapest first.",
-              "tools_triggered": "search_properties",
-              "expected_behavior": "Calls search_properties with bedrooms studio, purpose rent, sort price_low_to_high. Every result is a studio for rent, prices ascending."
-            },
-            {
-              "description": "Follow-up opens full details of a listing from the previous results.",
-              "prompt": "Tell me more about the first one and show me the photos.",
+              "description": "Opening a listing shows its full details.",
+              "prompt": "Tell me more about the first one.",
               "tools_triggered": "get_property_details",
-              "expected_behavior": "Calls get_property_details with the slug of the first result. Shows a photo gallery, price, size in sq ft, amenities, reference and permit number, the listing agent's public contact and the website link; similar listings may follow."
+              "expected_behavior": "Calls get_property_details with the first result's slug. Shows a photo gallery, price and price per sq ft, size, status, and under More details the reference and permit numbers, agent and amenities; similar listings follow, labelled when their sale/rent purpose differs."
             },
             {
-              "description": "Off-plan search by developer and handover year, then payment plan.",
-              "prompt": "Which Emaar off-plan projects hand over in 2029, and what is the payment plan for the first one?",
-              "tools_triggered": "search_offplan_projects, get_offplan_project_details",
-              "expected_behavior": "Calls search_offplan_projects with developers [Emaar] and handover 2029, then get_offplan_project_details for a returned slug. Reports the payment-plan split only as published (e.g. down payment / during construction / on handover)."
+              "description": "Side-by-side comparison of two listings.",
+              "prompt": "Compare the first two listings for me.",
+              "tools_triggered": "compare_listings",
+              "expected_behavior": "Calls compare_listings with both slugs. Shows a comparison of price, price per sq ft, bedrooms, size, location and how each fits the stated requirements, with the remaining rows under Show all details. Data is re-checked live; nothing is invented."
             },
             {
-              "description": "Contact options for a specific listing.",
-              "prompt": "How can I contact Savoir on WhatsApp about this property?",
-              "tools_triggered": "get_contact_options",
-              "expected_behavior": "Calls get_contact_options with the listing's slug. Returns a wa.me WhatsApp link pre-filled with the listing URL, the agent's public contact if available, and Savoir's phone, email and contact page. Does not claim a message was sent."
+              "description": "Shortlist and read-only share link.",
+              "prompt": "Save the first two to my shortlist and give me a share link.",
+              "tools_triggered": "update_shortlist, share_shortlist",
+              "expected_behavior": "Calls update_shortlist (creating a shortlist) and share_shortlist. Shows \"My shortlist (2)\" with both listings and a link of the form https://mcp.savoirproperties.com/s/<token> that opens a read-only Savoir page listing the two properties with no personal details. Explains the shortlist is kept for 30 days and can be reopened in the same chat."
+            },
+            {
+              "description": "Contact handoff without sending anything.",
+              "prompt": "I'd like to contact Savoir about these two listings.",
+              "tools_triggered": "prepare_inquiry",
+              "expected_behavior": "Calls prepare_inquiry with the listings. Shows a prepared message containing the listings and a SAV- reference code, with Send on WhatsApp and Send by email buttons. States that nothing is sent until the user sends it and that this is not a booking."
             }
           ],
           "negative": [
             {
-              "description": "Location with no Savoir listings: the app must say there are no results and must not invent listings.",
+              "description": "Location with no Savoir listings: the app says there is no exact match and does not invent listings.",
               "prompt": "Find villas for sale on the Moon."
             },
             {
-              "description": "Booking request: the app cannot book viewings; the assistant should explain this and offer contact options instead of claiming a booking.",
+              "description": "Booking request: the app cannot book viewings; the assistant explains this and offers to prepare a message instead, without claiming a booking.",
               "prompt": "Book me a viewing for this apartment tomorrow at 5pm."
             },
             {
-              "description": "Unrelated request: no Savoir tool should be called.",
+              "description": "Unrelated request: no Savoir tool is called.",
               "prompt": "What's the weather in Dubai today?"
             }
           ]
@@ -78,7 +80,7 @@
         "commerce_description": ""
       },
       "publication": {
-        "release_notes": "Initial release: search Savoir Properties listings and off-plan projects, view details with photos, and get contact options. Read-only."
+        "release_notes": "Initial release: search Savoir Properties listings and off-plan projects, view details with photos, compare listings, keep a shareable shortlist, and prepare a message to Savoir. No bookings, payments or personal details."
       }
     }
   }

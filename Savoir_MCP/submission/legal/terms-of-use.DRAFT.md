@@ -22,7 +22,8 @@ We take care to keep listing information current. However, prices, availability,
 **You must confirm all details with a Savoir consultant before relying on them.** A property shown in the Services may no longer be available.
 
 ## 3. The App in AI assistants
-- The App only reads Savoir's published listings. It does not book viewings, make reservations, take payments, or send your contact details to Savoir.
+- The App shows Savoir's published listings. It can keep a shortlist of listing references for you (no personal details) for 30 days after your last change, and create a read-only link to that shortlist that anyone with the link can open until it expires or you stop sharing.
+- The App can prepare a message to Savoir for you to send yourself on WhatsApp or by email. It does not book viewings, make reservations, take payments, or send your contact details to Savoir.
 - A viewing or any transaction can only be arranged directly with a Savoir consultant, through the contact options the App and Website provide.
 - AI assistants generate their own responses. Savoir is responsible only for the listing data the App returns, not for how a third-party AI assistant summarises or presents it.
 - Your use of the AI assistant itself is governed by that provider's own terms and privacy policy. For example, ChatGPT is governed by OpenAI's terms.

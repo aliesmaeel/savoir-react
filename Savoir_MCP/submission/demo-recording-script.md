@@ -1,32 +1,32 @@
 # Demo recording script (OpenAI review)
 
-OpenAI requires an accessible video URL that shows the app's test cases working. Record it **in ChatGPT, against the production server** (`https://mcp.savoirproperties.com/mcp`), after the ChatGPT test table in DEPLOYMENT.md §6 has passed.
+OpenAI requires a video URL that shows the app's test cases working. Record it **in ChatGPT, against the production server** (`https://mcp.savoirproperties.com/mcp`), after the card domain (`ui.domain`) is live and the app has been refreshed, so the video shows exactly what reviewers will see.
 
 ## Setup
-- ChatGPT web, desktop browser at 1280–1440 px width, light theme. Show dark mode once at the end if time allows.
-- Use a **fresh chat** with only the Savoir Properties plugin enabled. Close other tabs. Hide the sidebar's chat history, bookmarks and notifications.
-- Record the screen with OBS, Windows Snipping Tool (screen recording) or Loom, at 1080p, with no webcam.
-- Narration is optional. On-screen captions such as "Test 1 — search" make review faster.
-- Target length 3–5 minutes. Don't speed it up so much that the cards can't be read.
-- Show no personal data: no real phone numbers typed in, and no other conversations.
+- ChatGPT web on a desktop browser, 1280–1440 px wide, light theme.
+- A **new chat** with only Savoir Properties selected (type `@` and choose it). Close other tabs, and hide chat history, bookmarks and notifications.
+- Record the screen at 1080p with no webcam, using OBS, the Windows Snipping Tool (screen recording) or Loom.
+- Narration is optional. Short captions such as "Test 1: search" make review faster.
+- Aim for 3–5 minutes. Don't speed it up so much that the cards can't be read.
+- Show no personal data: don't type real phone numbers or emails, and don't show other conversations.
 
-## Shots (in order, matching submission/plugin.json)
+## Shots, in the order of `submission/plugin.json`
 
-| # | Type | Prompt / action | Must be visible |
+| # | Type | Prompt or action | Must be visible |
 |---|---|---|---|
-| 1 | Positive | `@Savoir Properties Find 2-bedroom apartments for sale in Dubai Marina.` | `search_properties` tool call, cards with photos, AED prices, "2 bedrooms", Dubai Marina |
-| 2 | Positive | `Show me studios for rent, cheapest first.` | only studios, prices ascending |
-| 3 | Positive | `Tell me more about the first one and show me the photos.`, then click **Details** on a card | gallery, size, amenities, reference/permit number, agent, website link |
-| 3b | | Click **Website**, then **WhatsApp** on a card | savoirproperties.com listing page opens; wa.me opens with the listing URL pre-filled. Close it without sending. |
-| 4 | Positive | `Which Emaar off-plan projects hand over in 2029, and what is the payment plan for the first one?` | off-plan cards, then the payment plan (as of 6 Oct 2026, Palace Residences Hillside shows 10% / 70% / 20%) |
-| 5 | Positive | `How can I contact Savoir on WhatsApp about this property?` | wa.me link pre-filled with the listing, agent and company contacts, and **no** claim that a message was sent |
-| 6 | Negative | `Find villas for sale on the Moon.` | a plain "no results", with no invented listings |
-| 7 | Negative | `Book me a viewing for this apartment tomorrow at 5pm.` | the assistant says it can't book, and offers contact options; no booking claimed |
-| 8 | Negative | (new chat) `What's the weather in Dubai today?` | no Savoir tool is called |
+| 1 | Positive | `Find 2-bedroom apartments for sale in Dubai Marina.` | Cards with photos, AED prices, "For sale · Ready", Details and WhatsApp buttons, and "My shortlist (0)" |
+| 2 | Positive | `Tell me more about the first one.` (or click **Details**) | Photo gallery (click the arrow once), price per sq ft, status, **Contact Savoir**, and **More details** opened to show the reference and permit numbers |
+| 3 | Positive | `Compare the first two listings for me.` (or tick **Compare** on two cards, then **Compare (2)**) | Comparison table; click **Show all details** once |
+| 4 | Positive | `Save the first two to my shortlist and give me a share link.` (or click ♡ on two cards, then **My shortlist**, then **Create share link**) | "Saved to your shortlist.", "My shortlist (2)", the share link; click **Open link** and show the read-only Savoir page in the browser, then come back |
+| 5 | Positive | `I'd like to contact Savoir about these two listings.` (or **Ask about my shortlist**) | The prepared message with its SAV- reference; click **Send on WhatsApp**, show that wa.me opens with the message, and close it **without sending** |
+| 6 | Negative | `Find villas for sale on the Moon.` | No invented listings; an honest "no match" |
+| 7 | Negative | `Book me a viewing for this apartment tomorrow at 5pm.` | The assistant says it can't book, and offers to prepare a message instead; no booking is claimed |
+| 8 | Negative | In a **new chat**: `What's the weather in Dubai today?` | No Savoir tool is called |
+
+Optional (if time allows): `Off-plan projects under AED 1.5M with payment plans`, open one, enter a unit price and click **Calculate**.
 
 ## After recording
-1. Upload it so the link opens **without logging in**, for example as an unlisted YouTube video.
-2. Put the URL in `submission/plugin.json` → `extensions.com.openai.review.demo_recording_url`.
-3. Re-run `npm run submission:check`.
+1. Upload the video so the link opens **without logging in**, for example as an unlisted YouTube video.
+2. Send me the link. I'll put it in `submission/plugin.json` → `review.demo_recording_url` and re-run the checks.
 
-Live data changes. Re-check that tests 1, 2 and 4 still return results on the day you record. Prompts can be adjusted to available listings, but keep `plugin.json` in sync with what the video shows.
+Live listings change. On the day you record, check that tests 1–5 still return results. Prompts can be adjusted to what's available, but `plugin.json` must then match what the video shows; tell me and I'll update it.
