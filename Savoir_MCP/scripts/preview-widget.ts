@@ -95,7 +95,7 @@ async function main() {
   const server = createServer(async (req, res) => {
     if (req.url?.startsWith("/widget")) {
       res.writeHead(200, { "Content-Type": "text/html", "Content-Security-Policy": csp });
-      res.end(req.url.includes("shim=openai") ? widget.text.replace("<head>", "<head>" + OPENAI_SHIM) : widget.text);
+      res.end(req.url.includes("shim=openai") ? (widget.text ?? "").replace("<head>", "<head>" + OPENAI_SHIM) : widget.text);
     } else if (req.url === "/host.js") {
       res.writeHead(200, { "Content-Type": "text/javascript" });
       res.end(hostJs);
