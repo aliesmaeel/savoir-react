@@ -1,98 +1,90 @@
 #!/usr/bin/env bash
-# READ-ONLY server inspection for hosting the Savoir MCP server.
-# Changes nothing: no installs, no writes, no restarts. Safe to run as the site user.
+# READ-ONLY server inspection for hosting the Savoir MCP server. Changes nothing.
 #
-#   bash preflight.sh [PORT]        (default port 8787)
+#   bash preflight.sh [PORT]          CI-safe summary (default): pass/fail facts only,
+#                                     no site names, user lists, port lists or OS details.
+#                                     Safe for public GitHub Actions logs.
+#   PREFLIGHT_VERBOSE=1 bash preflight.sh [PORT]
+#                                     detailed report for manual use over SSH only.
+# Env: RUN_AS (user that will own the MCP process), MCP_DOMAIN (default mcp.savoirproperties.com)
 set -uo pipefail
 PORT="${1:-8787}"
+DOMAIN="${MCP_DOMAIN:-mcp.savoirproperties.com}"
+RUN_AS="${RUN_AS:-}"
+VERBOSE="${PREFLIGHT_VERBOSE:-}"
 ok()   { printf '  [ok]   %s\n' "$*"; }
 warn() { printf '  [warn] %s\n' "$*"; }
 bad()  { printf '  [FAIL] %s\n' "$*"; }
 hdr()  { printf '\n== %s\n' "$*"; }
-
-hdr "System"
-. /etc/os-release 2>/dev/null && echo "  OS: ${PRETTY_NAME:-unknown}"
-echo "  Kernel: $(uname -r)  Arch: $(uname -m)"
-echo "  User: $(id -un) (groups: $(id -Gn))"
-
-hdr "Resources"
-if command -v free >/dev/null; then
-  avail=$(free -m | awk '/^Mem:/{print $7}')
-  echo "  Memory available: ${avail} MiB"
-  [ "${avail:-0}" -ge 300 ] && ok "≥300 MiB free (the MCP server needs ~100–150 MiB)" || warn "low free memory"
-fi
-df -h "$HOME" | awk 'NR==2{print "  Disk free in $HOME: "$4" of "$2}'
-echo "  Load: $(cut -d' ' -f1-3 /proc/loadavg 2>/dev/null)  CPUs: $(nproc 2>/dev/null)"
-
-hdr "Node.js / pm2"
-if command -v node >/dev/null; then
-  v=$(node -v); echo "  node $v ($(command -v node))"
-  node -e 'const [a,b]=process.versions.node.split(".").map(Number);process.exit(a>20||(a===20&&b>=6)?0:1)' \
-    && ok "Node >= 20.6" || bad "Node >= 20.6 required"
-else bad "node not on PATH for this user"; fi
-command -v npm >/dev/null && echo "  npm $(npm -v)" || bad "npm missing"
-if command -v pm2 >/dev/null; then echo "  pm2 $(pm2 -v 2>/dev/null | tail -1)"; pm2 jlist 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const p of JSON.parse(s))console.log("    pm2 app:",p.name,p.pm2_env.status)}catch{}})'
-else warn "pm2 not on PATH for this user (install per-user: npm i -g pm2, or use the site's Node manager)"; fi
-
-hdr "Hosting panel / web server"
-command -v clpctl >/dev/null && ok "CloudPanel detected (clpctl)" || echo "  CloudPanel CLI not visible to this user (normal for site users)"
-[ -d /home/clp ] && echo "  /home/clp exists (CloudPanel)"
-command -v nginx >/dev/null && echo "  $(nginx -v 2>&1)" || echo "  nginx binary not on PATH for this user"
-command -v docker >/dev/null && echo "  docker present: $(docker --version 2>/dev/null)" || echo "  docker: not installed / not visible (not required)"
-
-hdr "Reverse proxy (read-only; prints routing directives only, never full configs)"
 SUDO=""; [ "$(id -u)" -eq 0 ] || { sudo -n true 2>/dev/null && SUDO="sudo -n"; }
-echo "  privilege: $([ "$(id -u)" -eq 0 ] && echo root || ([ -n "$SUDO" ] && echo "passwordless sudo" || echo "unprivileged (some checks limited)"))"
-echo "  Listeners on 80/443 (process names need root):"
-$SUDO ss -ltnp 2>/dev/null | awk '$4 ~ /:(80|443)$/ {print "    "$4"  "$6}' | sort -u
-NGINX_DUMP="$($SUDO nginx -T 2>/dev/null || true)"
-if [ -n "$NGINX_DUMP" ]; then
-  echo "  nginx -T readable. Server blocks (file / listen / server_name / proxy_pass / cert):"
-  printf '%s\n' "$NGINX_DUMP" | grep -E '^# configuration file |\b(listen|server_name|proxy_pass|ssl_certificate)\s' \
-    | grep -vE 'ssl_certificate_key' | sed -E 's/^\s+/      /; s/^# configuration file /    FILE /' | head -120
-  echo "  Host header forwarding in existing server blocks (file: proxy_set_header Host ...):"
-  printf '%s\n' "$NGINX_DUMP" | awk '/^# configuration file /{f=$4} /proxy_set_header[[:space:]]+Host[[:space:]]/{gsub(/^[[:space:]]+/,""); print "    " f " " $0}' | sort | uniq -c | head -20
-  if printf '%s\n' "$NGINX_DUMP" | grep -qE 'server_name[^;]*\bmcp\.savoirproperties\.com\b'; then
-    warn "an nginx server block for mcp.savoirproperties.com ALREADY exists"
-  else ok "no existing server block for mcp.savoirproperties.com"; fi
+
+hdr "Access"
+if [ "$(id -u)" -eq 0 ]; then echo "  privilege: root"; elif [ -n "$SUDO" ]; then echo "  privilege: passwordless sudo"; else echo "  privilege: unprivileged"; fi
+
+hdr "Runtime"
+if command -v node >/dev/null && node -e 'const [a,b]=process.versions.node.split(".").map(Number);process.exit(a>20||(a===20&&b>=6)?0:1)'; then ok "Node >= 20.6"; else bad "Node >= 20.6 not available"; fi
+command -v npm >/dev/null && ok "npm present" || bad "npm missing"
+command -v pm2 >/dev/null && ok "pm2 present" || warn "pm2 not on PATH for $(id -un)"
+avail=$(free -m 2>/dev/null | awk '/^Mem:/{print $7}')
+[ "${avail:-0}" -ge 300 ] && ok "memory available >= 300 MiB" || warn "less than 300 MiB memory available"
+
+hdr "Web server and ${DOMAIN}"
+listeners="$($SUDO ss -ltnp 2>/dev/null | awk '$4 ~ /:(80|443)$/')"
+if printf '%s\n' "$listeners" | grep -q nginx; then ok "nginx serves ports 80/443"; else bad "nginx is not the process on 80/443"; fi
+printf '%s\n' "$listeners" | grep -qiE 'caddy|apache|httpd|traefik|haproxy' && warn "another web server also listens on 80/443"
+{ command -v clpctl >/dev/null || [ -x /usr/bin/clpctl ]; } && ok "CloudPanel CLI present" || echo "  CloudPanel CLI: not found"
+command -v certbot >/dev/null && echo "  certbot: present" || echo "  certbot: not found"
+DUMP="$($SUDO nginx -T 2>/dev/null || true)"
+if [ -n "$DUMP" ]; then
+  if printf '%s\n' "$DUMP" | grep -qE "server_name[^;]*\b${DOMAIN//./\\.}\b"; then
+    if printf '%s\n' "$DUMP" | grep -qE "proxy_pass\s+http://(127\.0\.0\.1|localhost):${PORT}\b"; then warn "${DOMAIN} already configured (proxies to :${PORT})"
+    else bad "${DOMAIN} already has a server block that does NOT proxy to :${PORT} — conflict"; fi
+  else ok "no existing server block for ${DOMAIN}"; fi
+  total=$(printf '%s\n' "$DUMP" | grep -cE '^\s*proxy_pass\s' || true)
+  hostfw=$(printf '%s\n' "$DUMP" | grep -cE '^\s*proxy_set_header\s+Host\s+\$host;' || true)
+  echo "  existing proxy blocks: ${total} proxy_pass, ${hostfw} forward Host \$host"
 else
-  echo "  nginx -T not readable as this user; enabled site files:"
-  ls -1 /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null | sed 's/^/    /'
-fi
-echo "  Panels / tooling:"
-{ command -v clpctl >/dev/null || [ -x /usr/bin/clpctl ]; } && echo "    CloudPanel CLI (clpctl): present" || echo "    CloudPanel CLI: not found"
-[ -d /home/clp ] && echo "    CloudPanel data dir /home/clp: present"
-command -v certbot >/dev/null && echo "    certbot: $(certbot --version 2>&1)" || echo "    certbot: not found"
-command -v caddy >/dev/null && echo "    caddy binary present (do not start it: nginx owns 80/443)" || true
-echo "  Certificates (names only):"; $SUDO ls -1 /etc/letsencrypt/live 2>/dev/null | sed 's/^/    /' || echo "    not readable"
-echo "  Site users (owners of /home/*/htdocs; candidates for run_as):"
-for d in /home/*/htdocs; do
-  [ -d "$d" ] || continue
-  u="$(stat -c %U "$d")"; printf '    %-28s shell=%s\n' "$u" "$(getent passwd "$u" | cut -d: -f7)"
-done
-echo "  pm2 boot units:"; ls -1 /etc/systemd/system/pm2-*.service 2>/dev/null | sed 's/^/    /' || echo "    none"
-command -v crontab >/dev/null && echo "  crontab: available" || echo "  crontab: not installed"
-echo "  Website process (pm2 savoir-react) listening port, if visible:"
-pm2 jlist 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const p of JSON.parse(s))if(p.name==="savoir-react")console.log("    PORT env:",p.pm2_env.env?.PORT??p.pm2_env.PORT??"(default; react-router-serve uses 3000)")}catch{}})'
-
-hdr "Port ${PORT}"
-if command -v ss >/dev/null; then
-  for p in "$PORT" "$((PORT + 100))"; do
-    if ss -ltn "( sport = :${p} )" | grep -q LISTEN; then bad "port ${p} already in use — choose another PORT"; else ok "port ${p} free$([ "$p" != "$PORT" ] && echo ' (deploy boot-test port)')"; fi
-  done
-  echo "  Listening TCP ports (for reference):"; ss -ltn | awk 'NR>1{print "    "$4}' | sort -u | head -30
+  warn "nginx -T not readable as this user"
 fi
 
-hdr "CMS reachability and rate-limit budget from this server"
-for _ in 1 2; do
-  curl -s -o /dev/null -D - -m 10 -H 'Accept: application/json' https://cms.savoirproperties.com/api/search-suggestions \
-    | grep -iE '^(HTTP|x-ratelimit-limit|x-ratelimit-remaining)' | sed 's/^/  /'
+hdr "Ports"
+for p in "$PORT" "$((PORT + 100))"; do
+  if ss -ltn "( sport = :${p} )" 2>/dev/null | grep -q LISTEN; then bad "port ${p} in use"; else ok "port ${p} free"; fi
 done
-echo "  (If 'remaining' is well below 58 here, other apps on this IP — e.g. website SSR — are already using the shared 60/min budget.)"
-echo "  /etc/hosts entries for savoirproperties.com:"; grep -i savoirproperties /etc/hosts | sed 's/^/    /' || echo "    none"
 
-hdr "Outbound HTTPS (image hosts used by the widget are fetched by the browser, not the server)"
-curl -s -o /dev/null -w '  cms.savoirproperties.com: %{http_code}\n' -m 10 https://cms.savoirproperties.com/api/search-suggestions
+if [ -n "$RUN_AS" ]; then
+  hdr "run_as user"
+  if id "$RUN_AS" >/dev/null 2>&1; then
+    ok "user '${RUN_AS}' exists (uid $(id -u "$RUN_AS"))"
+    [ "$(id -u "$RUN_AS")" -ne 0 ] || bad "'${RUN_AS}' has uid 0"
+    id -nG "$RUN_AS" | tr ' ' '\n' | grep -qxE 'sudo|wheel|admin|root' && warn "'${RUN_AS}' is in an admin group" || ok "'${RUN_AS}' has no admin groups"
+    if [ "$(id -u)" -eq 0 ]; then
+      runuser -l "$RUN_AS" -c 'command -v node >/dev/null && command -v pm2 >/dev/null' && ok "node and pm2 usable by '${RUN_AS}'" || bad "node/pm2 not usable by '${RUN_AS}'"
+    fi
+  else
+    echo "  user '${RUN_AS}' does not exist yet"
+  fi
+  ls /etc/systemd/system/pm2-"$RUN_AS".service >/dev/null 2>&1 && echo "  pm2 boot unit for ${RUN_AS}: present" || echo "  pm2 boot unit for ${RUN_AS}: none (deploy adds a crontab @reboot entry)"
+fi
+command -v crontab >/dev/null && ok "crontab available" || warn "crontab not installed"
+
+hdr "CMS from this server"
+code=$(curl -s -o /dev/null -w '%{http_code}' -m 10 -H 'Accept: application/json' https://cms.savoirproperties.com/api/search-suggestions)
+[ "$code" = "200" ] && ok "CMS reachable (HTTP 200)" || bad "CMS returned ${code}"
+rem=$(curl -s -o /dev/null -D - -m 10 -H 'Accept: application/json' https://cms.savoirproperties.com/api/search-suggestions | awk -F': ' 'tolower($1)=="x-ratelimit-remaining"{print $2}' | tr -d '\r')
+echo "  CMS rate-limit remaining for this server IP: ${rem:-?}/60 per minute"
+
+if [ -n "$VERBOSE" ]; then
+  hdr "DETAIL (manual use only — do not paste into public logs)"
+  . /etc/os-release 2>/dev/null && echo "  OS: ${PRETTY_NAME:-unknown}; kernel $(uname -r)"
+  echo "  node $(node -v 2>/dev/null) npm $(npm -v 2>/dev/null) pm2 $(pm2 -v 2>/dev/null | tail -1)"
+  echo "  listeners on 80/443:"; printf '%s\n' "$listeners" | awk '{print "    "$4"  "$6}' | sort -u
+  echo "  nginx server blocks:"
+  printf '%s\n' "$DUMP" | grep -E '^# configuration file |\b(listen|server_name|proxy_pass|ssl_certificate)\s' | grep -v ssl_certificate_key \
+    | sed -E 's/^\s+/      /; s/^# configuration file /    FILE /' | head -150
+  echo "  site users:"; for d in /home/*/htdocs; do [ -d "$d" ] && echo "    $(stat -c %U "$d")"; done
+  echo "  pm2 apps:"; pm2 jlist 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const p of JSON.parse(s))console.log("    "+p.name,p.pm2_env.status)}catch{}})'
+fi
 
 echo
 echo "Preflight finished. Nothing was changed."

@@ -50,6 +50,7 @@ if command -v clpctl >/dev/null 2>&1 || [ -x /usr/bin/clpctl ]; then
   log "CloudPanel detected"
   if [ -z "${EXISTS:-}" ]; then
     pw="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)A1!"   # panel site user only; not used by the app, not printed
+    echo "::add-mask::$pw"   # defence in depth: hidden even if a tool echoes it into the public Actions log
     run $S clpctl site:add:reverse-proxy --domainName="$DOMAIN" --reverseProxyUrl="http://127.0.0.1:$PORT" \
       --siteUser="savoir-mcp-proxy" --siteUserPassword="$pw"
   fi

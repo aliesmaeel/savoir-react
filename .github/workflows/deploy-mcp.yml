@@ -6,7 +6,8 @@ name: Deploy Savoir MCP (manual)
 # "savoir-mcp" on 127.0.0.1:8787 with INQUIRY_MODE=disabled.
 #
 # Actions:
-#   inspect          read-only server inspection (ports 80/443, nginx server blocks, Node/pm2, free ports)
+#   inspect          read-only server inspection, CI-safe summary (pass/fail facts only; logs are public)
+#   create-user      create the dedicated non-root run_as user if missing (no sudo, password locked)
 #   deploy           build, test, upload and switch to a new release with automatic rollback
 #   configure-https  create the nginx/CloudPanel site + Let's Encrypt for mcp.savoirproperties.com (needs root/sudo)
 #   rollback         return to the previous healthy release (or rollback_to)
@@ -17,7 +18,7 @@ on:
       action:
         description: "What to do"
         type: choice
-        options: [inspect, deploy, configure-https, rollback, stop]
+        options: [inspect, create-user, deploy, configure-https, rollback, stop]
         default: inspect
       confirm:
         description: "Type the action name again to confirm (not needed for inspect)"
@@ -169,12 +170,26 @@ jobs:
 
             case "$ACTION" in
               inspect)
-                bash "$WORK/deploy/server/preflight.sh" "$MCP_PORT"
-                if [ "$(id -u)" -eq 0 ] && [ -n "$RUN_AS" ]; then
-                  echo; echo "=== as run_as user: $RUN_AS"; runuser -l "$RUN_AS" -c "bash $WORK/deploy/server/preflight.sh $MCP_PORT" | sed -n '/== Node.js/,/== Hosting/p'
+                RUN_AS="$RUN_AS" MCP_DOMAIN="$MCP_DOMAIN" bash "$WORK/deploy/server/preflight.sh" "$MCP_PORT"
+                ;;
+              create-user)
+                [ "$(id -u)" -eq 0 ] || { echo "::error::create-user needs root"; exit 1; }
+                [ -n "$RUN_AS" ] || { echo "::error::set run_as to the user to create"; exit 1; }
+                if id "$RUN_AS" >/dev/null 2>&1; then
+                  echo "user '$RUN_AS' already exists (uid $(id -u "$RUN_AS")); not modified"
+                  [ "$(id -u "$RUN_AS")" -ne 0 ] || { echo "::error::'$RUN_AS' is uid 0"; exit 1; }
+                else
+                  useradd --create-home --shell /bin/bash --user-group --comment "Savoir MCP service (read-only)" "$RUN_AS"
+                  passwd -l "$RUN_AS" >/dev/null
+                  chmod 750 "/home/$RUN_AS"
+                  echo "created user '$RUN_AS' (uid $(id -u "$RUN_AS")), password locked, no sudo, home 750"
                 fi
+                if id -nG "$RUN_AS" | tr ' ' '\n' | grep -qxE 'sudo|wheel|admin|root'; then echo "::error::'$RUN_AS' is in an admin group; refusing to use it"; exit 1; fi
+                runuser -l "$RUN_AS" -c 'echo "node $(node -v), pm2 present: $(command -v pm2 >/dev/null && echo yes || echo no)"'
+                RUN_AS="$RUN_AS" MCP_DOMAIN="$MCP_DOMAIN" bash "$WORK/deploy/server/preflight.sh" "$MCP_PORT" | sed -n '/== run_as user/,/crontab/p'
                 ;;
               deploy)
+                if [ "$(id -u)" -eq 0 ] && [ -n "$RUN_AS" ] && ! id "$RUN_AS" >/dev/null 2>&1; then echo "::error::run_as user '$RUN_AS' does not exist (run create-user first)"; exit 1; fi
                 as_app "mkdir -p ~/savoir-mcp/shared && { [ -f ~/savoir-mcp/shared/.env ] || install -m 600 $WORK/deploy/production.env.example ~/savoir-mcp/shared/.env; }"
                 as_app "grep -qx 'INQUIRY_MODE=disabled' ~/savoir-mcp/shared/.env" || { echo "::error::shared/.env must contain INQUIRY_MODE=disabled"; exit 1; }
                 as_app "bash $WORK/deploy/server/deploy.sh $REL"
