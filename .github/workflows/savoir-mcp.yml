@@ -1,0 +1,29 @@
+name: Savoir MCP server
+
+on:
+  push:
+    paths: ["Savoir_MCP/**", ".github/workflows/savoir-mcp.yml"]
+  pull_request:
+    paths: ["Savoir_MCP/**", ".github/workflows/savoir-mcp.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Savoir_MCP
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Savoir_MCP/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: docker build -t savoir-mcp:ci .

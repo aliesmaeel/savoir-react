@@ -1,0 +1,48 @@
+# Production deployment: MCP server behind Caddy with automatic HTTPS.
+#
+# !! NOT for the existing savoirproperties.com server (31.97.190.32): nginx already
+# !! owns ports 80/443 there (verified). Use .github/workflows/deploy-mcp.yml instead.
+# !! This compose file is only for a separate, dedicated Docker host.
+#
+# Prerequisites on the host:
+#   - DNS A/AAAA record for MCP_HOSTNAME (e.g. mcp.savoirproperties.com) → this server
+#   - ports 80 and 443 open (Let's Encrypt HTTP-01 challenge + HTTPS)
+#   - ../.env created from ../.env.example (ALLOWED_HOSTS must include MCP_HOSTNAME)
+#
+#   cd Savoir_MCP/deploy
+#   MCP_HOSTNAME=mcp.savoirproperties.com ACME_EMAIL=it@savoirproperties.com docker compose up -d --build
+#
+# Endpoint: https://$MCP_HOSTNAME/mcp   Health: https://$MCP_HOSTNAME/health
+services:
+  mcp:
+    build: ..
+    env_file: ../.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8787"
+    restart: unless-stopped
+    expose:
+      - "8787"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      - mcp
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      MCP_HOSTNAME: ${MCP_HOSTNAME:?set MCP_HOSTNAME}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

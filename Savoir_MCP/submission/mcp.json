@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "savoir-properties": {
+      "type": "streamable-http",
+      "url": "https://mcp.savoirproperties.com/mcp"
+    }
+  }
+}

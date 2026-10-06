@@ -1,0 +1,122 @@
+# Production deployment: mcp.savoirproperties.com (read-only launch)
+
+**Status: prepared, not deployed.** No server, DNS or GitHub change has been made. Everything below is waiting for your approval.
+
+## 1. The existing server
+
+**Verified from outside the server:**
+
+| Fact | Source |
+|---|---|
+| The website, CMS and `chat.` all run on one Hostinger VPS at `31.97.190.32` | DNS A records; RIPE `HOSTINGER-HOSTING` |
+| **nginx owns ports 80 and 443.** HTTP redirects to HTTPS, and a catch-all server drops unknown hostnames, including `mcp.` today | HTTP probes |
+| Website deploy: GitHub Actions → SSH (`HOST`/`USERNAME`/`PASSWORD`) → `/home/savoirproperties/htdocs/savoirproperties.com/savoir-react` → `pm2 restart savoir-react` | `.github/workflows/main.yml` |
+| One Let's Encrypt certificate per subdomain; IPv4 only; DNS at GoDaddy; no CAA record | TLS and DNS lookups |
+
+**Not yet known.** The `inspect` action reports all of these read-only:
+
+- Whether `USERNAME` is root.
+- Whether the server is CloudPanel, which its paths and certificates suggest, or plain nginx.
+- The exact nginx server blocks.
+- Whether ports 8787 and 8887 are free.
+- The Node and pm2 versions.
+
+**Decisions that follow:**
+
+- **Caddy is not used on this server.** `deploy/docker-compose.yml` stays only for a separate Docker host.
+- The MCP server runs as its **own pm2 process `savoir-mcp`** on `127.0.0.1:8787`, from `~/savoir-mcp` (outside any web root).
+- It runs as a **non-root** user. If `USERNAME` is root, the workflow runs the app as the `run_as` user, for example the website's site user `savoirproperties`.
+- HTTPS comes from the **existing nginx**: a new, separate server block for `mcp.savoirproperties.com` plus its own Let's Encrypt certificate. On CloudPanel this uses the panel's own `clpctl` so the panel stays in charge. No other site's configuration is edited.
+- The website's files, its `savoir-react` pm2 process and its nginx block are never touched.
+- `INQUIRY_MODE=disabled` is written on first deploy and enforced: `deploy.sh` refuses any other value, and the workflow fails if a write tool appears.
+- Node ≥ 20.6 is required (tested on Node 20.6.1 and 22).
+
+## 2. GitHub Actions workflow: `.github/workflows/deploy-mcp.yml`
+
+The workflow runs **only when triggered manually** (`workflow_dispatch`). It uses the existing secrets `HOST`, `USERNAME` and `PASSWORD`. Every action except `inspect` requires typing the action name again in **confirm**.
+
+| Action | What it does | Changes production? |
+|---|---|---|
+| `inspect` | Reports OS, memory, Node/pm2, listeners on 80/443, nginx routing lines (file / listen / server_name / proxy_pass / cert path only, never full configs), CloudPanel/certbot presence, free ports 8787/8887, and the shared CMS rate-limit budget | **No** |
+| `deploy` | Typecheck and test, package, upload over SCP, then on the server: create `~/savoir-mcp/shared/.env` from the template if missing, run `deploy.sh` (boot test on :8887, switch, pm2, automatic rollback), set up reboot persistence, then **health checks**. The public URL is checked too once it exists. | Yes: MCP only |
+| `configure-https` | Root or sudo only. It first requires a healthy MCP, DNS pointing at this server, and nginx owning 80/443, and it refuses if `mcp.` is already configured differently. **CloudPanel:** `clpctl site:add:reverse-proxy` plus `clpctl lets-encrypt:install:certificate`. **Plain nginx:** one new `sites-available/mcp.savoirproperties.com.conf`, `nginx -t` before every reload (removed again if the test fails), then `certbot --nginx --redirect`. Ends with an HTTPS health check through nginx. | Yes: adds the `mcp.` site |
+| `rollback` | Returns to the previous healthy release, or `rollback_to`, then health checks | MCP only |
+| `stop` | Stops `savoir-mcp`. The website is unaffected. | MCP only |
+
+User inputs reach the server only as validated environment variables (`envs:`), never as text pasted into the script. The remote script always runs under bash from a temp file.
+
+**How this was tested** (all locally; no production access was used):
+
+- **Linting:** actionlint passes for both workflows, and shellcheck passes for all four server scripts.
+- **The workflow's own server script, extracted verbatim and run in a Debian container that mirrors this server:**
+  - Setup: root SSH login under `/bin/sh`; a stand-in `savoir-react` pm2 process run by root; nginx owning port 80 with the website's server block and the catch-all drop.
+  - `inspect`: passed.
+  - `deploy` as root without `run_as`: correctly refused.
+  - `deploy` as root with `run_as`: passed, with all checks green.
+  - `configure-https`: refused with no DNS, refused with a DNS mismatch, refused with certbot missing (no file written). Otherwise it wrote the server block, passed `nginx -t`, reloaded, and called certbot with the right arguments. The MCP was reachable through nginx while the website's block and the catch-all were unchanged, and a re-run was idempotent.
+  - `rollback` and `stop`: passed.
+  - Non-root SSH user without sudo: `configure-https` refused with a clear message.
+  - The website stand-in stayed `online` with **0 restarts** throughout.
+  - The simulation found and fixed 4 bugs along the way.
+- **Not testable locally:** issuing the real Let's Encrypt certificate and the CloudPanel `clpctl` path. Those can only be proven on the real server.
+
+## 3. Still missing (access and DNS only)
+
+1. **DNS:** an A record at GoDaddy, `mcp` → `31.97.190.32`, TTL 600. Required before `configure-https`, not before `deploy`.
+2. **Is `USERNAME` root?** Unknown. `inspect` prints it.
+   - If it is root, you choose `run_as`. The website's site user is probably `savoirproperties`, and `inspect` shows candidates.
+   - If it is not root, the app runs as that user, and `configure-https` additionally needs **root or passwordless sudo**. Without that, whoever administers CloudPanel creates the site by hand: **Sites → Add Site → Reverse Proxy**, domain `mcp.savoirproperties.com`, URL `http://127.0.0.1:8787`, then **SSL/TLS → New Let's Encrypt Certificate**.
+3. **`acme_email`:** only needed if `inspect` shows plain nginx with certbot (it's the Let's Encrypt contact). Not needed for CloudPanel.
+4. **Approval to push.** GitHub only lets you run a manual workflow when the workflow file exists on the **default branch (`main`)**. But any push to `main` triggers the existing website deploy, which ends in `pm2 restart savoir-react`. So:
+   - Commit `Savoir_MCP/`, `.github/workflows/deploy-mcp.yml`, `.github/workflows/savoir-mcp.yml` and the three small website config changes to a branch, `savoir-mcp`.
+   - Put `deploy-mcp.yml` on `main` in **a single commit whose message contains `[skip ci]`**, so the website deploy does **not** run.
+   - Run the workflow with **Use workflow from: `savoir-mcp`**.
+   - Merge the branch into `main` later, following your normal process. That merge *will* run the usual website deploy, which is unaffected by these changes: the website typechecks, tests and builds with them, as verified locally.
+
+No other credentials are needed, and none should be shared in chat.
+
+## 4. Sequence, after your approval
+
+1. **Push** as described in §3.4.
+2. **Inspect** (read-only): Actions → *Deploy Savoir MCP (manual)* → Run workflow → branch `savoir-mcp`, action `inspect`, plus `run_as` if you already know `USERNAME` is root. We review the output together and confirm CloudPanel vs plain nginx, `run_as`, and the free ports.
+3. **DNS:** add the A record. Check with `nslookup mcp.savoirproperties.com 8.8.8.8`, which should return `31.97.190.32`.
+4. **Deploy:** action `deploy`, confirm `deploy`. Expect green server-local checks and an "https not served yet" notice.
+5. **HTTPS:** action `configure-https`, confirm `configure-https`. Expect the public verification `All required checks passed`, run by `npm run verify:deployment` inside the workflow.
+6. **ChatGPT:** connect and test (see §6).
+
+## 5. Rollback and removal
+
+| Situation | How |
+|---|---|
+| A bad release | Action `rollback`, confirm `rollback`. A failed deploy already rolls back automatically. |
+| A specific release | `rollback` with `rollback_to=<YYYYMMDDHHMMSS>`. On the server, `bash ~/savoir-mcp/current/deploy/server/rollback.sh --list` shows them. |
+| Take the MCP offline | Action `stop` |
+| Remove HTTPS site (CloudPanel) | `clpctl site:delete --domainName=mcp.savoirproperties.com --force`, as root |
+| Remove HTTPS site (plain nginx) | `rm /etc/nginx/sites-enabled/mcp.savoirproperties.com.conf /etc/nginx/sites-available/mcp.savoirproperties.com.conf && nginx -t && systemctl reload nginx && certbot delete --cert-name mcp.savoirproperties.com` |
+| Remove everything | The above, plus `pm2 delete savoir-mcp && pm2 save` as the app user, `rm -rf ~/savoir-mcp`, removing the `@reboot pm2 resurrect` crontab line if the workflow added it, deleting the GoDaddy `mcp` record, and removing the ChatGPT connection |
+
+None of these touch `savoir-react`, the website's or CMS's nginx blocks, or their certificates.
+
+## 6. ChatGPT end-to-end (after HTTPS is live)
+
+1. In ChatGPT, go to **Plugins → + → Add custom MCP server**. Name: `Savoir Properties`. URL: `https://mcp.savoirproperties.com/mcp`. Authentication: **None**. Then **Create as a plugin**.
+2. Start a new chat, type `@`, and choose **Savoir Properties**.
+3. Run the test table below and record the **host** for every row. The browser preview harness and the MCP-client tests **do not count** as ChatGPT or Claude end-to-end tests.
+
+| # | Prompt / action | Expected | Host | Result |
+|---|---|---|---|---|
+| 1 | "Show me 2-bedroom apartments for sale in Dubai Marina" | cards with photos, AED prices, location | ChatGPT web | |
+| 2 | "Studios for rent, cheapest first" | studios only, prices ascending | ChatGPT web | |
+| 3 | **Details** on a card | gallery, facts, amenities, agent | ChatGPT web | |
+| 4 | **Website** and **WhatsApp** buttons | savoirproperties.com and a pre-filled wa.me link open | ChatGPT web | |
+| 5 | **More results**, then **← Back to results** | page 2 loads, and Back works | ChatGPT web | |
+| 6 | **Ask Savoir** | a follow-up message appears; nothing is sent to Savoir | ChatGPT web | |
+| 7 | "Which Emaar off-plan projects hand over in 2029? Payment plan?" | off-plan cards, then the payment plan split | ChatGPT web | |
+| 8 | "Find villas on the Moon" | a plain "no results" | ChatGPT web | |
+| 9 | "Show details for property slug abc-does-not-exist" | "not found", with no server internals | ChatGPT web | |
+| 10 | "Book me a viewing tomorrow at 5pm" | says it can't book, and offers contact links | ChatGPT web | |
+| 11 | Repeat test 1 in dark mode | readable cards | ChatGPT web | |
+| 12 | Repeat tests 1, 3 and 4 on the mobile app | renders, and links open | ChatGPT iOS/Android | |
+| 13 | **Error path:** run action `stop`, ask a search, then restore with `rollback` + `rollback_to=<current release>` (or `deploy`) | ChatGPT reports the service is unavailable, not "no results" | ChatGPT web | |
+
+**Hosts tested so far: none.**

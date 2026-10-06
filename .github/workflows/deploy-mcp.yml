@@ -1,0 +1,216 @@
+name: Deploy Savoir MCP (manual)
+
+# Manually triggered only. Uses the same SSH secrets as the website deploy
+# (HOST, USERNAME, PASSWORD). Never touches the website's files or its pm2
+# process (savoir-react); the MCP server runs as its own pm2 process
+# "savoir-mcp" on 127.0.0.1:8787 with INQUIRY_MODE=disabled.
+#
+# Actions:
+#   inspect          read-only server inspection (ports 80/443, nginx server blocks, Node/pm2, free ports)
+#   deploy           build, test, upload and switch to a new release with automatic rollback
+#   configure-https  create the nginx/CloudPanel site + Let's Encrypt for mcp.savoirproperties.com (needs root/sudo)
+#   rollback         return to the previous healthy release (or rollback_to)
+#   stop             stop the MCP pm2 process (website unaffected)
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "What to do"
+        type: choice
+        options: [inspect, deploy, configure-https, rollback, stop]
+        default: inspect
+      confirm:
+        description: "Type the action name again to confirm (not needed for inspect)"
+        required: false
+        default: ""
+      run_as:
+        description: "Only if the SSH user is root: the non-root Linux user that should own the MCP process"
+        required: false
+        default: ""
+      rollback_to:
+        description: "rollback only: release timestamp (YYYYMMDDHHMMSS); empty = previous healthy release"
+        required: false
+        default: ""
+      acme_email:
+        description: "configure-https on plain nginx only (certbot contact email); CloudPanel ignores it"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-savoir-mcp
+  cancel-in-progress: false
+
+env:
+  MCP_DOMAIN: mcp.savoirproperties.com
+  MCP_PORT: "8787"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: Savoir_MCP
+    steps:
+      - name: Validate inputs
+        env:
+          ACTION: ${{ inputs.action }}
+          CONFIRM: ${{ inputs.confirm }}
+          RUN_AS: ${{ inputs.run_as }}
+          ROLLBACK_TO: ${{ inputs.rollback_to }}
+          ACME_EMAIL: ${{ inputs.acme_email }}
+        working-directory: .
+        run: |
+          set -euo pipefail
+          if [ "$ACTION" != "inspect" ] && [ "$CONFIRM" != "$ACTION" ]; then
+            echo "::error::Type '$ACTION' in the confirm field to run this action."; exit 1
+          fi
+          [[ -z "$RUN_AS" || "$RUN_AS" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { echo "::error::invalid run_as"; exit 1; }
+          [[ "$RUN_AS" != "root" ]] || { echo "::error::run_as must not be root"; exit 1; }
+          [[ -z "$ROLLBACK_TO" || "$ROLLBACK_TO" =~ ^[0-9]{14}$ ]] || { echo "::error::invalid rollback_to"; exit 1; }
+          [[ -z "$ACME_EMAIL" || "$ACME_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]] || { echo "::error::invalid acme_email"; exit 1; }
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Savoir_MCP/package-lock.json
+
+      - run: npm ci
+
+      - name: Typecheck and test
+        if: inputs.action == 'deploy'
+        run: npm run typecheck && npm test
+
+      - name: Package release (also ships the current server scripts for every action)
+        id: pkg
+        run: |
+          rm -rf release
+          npm run release
+          REL=$(find release -maxdepth 1 -name 'savoir-mcp-*.tgz' | head -1)
+          echo "name=$(basename "$REL")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload release to server
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          source: Savoir_MCP/release/${{ steps.pkg.outputs.name }}
+          target: /tmp/savoir-mcp-upload
+          strip_components: 2
+
+      - name: Run "${{ inputs.action }}" on server
+        uses: appleboy/ssh-action@v1.2.5
+        env:
+          ACTION: ${{ inputs.action }}
+          RUN_AS: ${{ inputs.run_as }}
+          ROLLBACK_TO: ${{ inputs.rollback_to }}
+          ACME_EMAIL: ${{ inputs.acme_email }}
+          REL_NAME: ${{ steps.pkg.outputs.name }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          command_timeout: 15m
+          envs: ACTION,RUN_AS,ROLLBACK_TO,ACME_EMAIL,REL_NAME,MCP_DOMAIN,MCP_PORT
+          script: |
+            # Run under bash regardless of the remote login shell. The script goes to a file first
+            # (not bash -s) so commands that read stdin cannot swallow the rest of it.
+            MCP_REMOTE_SCRIPT="$(mktemp /tmp/savoir-mcp-remote.XXXXXX)"
+            cat > "$MCP_REMOTE_SCRIPT" <<'REMOTE'
+            set -euo pipefail
+            UP=/tmp/savoir-mcp-upload
+            REL="$UP/$REL_NAME"
+            WORK="$(mktemp -d /tmp/savoir-mcp-scripts.XXXXXX)"
+            trap 'rm -rf "$WORK"' EXIT
+            tar -xzf "$REL" -C "$WORK" deploy
+            chmod 755 "$WORK" && chmod -R a+rX "$WORK/deploy" && chmod 755 "$UP" && chmod 644 "$REL"
+            echo "SSH user: $(id -un) (uid $(id -u))"
+
+            # Run a command as the user that owns the MCP process (never root).
+            as_app() {
+              if [ "$(id -u)" -eq 0 ]; then
+                if [ -z "$RUN_AS" ]; then
+                  echo "::error::The SSH user is root. Re-run with run_as set to a non-root user (e.g. the website's site user)."
+                  exit 1
+                fi
+                runuser -l "$RUN_AS" -c "$1"
+              else
+                bash -c "$1"
+              fi
+            }
+
+            local_checks() {
+              echo "--- server-local health checks"
+              health="$(as_app "curl -fsS -m 5 -H 'Host: $MCP_DOMAIN' http://127.0.0.1:$MCP_PORT/health")"
+              echo "$health"
+              case "$health" in *'"inquiry_mode":"disabled"'*) ;; *) echo "::error::health check failed or inquiries not disabled"; exit 1 ;; esac
+              as_app "curl -fsS -m 15 -H 'Host: $MCP_DOMAIN' http://127.0.0.1:$MCP_PORT/ready"; echo
+              as_app "curl -fsS -m 15 -X POST -H 'Host: $MCP_DOMAIN' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+                -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}' http://127.0.0.1:$MCP_PORT/mcp" > "$WORK/tools.txt"
+              tools="$(grep -o '"name":"[a-z_]*"' "$WORK/tools.txt" | sort -u | tr '\n' ' ')"
+              echo "tools: $tools"
+              grep -q 'submit_property_inquiry' "$WORK/tools.txt" && { echo "::error::write tool is advertised"; exit 1; }
+              for t in search_properties get_property_details search_offplan_projects get_offplan_project_details get_contact_options; do
+                grep -q "\"name\":\"$t\"" "$WORK/tools.txt" || { echo "::error::missing tool $t"; exit 1; }
+              done
+              echo "--- website unaffected (informational; never fails the run)"
+              curl -s -o /dev/null -w "https://savoirproperties.com/ -> %{http_code}\n" -m 15 https://savoirproperties.com/ || true
+              pm2 describe savoir-react >/dev/null 2>&1 && pm2 jlist | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{for(const p of JSON.parse(s))if(p.name==="savoir-react")console.log("pm2 savoir-react:",p.pm2_env.status)})' || echo "(savoir-react is not in this user's pm2 list)"
+            }
+
+            case "$ACTION" in
+              inspect)
+                bash "$WORK/deploy/server/preflight.sh" "$MCP_PORT"
+                if [ "$(id -u)" -eq 0 ] && [ -n "$RUN_AS" ]; then
+                  echo; echo "=== as run_as user: $RUN_AS"; runuser -l "$RUN_AS" -c "bash $WORK/deploy/server/preflight.sh $MCP_PORT" | sed -n '/== Node.js/,/== Hosting/p'
+                fi
+                ;;
+              deploy)
+                as_app "mkdir -p ~/savoir-mcp/shared && { [ -f ~/savoir-mcp/shared/.env ] || install -m 600 $WORK/deploy/production.env.example ~/savoir-mcp/shared/.env; }"
+                as_app "grep -qx 'INQUIRY_MODE=disabled' ~/savoir-mcp/shared/.env" || { echo "::error::shared/.env must contain INQUIRY_MODE=disabled"; exit 1; }
+                as_app "bash $WORK/deploy/server/deploy.sh $REL"
+                # Survive reboots: rely on an existing 'pm2 startup' unit if present, else a user crontab entry.
+                as_app 'u=$(id -un); if ls /etc/systemd/system/pm2-"$u".service >/dev/null 2>&1; then echo "pm2 startup unit present for $u"; elif ! command -v crontab >/dev/null; then echo "::warning::no pm2 startup unit and no crontab: savoir-mcp will not restart after a reboot until one is configured"; elif crontab -l 2>/dev/null | grep -q "pm2 resurrect"; then echo "reboot cron present"; else (crontab -l 2>/dev/null; echo "@reboot $(command -v pm2) resurrect") | crontab - && echo "added @reboot pm2 resurrect"; fi'
+                local_checks
+                rm -f "$REL" || true
+                ;;
+              configure-https)
+                local_checks
+                if [ "$(id -u)" -eq 0 ]; then DOMAIN="$MCP_DOMAIN" PORT="$MCP_PORT" ACME_EMAIL="$ACME_EMAIL" bash "$WORK/deploy/server/configure-https.sh"
+                elif sudo -n true 2>/dev/null; then sudo -n env DOMAIN="$MCP_DOMAIN" PORT="$MCP_PORT" ACME_EMAIL="$ACME_EMAIL" bash "$WORK/deploy/server/configure-https.sh"
+                else echo "::error::configure-https needs root or passwordless sudo"; exit 1; fi
+                ;;
+              rollback)
+                as_app "bash ~/savoir-mcp/current/deploy/server/rollback.sh $ROLLBACK_TO"
+                local_checks
+                ;;
+              stop)
+                as_app "bash ~/savoir-mcp/current/deploy/server/rollback.sh --stop"
+                curl -s -o /dev/null -w "https://savoirproperties.com/ -> %{http_code}\n" -m 15 https://savoirproperties.com/ || true
+                ;;
+            esac
+            REMOTE
+            bash "$MCP_REMOTE_SCRIPT" < /dev/null; rc=$?; rm -f "$MCP_REMOTE_SCRIPT"; exit $rc
+
+      - name: Public endpoint verification
+        if: inputs.action == 'deploy' || inputs.action == 'configure-https' || inputs.action == 'rollback'
+        run: |
+          set -uo pipefail
+          if ! getent hosts "$MCP_DOMAIN" >/dev/null; then
+            if [ "${{ inputs.action }}" = "configure-https" ]; then echo "::error::$MCP_DOMAIN does not resolve"; exit 1; fi
+            echo "::notice::$MCP_DOMAIN has no DNS record yet; public checks skipped (server-local checks passed)."; exit 0
+          fi
+          if ! curl -fsS -m 10 "https://$MCP_DOMAIN/health" >/dev/null; then
+            if [ "${{ inputs.action }}" = "configure-https" ]; then echo "::error::https://$MCP_DOMAIN/health not reachable"; exit 1; fi
+            echo "::notice::https://$MCP_DOMAIN is not served yet (run configure-https); public checks skipped."; exit 0
+          fi
+          npm run verify:deployment -- "https://$MCP_DOMAIN"

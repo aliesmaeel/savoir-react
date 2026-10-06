@@ -1,0 +1,85 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "savoir-properties",
+  "version": "1.0.0",
+  "description": "Search Savoir Properties' Dubai listings and off-plan projects.",
+  "author": { "name": "Savoir Properties" },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Savoir Properties",
+        "shortDescription": "Dubai homes & off-plan",
+        "longDescription": "Search the live property portfolio of Savoir Properties, a Dubai real-estate brokerage, directly in ChatGPT.\n\nWhat you can do:\n- Find apartments, villas, townhouses, penthouses and offices for sale or rent across Dubai communities such as Dubai Marina, Palm Jumeirah, Downtown Dubai, JBR and JVC.\n- Filter by area, purpose (buy or rent), property type, number of bedrooms (including studios), bathrooms, price range in AED, and ready or off-plan status.\n- Open a listing to see its photos, price, size, amenities, reference and permit number, the listing agent's public contact details and similar properties.\n- Explore new off-plan developer projects by developer, handover period or area, including starting prices and payment plans where the developer has published them.\n- Get Savoir's WhatsApp, phone, email and website links, including a WhatsApp message pre-filled with the listing you are looking at.\n\nAll information comes from Savoir's own listings system and is shown as published. Prices and availability must be confirmed with a Savoir consultant. This app does not book viewings, take payments or collect your personal details; to arrange a viewing, contact Savoir using the links provided.",
+        "developerName": "TODO: exact legal/verified name from OpenAI business verification",
+        "category": "TODO: choose from the dashboard category list (closest: Lifestyle)",
+        "websiteURL": "https://savoirproperties.com/",
+        "supportURL": "https://savoirproperties.com/contact-us",
+        "privacyPolicyURL": "https://savoirproperties.com/privacy-policy",
+        "termsOfServiceURL": "TODO: publish https://savoirproperties.com/terms (currently 404)",
+        "logo": "./assets/logo.png",
+        "defaultPrompt": [
+          "Show me 2-bedroom apartments for sale in Dubai Marina",
+          "Find studios for rent in JVC, cheapest first",
+          "Which Emaar off-plan projects hand over in 2029?"
+        ],
+        "brandColor": "#2B2B2B"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Area + purpose + bedroom search returns matching listings with photos, AED prices and website links.",
+              "prompt": "Find 2-bedroom apartments for sale in Dubai Marina.",
+              "tools_triggered": "search_properties",
+              "expected_behavior": "Calls search_properties with areas [Dubai Marina], purpose buy, bedrooms 2, property_type apartment. Shows listing cards (photo, AED price, 2 bedrooms, Dubai Marina location, Website/WhatsApp/Details buttons) and a text summary with savoirproperties.com links. No invented listings."
+            },
+            {
+              "description": "Studio rentals sorted by price.",
+              "prompt": "Show me studios for rent, cheapest first.",
+              "tools_triggered": "search_properties",
+              "expected_behavior": "Calls search_properties with bedrooms studio, purpose rent, sort price_low_to_high. Every result is a studio for rent, prices ascending."
+            },
+            {
+              "description": "Follow-up opens full details of a listing from the previous results.",
+              "prompt": "Tell me more about the first one and show me the photos.",
+              "tools_triggered": "get_property_details",
+              "expected_behavior": "Calls get_property_details with the slug of the first result. Shows a photo gallery, price, size in sq ft, amenities, reference and permit number, the listing agent's public contact and the website link; similar listings may follow."
+            },
+            {
+              "description": "Off-plan search by developer and handover year, then payment plan.",
+              "prompt": "Which Emaar off-plan projects hand over in 2029, and what is the payment plan for the first one?",
+              "tools_triggered": "search_offplan_projects, get_offplan_project_details",
+              "expected_behavior": "Calls search_offplan_projects with developers [Emaar] and handover 2029, then get_offplan_project_details for a returned slug. Reports the payment-plan split only as published (e.g. down payment / during construction / on handover)."
+            },
+            {
+              "description": "Contact options for a specific listing.",
+              "prompt": "How can I contact Savoir on WhatsApp about this property?",
+              "tools_triggered": "get_contact_options",
+              "expected_behavior": "Calls get_contact_options with the listing's slug. Returns a wa.me WhatsApp link pre-filled with the listing URL, the agent's public contact if available, and Savoir's phone, email and contact page. Does not claim a message was sent."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Location with no Savoir listings: the app must say there are no results and must not invent listings.",
+              "prompt": "Find villas for sale on the Moon."
+            },
+            {
+              "description": "Booking request: the app cannot book viewings; the assistant should explain this and offer contact options instead of claiming a booking.",
+              "prompt": "Book me a viewing for this apartment tomorrow at 5pm."
+            },
+            {
+              "description": "Unrelated request: no Savoir tool should be called.",
+              "prompt": "What's the weather in Dubai today?"
+            }
+          ]
+        },
+        "demo_recording_url": "TODO: URL of the demo video recorded against the production server",
+        "commerce": false,
+        "commerce_description": ""
+      },
+      "publication": {
+        "release_notes": "Initial release: search Savoir Properties listings and off-plan projects, view details with photos, and get contact options. Read-only."
+      }
+    }
+  }
+}

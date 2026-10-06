@@ -1,0 +1,41 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$MCP_HOSTNAME} {
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+
+	# Only the MCP endpoint, health checks and the OpenAI domain-verification file are public.
+	@public path /mcp /health /ready /.well-known/openai-apps-challenge
+	handle @public {
+		reverse_proxy mcp:8787 {
+			# Streamable HTTP may stream responses (SSE); do not buffer.
+			flush_interval -1
+		}
+	}
+
+	handle {
+		respond "Not found" 404
+	}
+
+	log {
+		output stdout
+		# JSON access log without query strings, headers or client IPs.
+		format filter {
+			wrap json
+			fields {
+				request>uri delete
+				request>headers delete
+				request>remote_ip delete
+				request>client_ip delete
+			}
+		}
+	}
+}
