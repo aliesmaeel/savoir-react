@@ -40,7 +40,7 @@
     "prepareSaved": "Message about saved",
     "prepareThese": "Message about these",
     "shortlist": "Your shortlist",
-    "viewShortlist": "Shortlist ({n})",
+    "viewShortlist": "My shortlist ({n})",
     "shortlistEmpty": "Your shortlist is empty. Tap the heart on a listing to save it.",
     "remove": "Remove",
     "share": "Create share link",
@@ -53,7 +53,7 @@
     "yesDelete": "Yes, delete",
     "cancel": "Cancel",
     "deleted": "Shortlist deleted.",
-    "persists": "Kept for 30 days after the last change. No personal details are stored.",
+    "persists": "Kept for 30 days after your last change. No personal details are stored.",
     "asSaved": "As listed when saved",
     "compareTitle": "Comparison",
     "rPrice": "Price",
@@ -117,7 +117,19 @@
     "rTitleType": "Title type",
     "shortlistCount1": "1 listing",
     "shortlistCountN": "{n} listings",
-    "types": {}
+    "types": {},
+    "savedTo": "Saved to your shortlist.",
+    "removedFrom": "Removed from your shortlist.",
+    "saveFailed": "Couldn't save this listing. Nothing was changed.",
+    "removeFailed": "Couldn't remove this listing. Nothing was changed.",
+    "notSavedWhy": "It may no longer be available, or your shortlist is full (12 listings).",
+    "expiredNew": "Your previous shortlist had expired, so a new one was started.",
+    "copyLink": "Copy link",
+    "openLink": "Open link",
+    "createShare": "Create share link",
+    "copyFailed": "Couldn't copy automatically. The link is selected, so you can copy it yourself.",
+    "reopen": "To reopen it, ask in this chat: “Show my shortlist”. It isn't linked to your account, so a new chat won't find it. Use a share link to view the listings anywhere.",
+    "viewList": "View shortlist"
   },
   "ar": {
     "listings": "عقارات Savoir",
@@ -160,7 +172,7 @@
     "prepareSaved": "رسالة عن المحفوظات",
     "prepareThese": "رسالة عن هذه العقارات",
     "shortlist": "قائمتك المختصرة",
-    "viewShortlist": "القائمة المختصرة ({n})",
+    "viewShortlist": "قائمتي المختصرة ({n})",
     "shortlistEmpty": "قائمتك المختصرة فارغة. اضغط على القلب لحفظ عقار.",
     "remove": "إزالة",
     "share": "إنشاء رابط مشاركة",
@@ -254,6 +266,18 @@
       "Retail": "محل تجاري",
       "Showroom": "صالة عرض",
       "Warehouse": "مستودع"
-    }
+    },
+    "savedTo": "تم الحفظ في قائمتك المختصرة.",
+    "removedFrom": "تمت الإزالة من قائمتك المختصرة.",
+    "saveFailed": "تعذّر حفظ هذا العقار. لم يتغير شيء.",
+    "removeFailed": "تعذّرت إزالة هذا العقار. لم يتغير شيء.",
+    "notSavedWhy": "ربما لم يعد متاحاً، أو أن قائمتك ممتلئة (12 عقاراً).",
+    "expiredNew": "انتهت صلاحية قائمتك السابقة، لذا بدأنا قائمة جديدة.",
+    "copyLink": "نسخ الرابط",
+    "openLink": "فتح الرابط",
+    "createShare": "إنشاء رابط مشاركة",
+    "copyFailed": "تعذّر النسخ تلقائياً. الرابط محدد، ويمكنك نسخه بنفسك.",
+    "reopen": "لإعادة فتحها، اكتب في هذه المحادثة: «اعرض قائمتي المختصرة». القائمة غير مرتبطة بحسابك، لذا لن تظهر في محادثة جديدة. استخدم رابط المشاركة لعرض العقارات من أي مكان.",
+    "viewList": "عرض القائمة"
   }
 }

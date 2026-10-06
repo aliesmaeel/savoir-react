@@ -50,7 +50,7 @@ Checks:
 
 ```bash
 npm run typecheck
-npm test                    # 149 tests, no network access
+npm test                    # 151 tests, no network access
 npm run insights -- --data-dir ./data --out insights.html   # staff report from aggregate metrics
 npm run smoke               # read-only live calls against a running server (~10 CMS requests)
 npm run preview:widget      # 17 checks in local Chrome/Edge via the MCP Apps host bridge (a simulated host)

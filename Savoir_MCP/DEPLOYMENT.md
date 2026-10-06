@@ -1,6 +1,6 @@
 # Production deployment: mcp.savoirproperties.com (read-only launch)
 
-**Status: live since 2026-10-06.** v0.3.0 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.1 (card fix, §6) is ready and awaiting deploy approval.
+**Status: live since 2026-10-06.** v0.3.1 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.2 (shortlist UX and host-test evidence logging) is ready and awaiting deploy approval.
 
 ## 1. The existing server
 
@@ -38,6 +38,7 @@ The workflow runs **only when triggered manually** (`workflow_dispatch`). It use
 | Action | What it does | Changes production? |
 |---|---|---|
 | `inspect` | Reports OS, memory, Node/pm2, listeners on 80/443, nginx routing lines (file / listen / server_name / proxy_pass / cert path only, never full configs), CloudPanel/certbot presence, free ports 8787/8887, and the shared CMS rate-limit budget | **No** |
+| `activity` | Counts only, for a UTC `window` (`YYYY-MM-DDTHH:MM/YYYY-MM-DDTHH:MM`): tool calls by name and outcome, card URIs read, MCP methods and client names, HTTP status counts. Never request contents or IPs. Use it to check a host test | **No** |
 | `deploy` | Typecheck and test, package, upload over SCP, then on the server: create `~/savoir-mcp/shared/.env` from the template if missing, run `deploy.sh` (boot test on :8887, switch, pm2, automatic rollback), set up reboot persistence, then **health checks**. The public URL is checked too once it exists. | Yes: MCP only |
 | `configure-https` | Root or sudo only. It first requires a healthy MCP, DNS pointing at this server, and nginx owning 80/443, and it refuses if `mcp.` is already configured differently. **CloudPanel:** `clpctl site:add:reverse-proxy` plus `clpctl lets-encrypt:install:certificate`. **Plain nginx:** one new `sites-available/mcp.savoirproperties.com.conf`, `nginx -t` before every reload (removed again if the test fails), then `certbot --nginx --redirect`. Ends with an HTTPS health check through nginx. | Yes: adds the `mcp.` site |
 | `rollback` | Returns to the previous healthy release, or `rollback_to`, then health checks | MCP only |
@@ -124,6 +125,7 @@ None of these touch `savoir-react`, the website's or CMS's nginx blocks, or thei
 | Date (Dubai) | Server | Host | Test | Result | Evidence |
 |---|---|---|---|---|---|
 | 2026-10-06 18:32 | v0.3.0 | ChatGPT web (Chrome) | 1, plus a comparison follow-up | **FAIL (UI).** Tool calls returned correct data, and ChatGPT wrote a text comparison table. Each tool row showed "Couldn't open … / Retry" with a "CSP off" chip. No cards rendered (no photos, heart or compare buttons) | Screenshot from Savoir; chat "Compare Dubai Apartments" |
+| 2026-10-06 ~18:56 | v0.3.1 | ChatGPT web (Chrome) | "Save these two to my shortlist and give me a share link" | **FAIL (shortlist).** ChatGPT replied that the connection (named "Savoir Privé Properties" in its reply) has no shortlist or share-link action | Screenshot from Savoir. Server activity 14:00–15:30 UTC (workflow `activity` run 37484225475): **every** `update_shortlist`/`share_shortlist`/`compare_listings` call came from our own two smoke runs (2 each); ChatGPT called none of them. After the v0.3.1 deploy, ChatGPT read `ui://savoir/listings-v1.html`, the URI that only the **v0.1** tool list references. Conclusion: ChatGPT is still using its cached v0.1 tool list (5 tools); the server offers all 12 |
 
 **Root cause (most likely; not yet confirmed in ChatGPT):**
 - **Cached metadata.** v0.3.0 renamed the card resource from `ui://savoir/listings-v1.html` (v0.1) to `listings-v2.html`, and the server stopped serving v1 (the post-deploy verifier got "Resource not found" for v1). ChatGPT caches a connector's tool metadata, so a cached tool still points at the old URI. When that URI can't be read, the card can't open even though the tool call succeeds. OpenAI's community forum reports this exact symptom after a URI change ("Failed to fetch template"; thread 1380454, May 2026).
@@ -141,4 +143,13 @@ None of these touch `savoir-react`, the website's or CMS's nginx blocks, or thei
 - Log which card URI a host reads (`mcp.resource.read`, URI only) so the next host test has server evidence.
 - Keep `ui.domain` unset (it defaults to the ChatGPT sandbox). It is **required before directory submission** and is configured with `WIDGET_DOMAIN`.
 
-**Hosts tested so far: ChatGPT web (failed UI, see the log above).** No Claude test yet.
+**Fix for the shortlist failure:** a full reconnect of the ChatGPT app (Refresh alone did not update the tool list). From v0.3.2 the server logs each `initialize` with the client's name and version, plus each `tools/list`, so the `activity` action can confirm the reconnect fetched the new list.
+
+**ChatGPT shortlist test: pass criteria (all must be observed in ChatGPT, not in the preview harness):**
+1. Tap ♡ on a card → "Saved to your shortlist." appears, the heart fills, and "My shortlist (1)" updates.
+2. "My shortlist" opens the list. **Remove** works and the count drops.
+3. **Create share link** → **Copy link** shows "Copied" (or the manual-copy message), and the link opens the Savoir page in a normal browser.
+4. In the same chat, "Show my shortlist" reopens the same listings.
+5. The `activity` action shows `update_shortlist`, `get_shortlist` and `share_shortlist` calls in the test window.
+
+**Hosts tested so far: ChatGPT web (failed: UI on v0.3.0, shortlist on v0.3.1; see the log above).** No Claude test yet.

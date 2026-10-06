@@ -57,6 +57,11 @@ button{font:inherit;color:inherit}
 .sv-note{color:var(--sv-muted);font-size:12px;margin:6px 2px}
 .sv-empty,.sv-error{border:1px dashed var(--sv-line);border-radius:10px;padding:14px;color:var(--sv-muted)}
 .sv-error{border-style:solid;border-color:#c97b6b;color:inherit;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.sv-notice{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid}
+.sv-notice.ok{background:var(--sv-ok-bg);border-color:var(--sv-ok);color:var(--sv-fg)}
+.sv-notice.error{background:var(--sv-no-bg);border-color:var(--sv-no);color:var(--sv-fg)}
+.sv-mylist{font-weight:600}
+[hidden]{display:none !important}
 .sv-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:4px 2px 0;flex-wrap:wrap}
 .sv-bar{position:sticky;bottom:0;display:flex;gap:8px;align-items:center;justify-content:space-between;background:var(--sv-card);border:1px solid var(--sv-line);border-radius:10px;padding:8px 10px;margin-top:8px;box-shadow:var(--sv-shadow)}
 

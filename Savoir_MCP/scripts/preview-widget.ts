@@ -61,6 +61,8 @@ async function main() {
   console.log(`widget resource: ${widget.mimeType}, ${(widget.text.length / 1024).toFixed(0)} KiB`);
 
   let initial: { args: Record<string, unknown>; result: unknown } = { args: {}, result: {} };
+  // Simulated failures for the card's next update_shortlist call: a tool error, or a store rejection.
+  let failNextSave: null | "error" | "rejected" = null;
   const setInitial = async (name: string, args: Record<string, unknown>) => {
     initial = { args, result: await client.callTool({ name, arguments: args }) };
   };
@@ -81,7 +83,14 @@ async function main() {
       let body = "";
       for await (const chunk of req) body += chunk;
       const p = JSON.parse(body) as { name: string; arguments?: Record<string, unknown> };
-      const r = await client.callTool({ name: p.name, arguments: p.arguments ?? {} });
+      let r: unknown;
+      if (p.name === "update_shortlist" && failNextSave === "error") {
+        r = { isError: true, content: [{ type: "text", text: "simulated failure" }] };
+      } else if (p.name === "update_shortlist" && failNextSave === "rejected") {
+        const slug = ((p.arguments?.add as Array<{ slug: string }> | undefined) ?? [])[0]?.slug ?? "x";
+        r = { content: [], structuredContent: { view: "shortlist", status: "ok", shortlist: { shortlist_id: "A".repeat(22), items: [], share_url: null, expires_at: new Date().toISOString(), updated_at: new Date().toISOString() }, rejected: [slug], change: { created: true, added: [], removed: [] }, error: null } };
+      } else r = await client.callTool({ name: p.name, arguments: p.arguments ?? {} });
+      if (p.name === "update_shortlist") failNextSave = null;
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(r));
     } else {
@@ -96,6 +105,7 @@ async function main() {
 
   const open = async (q: string, vw = 800, vh = 800): Promise<{ page: Page; f: FrameLocator }> => {
     const page = await browser.newPage({ viewport: { width: vw, height: vh } });
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"], { origin: `http://127.0.0.1:${port}` }).catch(() => {});
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && errors.push(m.text()));
     await page.goto(`http://127.0.0.1:${port}/?${q}`);
@@ -133,8 +143,12 @@ async function main() {
       );
       check(logoOk, "official Savoir logo loads");
       await shot(page, "A1-list");
+      check(await f.getByRole("button", { name: "My shortlist (0)" }).isVisible(), "'My shortlist (0)' button visible before saving");
       await f.locator(".sv-heart").first().click();
       await f.locator('.sv-heart[aria-pressed="true"]').first().waitFor({ timeout: 15000 });
+      check(await f.locator(".sv-notice.ok", { hasText: "Saved to your shortlist." }).getByRole("button", { name: "View shortlist" }).isVisible(), "'Saved to your shortlist.' shown after a confirmed save, with View shortlist");
+      check(await f.getByRole("button", { name: "My shortlist (1)" }).first().isVisible(), "'My shortlist (1)' count updates");
+      await shot(page, "A1b-saved");
       const ctx = await g<Array<{ content: Array<{ text: string }> }>>(page, "window.__context");
       check(ctx.some((c) => /shortlist_id is [A-Za-z0-9_-]{22}/.test(c.content[0]!.text)), "saving tells the model the shortlist_id (updateModelContext)");
       const boxes = f.locator('.sv-card input[type="checkbox"]');
@@ -163,7 +177,7 @@ async function main() {
       check(target.startsWith("https://wa.me/971505074686?text=") && decodeURIComponent(target.split("text=")[1]!) === msg, "WhatsApp link carries exactly the shown message");
       await f.getByRole("button", { name: "← Back" }).click();
       await f.getByRole("button", { name: "← Back" }).click();
-      await f.getByRole("button", { name: /Shortlist \(1\)/ }).click();
+      await f.getByRole("button", { name: "My shortlist (1)" }).first().click();
       await f.locator(".sv-li").first().waitFor({ timeout: 15000 });
       await f.getByRole("button", { name: "Create share link" }).click();
       await f.locator('input[readonly][value^="http"]').waitFor({ timeout: 15000 });
@@ -171,11 +185,51 @@ async function main() {
       check(/\/s\/[A-Za-z0-9_-]{22}$/.test(share), "share link created");
       const sharePage = await fetch(share);
       check(sharePage.status === 200, "share page reachable");
+      const listText = await f.locator("#root").innerText();
+      check(/30 days after your last change/.test(listText) && /Show my shortlist/.test(listText) && /a new chat won't find it/.test(listText), "explains 30-day lifetime, how to reopen, and no cross-chat access");
+      await f.getByRole("button", { name: "Copy link" }).click();
+      await f.locator(".sv-notice").first().waitFor({ timeout: 5000 });
+      const copyMsg = await f.locator(".sv-notice").first().innerText();
+      const copiedText = await page.evaluate(() => navigator.clipboard.readText().catch(() => "")).catch(() => "");
+      check((/^Copied/.test(copyMsg) && copiedText === share) || /Couldn't copy automatically/.test(copyMsg), `copy link reports the real outcome ("${copyMsg.split("\n")[0]}")`);
+      check(await f.getByRole("button", { name: "Open link" }).isVisible(), "'Open link' button offered next to the share link");
+      check(!(await f.locator(".sv-confirm").isVisible()), "delete confirmation stays hidden until Delete is pressed");
       await shot(page, "A4-shortlist");
       await f.getByRole("button", { name: "Delete shortlist" }).click();
       await f.getByRole("button", { name: "Yes, delete" }).click();
       await f.locator(".sv-empty", { hasText: "Shortlist deleted." }).waitFor({ timeout: 15000 });
       check((await fetch(share)).status === 404, "deleting the shortlist kills the share link");
+      await page.close();
+    }
+
+    // ---------- A2: failed saves and removing from the shortlist view ----------
+    console.log("A2. Save failures show an error (never success); remove from the shortlist view");
+    await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+    {
+      const { page, f } = await open("theme=dark&locale=en-US&w=780&h=780");
+      await f.locator(".sv-card").first().waitFor({ timeout: 20000 });
+      const heart0 = f.locator(".sv-heart").first();
+      failNextSave = "error";
+      await heart0.click();
+      await f.locator(".sv-notice.error").waitFor({ timeout: 15000 });
+      check(/Couldn't save this listing/.test(await f.locator(".sv-notice.error").innerText()), "tool failure → 'Couldn't save' error");
+      check((await f.locator(".sv-notice.ok").count()) === 0 && (await heart0.getAttribute("aria-pressed")) === "false", "tool failure → no success message and heart stays empty");
+      await shot(page, "A2a-save-error");
+      failNextSave = "rejected";
+      await heart0.click();
+      await f.locator(".sv-notice.error", { hasText: "no longer be available" }).waitFor({ timeout: 15000 });
+      check((await f.locator(".sv-notice.ok").count()) === 0 && (await heart0.getAttribute("aria-pressed")) === "false", "server rejected the listing → error, no success, heart stays empty");
+      await f.locator(".sv-notice.error").getByRole("button", { name: "Try again" }).click();
+      await f.locator(".sv-notice.ok", { hasText: "Saved to your shortlist." }).waitFor({ timeout: 15000 });
+      check((await heart0.getAttribute("aria-pressed")) === "true", "retry after a failure saves for real");
+      await f.locator(".sv-heart").nth(1).click();
+      await f.getByRole("button", { name: "My shortlist (2)" }).first().waitFor({ timeout: 15000 });
+      await f.getByRole("button", { name: "My shortlist (2)" }).first().click();
+      await f.locator(".sv-li").nth(1).waitFor({ timeout: 15000 });
+      await f.getByRole("button", { name: /^Remove:/ }).first().click();
+      await f.locator(".sv-notice.ok", { hasText: "Removed from your shortlist." }).waitFor({ timeout: 15000 });
+      check((await f.locator(".sv-li").count()) === 1, "remove updates the shortlist view immediately (1 left)");
+      await shot(page, "A2b-removed");
       await page.close();
     }
 

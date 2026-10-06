@@ -204,6 +204,22 @@ describe("shortlist and share page", () => {
     expect(all).toContain('"path":"/s/:token"');
   });
 
+  it("reports exactly what each update changed, so the card confirms only real saves", async () => {
+    const { call } = await start();
+    const created = await call("update_shortlist", { add: [{ kind: "property", slug: "tricky-1" }, { kind: "property", slug: "gone-1" }] });
+    const id = created.structuredContent!.shortlist.shortlist_id;
+    expect(created.structuredContent!.change).toEqual({ created: true, added: ["tricky-1"], removed: [] });
+
+    const again = await call("update_shortlist", { shortlist_id: id, add: [{ kind: "property", slug: "pool-1" }], remove: [{ kind: "property", slug: "tricky-1" }] });
+    expect(again.structuredContent!.change).toEqual({ created: false, added: ["pool-1"], removed: ["tricky-1"] });
+    expect(again.structuredContent!.shortlist.items.map((i: any) => i.slug)).toEqual(["pool-1"]);
+
+    // Unknown or expired shortlist: nothing is reported as saved.
+    const expired = await call("update_shortlist", { shortlist_id: "A".repeat(22), add: [{ kind: "property", slug: "pool-1" }] });
+    expect(expired.structuredContent!.status).toBe("not_found");
+    expect(expired.structuredContent!.change).toBeUndefined();
+  });
+
   it("survives a restart when a data directory is configured", async () => {
     const { mkdtempSync } = await import("node:fs");
     const { tmpdir } = await import("node:os");

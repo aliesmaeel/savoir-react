@@ -141,7 +141,7 @@ async function callTool(name, args, opts) {
     ingest(sc);
     return sc;
   } catch (e) {
-    showError(() => callTool(name, args, opts).then((sc) => sc && opts.render !== false && navigate(sc, opts.push)));
+    if (!opts.silentError) showError(() => callTool(name, args, opts).then((sc) => sc && opts.render !== false && navigate(sc, opts.push)));
     return null;
   } finally {
     root.classList.remove("sv-loading");
@@ -151,6 +151,57 @@ async function callTool(name, args, opts) {
 function showError(retry) {
   const bar = h("div", { class: "sv-error", role: "alert" }, h("span", { text: t("error") }), btn(t("retry"), () => retry(), { small: true }));
   root.prepend(bar);
+}
+/** Visible status bar (success or error) that survives re-renders for a few seconds. */
+function notice(msg, kind, action) {
+  state.notice = { msg: msg, kind: kind || "ok", action: action || null, until: Date.now() + 8000 };
+  announce(msg);
+  if (state.current) rerender();
+  else placeNotice();
+  setTimeout(() => {
+    if (state.notice && state.notice.until <= Date.now()) {
+      state.notice = null;
+      const el = document.getElementById("sv-notice");
+      if (el) el.remove();
+    }
+  }, 8100);
+}
+function noticeNode() {
+  const n = state.notice;
+  if (!n || n.until <= Date.now()) return null;
+  return h("div", { id: "sv-notice", class: "sv-notice " + n.kind, role: n.kind === "error" ? "alert" : "status" }, h("span", { text: n.msg }), n.action ? btn(n.action.label, n.action.fn, { small: true }) : null);
+}
+function placeNotice() {
+  const old = document.getElementById("sv-notice");
+  if (old) old.remove();
+  const node = noticeNode();
+  if (node) root.prepend(node);
+}
+/** Copy text; returns true only if the browser confirmed the copy. */
+async function copyText(text, inputEl) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) {}
+  try {
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.select();
+      return document.execCommand("copy") === true;
+    }
+  } catch (e) {}
+  return false;
+}
+async function copyWithFeedback(text, inputEl) {
+  if (await copyText(text, inputEl)) return notice(t("copied"), "ok");
+  notice(t("copyFailed"), "error");
+  const again = inputEl && inputEl.id ? document.getElementById(inputEl.id) : null;
+  if (again) {
+    again.focus();
+    again.select();
+  }
 }
 function updateModelContext() {
   if (!state.app || !state.caps.updateModelContext) return;
@@ -205,23 +256,37 @@ function requirementsFromSearch() {
 }
 
 // ---------- actions ----------
-async function toggleSave(ref, btnEl) {
+async function toggleSave(ref, btnEl, retried) {
   const key = ref.kind + ":" + ref.slug;
   const wasSaved = state.saved.has(key);
   const args = { add: wasSaved ? undefined : [{ kind: ref.kind, slug: ref.slug }], remove: wasSaved ? [{ kind: ref.kind, slug: ref.slug }] : undefined };
   if (state.shortlistId) args.shortlist_id = state.shortlistId;
-  const sc = await callTool("update_shortlist", args, { render: false, fallbackMessage: (wasSaved ? "Remove from my shortlist: " : "Save to my shortlist: ") + ref.title + " (" + ref.kind + " " + ref.slug + ")" });
-  if (!sc || sc.status !== "ok") {
-    if (sc && sc.status === "not_found") {
-      state.shortlistId = null;
-      return toggleSave(ref, btnEl);
-    }
+  if (!canCallTools()) {
+    // The host cannot run tools from the card: ask the assistant instead, and claim nothing.
+    sendMessage((wasSaved ? "Remove from my shortlist: " : "Save to my shortlist: ") + ref.title + " (" + ref.kind + " " + ref.slug + ")");
     return;
   }
-  announce(wasSaved ? t("unsave") : t("save"));
+  const sc = await callTool("update_shortlist", args, { render: false, silentError: true });
+  const retry = { label: t("retry"), fn: () => toggleSave(ref, btnEl) };
+  if (!sc) return notice(wasSaved ? t("removeFailed") : t("saveFailed"), "error", retry);
+  if (sc.status === "not_found" && !retried) {
+    // The previous shortlist expired or was deleted: start a new one, and say so.
+    state.shortlistId = null;
+    state.saved = new Set();
+    await toggleSave(ref, btnEl, true);
+    if (state.saved.has(key)) notice(t("savedTo") + " " + t("expiredNew"), "ok", { label: t("viewList"), fn: openShortlist });
+    return;
+  }
+  const change = sc.change || { added: [], removed: [] };
+  const confirmed = sc.status === "ok" && (wasSaved ? change.removed.indexOf(ref.slug) >= 0 : change.added.indexOf(ref.slug) >= 0);
+  if (!confirmed) {
+    const why = sc.status === "ok" && sc.rejected && sc.rejected.indexOf(ref.slug) >= 0 ? t("notSavedWhy") : (sc.error && sc.error.message) || "";
+    return notice((wasSaved ? t("removeFailed") : t("saveFailed")) + (why ? " " + why : ""), "error", retry);
+  }
   updateModelContext();
   persist();
-  rerender();
+  if (state.current && state.current.view === "shortlist") state.current = Object.assign({}, sc, { change: undefined });
+  if (!retried) notice(wasSaved ? t("removedFrom") : t("savedTo"), "ok", { label: t("viewList"), fn: openShortlist });
 }
 function toggleCompare(ref, checked) {
   const key = ref.kind + ":" + ref.slug;
@@ -254,7 +319,7 @@ async function openDetail(kind, slug, title) {
   if (sc) navigate(sc, true);
 }
 async function openShortlist() {
-  if (!state.shortlistId) return;
+  if (!state.shortlistId) return notice(t("shortlistEmpty"), "ok");
   const sc = await callTool("get_shortlist", { shortlist_id: state.shortlistId });
   if (sc) navigate(sc, true);
 }
@@ -283,8 +348,9 @@ function backButton() {
 }
 function topRow() {
   const b = backButton();
-  const sl = state.shortlistId && state.saved.size ? btn(t("viewShortlist", { n: state.saved.size }), openShortlist, { small: true }) : null;
-  if (!b && !sl) return null;
+  const n = state.shortlistId ? state.saved.size : 0;
+  const sl = btn(t("viewShortlist", { n: n }), openShortlist, { small: true });
+  sl.classList.add("sv-mylist");
   return h("div", { class: "sv-foot", style: "margin-bottom:8px" }, b || h("span"), sl);
 }
 
@@ -617,6 +683,10 @@ function renderShortlist(d) {
   const s = d.shortlist;
   out.push(brand(t("shortlist"), s ? (s.items.length === 1 ? t("shortlistCount1") : t("shortlistCountN", { n: s.items.length })) : ""));
   if (!s) return out.concat(h("div", { class: "sv-empty", text: (d.error && d.error.message) || t("shortlistEmpty") }));
+  // Changes made by the assistant (the card's own changes use notice()).
+  if (d.change && d.change.added.length) out.push(h("div", { class: "sv-notice ok", role: "status", text: t("savedTo") }));
+  if (d.change && d.change.removed.length) out.push(h("div", { class: "sv-notice ok", role: "status", text: t("removedFrom") }));
+  if (d.rejected && d.rejected.length) out.push(h("div", { class: "sv-notice error", role: "alert", text: t("saveFailed") + " " + t("notSavedWhy") }));
   if (!s.items.length) out.push(h("div", { class: "sv-empty", text: t("shortlistEmpty") }));
   else
     out.push(
@@ -644,24 +714,16 @@ function renderShortlist(d) {
   out.push(actions);
   // share link
   if (s.share_url) {
-    const input = h("input", { type: "text", readonly: true, value: s.share_url, "aria-label": t("share"), style: "flex:1 1 220px;min-height:32px;border:1px solid var(--sv-line);border-radius:8px;padding:4px 8px;background:var(--sv-bg);color:var(--sv-fg)" });
+    const input = h("input", { id: "sv-share-url", type: "text", readonly: true, value: s.share_url, "aria-label": t("share"), style: "flex:1 1 220px;min-height:32px;border:1px solid var(--sv-line);border-radius:8px;padding:4px 8px;background:var(--sv-bg);color:var(--sv-fg)" });
     out.push(
-      h("div", { class: "sv-calc", style: "margin-top:8px" }, input, btn(t("copy"), async () => {
-        try {
-          await navigator.clipboard.writeText(s.share_url);
-        } catch (e) {
-          input.select();
-          try { document.execCommand("copy"); } catch (e2) {}
-        }
-        announce(t("copied"));
-      }, { small: true }), btn(t("stopShare"), async () => {
+      h("div", { class: "sv-calc", style: "margin-top:8px" }, input, btn(t("copyLink"), () => copyWithFeedback(s.share_url, input), { small: true, primary: true }), btn(t("openLink"), () => openLink(s.share_url), { small: true }), btn(t("stopShare"), async () => {
         const sc = await callTool("share_shortlist", { shortlist_id: s.shortlist_id, action: "stop_sharing" });
         if (sc) navigate(sc, false);
       }, { small: true })),
       h("div", { class: "sv-note", text: t("shareNote") }),
     );
   } else if (s.items.length) {
-    out.push(h("div", { class: "sv-actions" }, btn(t("share"), async () => {
+    out.push(h("div", { class: "sv-actions" }, btn(t("createShare"), async () => {
       const sc = await callTool("share_shortlist", { shortlist_id: s.shortlist_id, action: "share" });
       if (sc) navigate(sc, false);
     }, { small: true })));
@@ -681,7 +743,7 @@ function renderShortlist(d) {
     root.replaceChildren(brand(t("shortlist")), h("div", { class: "sv-empty", text: t("deleted") }));
     announce(t("deleted"));
   }, { small: true }), btn(t("cancel"), () => (confirmBox.hidden = true), { small: true }));
-  out.push(h("div", { class: "sv-foot" }, h("div", { class: "sv-note", text: t("persists") }), btn(t("delete"), () => (confirmBox.hidden = false), { small: true })), confirmBox);
+  out.push(h("div", { class: "sv-note", text: t("persists") }), h("div", { class: "sv-note", text: t("reopen") }), h("div", { class: "sv-foot" }, h("span"), btn(t("delete"), () => (confirmBox.hidden = false), { small: true })), confirmBox);
   return out;
 }
 
@@ -689,7 +751,7 @@ function renderInquiry(d) {
   const out = [backButton(), brand(t("msgTitle"))];
   const x = d.handoff;
   if (!x) return out.concat(h("div", { class: "sv-error", role: "alert" }, h("span", { text: (d.error && d.error.message) || t("error") }), btn(t("whatsapp"), () => openLink(CFG.companyWa), { small: true })));
-  const area = h("textarea", { class: "sv-msg", readonly: true, dir: x.language === "ar" ? "rtl" : "ltr", "aria-label": t("msgTitle") });
+  const area = h("textarea", { id: "sv-handoff-msg", class: "sv-msg", readonly: true, dir: x.language === "ar" ? "rtl" : "ltr", "aria-label": t("msgTitle") });
   area.value = x.message;
   out.push(area, h("div", { class: "sv-note", text: x.shared_information }));
   if (x.unavailable && x.unavailable.length) out.push(h("div", { class: "sv-note", text: t("unavailable") + ": " + x.unavailable.map((u) => u.slug).join(", ") }));
@@ -700,15 +762,7 @@ function renderInquiry(d) {
       btn(t("sendWa"), () => openLink(x.channels.whatsapp_company), { primary: true }),
       x.channels.whatsapp_agent ? btn(t("sendWaAgent", { name: x.channels.whatsapp_agent.name }), () => openLink(x.channels.whatsapp_agent.url)) : null,
       btn(t("sendEmail"), () => openLink(x.channels.email)),
-      btn(t("copy"), async () => {
-        try {
-          await navigator.clipboard.writeText(x.message);
-        } catch (e) {
-          area.select();
-          try { document.execCommand("copy"); } catch (e2) {}
-        }
-        announce(t("copied"));
-      }),
+      btn(t("copy"), () => copyWithFeedback(x.message, area)),
     ),
     h("div", { class: "sv-note", text: t("notBooking") + " · " + x.reference_code }),
   );
@@ -761,7 +815,7 @@ function render(d) {
     case "area_guide": nodes = renderAreaGuide(d); break;
     default: return;
   }
-  root.replaceChildren(...nodes.filter(Boolean));
+  root.replaceChildren(...[noticeNode()].concat(nodes).filter(Boolean));
 }
 
 // ---------- startup ----------

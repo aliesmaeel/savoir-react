@@ -30,7 +30,7 @@ process.stdin.on("data", (d) => (buf += d)).on("end", () => {
       case "tool.call": bump(`tool.call       ${safe(e.tool)} -> ${safe(e.status)}`); break;
       case "tool.call.unhandled": bump(`tool.unhandled  ${safe(e.tool)}`); break;
       case "mcp.resource.read": bump(`resource.read   ${safe(e.uri)}`); break;
-      case "mcp.rpc": bump(`rpc             ${safe(e.method)}${e.client ? " client=" + safe(e.client) : ""}`); break;
+      case "mcp.rpc": bump(`rpc             ${safe(e.method)}${e.client ? " client=" + safe(e.client) + " " + safe(e.client_version) : ""}`); break;
       case "http.request": bump(`http            ${safe(e.method)} ${safe(e.path)} ${Number(e.status) || 0}`); break;
       case "server.started": bump("server.started"); break;
       default: if (e.level === "error" || e.level === "warn") bump(`${e.level}           ${safe(e.msg)}`);

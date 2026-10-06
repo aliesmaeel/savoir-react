@@ -7,6 +7,7 @@ import { renderSharePage, shareNotFoundPage, sharePageCsp } from "./sharePage.js
 import { SAVOIR_LOGO_URL } from "./ui/widget.js";
 import { buildInsights, renderInsightsHtml, verifyPassword } from "./insights.js";
 import { isAutomatedFetch } from "./trackedLinks.js";
+import type { Logger } from "./logger.js";
 
 export function createHttpApp(ctx: AppContext): { app: Express; close: () => Promise<void> } {
   const { config, logger } = ctx;
@@ -130,6 +131,7 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
   const nodeHandler = toNodeHandler(handler, { onerror: (err) => logger.error("mcp.adapter.error", { error: err.name }) });
 
   app.all("/mcp", async (req: Request, res: Response) => {
+    logRpcMethods(logger, req.body);
     try {
       await nodeHandler(req, res, req.body);
     } catch (err) {
@@ -143,4 +145,26 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
   });
 
   return { app, close: () => handler.close() };
+}
+
+const RPC_METHODS = new Set(["initialize", "tools/list", "resources/list", "resources/templates/list", "resources/read", "prompts/list", "ping"]);
+
+/**
+ * Host-test evidence: which MCP methods arrive (e.g. when a host re-fetches the tool list) and,
+ * on initialize, the client's self-reported name and version (e.g. "openai-mcp"). Tool calls are
+ * already logged by name in instrument(). Nothing else from the request is logged.
+ */
+export function logRpcMethods(logger: Logger, body: unknown): void {
+  for (const msg of (Array.isArray(body) ? body : [body]).slice(0, 10)) {
+    const method = msg && typeof msg === "object" ? (msg as { method?: unknown }).method : undefined;
+    if (typeof method !== "string" || !RPC_METHODS.has(method)) continue;
+    const fields: Record<string, unknown> = { method };
+    if (method === "initialize") {
+      const info = (msg as { params?: { clientInfo?: { name?: unknown; version?: unknown } } }).params?.clientInfo;
+      const clean = (v: unknown) => (typeof v === "string" && /^[\w .:\/@()-]{1,60}$/.test(v) ? v : "other");
+      fields.client = clean(info?.name);
+      fields.client_version = clean(info?.version);
+    }
+    logger.info("mcp.rpc", fields);
+  }
 }

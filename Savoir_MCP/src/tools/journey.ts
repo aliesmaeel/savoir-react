@@ -21,6 +21,8 @@ const ShortlistOutput = z.object({
   status: StatusSchema,
   shortlist: ShortlistSchema.nullable(),
   rejected: z.array(z.string()),
+  /** update_shortlist only: what this call actually changed, as confirmed by the store. */
+  change: z.object({ created: z.boolean(), added: z.array(z.string()), removed: z.array(z.string()) }).optional(),
   error: ErrorInfoSchema.nullable(),
 });
 
@@ -223,10 +225,16 @@ export function registerJourneyTools(server: McpServer, deps: ToolDeps): void {
       for (const rm of a.remove ?? []) analytics.record("shortlist_remove", { kind: rm.kind }, rm);
       if (result.created) analytics.record("shortlist_created", {});
       const v = view(result.record);
+      const has = (r: { kind: string; slug: string }) => v.items.some((i) => i.kind === r.kind && i.slug === r.slug);
+      const change = {
+        created: result.created,
+        added: adds.filter((ad) => has(ad) && !result.rejected.includes(ad.slug)).map((ad) => ad.slug),
+        removed: (a.remove ?? []).filter((r) => !has(r)).map((r) => r.slug),
+      };
       const note = rejected.length ? `\nNot added (not found, invalid or the 12-listing limit was reached): ${rejected.join(", ")}` : "";
       return {
         content: text(shortlistText(v, result.created ? "Created a new shortlist." : "Shortlist updated.") + note),
-        structuredContent: { view: "shortlist" as const, status: "ok" as const, shortlist: v, rejected, error: null },
+        structuredContent: { view: "shortlist" as const, status: "ok" as const, shortlist: v, rejected, change, error: null },
       };
     }),
   );
