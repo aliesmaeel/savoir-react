@@ -50,6 +50,8 @@ if [ -n "$NGINX_DUMP" ]; then
   echo "  nginx -T readable. Server blocks (file / listen / server_name / proxy_pass / cert):"
   printf '%s\n' "$NGINX_DUMP" | grep -E '^# configuration file |\b(listen|server_name|proxy_pass|ssl_certificate)\s' \
     | grep -vE 'ssl_certificate_key' | sed -E 's/^\s+/      /; s/^# configuration file /    FILE /' | head -120
+  echo "  Host header forwarding in existing server blocks (file: proxy_set_header Host ...):"
+  printf '%s\n' "$NGINX_DUMP" | awk '/^# configuration file /{f=$4} /proxy_set_header[[:space:]]+Host[[:space:]]/{gsub(/^[[:space:]]+/,""); print "    " f " " $0}' | sort | uniq -c | head -20
   if printf '%s\n' "$NGINX_DUMP" | grep -qE 'server_name[^;]*\bmcp\.savoirproperties\.com\b'; then
     warn "an nginx server block for mcp.savoirproperties.com ALREADY exists"
   else ok "no existing server block for mcp.savoirproperties.com"; fi
@@ -63,6 +65,13 @@ echo "  Panels / tooling:"
 command -v certbot >/dev/null && echo "    certbot: $(certbot --version 2>&1)" || echo "    certbot: not found"
 command -v caddy >/dev/null && echo "    caddy binary present (do not start it: nginx owns 80/443)" || true
 echo "  Certificates (names only):"; $SUDO ls -1 /etc/letsencrypt/live 2>/dev/null | sed 's/^/    /' || echo "    not readable"
+echo "  Site users (owners of /home/*/htdocs; candidates for run_as):"
+for d in /home/*/htdocs; do
+  [ -d "$d" ] || continue
+  u="$(stat -c %U "$d")"; printf '    %-28s shell=%s\n' "$u" "$(getent passwd "$u" | cut -d: -f7)"
+done
+echo "  pm2 boot units:"; ls -1 /etc/systemd/system/pm2-*.service 2>/dev/null | sed 's/^/    /' || echo "    none"
+command -v crontab >/dev/null && echo "  crontab: available" || echo "  crontab: not installed"
 echo "  Website process (pm2 savoir-react) listening port, if visible:"
 pm2 jlist 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{for(const p of JSON.parse(s))if(p.name==="savoir-react")console.log("    PORT env:",p.pm2_env.env?.PORT??p.pm2_env.PORT??"(default; react-router-serve uses 3000)")}catch{}})'
 
