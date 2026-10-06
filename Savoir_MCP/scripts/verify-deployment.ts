@@ -5,7 +5,7 @@
  *   npm run verify:deployment -- https://mcp.savoirproperties.com [expected-ip]
  */
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
-import { resolve4 } from "node:dns/promises";
+import { lookup, resolve4 } from "node:dns/promises";
 
 const base = (process.argv[2] ?? "https://mcp.savoirproperties.com").replace(/\/+$/, "");
 const expectedIp = process.argv[3];
@@ -28,7 +28,10 @@ async function main() {
 
   console.log("DNS / TLS");
   try {
-    const ips = await resolve4(url.hostname);
+    // OS resolver first (what real clients use); c-ares resolve4 as fallback.
+    const ips = await lookup(url.hostname, { all: true, family: 4 })
+      .then((r) => r.map((x) => x.address))
+      .catch(() => resolve4(url.hostname));
     info(`A ${url.hostname} -> ${ips.join(", ")}`);
     if (expectedIp) check(ips.includes(expectedIp), `resolves to ${expectedIp}`);
   } catch {
