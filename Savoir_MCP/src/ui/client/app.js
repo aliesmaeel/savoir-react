@@ -83,7 +83,8 @@ function img(src, alt) {
 }
 function btn(label, onClick, opts) {
   opts = opts || {};
-  return h("button", { type: "button", class: "sv-btn" + (opts.primary ? " primary" : "") + (opts.small ? " small" : ""), "aria-label": opts.aria || null, disabled: opts.disabled || null, onclick: onClick }, label);
+  const cls = "sv-btn" + (opts.primary ? " primary" : "") + (opts.ghost ? " ghost" : "") + (opts.danger ? " danger" : "") + (opts.small ? " small" : "") + (opts.grow ? " grow" : "");
+  return h("button", { type: "button", class: cls, "aria-label": opts.aria || null, disabled: opts.disabled || null, onclick: onClick }, label);
 }
 function announce(msg) {
   live.textContent = "";
@@ -92,9 +93,6 @@ function announce(msg) {
 const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.8 8.3 3 4.5 6.7 4.5c2 0 3.5 1.1 4.3 2.4.8-1.3 2.3-2.4 4.3-2.4 3.7 0 5.9 3.8 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>';
 const HEART_O = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 20s-7-4.3-9-8.6C1.6 8.3 3.6 5.5 6.7 5.5c1.9 0 3.4 1.1 4.2 2.6h2.2c.8-1.5 2.3-2.6 4.2-2.6 3.1 0 5.1 2.8 3.7 5.9C19 15.7 12 20 12 20z"/></svg>';
 
-function brand(title, sub) {
-  return h("div", { class: "sv-brand" }, h("div", null, h("div", { class: "ttl", text: title }), sub ? h("div", { class: "sub", text: sub }) : null), h("img", { src: CFG.logoUrl, alt: "Savoir Properties" }));
-}
 
 // ---------- host bridge ----------
 async function openLink(url) {
@@ -132,6 +130,7 @@ async function callTool(name, args, opts) {
     if (opts.fallbackMessage) sendMessage(opts.fallbackMessage);
     return null;
   }
+  root.setAttribute("data-loading", t("loading"));
   root.classList.add("sv-loading");
   root.setAttribute("aria-busy", "true");
   try {
@@ -341,17 +340,58 @@ function rerender() {
 }
 function backButton() {
   if (!state.history.length) return null;
-  return btn("← " + t("back"), () => {
+  return btn((state.lang === "ar" ? "→ " : "← ") + t("back"), () => {
     state.current = state.history.pop();
     render(state.current);
-  }, { small: true });
+  }, { small: true, ghost: true, aria: "← " + t("back") });
 }
-function topRow() {
-  const b = backButton();
+/** Small heart icon built with DOM calls (static path data, no markup strings). */
+function heartSvg(filled) {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS(NS, "path");
+  path.setAttribute("d", "M12 20s-7-4.3-9-8.6C1.6 8.3 3.6 5.5 6.7 5.5c1.9 0 3.4 1.1 4.2 2.6h2.2c.8-1.5 2.3-2.6 4.2-2.6 3.1 0 5.1 2.8 3.7 5.9C19 15.7 12 20 12 20z");
+  path.setAttribute("fill", filled ? "currentColor" : "none");
+  path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", "2");
+  svg.appendChild(path);
+  return svg;
+}
+function myShortlistButton() {
   const n = state.shortlistId ? state.saved.size : 0;
-  const sl = btn(t("viewShortlist", { n: n }), openShortlist, { small: true });
-  sl.classList.add("sv-mylist");
-  return h("div", { class: "sv-foot", style: "margin-bottom:8px" }, b || h("span"), sl);
+  const b = h("button", { type: "button", class: "sv-pill sv-mylist", onclick: openShortlist });
+  b.append(heartSvg(n > 0), document.createTextNode(t("viewShortlist", { n: n })));
+  return b;
+}
+/** View header: Back, a short title, and the always-visible "My shortlist (n)" control. */
+function header(title, sub, opts) {
+  opts = opts || {};
+  return h(
+    "header",
+    { class: "sv-hd" },
+    h("div", { class: "sv-hd-l" }, backButton(), title ? h("div", { class: "sv-hd-t" }, h("h1", { text: title }), sub ? h("p", { text: sub }) : null) : null),
+    opts.noShortlist ? null : myShortlistButton(),
+  );
+}
+/** Quiet footer: the Savoir wordmark plus data freshness. */
+function footer(iso, extra) {
+  const plate = h("span", { class: "sv-brand" }, h("img", { src: CFG.logoUrl, alt: "Savoir Properties", onerror: () => (plate.hidden = true) }));
+  return h("footer", { class: "sv-ft" }, plate, h("span", { class: "sv-ft-t", text: (iso ? t("asOf", { t: when(iso) }) + " · " : "") + t("disclaimer") }), extra || null);
+}
+/** CMS titles use " | " as a separator; show them as readable text. */
+function cleanTitle(s) {
+  return String(s || "").replace(/\s*\|\s*/g, " · ").replace(/\s+/g, " ").trim();
+}
+function disclosure(label, body, open) {
+  return h("details", { class: "sv-disc", open: open || null }, h("summary", { text: label }), h("div", { class: "sv-disc-body" }, body));
+}
+function dl(pairs) {
+  return h("dl", { class: "sv-dl" }, pairs.filter(Boolean).map((p) => h("div", null, h("dt", { text: p[0] }), h("dd", { text: p[1] === null || p[1] === undefined || p[1] === "" ? t("na") : String(p[1]) }))));
+}
+function errorBox(d) {
+  return h("div", { class: "sv-error", role: "alert" }, h("span", { text: (d.error && d.error.message) || t("error") }));
 }
 
 // ---------- components ----------
@@ -371,63 +411,83 @@ function heart(ref) {
   });
   return b;
 }
+/** Save toggle for detail views (same action as the card heart). */
+function saveButton(ref) {
+  const saved = state.saved.has(ref.kind + ":" + ref.slug);
+  const b = h("button", { type: "button", class: "sv-btn", "aria-pressed": saved ? "true" : "false", "aria-label": (saved ? t("unsave") : t("save")) + ": " + ref.title, onclick: () => toggleSave(ref) });
+  const icon = heartSvg(saved);
+  if (saved) icon.style.color = "var(--sv-heart)";
+  b.append(icon, document.createTextNode(saved ? t("savedShort") : t("saveShort")));
+  return b;
+}
 function compareCheck(ref) {
   const checked = state.compare.some((c) => c.kind === ref.kind && c.slug === ref.slug);
   const input = h("input", { type: "checkbox", checked: checked || null, "aria-label": t("compare") + ": " + ref.title });
   input.addEventListener("change", () => toggleCompare(ref, input.checked));
-  return h("label", { class: "sv-check" }, input, t("compare"));
+  return h("label", { class: "sv-chk" }, input, t("compare"));
 }
 function waFor(url) {
   return CFG.companyWa + "?text=" + encodeURIComponent((state.lang === "ar" ? "مرحباً، أرغب في الاستفسار عن هذا العقار: " : "Hello, I'm interested in this property: ") + url);
 }
-
-function propertyCard(p) {
-  const ref = { kind: "property", slug: p.slug, title: p.title };
-  const sel = state.compare.some((c) => c.kind === "property" && c.slug === p.slug);
-  const meta = [bedsLabel(p.bedrooms), p.bathrooms !== null && p.bathrooms !== undefined ? t("baths", { n: p.bathrooms }) : null, typeLabel(p.property_type)].filter(Boolean);
-  const chips = p.amenity_check
-    ? h("div", { class: "sv-chips" }, p.amenity_check.matched.map((k) => h("span", { class: "ok", text: "✓ " + k.replace(/_/g, " ") })), p.amenity_check.not_listed.map((k) => h("span", { class: "no", text: t("notListed") + ": " + k.replace(/_/g, " ") })))
-    : null;
+function card(o) {
   return h(
     "article",
-    { class: "sv-card" + (sel ? " selected" : ""), "aria-label": p.title },
-    h("div", { class: "sv-ph" }, img(p.photo, p.title), badgeFor(p) ? h("span", { class: "sv-badge", text: badgeFor(p) }) : null, heart(ref)),
+    { class: "sv-card" + (o.selected ? " selected" : ""), "aria-label": o.title },
+    h("div", { class: "sv-ph" }, img(o.photo, o.title), o.badge ? h("span", { class: "sv-badge", text: o.badge }) : null, heart(o.ref)),
     h(
       "div",
       { class: "sv-body" },
-      h("div", { class: "sv-title", text: p.title }),
-      p.location && p.location.label ? h("div", { class: "sv-loc", text: p.location.label }) : null,
-      h("div", { class: "sv-price", text: aed(p.price) || t("priceOnRequest") }),
-      h("div", { class: "sv-meta" }, meta.map((m) => h("span", { text: m }))),
-      chips,
-      h("div", { class: "sv-actions" }, btn(t("details"), () => openDetail("property", p.slug, p.title), { primary: true, aria: t("details") + ": " + p.title }), btn(t("whatsapp"), () => openLink((p.links && p.links.whatsapp) || waFor(p.url)), { aria: t("whatsapp") + ": " + p.title }), compareCheck(ref)),
+      h("div", { class: "sv-price", text: o.price }),
+      h("div", { class: "sv-title", dir: "auto", text: cleanTitle(o.title), title: o.title }),
+      o.loc ? h("div", { class: "sv-loc", dir: "auto", text: o.loc }) : null,
+      o.meta ? h("div", { class: "sv-meta", text: o.meta }) : null,
+      o.chips || null,
+      h("div", { class: "sv-card-actions" }, btn(t("details"), o.onDetails, { primary: true, grow: true, aria: t("details") + ": " + o.title }), btn(t("whatsapp"), o.onWa, { aria: t("whatsapp") + ": " + o.title })),
+      h("div", { class: "sv-card-sub" }, compareCheck(o.ref)),
     ),
   );
 }
+function propertyCard(p) {
+  const ref = { kind: "property", slug: p.slug, title: p.title };
+  const meta = [bedsLabel(p.bedrooms), p.bathrooms !== null && p.bathrooms !== undefined ? t("baths", { n: p.bathrooms }) : null, typeLabel(p.property_type)].filter(Boolean).join(" · ");
+  const chips = p.amenity_check
+    ? h("div", { class: "sv-chips" }, p.amenity_check.matched.map((k) => h("span", { class: "ok", text: "✓ " + k.replace(/_/g, " ") })), p.amenity_check.not_listed.map((k) => h("span", { class: "no", text: t("notListed") + ": " + k.replace(/_/g, " ") })))
+    : null;
+  return card({
+    ref: ref,
+    title: p.title,
+    photo: p.photo,
+    badge: badgeFor(p),
+    price: aed(p.price) || t("priceOnRequest"),
+    loc: p.location && p.location.label,
+    meta: meta,
+    chips: chips,
+    selected: state.compare.some((c) => c.kind === "property" && c.slug === p.slug),
+    onDetails: () => openDetail("property", p.slug, p.title),
+    onWa: () => openLink((p.links && p.links.whatsapp) || waFor(p.url)),
+  });
+}
 function offplanCard(p) {
-  const ref = { kind: "offplan", slug: p.slug, title: p.title };
-  return h(
-    "article",
-    { class: "sv-card", "aria-label": p.title },
-    h("div", { class: "sv-ph" }, img(p.image, p.title), h("span", { class: "sv-badge", text: t("offPlan") }), heart(ref)),
-    h(
-      "div",
-      { class: "sv-body" },
-      h("div", { class: "sv-title", text: p.title }),
-      p.location ? h("div", { class: "sv-loc", text: p.location }) : null,
-      h("div", { class: "sv-price", text: p.starting_price_aed ? t("from", { p: aed(p.starting_price_aed) }) : t("priceOnRequest") }),
-      h("div", { class: "sv-meta" }, [p.developer, p.handover ? t("handover", { h: p.handover }) : null].filter(Boolean).map((m) => h("span", { text: m }))),
-      h("div", { class: "sv-actions" }, btn(t("details"), () => openDetail("offplan", p.slug, p.title), { primary: true, aria: t("details") + ": " + p.title }), btn(t("whatsapp"), () => openLink((p.links && p.links.whatsapp) || waFor(p.url))), compareCheck(ref)),
-    ),
-  );
+  return card({
+    ref: { kind: "offplan", slug: p.slug, title: p.title },
+    title: p.title,
+    photo: p.image,
+    badge: t("offPlan"),
+    price: p.starting_price_aed ? t("from", { p: aed(p.starting_price_aed) }) : t("priceOnRequest"),
+    loc: p.location,
+    meta: [p.developer, p.handover ? t("handover", { h: p.handover }) : null].filter(Boolean).join(" · "),
+    selected: state.compare.some((c) => c.kind === "offplan" && c.slug === p.slug),
+    onDetails: () => openDetail("offplan", p.slug, p.title),
+    onWa: () => openLink((p.links && p.links.whatsapp) || waFor(p.url)),
+  });
 }
 function compareBar() {
   if (!state.compare.length) return null;
   return h(
     "div",
     { class: "sv-bar", role: "region", "aria-label": t("compare") },
-    h("span", { class: "sv-sub", text: state.compare.length < 2 ? t("compareHint") : state.compare.map((c) => c.title).join(" · ") }),
-    h("div", { class: "sv-actions", style: "padding:0" }, btn(t("clear"), () => toggleCompareClear(), { small: true }), btn(t("compareN", { n: state.compare.length }), () => openCompare(state.compare), { primary: true, small: true, disabled: state.compare.length < 2 })),
+    h("span", { class: "sv-note", text: state.compare.length < 2 ? t("compareHint") : t("selectedN", { n: state.compare.length }) }),
+    h("div", { class: "sv-actions" }, btn(t("clear"), () => toggleCompareClear(), { small: true, ghost: true }), btn(t("compareN", { n: state.compare.length }), () => openCompare(state.compare), { primary: true, small: true, disabled: state.compare.length < 2 })),
   );
 }
 function toggleCompareClear() {
@@ -435,14 +495,6 @@ function toggleCompareClear() {
   updateModelContext();
   persist();
   rerender();
-}
-function asOf(iso) {
-  return iso ? h("div", { class: "sv-note", text: t("asOf", { t: when(iso) }) + " · " + t("disclaimer") }) : h("div", { class: "sv-note", text: t("disclaimer") });
-}
-function fact(label, value) {
-  const f = h("div", { class: "sv-fact" }, h("b", { text: label }));
-  f.appendChild(document.createTextNode(value === null || value === undefined || value === "" ? t("na") : String(value)));
-  return f;
 }
 function gallery(urls, title) {
   if (!urls || !urls.length) return null;
@@ -462,28 +514,28 @@ function gallery(urls, title) {
   });
   return g;
 }
+function moreButton(tool, pg) {
+  if (!(pg && pg.has_more && state.lastSearch)) return null;
+  return h("div", { class: "sv-more" }, btn(t("more"), () => runSearch(tool, Object.assign({}, state.lastSearch, { page: pg.page + 1 })), { small: true }));
+}
 
 // ---------- views ----------
 function renderPropertyList(d) {
   const pg = d.pagination;
   const sub = pg && pg.total_results ? (pg.total_results === 1 ? t("result1") : t("results", { n: nf().format(pg.total_results) })) + (pg.total_pages > 1 ? " · " + t("pageOf", { p: pg.page, t: pg.total_pages }) : "") : "";
-  const out = [brand(t("listings"), sub), topRow()];
-  if (d.status === "error" || d.status === "invalid_input") {
-    out.push(h("div", { class: "sv-error", role: "alert" }, h("span", { text: (d.error && d.error.message) || t("error") })));
-    return out;
-  }
+  const out = [header(t("listings"), sub)];
+  if (d.status === "error" || d.status === "invalid_input") return out.concat(errorBox(d), footer(d.data_as_of));
   if (!d.items.length) {
     out.push(h("div", { class: "sv-empty", text: t("noResults") }));
     if (d.alternatives && d.alternatives.length) {
-      out.push(h("h3", { class: "sv-sub", style: "margin:10px 2px 0;font-size:13px", text: t("alternatives") }));
+      out.push(h("h2", { class: "sv-section-t", text: t("alternatives") }));
       d.alternatives.forEach((a) =>
         out.push(
           h(
             "div",
             { class: "sv-alt" },
-            h("h3", { text: a.description }),
-            h("div", { class: "sv-sub", text: t("nListings", { n: a.total_results }) }),
-            h("div", { class: "sv-mini" }, a.sample.map((s) => h("div", null, h("b", { text: s.title }), h("br"), (aed(s.price) || t("priceOnRequest")) + (s.location && s.location.label ? " · " + s.location.label : "")))),
+            h("div", null, h("h3", { dir: "auto", text: a.description }), h("div", { class: "sv-note", text: t("nListings", { n: a.total_results }) })),
+            h("div", { class: "sv-mini" }, a.sample.map((s) => h("div", null, h("b", { text: cleanTitle(s.title) }), " — " + (aed(s.price) || t("priceOnRequest")) + (s.location && s.location.label ? " · " + s.location.label : "")))),
             h("div", { class: "sv-actions" }, btn(t("showThese"), () => runSearch("search_properties", a.search_args), { primary: true, small: true })),
           ),
         ),
@@ -493,200 +545,205 @@ function renderPropertyList(d) {
     out.push(h("div", { class: "sv-row" }, d.items.map(propertyCard)));
     if (d.amenity_note) out.push(h("div", { class: "sv-note", text: t("amenNote") }));
   }
-  const foot = h("div", { class: "sv-foot" }, asOf(d.data_as_of));
-  if (pg && pg.has_more && state.lastSearch) foot.appendChild(btn(t("more"), () => runSearch("search_properties", Object.assign({}, state.lastSearch, { page: pg.page + 1 })), { small: true }));
-  out.push(foot, compareBar());
+  out.push(moreButton("search_properties", pg), footer(d.data_as_of), compareBar());
   return out;
 }
 
 function renderOffplanList(d) {
   const pg = d.pagination;
   const sub = pg && pg.total_results ? t("results", { n: pg.total_results }) : "";
-  const out = [brand(t("offplan"), sub), topRow()];
-  if (d.status === "error") return out.concat(h("div", { class: "sv-error", role: "alert" }, h("span", { text: (d.error && d.error.message) || t("error") })));
+  const out = [header(t("offplan"), sub)];
+  if (d.status === "error") return out.concat(errorBox(d), footer(d.data_as_of));
   if (!d.items.length) out.push(h("div", { class: "sv-empty", text: t("noResults") }));
   else out.push(h("div", { class: "sv-row" }, d.items.map(offplanCard)));
   if (d.notes && d.notes.length) out.push(h("div", { class: "sv-note", text: d.notes.join(" ") }));
-  const foot = h("div", { class: "sv-foot" }, asOf(d.data_as_of));
-  if (pg && pg.has_more && state.lastSearch) foot.appendChild(btn(t("more"), () => runSearch("search_offplan_projects", Object.assign({}, state.lastSearch, { page: pg.page + 1 })), { small: true }));
-  out.push(foot, compareBar());
+  out.push(moreButton("search_offplan_projects", pg), footer(d.data_as_of), compareBar());
   return out;
 }
 
 function renderPropertyDetail(d) {
-  const out = [topRow()];
+  const out = [header(null)];
   const p = d.property;
   if (!p) return out.concat(h("div", { class: d.status === "not_found" ? "sv-empty" : "sv-error", text: (d.error && d.error.message) || t("error") }));
   const ref = { kind: "property", slug: p.slug, title: p.title };
-  const saved = state.saved.has("property:" + p.slug);
-  const facts = [
-    fact(t("rStatus"), badgeFor(p)),
-    fact(t("rType"), typeLabel(p.property_type)),
-    fact(t("rBeds"), p.bedrooms === 0 ? t("studio") : p.bedrooms),
-    fact(t("rBaths"), p.bathrooms),
-    fact(t("rSize"), p.size_sqft ? t("sqft", { n: nf().format(p.size_sqft) }) : null),
-    fact(t("rPpsf"), p.purpose === "rent" ? t("naRent") : p.price_per_sqft_aed ? aed(p.price_per_sqft_aed) : null),
-    p.reference_number ? fact(t("rRef"), p.reference_number) : null,
-    p.permit_number ? fact(t("rPermit"), p.permit_number) : null,
-  ].filter(Boolean);
+  const keyFacts = [bedsLabel(p.bedrooms), p.bathrooms !== null && p.bathrooms !== undefined ? t("baths", { n: p.bathrooms }) : null, p.size_sqft ? t("sqft", { n: nf().format(p.size_sqft) }) : null, typeLabel(p.property_type)].filter(Boolean).join(" · ");
+  const ppsf = p.purpose !== "rent" && p.price_per_sqft_aed ? t("perSqft", { v: aed(p.price_per_sqft_aed) }) : null;
   const wa = d.links ? d.links.whatsapp : p.agent && p.agent.whatsapp_url ? p.agent.whatsapp_url + "?text=" + encodeURIComponent("Hello, I'm interested in this property: " + p.url) : waFor(p.url);
   const site = d.links ? d.links.website : p.url;
+  const more = [
+    dl([
+      [t("rStatus"), badgeFor(p)],
+      [t("rType"), typeLabel(p.property_type)],
+      [t("rBeds"), p.bedrooms === 0 ? t("studio") : p.bedrooms],
+      [t("rBaths"), p.bathrooms],
+      [t("rSize"), p.size_sqft ? t("sqft", { n: nf().format(p.size_sqft) }) : null],
+      [t("rPpsf"), p.purpose === "rent" ? t("naRent") : p.price_per_sqft_aed ? aed(p.price_per_sqft_aed) : null],
+      p.reference_number ? [t("rRef"), p.reference_number] : null,
+      p.permit_number ? [t("rPermit"), p.permit_number] : null,
+      [t("agent"), p.agent ? p.agent.name : "Savoir Properties"],
+    ]),
+    p.amenities && p.amenities.length ? h("div", { class: "sv-chips" }, p.amenities.map((a) => h("span", { text: a }))) : null,
+  ];
   out.push(
     h(
-      "div",
-      { class: "sv-detail" },
+      "section",
+      { class: "sv-detail", "aria-label": p.title },
       gallery(p.photos, p.title),
       h(
         "div",
-        { class: "sv-dbody" },
-        h("h2", { class: "sv-dtitle", text: p.title }),
-        h("div", { class: "sv-loc", text: [p.building, p.location && p.location.label].filter(Boolean).join(", ") }),
-        h("div", { class: "sv-price", text: aed(p.price) || t("priceOnRequest") }),
-        h("div", { class: "sv-facts" }, facts),
-        p.amenities && p.amenities.length ? h("div", { class: "sv-chips" }, p.amenities.map((a) => h("span", { text: a }))) : null,
-        h(
-          "div",
-          { class: "sv-agent" },
-          h("div", { text: p.agent ? t("agent") + ": " + p.agent.name : "Savoir Properties" }),
-          h(
-            "div",
-            { class: "sv-actions", style: "padding:0" },
-            btn(saved ? "♥ " + t("unsave") : "♡ " + t("save"), () => toggleSave(ref), { small: true }),
-            btn(t("prepare"), () => prepareMessage([ref]), { primary: true, small: true }),
-            btn(t("whatsapp"), () => openLink(wa), { small: true }),
-            btn(t("website"), () => openLink(site), { small: true }),
-          ),
-        ),
-        h("label", { class: "sv-check" }, (() => {
-          const c = h("input", { type: "checkbox", checked: state.compare.some((x) => x.slug === p.slug) || null });
-          c.addEventListener("change", () => toggleCompare(ref, c.checked));
-          return c;
-        })(), t("compare")),
-        asOf(d.data_as_of),
+        { class: "sv-dhead" },
+        h("h2", { class: "sv-dtitle", dir: "auto", text: cleanTitle(p.title) }),
+        h("div", { class: "sv-loc", dir: "auto", text: [p.building, p.location && p.location.label].filter(Boolean).join(", ") }),
+        h("div", { class: "sv-dprice" }, h("span", { class: "sv-price", text: aed(p.price) || t("priceOnRequest") }), ppsf ? h("span", { class: "sv-note", text: ppsf }) : null),
+        keyFacts ? h("div", { class: "sv-keyfacts", text: keyFacts }) : null,
       ),
+      h("div", { class: "sv-actions" }, btn(t("prepare"), () => prepareMessage([ref]), { primary: true }), btn(t("whatsapp"), () => openLink(wa)), saveButton(ref)),
+      h("div", { class: "sv-links" }, btn(t("website") + " ↗", () => openLink(site), { small: true, ghost: true, aria: t("website") }), (() => {
+        const c = compareCheck(ref);
+        return c;
+      })()),
+      disclosure(t("moreDetails"), more),
     ),
   );
-  if (p.similar_properties && p.similar_properties.length) out.push(h("div", { class: "sv-head" }, h("h2", { text: t("similar") })), h("div", { class: "sv-row" }, p.similar_properties.map((s) => propertyCard(Object.assign({ saved: false, amenity_check: null }, s)))));
-  out.push(compareBar());
+  if (p.similar_properties && p.similar_properties.length) out.push(h("section", { class: "sv-similar" }, h("h2", { class: "sv-section-t", text: t("similar") }), h("div", { class: "sv-row" }, p.similar_properties.map((s) => propertyCard(Object.assign({ saved: false, amenity_check: null }, s))))));
+  out.push(footer(d.data_as_of), compareBar());
   return out;
 }
 
+function pct(s) {
+  const m = /(\d+(?:\.\d+)?)/.exec(String(s || ""));
+  return m ? Number(m[1]) : 0;
+}
 function renderOffplanDetail(d) {
-  const out = [topRow()];
+  const out = [header(null)];
   const p = d.project;
   if (!p) return out.concat(h("div", { class: d.status === "not_found" ? "sv-empty" : "sv-error", text: (d.error && d.error.message) || t("error") }));
   const ref = { kind: "offplan", slug: p.slug, title: p.title };
-  const saved = state.saved.has("offplan:" + p.slug);
-  const plan = p.payment_plan
-    ? h("div", { class: "sv-plan", role: "list", "aria-label": t("plan") }, [[t("down"), p.payment_plan.down_payment], [t("during"), p.payment_plan.during_construction], [t("onHandover"), p.payment_plan.on_handover]].map((x) => h("div", { role: "listitem" }, h("b", { text: x[1] || "—" }), x[0])))
-    : null;
-  const priceInput = h("input", { type: "number", inputmode: "numeric", min: "10000", step: "1000", placeholder: t("calcPh"), "aria-label": t("calcPh") });
-  const calc = p.payment_plan
-    ? h("div", null, h("div", { class: "sv-sub", text: t("calcTitle") }), h("div", { class: "sv-calc" }, priceInput, btn(t("calcBtn"), async () => {
+  let planBox = null;
+  if (p.payment_plan) {
+    const stages = [[t("down"), p.payment_plan.down_payment], [t("during"), p.payment_plan.during_construction], [t("onHandover"), p.payment_plan.on_handover]];
+    const priceInput = h("input", { type: "number", inputmode: "numeric", min: "10000", step: "1000", placeholder: t("calcPh"), "aria-label": t("calcPh") });
+    const sched = d.payment_schedule
+      ? h("div", null, h("table", { class: "sv-sched" }, h("caption", { class: "sr", text: t("plan") }), h("tbody", null, d.payment_schedule.stages.map((s) => h("tr", null, h("th", { scope: "row", text: s.label }), h("td", { class: "pct", text: s.percent + "%" }), h("td", { text: aed(s.amount_aed) }))))), d.payment_schedule.notes.length ? h("div", { class: "sv-note", style: "margin-top:6px", text: d.payment_schedule.notes.join(" ") }) : null)
+      : d.payment_schedule_note
+        ? h("div", { class: "sv-note", text: d.payment_schedule_note })
+        : null;
+    planBox = h(
+      "div",
+      { class: "sv-planbox" },
+      h("h3", { text: t("plan") }),
+      h("div", { class: "sv-planbar", "aria-hidden": "true" }, stages.map((s) => h("span", { style: "flex:" + (pct(s[1]) || 1) }))),
+      h("div", { class: "sv-plan", role: "list", "aria-label": t("plan") }, stages.map((x) => h("div", { role: "listitem" }, h("b", { text: x[1] || "—" }), x[0]))),
+      h("div", { class: "sv-note", text: t("calcTitle") }),
+      h("div", { class: "sv-calc" }, priceInput, btn(t("calcBtn"), async () => {
         const v = Number(priceInput.value);
         if (!v || v < 10000) return priceInput.focus();
         const args = { slug: p.slug, unit_price_aed: v };
         if (state.shortlistId) args.shortlist_id = state.shortlistId;
         const sc = await callTool("get_offplan_project_details", args);
         if (sc) navigate(sc, false);
-      }, { small: true })))
-    : null;
-  const sched = d.payment_schedule
-    ? h("div", { class: "sv-table-wrap" }, h("table", { class: "sv-cmp" }, h("tbody", null, d.payment_schedule.stages.map((s) => h("tr", null, h("th", { scope: "row", text: s.label }), h("td", { text: s.percent + "% = " + aed(s.amount_aed) }))))), h("div", { class: "sv-note", style: "padding:0 8px", text: d.payment_schedule.notes.join(" ") }))
-    : d.payment_schedule_note
-      ? h("div", { class: "sv-note", text: d.payment_schedule_note })
-      : null;
+      }, { small: true })),
+      sched,
+    );
+  }
+  const more = [
+    dl([[t("rDev"), p.developer], [t("rHandover"), p.handover], [t("rUnits"), p.unit_sizes], [t("rLifestyle"), p.lifestyle], [t("rTitleType"), p.title_type]]),
+    p.amenities && p.amenities.length ? h("div", { class: "sv-chips" }, p.amenities.map((a) => h("span", { text: a }))) : null,
+  ];
   out.push(
     h(
-      "div",
-      { class: "sv-detail" },
+      "section",
+      { class: "sv-detail", "aria-label": p.title },
       gallery(p.images, p.title),
       h(
         "div",
-        { class: "sv-dbody" },
-        h("h2", { class: "sv-dtitle", text: p.title }),
-        h("div", { class: "sv-loc", text: [p.location, p.area].filter(Boolean).join(" — ") }),
-        h("div", { class: "sv-price", text: p.starting_price_aed ? t("from", { p: aed(p.starting_price_aed) }) : t("priceOnRequest") }),
-        h("div", { class: "sv-facts" }, [fact(t("rDev"), p.developer), fact(t("rHandover"), p.handover), fact(t("rUnits"), p.unit_sizes), fact(t("rLifestyle"), p.lifestyle), fact(t("rTitleType"), p.title_type)]),
-        plan,
-        calc,
-        sched,
-        p.amenities && p.amenities.length ? h("div", { class: "sv-chips" }, p.amenities.map((a) => h("span", { text: a }))) : null,
-        h(
-          "div",
-          { class: "sv-actions" },
-          btn(saved ? "♥ " + t("unsave") : "♡ " + t("save"), () => toggleSave(ref), { small: true }),
-          btn(t("prepare"), () => prepareMessage([ref]), { primary: true, small: true }),
-          btn(t("whatsapp"), () => openLink(d.links ? d.links.whatsapp : waFor(p.url)), { small: true }),
-          btn(t("website"), () => openLink(d.links ? d.links.website : p.url), { small: true }),
-          p.video_url ? btn(t("video"), () => openLink(p.video_url), { small: true }) : null,
-        ),
-        asOf(d.data_as_of),
+        { class: "sv-dhead" },
+        h("h2", { class: "sv-dtitle", dir: "auto", text: cleanTitle(p.title) }),
+        h("div", { class: "sv-loc", dir: "auto", text: [p.location, p.area].filter(Boolean).join(" — ") }),
+        h("div", { class: "sv-dprice" }, h("span", { class: "sv-price", text: p.starting_price_aed ? t("from", { p: aed(p.starting_price_aed) }) : t("priceOnRequest") })),
+        h("div", { class: "sv-keyfacts", text: [p.developer, p.handover ? t("handover", { h: p.handover }) : null].filter(Boolean).join(" · ") }),
       ),
+      h("div", { class: "sv-actions" }, btn(t("prepare"), () => prepareMessage([ref]), { primary: true }), btn(t("whatsapp"), () => openLink(d.links ? d.links.whatsapp : waFor(p.url))), saveButton(ref)),
+      h("div", { class: "sv-links" }, btn(t("website") + " ↗", () => openLink(d.links ? d.links.website : p.url), { small: true, ghost: true, aria: t("website") }), p.video_url ? btn(t("video") + " ↗", () => openLink(p.video_url), { small: true, ghost: true, aria: t("video") }) : null),
+      planBox,
+      disclosure(t("moreDetails"), more),
     ),
   );
+  out.push(footer(d.data_as_of));
   return out;
 }
 
 function renderCompare(d) {
-  const out = [topRow(), brand(t("compareTitle"))];
-  if (d.status !== "ok") return out.concat(h("div", { class: "sv-error", role: "alert" }, h("span", { text: (d.error && d.error.message) || t("error") })));
+  const out = [header(t("compareTitle"))];
+  if (d.status !== "ok") return out.concat(errorBox(d));
   const cols = d.items;
   const na = () => h("span", { class: "na", text: t("na") });
   const cell = (v) => (v === null || v === undefined || v === "" ? na() : document.createTextNode(String(v)));
-  const props = cols.map((c) => c.property || c.project);
-  const head = h("tr", null, h("th", { scope: "col" }), cols.map((c) => {
+  const head = h("tr", null, h("th", { scope: "col" }, h("span", { class: "sr", text: t("compareTitle") })), cols.map((c) => {
     const x = c.property || c.project;
     if (!x) return h("th", { scope: "col", text: c.slug + " — " + t("unavailable") });
-    return h("th", { scope: "col" }, img(x.photos ? x.photos[0] : x.image, x.title), x.title);
+    return h("th", { scope: "col" }, img(x.photos ? x.photos[0] : x.image, x.title), h("span", { dir: "auto", text: cleanTitle(x.title) }));
   }));
   const row = (label, fn) => h("tr", null, h("th", { scope: "row", text: label }), cols.map((c) => h("td", null, fn(c))));
-  const rows = [];
   const anyProp = cols.some((c) => c.property);
   const anyOff = cols.some((c) => c.project);
-  rows.push(row(t("rPrice"), (c) => (c.property ? cell(aed(c.property.price) || null) : c.project ? cell(c.project.starting_price_aed ? t("from", { p: aed(c.project.starting_price_aed) }) : null) : na())));
+  const main = [];
+  const extra = [];
+  main.push(row(t("rPrice"), (c) => (c.property ? cell(aed(c.property.price) || null) : c.project ? cell(c.project.starting_price_aed ? t("from", { p: aed(c.project.starting_price_aed) }) : null) : na())));
   if (anyProp) {
-    rows.push(row(t("rPpsf"), (c) => (c.property ? (c.property.purpose === "rent" ? h("span", { class: "na", text: t("naRent") }) : cell(c.property.price_per_sqft_aed ? aed(c.property.price_per_sqft_aed) : null)) : na())));
-    rows.push(row(t("rBeds"), (c) => cell(c.property ? bedsLabel(c.property.bedrooms) : null)));
-    rows.push(row(t("rBaths"), (c) => cell(c.property ? c.property.bathrooms : null)));
-    rows.push(row(t("rSize"), (c) => cell(c.property && c.property.size_sqft ? t("sqft", { n: nf().format(c.property.size_sqft) }) : null)));
-    rows.push(row(t("rType"), (c) => cell(c.property ? typeLabel(c.property.property_type) : null)));
-    rows.push(row(t("rStatus"), (c) => cell(c.property ? badgeFor(c.property) : c.project ? t("offPlan") : null)));
+    main.push(row(t("rPpsf"), (c) => (c.property ? (c.property.purpose === "rent" ? h("span", { class: "na", text: t("naRent") }) : cell(c.property.price_per_sqft_aed ? aed(c.property.price_per_sqft_aed) : null)) : na())));
+    main.push(row(t("rBeds"), (c) => cell(c.property ? bedsLabel(c.property.bedrooms) : null)));
+    main.push(row(t("rSize"), (c) => cell(c.property && c.property.size_sqft ? t("sqft", { n: nf().format(c.property.size_sqft) }) : null)));
   }
-  rows.push(row(t("rLoc"), (c) => cell(c.property ? [c.property.building, c.property.location.label].filter(Boolean).join(", ") : c.project ? c.project.location : null)));
+  main.push(row(t("rLoc"), (c) => cell(c.property ? [c.property.building, c.property.location.label].filter(Boolean).join(", ") : c.project ? c.project.location : null)));
   if (anyOff) {
-    rows.push(row(t("rDev"), (c) => cell(c.project ? c.project.developer : null)));
-    rows.push(row(t("rHandover"), (c) => cell(c.project ? c.project.handover : null)));
-    rows.push(row(t("rPlan"), (c) => cell(c.project && c.project.payment_plan ? [c.project.payment_plan.down_payment, c.project.payment_plan.during_construction, c.project.payment_plan.on_handover].map((x) => x || "—").join(" / ") : null)));
-    rows.push(row(t("rUnits"), (c) => cell(c.project ? c.project.unit_sizes : null)));
+    main.push(row(t("rHandover"), (c) => cell(c.project ? c.project.handover : null)));
+    main.push(row(t("rPlan"), (c) => cell(c.project && c.project.payment_plan ? [c.project.payment_plan.down_payment, c.project.payment_plan.during_construction, c.project.payment_plan.on_handover].map((x) => x || "—").join(" / ") : null)));
   }
-  rows.push(row(t("rAmen"), (c) => {
+  if (cols.some((c) => c.suitability && c.suitability.summary !== "no_requirements")) {
+    main.push(row(t("rFit"), (c) => {
+      const s = c.suitability;
+      if (!s || s.summary === "no_requirements") return na();
+      return h("div", null, h("span", { class: "sv-fit " + s.summary, text: t(s.summary) }), h("details", { class: "sv-fitd" }, h("summary", { text: t("why") }), h("ul", { class: "sv-fitlist" }, s.checks.map((k) => h("li", { text: k.requirement + ": " + t(k.fit === "meets" ? "yes" : k.fit === "does_not_meet" ? "no" : "unknown") + " (" + k.detail + ")" })))));
+    }));
+  }
+  if (anyProp) {
+    extra.push(row(t("rBaths"), (c) => cell(c.property ? c.property.bathrooms : null)));
+    extra.push(row(t("rType"), (c) => cell(c.property ? typeLabel(c.property.property_type) : null)));
+    extra.push(row(t("rStatus"), (c) => cell(c.property ? badgeFor(c.property) : c.project ? t("offPlan") : null)));
+  }
+  if (anyOff) {
+    extra.push(row(t("rDev"), (c) => cell(c.project ? c.project.developer : null)));
+    extra.push(row(t("rUnits"), (c) => cell(c.project ? c.project.unit_sizes : null)));
+  }
+  extra.push(row(t("rAmen"), (c) => {
     const a = (c.property && c.property.amenities) || (c.project && c.project.amenities) || [];
     return a.length ? document.createTextNode(a.join(", ")) : na();
   }));
-  if (anyProp) rows.push(row(t("rAgent"), (c) => cell(c.property ? (c.property.agent ? c.property.agent.name : "Savoir Properties") : null)));
-  if (cols.some((c) => c.suitability && c.suitability.summary !== "no_requirements")) {
-    rows.push(row(t("rFit"), (c) => {
-      const s = c.suitability;
-      if (!s || s.summary === "no_requirements") return na();
-      return h("div", null, h("span", { class: "sv-fit " + s.summary, text: t(s.summary) }), h("ul", { class: "sv-fitlist" }, s.checks.map((k) => h("li", { text: k.requirement + ": " + t(k.fit === "meets" ? "yes" : k.fit === "does_not_meet" ? "no" : "unknown") + " (" + k.detail + ")" }))));
-    }));
-  }
-  out.push(h("div", { class: "sv-table-wrap" }, h("table", { class: "sv-cmp" }, h("caption", { class: "sr", text: t("compareTitle") }), h("thead", null, head), h("tbody", null, rows))));
+  if (anyProp) extra.push(row(t("rAgent"), (c) => cell(c.property ? (c.property.agent ? c.property.agent.name : "Savoir Properties") : null)));
+  const extraBody = h("tbody", { id: "sv-cmp-more", hidden: true }, extra);
+  const toggle = btn(t("showAll"), () => {
+    extraBody.hidden = !extraBody.hidden;
+    toggle.setAttribute("aria-expanded", String(!extraBody.hidden));
+    toggle.textContent = extraBody.hidden ? t("showAll") : t("showFewer");
+  }, { small: true, ghost: true });
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.setAttribute("aria-controls", "sv-cmp-more");
+  out.push(h("div", { class: "sv-table-wrap" }, h("table", { class: "sv-cmp", style: "min-width:" + (120 + cols.length * 180) + "px" }, h("caption", { class: "sr", text: t("compareTitle") }), h("thead", null, head), h("tbody", null, main), extraBody)));
   const available = cols.filter((c) => c.available).map((c) => ({ kind: c.kind, slug: c.slug, title: (c.property || c.project).title }));
-  out.push(h("div", { class: "sv-foot" }, asOf(d.data_as_of), available.length ? btn(t("prepareThese"), () => prepareMessage(available.slice(0, 4)), { primary: true, small: true }) : null));
+  out.push(h("div", { class: "sv-actions", style: "justify-content:space-between" }, toggle, available.length ? btn(t("prepareThese"), () => prepareMessage(available.slice(0, 4)), { primary: true }) : null));
+  out.push(footer(d.data_as_of));
   return out;
 }
 
 function renderShortlist(d) {
-  const out = [backButton()];
   const s = d.shortlist;
-  out.push(brand(t("shortlist"), s ? (s.items.length === 1 ? t("shortlistCount1") : t("shortlistCountN", { n: s.items.length })) : ""));
+  const out = [header(t("shortlist"), s ? (s.items.length === 1 ? t("shortlistCount1") : t("shortlistCountN", { n: s.items.length })) : "", { noShortlist: true })];
   if (!s) return out.concat(h("div", { class: "sv-empty", text: (d.error && d.error.message) || t("shortlistEmpty") }));
   // Changes made by the assistant (the card's own changes use notice()).
-  if (d.change && d.change.added.length) out.push(h("div", { class: "sv-notice ok", role: "status", text: t("savedTo") }));
-  if (d.change && d.change.removed.length) out.push(h("div", { class: "sv-notice ok", role: "status", text: t("removedFrom") }));
-  if (d.rejected && d.rejected.length) out.push(h("div", { class: "sv-notice error", role: "alert", text: t("saveFailed") + " " + t("notSavedWhy") }));
+  if (d.change && d.change.added.length) out.push(h("div", { class: "sv-notice ok", role: "status" }, h("span", { text: t("savedTo") })));
+  if (d.change && d.change.removed.length) out.push(h("div", { class: "sv-notice ok", role: "status" }, h("span", { text: t("removedFrom") })));
+  if (d.rejected && d.rejected.length) out.push(h("div", { class: "sv-notice error", role: "alert" }, h("span", { text: t("saveFailed") + " " + t("notSavedWhy") })));
   if (!s.items.length) out.push(h("div", { class: "sv-empty", text: t("shortlistEmpty") }));
   else
     out.push(
@@ -698,62 +755,70 @@ function renderShortlist(d) {
             "div",
             { class: "sv-li" },
             img(i.photo, i.title) || h("span"),
-            h("div", null, h("div", { class: "t", text: i.title || i.slug }), h("div", { class: "sv-sub", text: [i.price_label, i.location_label, i.bedrooms_label].filter(Boolean).join(" · ") }), h("div", { class: "sv-sub", text: t("asSaved") })),
-            h("div", { class: "sv-actions", style: "padding:0;flex-direction:column" }, btn(t("details"), () => openDetail(i.kind, i.slug, i.title || i.slug), { small: true }), btn(t("remove"), () => toggleSave({ kind: i.kind, slug: i.slug, title: i.title || i.slug }), { small: true, aria: t("remove") + ": " + (i.title || i.slug) })),
+            h("div", null, h("div", { class: "t", dir: "auto", text: cleanTitle(i.title || i.slug) }), h("div", { class: "s", text: [i.price_label, i.location_label, i.bedrooms_label].filter(Boolean).join(" · ") }), h("div", { class: "s", text: t("asSaved") })),
+            h("div", { class: "sv-li-act" }, btn(t("details"), () => openDetail(i.kind, i.slug, i.title || i.slug), { small: true, aria: t("details") + ": " + (i.title || i.slug) }), btn(t("remove"), () => toggleSave({ kind: i.kind, slug: i.slug, title: i.title || i.slug }), { small: true, ghost: true, aria: t("remove") + ": " + (i.title || i.slug) })),
           ),
         ),
       ),
     );
   const refs = s.items.map((i) => ({ kind: i.kind, slug: i.slug, title: i.title || i.slug }));
-  const actions = h(
-    "div",
-    { class: "sv-actions" },
-    refs.length >= 2 ? btn(t("compareN", { n: Math.min(4, refs.length) }), () => openCompare(refs.slice(0, 4)), { small: true }) : null,
-    refs.length ? btn(t("prepareSaved"), () => prepareMessage(refs.slice(0, 4)), { primary: true, small: true }) : null,
-  );
-  out.push(actions);
+  if (refs.length) out.push(h("div", { class: "sv-actions" }, btn(t("prepareSaved"), () => prepareMessage(refs.slice(0, 4)), { primary: true }), refs.length >= 2 ? btn(t("compareN", { n: Math.min(4, refs.length) }), () => openCompare(refs.slice(0, 4))) : null));
   // share link
   if (s.share_url) {
-    const input = h("input", { id: "sv-share-url", type: "text", readonly: true, value: s.share_url, "aria-label": t("share"), style: "flex:1 1 220px;min-height:32px;border:1px solid var(--sv-line);border-radius:8px;padding:4px 8px;background:var(--sv-bg);color:var(--sv-fg)" });
+    const input = h("input", { id: "sv-share-url", type: "text", readonly: true, value: s.share_url, "aria-label": t("shareTitle") });
     out.push(
-      h("div", { class: "sv-calc", style: "margin-top:8px" }, input, btn(t("copyLink"), () => copyWithFeedback(s.share_url, input), { small: true, primary: true }), btn(t("openLink"), () => openLink(s.share_url), { small: true }), btn(t("stopShare"), async () => {
-        const sc = await callTool("share_shortlist", { shortlist_id: s.shortlist_id, action: "stop_sharing" });
-        if (sc) navigate(sc, false);
-      }, { small: true })),
-      h("div", { class: "sv-note", text: t("shareNote") }),
+      h(
+        "div",
+        { class: "sv-card2" },
+        h("h3", { text: t("shareTitle") }),
+        h("div", { class: "sv-share" }, input, btn(t("copyLink"), () => copyWithFeedback(s.share_url, input), { small: true, primary: true }), btn(t("openLink"), () => openLink(s.share_url), { small: true })),
+        h("div", { class: "sv-actions", style: "justify-content:space-between" }, h("span", { class: "sv-note", text: t("shareNote") }), btn(t("stopShare"), async () => {
+          const sc = await callTool("share_shortlist", { shortlist_id: s.shortlist_id, action: "stop_sharing" });
+          if (sc) navigate(sc, false);
+        }, { small: true, ghost: true })),
+      ),
     );
   } else if (s.items.length) {
-    out.push(h("div", { class: "sv-actions" }, btn(t("createShare"), async () => {
-      const sc = await callTool("share_shortlist", { shortlist_id: s.shortlist_id, action: "share" });
-      if (sc) navigate(sc, false);
-    }, { small: true })));
+    out.push(
+      h(
+        "div",
+        { class: "sv-card2" },
+        h("h3", { text: t("shareTitle") }),
+        h("div", { class: "sv-actions", style: "justify-content:space-between" }, h("span", { class: "sv-note", text: t("shareIntro") }), btn(t("createShare"), async () => {
+          const sc = await callTool("share_shortlist", { shortlist_id: s.shortlist_id, action: "share" });
+          if (sc) navigate(sc, false);
+        }, { small: true })),
+      ),
+    );
   }
-  // delete with inline confirmation
+  // how long it lasts, then delete with inline confirmation
+  out.push(h("div", { class: "sv-note", text: t("keptShort") }), disclosure(t("aboutShortlist"), [h("div", { class: "sv-note", text: t("persists") }), h("div", { class: "sv-note", text: t("reopen") })]));
   const confirmBox = h("div", { class: "sv-confirm", hidden: true }, h("span", { text: t("deleteQ") }), btn(t("yesDelete"), async () => {
     if (!canCallTools()) return;
     try {
       await rawCall("delete_shortlist", { shortlist_id: s.shortlist_id });
     } catch (e) {
-      return showError(() => {});
+      return notice(t("error"), "error");
     }
     state.shortlistId = null;
     state.saved = new Set();
     updateModelContext();
     persist();
-    root.replaceChildren(brand(t("shortlist")), h("div", { class: "sv-empty", text: t("deleted") }));
+    state.current = null;
+    root.replaceChildren(header(t("shortlist"), "", { noShortlist: true }), h("div", { class: "sv-empty", text: t("deleted") }));
     announce(t("deleted"));
-  }, { small: true }), btn(t("cancel"), () => (confirmBox.hidden = true), { small: true }));
-  out.push(h("div", { class: "sv-note", text: t("persists") }), h("div", { class: "sv-note", text: t("reopen") }), h("div", { class: "sv-foot" }, h("span"), btn(t("delete"), () => (confirmBox.hidden = false), { small: true })), confirmBox);
+  }, { small: true, primary: true }), btn(t("cancel"), () => (confirmBox.hidden = true), { small: true, ghost: true }));
+  out.push(h("div", { class: "sv-endrow" }, btn(t("delete"), () => (confirmBox.hidden = false), { small: true, danger: true })), confirmBox);
   return out;
 }
 
 function renderInquiry(d) {
-  const out = [backButton(), brand(t("msgTitle"))];
+  const out = [header(t("msgTitle"))];
   const x = d.handoff;
   if (!x) return out.concat(h("div", { class: "sv-error", role: "alert" }, h("span", { text: (d.error && d.error.message) || t("error") }), btn(t("whatsapp"), () => openLink(CFG.companyWa), { small: true })));
   const area = h("textarea", { id: "sv-handoff-msg", class: "sv-msg", readonly: true, dir: x.language === "ar" ? "rtl" : "ltr", "aria-label": t("msgTitle") });
   area.value = x.message;
-  out.push(area, h("div", { class: "sv-note", text: x.shared_information }));
+  out.push(area);
   if (x.unavailable && x.unavailable.length) out.push(h("div", { class: "sv-note", text: t("unavailable") + ": " + x.unavailable.map((u) => u.slug).join(", ") }));
   out.push(
     h(
@@ -761,43 +826,44 @@ function renderInquiry(d) {
       { class: "sv-actions" },
       btn(t("sendWa"), () => openLink(x.channels.whatsapp_company), { primary: true }),
       x.channels.whatsapp_agent ? btn(t("sendWaAgent", { name: x.channels.whatsapp_agent.name }), () => openLink(x.channels.whatsapp_agent.url)) : null,
-      btn(t("sendEmail"), () => openLink(x.channels.email)),
-      btn(t("copy"), () => copyWithFeedback(x.message, area)),
+      btn(t("sendEmail"), () => openLink(x.channels.email), { ghost: true }),
+      btn(t("copy"), () => copyWithFeedback(x.message, area), { ghost: true }),
     ),
     h("div", { class: "sv-note", text: t("notBooking") + " · " + x.reference_code }),
+    h("div", { class: "sv-note", text: x.shared_information }),
   );
   return out;
 }
 
 function renderAreaGuide(d) {
-  const out = [topRow(), brand(t("areasTitle"))];
+  const out = [header(t("areasTitle"))];
   const g = d.guide;
-  if (!g) return out.concat(h("div", { class: "sv-error", role: "alert" }, h("span", { text: (d.error && d.error.message) || t("error") })));
+  if (!g) return out.concat(errorBox(d));
   if (!g.areas.length) out.push(h("div", { class: "sv-empty", text: t("noResults") }));
   const input = state.lastSearch || {};
-  out.push(
-    h(
-      "div",
-      { class: "sv-list" },
-      g.areas.map((a) =>
-        h(
-          "div",
-          { class: "sv-li", style: "grid-template-columns:1fr auto" },
-          h("div", null, h("div", { class: "t", text: a.area }), h("div", { class: "sv-sub", text: t("nListings", { n: a.matching_listings }) + (a.price_range_aed ? " · " + aed(a.price_range_aed.min) + " – " + aed(a.price_range_aed.max) : "") }), a.tags.length ? h("div", { class: "sv-chips" }, a.tags.map((x) => h("span", { text: x }))) : null, a.nearby.length ? h("div", { class: "sv-sub", text: t("nearby") + ": " + a.nearby.slice(0, 3).join(", ") }) : null),
-          btn(t("searchHere"), () => {
-            const args = { areas: [a.area] };
-            if (input.purpose) args.purpose = input.purpose;
-            if (typeof input.budget_max_aed === "number") args.max_price_aed = input.budget_max_aed;
-            if (typeof input.budget_min_aed === "number") args.min_price_aed = input.budget_min_aed;
-            if (typeof input.bedrooms === "number") args.bedrooms = input.bedrooms;
-            runSearch("search_properties", args);
-          }, { primary: true, small: true }),
+  if (g.areas.length)
+    out.push(
+      h(
+        "div",
+        { class: "sv-list" },
+        g.areas.map((a) =>
+          h(
+            "div",
+            { class: "sv-area" },
+            h("div", null, h("div", { class: "t", text: a.area }), h("div", { class: "s", text: t("nListings", { n: a.matching_listings }) + (a.price_range_aed ? " · " + aed(a.price_range_aed.min) + " – " + aed(a.price_range_aed.max) : "") }), a.tags.length ? h("div", { class: "sv-chips" }, a.tags.map((x) => h("span", { text: x }))) : null, a.nearby.length ? h("div", { class: "s", text: t("nearby") + ": " + a.nearby.slice(0, 3).join(", ") }) : null),
+            btn(t("searchHere"), () => {
+              const args = { areas: [a.area] };
+              if (input.purpose) args.purpose = input.purpose;
+              if (typeof input.budget_max_aed === "number") args.max_price_aed = input.budget_max_aed;
+              if (typeof input.budget_min_aed === "number") args.min_price_aed = input.budget_min_aed;
+              if (typeof input.bedrooms === "number") args.bedrooms = input.bedrooms;
+              runSearch("search_properties", args);
+            }, { small: true }),
+          ),
         ),
       ),
-    ),
-    h("div", { class: "sv-note", text: t("editorial") }),
-    asOf(g.data_as_of),
-  );
+    );
+  out.push(h("div", { class: "sv-note", text: t("editorial") }), footer(g.data_as_of));
   return out;
 }
 

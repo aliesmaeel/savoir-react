@@ -97,7 +97,7 @@
     "down": "Down payment",
     "during": "During construction",
     "onHandover": "On handover",
-    "calcTitle": "Have a quote for a specific unit? See the payment amounts:",
+    "calcTitle": "Have a unit price? See what you'd pay at each stage.",
     "calcBtn": "Calculate",
     "calcPh": "Unit price (AED)",
     "loading": "Loading…",
@@ -129,7 +129,18 @@
     "createShare": "Create share link",
     "copyFailed": "Couldn't copy automatically. The link is selected, so you can copy it yourself.",
     "reopen": "To reopen it, ask in this chat: “Show my shortlist”. It isn't linked to your account, so a new chat won't find it. Use a share link to view the listings anywhere.",
-    "viewList": "View shortlist"
+    "viewList": "View shortlist",
+    "saveShort": "Save",
+    "savedShort": "Saved",
+    "selectedN": "{n} selected",
+    "moreDetails": "More details",
+    "showAll": "Show all details",
+    "showFewer": "Show fewer details",
+    "why": "Why",
+    "shareTitle": "Share",
+    "shareIntro": "Create a link anyone can open to see these listings.",
+    "keptShort": "Kept for 30 days after your last change. Reopen it by asking “Show my shortlist” in this chat.",
+    "aboutShortlist": "About your shortlist"
   },
   "ar": {
     "listings": "عقارات Savoir",
@@ -229,7 +240,7 @@
     "down": "الدفعة الأولى",
     "during": "أثناء الإنشاء",
     "onHandover": "عند التسليم",
-    "calcTitle": "لديك سعر لوحدة محددة؟ اعرض مبالغ الدفعات:",
+    "calcTitle": "لديك سعر وحدة؟ اعرف ما ستدفعه في كل مرحلة.",
     "calcBtn": "احسب",
     "calcPh": "سعر الوحدة (درهم)",
     "loading": "جارٍ التحميل…",
@@ -278,6 +289,17 @@
     "createShare": "إنشاء رابط مشاركة",
     "copyFailed": "تعذّر النسخ تلقائياً. الرابط محدد، ويمكنك نسخه بنفسك.",
     "reopen": "لإعادة فتحها، اكتب في هذه المحادثة: «اعرض قائمتي المختصرة». القائمة غير مرتبطة بحسابك، لذا لن تظهر في محادثة جديدة. استخدم رابط المشاركة لعرض العقارات من أي مكان.",
-    "viewList": "عرض القائمة"
+    "viewList": "عرض القائمة",
+    "saveShort": "حفظ",
+    "savedShort": "محفوظ",
+    "selectedN": "{n} محددة",
+    "moreDetails": "مزيد من التفاصيل",
+    "showAll": "عرض كل التفاصيل",
+    "showFewer": "عرض تفاصيل أقل",
+    "why": "السبب",
+    "shareTitle": "مشاركة",
+    "shareIntro": "أنشئ رابطاً يمكن لأي شخص فتحه لرؤية هذه العقارات.",
+    "keptShort": "تُحفظ لمدة 30 يوماً بعد آخر تعديل. لإعادة فتحها اكتب «اعرض قائمتي المختصرة» في هذه المحادثة.",
+    "aboutShortlist": "عن قائمتك المختصرة"
   }
 }

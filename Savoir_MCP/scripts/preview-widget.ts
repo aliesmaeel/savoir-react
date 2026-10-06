@@ -30,6 +30,8 @@ const bridge = new AppBridge(null, { name: "preview-host", version: "1.0.0" }, {
   { hostContext: { theme: q.get("theme") || "light", locale: q.get("locale") || "en-US", platform: q.get("platform") || "web" } });
 bridge.oncalltool = async (params) => { window.__calls.push(params.name); return (await fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) })).json(); };
 bridge.onopenlink = async ({ url }) => { window.__opened.push(url); return {}; };
+// Like real hosts, grow the frame to the height the app reports (capped so runaway layouts show up).
+bridge.onsizechange = ({ height }) => { if (height) iframe.style.height = Math.min(Math.ceil(height) + 2, 3000) + "px"; };
 bridge.onmessage = async (p) => { window.__messages.push(p); return {}; };
 bridge.onupdatemodelcontext = async (p) => { window.__context.push(p); return {}; };
 bridge.oninitialized = async () => {
@@ -112,7 +114,7 @@ async function main() {
     return { page, f: page.frameLocator("iframe") };
   };
   const g = <T>(page: Page, expr: string) => page.evaluate(expr) as Promise<T>;
-  const shot = (page: Page, name: string) => page.screenshot({ path: join(OUT, `${name}.png`) });
+  const shot = (page: Page, name: string) => page.screenshot({ path: join(OUT, `${name}.png`), fullPage: true });
   const waitImgs = async (f: FrameLocator) => {
     const imgs = f.locator(".sv-card img, .sv-gal img, .sv-brand img");
     for (let i = 0; i < 40; i++) {
@@ -149,6 +151,12 @@ async function main() {
       check(await f.locator(".sv-notice.ok", { hasText: "Saved to your shortlist." }).getByRole("button", { name: "View shortlist" }).isVisible(), "'Saved to your shortlist.' shown after a confirmed save, with View shortlist");
       check(await f.getByRole("button", { name: "My shortlist (1)" }).first().isVisible(), "'My shortlist (1)' count updates");
       await shot(page, "A1b-saved");
+      await f.getByRole("button", { name: /^Details:/ }).first().click();
+      await f.locator(".sv-detail").waitFor({ timeout: 20000 });
+      await waitImgs(f);
+      await shot(page, "A1c-detail");
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator(".sv-card").first().waitFor({ timeout: 10000 });
       const ctx = await g<Array<{ content: Array<{ text: string }> }>>(page, "window.__context");
       check(ctx.some((c) => /shortlist_id is [A-Za-z0-9_-]{22}/.test(c.content[0]!.text)), "saving tells the model the shortlist_id (updateModelContext)");
       const boxes = f.locator('.sv-card input[type="checkbox"]');
@@ -185,13 +193,22 @@ async function main() {
       check(/\/s\/[A-Za-z0-9_-]{22}$/.test(share), "share link created");
       const sharePage = await fetch(share);
       check(sharePage.status === 200, "share page reachable");
+      for (const [name, w] of [["A5-share-page", 900], ["A5b-share-page-mobile", 390]] as const) {
+        const sp = await browser.newPage({ viewport: { width: w, height: 800 } });
+        await sp.goto(share);
+        await sp.waitForLoadState("networkidle").catch(() => {});
+        await sp.screenshot({ path: join(OUT, `${name}.png`), fullPage: true });
+        await sp.close();
+      }
+      await f.getByText("About your shortlist").click();
       const listText = await f.locator("#root").innerText();
       check(/30 days after your last change/.test(listText) && /Show my shortlist/.test(listText) && /a new chat won't find it/.test(listText), "explains 30-day lifetime, how to reopen, and no cross-chat access");
       await f.getByRole("button", { name: "Copy link" }).click();
-      await f.locator(".sv-notice").first().waitFor({ timeout: 5000 });
-      const copyMsg = await f.locator(".sv-notice").first().innerText();
+      const copyNotice = f.locator(".sv-notice", { hasText: /Copied|Couldn't copy/ });
+      await copyNotice.waitFor({ timeout: 5000 });
+      const copyMsg = await copyNotice.innerText();
       const copiedText = await page.evaluate(() => navigator.clipboard.readText().catch(() => "")).catch(() => "");
-      check((/^Copied/.test(copyMsg) && copiedText === share) || /Couldn't copy automatically/.test(copyMsg), `copy link reports the real outcome ("${copyMsg.split("\n")[0]}")`);
+      check((/Copied/.test(copyMsg) && copiedText === share) || /Couldn't copy automatically/.test(copyMsg), `copy link reports the real outcome ("${copyMsg.split("\n")[0]}")`);
       check(await f.getByRole("button", { name: "Open link" }).isVisible(), "'Open link' button offered next to the share link");
       check(!(await f.locator(".sv-confirm").isVisible()), "delete confirmation stays hidden until Delete is pressed");
       await shot(page, "A4-shortlist");
@@ -238,7 +255,8 @@ async function main() {
     await setInitial("get_area_guide", { purpose: "buy", budget_max_aed: 3_000_000, bedrooms: 2, limit: 4 });
     {
       const { page, f } = await open("theme=light&locale=en-US");
-      await f.locator(".sv-li").first().waitFor({ timeout: 20000 });
+      await f.locator(".sv-area").first().waitFor({ timeout: 20000 });
+      await waitImgs(f);
       await shot(page, "B1-areas");
       await f.getByRole("button", { name: "Search here" }).first().click();
       await f.locator(".sv-card").first().waitFor({ timeout: 20000 });
@@ -255,9 +273,10 @@ async function main() {
       await f.locator(".sv-plan").waitFor({ timeout: 20000 });
       await f.getByRole("spinbutton", { name: "Unit price (AED)" }).fill("1500000");
       await f.getByRole("button", { name: "Calculate" }).click();
-      await f.locator(".sv-detail table.sv-cmp").waitFor({ timeout: 20000 });
-      const sched = await f.locator(".sv-detail table.sv-cmp").innerText();
+      await f.locator(".sv-detail table.sv-sched").waitFor({ timeout: 20000 });
+      const sched = await f.locator(".sv-detail table.sv-sched").innerText();
       check(/AED/.test(sched) && /%/.test(sched), "payment schedule rendered from the quoted price");
+      await waitImgs(f);
       await shot(page, "C1-offplan-calc");
       await page.close();
     }
@@ -269,6 +288,7 @@ async function main() {
       const { page, f } = await open("theme=light&locale=en-US");
       await f.locator(".sv-alt").first().waitFor({ timeout: 20000 });
       check(/do not match everything/.test(await f.locator("#root").innerText()), "alternatives labelled as not exact matches");
+      await waitImgs(f);
       await shot(page, "D1-alternatives");
       await f.getByRole("button", { name: "Show these" }).first().click();
       await f.locator(".sv-card").first().waitFor({ timeout: 20000 });
