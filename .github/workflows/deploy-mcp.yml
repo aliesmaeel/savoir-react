@@ -12,13 +12,14 @@ name: Deploy Savoir MCP (manual)
 #   configure-https  create the nginx/CloudPanel site + Let's Encrypt for mcp.savoirproperties.com (needs root/sudo)
 #   rollback         return to the previous healthy release (or rollback_to)
 #   stop             stop the MCP pm2 process (website unaffected)
+#   set-challenge-token  publish the OpenAI domain-verification token at /.well-known/openai-apps-challenge
 on:
   workflow_dispatch:
     inputs:
       action:
         description: "What to do"
         type: choice
-        options: [inspect, create-user, deploy, configure-https, rollback, stop]
+        options: [inspect, create-user, deploy, configure-https, rollback, stop, set-challenge-token]
         default: inspect
       confirm:
         description: "Type the action name again to confirm (not needed for inspect)"
@@ -34,6 +35,10 @@ on:
         default: ""
       acme_email:
         description: "configure-https on plain nginx only (certbot contact email); CloudPanel ignores it"
+        required: false
+        default: ""
+      challenge_token:
+        description: "set-challenge-token only: the domain-verification token shown in the OpenAI Platform (public by design)"
         required: false
         default: ""
 
@@ -63,6 +68,7 @@ jobs:
           RUN_AS: ${{ inputs.run_as }}
           ROLLBACK_TO: ${{ inputs.rollback_to }}
           ACME_EMAIL: ${{ inputs.acme_email }}
+          CHALLENGE_TOKEN: ${{ inputs.challenge_token }}
         working-directory: .
         run: |
           set -euo pipefail
@@ -73,6 +79,8 @@ jobs:
           [[ "$RUN_AS" != "root" ]] || { echo "::error::run_as must not be root"; exit 1; }
           [[ -z "$ROLLBACK_TO" || "$ROLLBACK_TO" =~ ^[0-9]{14}$ ]] || { echo "::error::invalid rollback_to"; exit 1; }
           [[ -z "$ACME_EMAIL" || "$ACME_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]] || { echo "::error::invalid acme_email"; exit 1; }
+          [[ -z "$CHALLENGE_TOKEN" || "$CHALLENGE_TOKEN" =~ ^[A-Za-z0-9._~+/=-]{8,512}$ ]] || { echo "::error::invalid challenge_token"; exit 1; }
+          if [ "$ACTION" = "set-challenge-token" ] && [ -z "$CHALLENGE_TOKEN" ]; then echo "::error::challenge_token is required"; exit 1; fi
 
       - uses: actions/checkout@v4
 
@@ -114,6 +122,7 @@ jobs:
           RUN_AS: ${{ inputs.run_as }}
           ROLLBACK_TO: ${{ inputs.rollback_to }}
           ACME_EMAIL: ${{ inputs.acme_email }}
+          CHALLENGE_TOKEN: ${{ inputs.challenge_token }}
           REL_NAME: ${{ steps.pkg.outputs.name }}
         with:
           host: ${{ secrets.HOST }}
@@ -121,7 +130,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           command_timeout: 15m
-          envs: ACTION,RUN_AS,ROLLBACK_TO,ACME_EMAIL,REL_NAME,MCP_DOMAIN,MCP_PORT
+          envs: ACTION,RUN_AS,ROLLBACK_TO,ACME_EMAIL,CHALLENGE_TOKEN,REL_NAME,MCP_DOMAIN,MCP_PORT
           script: |
             # Run under bash regardless of the remote login shell. The script goes to a file first
             # (not bash -s) so commands that read stdin cannot swallow the rest of it.
@@ -208,6 +217,18 @@ jobs:
                 as_app "bash ~/savoir-mcp/current/deploy/server/rollback.sh $ROLLBACK_TO"
                 local_checks
                 ;;
+              set-challenge-token)
+                # Replace (or add) the token line in shared/.env, reload with the new env, verify locally.
+                # Single quotes: $f and ~ expand in the app user's shell. The token (validated
+                # to [A-Za-z0-9._~+/=-]) is spliced in from this shell.
+                as_app 'f=~/savoir-mcp/shared/.env; { grep -v "^OPENAI_APPS_CHALLENGE_TOKEN=" "$f"; echo "OPENAI_APPS_CHALLENGE_TOKEN='"$CHALLENGE_TOKEN"'"; } > "$f.new" && install -m 600 "$f.new" "$f" && rm -f "$f.new"'
+                as_app "grep -qx 'INQUIRY_MODE=disabled' ~/savoir-mcp/shared/.env" || { echo "::error::INQUIRY_MODE must stay disabled"; exit 1; }
+                as_app "pm2 reload ~/savoir-mcp/current/deploy/ecosystem.config.cjs --update-env >/dev/null && pm2 save >/dev/null"
+                sleep 2
+                served="$(as_app "curl -fsS -m 5 -H 'Host: $MCP_DOMAIN' http://127.0.0.1:$MCP_PORT/.well-known/openai-apps-challenge")"
+                [ "$served" = "$CHALLENGE_TOKEN" ] && echo "challenge token served locally" || { echo "::error::served token does not match"; exit 1; }
+                local_checks
+                ;;
               stop)
                 as_app "bash ~/savoir-mcp/current/deploy/server/rollback.sh --stop"
                 curl -s -o /dev/null -w "https://savoirproperties.com/ -> %{http_code}\n" -m 15 https://savoirproperties.com/ || true
@@ -217,9 +238,16 @@ jobs:
             bash "$MCP_REMOTE_SCRIPT" < /dev/null; rc=$?; rm -f "$MCP_REMOTE_SCRIPT"; exit $rc
 
       - name: Public endpoint verification
-        if: inputs.action == 'deploy' || inputs.action == 'configure-https' || inputs.action == 'rollback'
+        if: inputs.action == 'deploy' || inputs.action == 'configure-https' || inputs.action == 'rollback' || inputs.action == 'set-challenge-token'
+        env:
+          CHALLENGE_TOKEN: ${{ inputs.challenge_token }}
         run: |
           set -uo pipefail
+          if [ "${{ inputs.action }}" = "set-challenge-token" ]; then
+            served="$(curl -fsS -m 10 "https://$MCP_DOMAIN/.well-known/openai-apps-challenge")" || { echo "::error::challenge URL not reachable"; exit 1; }
+            [ "$served" = "$CHALLENGE_TOKEN" ] || { echo "::error::public challenge token does not match"; exit 1; }
+            echo "challenge token served publicly at https://$MCP_DOMAIN/.well-known/openai-apps-challenge"
+          fi
           if ! getent hosts "$MCP_DOMAIN" >/dev/null; then
             if [ "${{ inputs.action }}" = "configure-https" ]; then echo "::error::$MCP_DOMAIN does not resolve"; exit 1; fi
             echo "::notice::$MCP_DOMAIN has no DNS record yet; public checks skipped (server-local checks passed)."; exit 0
