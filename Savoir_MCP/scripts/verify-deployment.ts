@@ -9,7 +9,12 @@ import { lookup, resolve4 } from "node:dns/promises";
 
 const base = (process.argv[2] ?? "https://mcp.savoirproperties.com").replace(/\/+$/, "");
 const expectedIp = process.argv[3];
-const EXPECTED_TOOLS = ["get_contact_options", "get_offplan_project_details", "get_property_details", "search_offplan_projects", "search_properties"];
+const EXPECTED_TOOLS = [
+  "compare_listings", "delete_shortlist", "get_area_guide", "get_contact_options", "get_offplan_project_details", "get_property_details",
+  "get_shortlist", "prepare_inquiry", "search_offplan_projects", "search_properties", "share_shortlist", "update_shortlist",
+];
+// Tools that may change server state (the anonymous shortlist only). Everything else must be read-only.
+const SHORTLIST_WRITE_TOOLS = ["delete_shortlist", "share_shortlist", "update_shortlist"];
 
 let failures = 0;
 const pass = (m: string) => console.log(`  PASS  ${m}`);
@@ -66,11 +71,15 @@ async function main() {
 
   const { tools } = await client.listTools();
   const names = tools.map((t) => t.name).sort();
-  check(JSON.stringify(names) === JSON.stringify(EXPECTED_TOOLS), `exactly the 5 read tools (${names.join(", ")})`);
+  check(JSON.stringify(names) === JSON.stringify(EXPECTED_TOOLS), `exactly the expected ${EXPECTED_TOOLS.length} tools (${names.join(", ")})`);
   check(!names.includes("submit_property_inquiry"), "no write tool advertised");
-  check(tools.every((t) => t.annotations?.readOnlyHint === true && t.annotations?.destructiveHint === false), "all tools annotated read-only");
+  const readTools = tools.filter((t) => !SHORTLIST_WRITE_TOOLS.includes(t.name));
+  check(readTools.every((t) => t.annotations?.readOnlyHint === true && t.annotations?.destructiveHint === false), "all non-shortlist tools annotated read-only");
+  check(tools.filter((t) => SHORTLIST_WRITE_TOOLS.includes(t.name)).every((t) => t.annotations?.readOnlyHint === false), "shortlist tools declare that they write");
 
-  const res = await client.readResource({ uri: "ui://savoir/listings-v1.html" });
+  const uris = [...new Set(tools.map((t) => (t._meta as any)?.ui?.resourceUri).filter(Boolean))] as string[];
+  check(uris.length === 1, `one widget resource referenced by tools (${uris.join(", ")})`);
+  const res = await client.readResource({ uri: uris[0] ?? "ui://savoir/missing" });
   const item = res.contents[0] as { mimeType?: string; text?: string };
   check(item?.mimeType === "text/html;profile=mcp-app" && (item.text?.length ?? 0) > 1000, "widget resource served (text/html;profile=mcp-app)");
 
