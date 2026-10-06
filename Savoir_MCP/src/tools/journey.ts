@@ -290,6 +290,8 @@ export function registerJourneyTools(server: McpServer, deps: ToolDeps): void {
       inputSchema: z.object({ shortlist_id: ShortlistIdInput }),
       outputSchema: z.object({ status: StatusSchema, deleted: z.boolean() }),
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
+      // The card's "Delete shortlist" button calls this tool.
+      _meta: { ui: { visibility: ["model", "app"] }, "openai/widgetAccessible": true },
     },
     instrument(logger, "delete_shortlist", async ({ shortlist_id }: { shortlist_id: string }) => {
       const deleted = shortlists.delete(shortlist_id);

@@ -59,9 +59,11 @@ export const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempoten
 
 export function widgetMeta(invoking: string, invoked: string) {
   return {
-    ui: { resourceUri: WIDGET_URI },
+    // visibility: callable by the model and by the card (the default, stated explicitly for hosts that need it).
+    ui: { resourceUri: WIDGET_URI, visibility: ["model", "app"] },
     // ChatGPT compatibility aliases (documented as legacy but still honoured).
     "openai/outputTemplate": WIDGET_URI,
+    "openai/widgetAccessible": true,
     "openai/toolInvocation/invoking": invoking,
     "openai/toolInvocation/invoked": invoked,
   };

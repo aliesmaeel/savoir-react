@@ -16,6 +16,9 @@ const state = {
   lastSearch: null, // last search_properties / search_offplan_projects / get_area_guide input
   current: null,
   history: [],
+  notice: null, // visible status bar {msg, kind, action, until}
+  linkPanel: null, // {url, code} when no host API could open a link
+  lastError: null, // short code of the last failed host request
 };
 
 // ---------- i18n & formatting ----------
@@ -95,39 +98,105 @@ const HEART_O = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" s
 
 
 // ---------- host bridge ----------
+// Every host request is time-limited and checked: a host that refuses or ignores a request must
+// never leave a button doing nothing. Failures end in a visible message (see notice / linkPanel).
+function withTimeout(p, ms, code) {
+  return Promise.race([Promise.resolve(p), new Promise((_, reject) => setTimeout(() => reject(new Error(code)), ms))]);
+}
+function openaiApi(fn) {
+  const o = globalThis.openai;
+  return o && typeof o[fn] === "function" ? o : null;
+}
+function hostCan(cap) {
+  return !!(state.app && state.caps && state.caps[cap]);
+}
+function errCode(e) {
+  return String((e && e.message) || "failed").replace(/[^a-z0-9-]/gi, "-").slice(0, 40);
+}
+/** Open an external link. Returns true when a host API accepted it; otherwise shows the link to copy. */
 async function openLink(url) {
   // https only (plus local development servers); mailto/tel for contact buttons.
-  if (!/^(https:|mailto:|tel:|http:\/\/(127\.0\.0\.1|localhost)[:/])/.test(url)) return;
-  try {
-    if (state.app) {
-      const r = await state.app.openLink({ url: url });
-      if (!r || !r.isError) return;
+  if (!/^(https:|mailto:|tel:|http:\/\/(127\.0\.0\.1|localhost)[:/])/.test(url)) return false;
+  const tried = [];
+  // ChatGPT: window.openai.openExternal (called first, while the click still counts as a user gesture).
+  const o = openaiApi("openExternal");
+  if (o) {
+    try {
+      await withTimeout(o.openExternal({ href: url }), 4000, "openExternal-timeout");
+      return true;
+    } catch (e) {
+      tried.push(errCode(e));
     }
-  } catch (e) {}
-  const oa = globalThis.openai;
-  if (oa && typeof oa.openExternal === "function") return oa.openExternal({ href: url });
-  window.open(url, "_blank", "noopener,noreferrer");
-}
-async function sendMessage(text) {
+  }
+  // MCP Apps standard: ui/open-link.
+  if (state.app) {
+    try {
+      const r = await withTimeout(state.app.openLink({ url: url }), hostCan("openLinks") ? 5000 : 2500, "open-link-timeout");
+      if (!r || !r.isError) return true;
+      tried.push("open-link-refused");
+    } catch (e) {
+      tried.push(errCode(e));
+    }
+  }
+  // Last resort: a plain popup (blocked in most sandboxed hosts; window.open then returns null).
   try {
-    if (state.app) return await state.app.sendMessage({ role: "user", content: [{ type: "text", text: text }] });
-  } catch (e) {}
-  const oa = globalThis.openai;
-  if (oa && typeof oa.sendFollowUpMessage === "function") oa.sendFollowUpMessage({ prompt: text });
+    const w = window.open(url, "_blank");
+    if (w) {
+      try { w.opener = null; } catch (e) {}
+      return true;
+    }
+    tried.push("popup-blocked");
+  } catch (e) {
+    tried.push("popup-error");
+  }
+  showLinkPanel(url, tried.join(","));
+  return false;
+}
+/** Post a follow-up message as the customer. Returns true only when the host accepted it. */
+async function sendMessage(text) {
+  if (state.app) {
+    try {
+      const r = await withTimeout(state.app.sendMessage({ role: "user", content: [{ type: "text", text: text }] }), hostCan("message") ? 5000 : 2500, "message-timeout");
+      if (!r || !r.isError) return true;
+    } catch (e) {}
+  }
+  const o = openaiApi("sendFollowUpMessage");
+  if (o) {
+    try {
+      await withTimeout(o.sendFollowUpMessage({ prompt: text }), 5000, "followup-timeout");
+      return true;
+    } catch (e) {}
+  }
+  return false;
+}
+/** Ask the assistant to do something the card itself cannot, and say truthfully whether that worked. */
+async function askAssistant(text) {
+  const ok = await sendMessage(text);
+  notice(ok ? t("askedChat") : t("notAvailableHost"), ok ? "ok" : "error");
+  return ok;
 }
 function canCallTools() {
-  return !!(state.app || (globalThis.openai && typeof globalThis.openai.callTool === "function"));
+  return !!state.app || !!openaiApi("callTool");
 }
 async function rawCall(name, args) {
-  if (state.app) return state.app.callServerTool({ name: name, arguments: args });
-  return globalThis.openai.callTool(name, args);
+  let firstError = null;
+  if (state.app) {
+    try {
+      return await withTimeout(state.app.callServerTool({ name: name, arguments: args }), hostCan("serverTools") ? 30000 : 10000, "tools-call-timeout");
+    } catch (e) {
+      firstError = e;
+    }
+  }
+  const o = openaiApi("callTool");
+  if (o) return withTimeout(o.callTool(name, args), 30000, "openai-callTool-timeout");
+  throw firstError || new Error("no-tool-bridge");
 }
 /** Call a server tool with a loading state; renders a retryable error on failure. */
 async function callTool(name, args, opts) {
   opts = opts || {};
   if (!canCallTools()) {
-    announce(t("notAvailableHost"));
-    if (opts.fallbackMessage) sendMessage(opts.fallbackMessage);
+    if (opts.fallbackMessage) await askAssistant(opts.fallbackMessage);
+    else notice(t("notAvailableHost"), "error");
     return null;
   }
   root.setAttribute("data-loading", t("loading"));
@@ -136,20 +205,37 @@ async function callTool(name, args, opts) {
   try {
     const r = await rawCall(name, args);
     const sc = r && r.structuredContent;
-    if (!sc) throw new Error("empty");
+    if (!sc) throw new Error(r && r.isError ? "tool-error" : "empty-result");
     ingest(sc);
     return sc;
   } catch (e) {
-    if (!opts.silentError) showError(() => callTool(name, args, opts).then((sc) => sc && opts.render !== false && navigate(sc, opts.push)));
+    state.lastError = errCode(e);
+    if (!opts.silentError) notice(t("error") + " (" + state.lastError + ")", "error", { label: t("retry"), fn: () => callTool(name, args, opts).then((sc) => sc && opts.render !== false && navigate(sc, opts.push)) });
     return null;
   } finally {
     root.classList.remove("sv-loading");
     root.removeAttribute("aria-busy");
   }
 }
-function showError(retry) {
-  const bar = h("div", { class: "sv-error", role: "alert" }, h("span", { text: t("error") }), btn(t("retry"), () => retry(), { small: true }));
-  root.prepend(bar);
+/** Shown when no host API could open a link: the customer can still copy it. Stays until dismissed. */
+function showLinkPanel(url, code) {
+  state.linkPanel = { url: url, code: code };
+  if (state.current) rerender();
+  else placeNotice();
+}
+function linkPanelNode() {
+  const p = state.linkPanel;
+  if (!p) return null;
+  const input = h("input", { id: "sv-link-fallback", type: "text", readonly: true, value: p.url, "aria-label": t("linkBlocked") });
+  return h(
+    "div",
+    { id: "sv-linkpanel", class: "sv-notice error", role: "alert" },
+    h("span", { text: t("linkBlocked") + " (" + p.code + ")" }),
+    h("div", { class: "sv-share", style: "flex:1 1 100%" }, input, btn(t("copyLink"), () => copyWithFeedback(p.url, input), { small: true, primary: true }), btn(t("dismiss"), () => {
+      state.linkPanel = null;
+      rerender();
+    }, { small: true, ghost: true })),
+  );
 }
 /** Visible status bar (success or error) that survives re-renders for a few seconds. */
 function notice(msg, kind, action) {
@@ -171,10 +257,14 @@ function noticeNode() {
   return h("div", { id: "sv-notice", class: "sv-notice " + n.kind, role: n.kind === "error" ? "alert" : "status" }, h("span", { text: n.msg }), n.action ? btn(n.action.label, n.action.fn, { small: true }) : null);
 }
 function placeNotice() {
-  const old = document.getElementById("sv-notice");
-  if (old) old.remove();
+  for (const id of ["sv-notice", "sv-linkpanel"]) {
+    const old = document.getElementById(id);
+    if (old) old.remove();
+  }
   const node = noticeNode();
   if (node) root.prepend(node);
+  const panel = linkPanelNode();
+  if (panel) root.prepend(panel);
 }
 /** Copy text; returns true only if the browser confirmed the copy. */
 async function copyText(text, inputEl) {
@@ -261,13 +351,13 @@ async function toggleSave(ref, btnEl, retried) {
   const args = { add: wasSaved ? undefined : [{ kind: ref.kind, slug: ref.slug }], remove: wasSaved ? [{ kind: ref.kind, slug: ref.slug }] : undefined };
   if (state.shortlistId) args.shortlist_id = state.shortlistId;
   if (!canCallTools()) {
-    // The host cannot run tools from the card: ask the assistant instead, and claim nothing.
-    sendMessage((wasSaved ? "Remove from my shortlist: " : "Save to my shortlist: ") + ref.title + " (" + ref.kind + " " + ref.slug + ")");
+    // The host cannot run tools from the card: ask the assistant instead, and claim nothing more.
+    await askAssistant((wasSaved ? "Remove from my shortlist: " : "Save to my shortlist: ") + ref.title + " (" + ref.kind + " " + ref.slug + ")");
     return;
   }
   const sc = await callTool("update_shortlist", args, { render: false, silentError: true });
   const retry = { label: t("retry"), fn: () => toggleSave(ref, btnEl) };
-  if (!sc) return notice(wasSaved ? t("removeFailed") : t("saveFailed"), "error", retry);
+  if (!sc) return notice((wasSaved ? t("removeFailed") : t("saveFailed")) + " (" + (state.lastError || "failed") + ")", "error", retry);
   if (sc.status === "not_found" && !retried) {
     // The previous shortlist expired or was deleted: start a new one, and say so.
     state.shortlistId = null;
@@ -521,8 +611,10 @@ function gallery(urls, title) {
   return g;
 }
 function moreButton(tool, pg) {
-  if (!(pg && pg.has_more && state.lastSearch)) return null;
-  return h("div", { class: "sv-more" }, btn(t("more"), () => runSearch(tool, Object.assign({}, state.lastSearch, { page: pg.page + 1 })), { small: true }));
+  if (!(pg && pg.has_more)) return null;
+  // Without the original search input (some hosts do not share it), ask the assistant for the next page.
+  const go = state.lastSearch ? () => runSearch(tool, Object.assign({}, state.lastSearch, { page: pg.page + 1 })) : () => askAssistant(t("moreAsk", { p: pg.page + 1 }));
+  return h("div", { class: "sv-more" }, btn(t("more"), go, { small: true }));
 }
 
 // ---------- views ----------
@@ -657,7 +749,10 @@ function renderOffplanDetail(d) {
       h("div", { class: "sv-note", text: t("calcTitle") }),
       h("div", { class: "sv-calc" }, priceInput, btn(t("calcBtn"), async () => {
         const v = Number(priceInput.value);
-        if (!v || v < 10000) return priceInput.focus();
+        if (!v || v < 10000) {
+          notice(t("calcInvalid"), "error");
+          return priceInput.focus();
+        }
         const args = { slug: p.slug, unit_price_aed: v };
         if (state.shortlistId) args.shortlist_id = state.shortlistId;
         const sc = await callTool("get_offplan_project_details", args);
@@ -815,12 +910,15 @@ function renderShortlist(d) {
   // how long it lasts, then delete with inline confirmation
   out.push(h("div", { class: "sv-note", text: t("keptShort") }), disclosure(t("aboutShortlist"), [h("div", { class: "sv-note", text: t("persists") }), h("div", { class: "sv-note", text: t("reopen") })]));
   const confirmBox = h("div", { class: "sv-confirm", hidden: true }, h("span", { text: t("deleteQ") }), btn(t("yesDelete"), async () => {
-    if (!canCallTools()) return;
+    if (!canCallTools()) return notice(t("notAvailableHost"), "error");
+    let r;
     try {
-      await rawCall("delete_shortlist", { shortlist_id: s.shortlist_id });
+      r = await rawCall("delete_shortlist", { shortlist_id: s.shortlist_id });
     } catch (e) {
-      return notice(t("error"), "error");
+      return notice(t("deleteFailed") + " (" + errCode(e) + ")", "error");
     }
+    const sc = r && r.structuredContent;
+    if (!sc || sc.deleted !== true) return notice(t("deleteFailed") + " (" + ((sc && sc.status) || "no-result") + ")", "error");
     state.shortlistId = null;
     state.saved = new Set();
     updateModelContext();
@@ -902,7 +1000,7 @@ function render(d) {
     case "area_guide": nodes = renderAreaGuide(d); break;
     default: return;
   }
-  root.replaceChildren(...[noticeNode()].concat(nodes).filter(Boolean));
+  root.replaceChildren(...[linkPanelNode(), noticeNode()].concat(nodes).filter(Boolean));
 }
 
 // ---------- startup ----------

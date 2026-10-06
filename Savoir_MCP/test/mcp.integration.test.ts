@@ -98,6 +98,19 @@ describe("MCP surface", () => {
     expect(item._meta.ui.domain).toBeUndefined();
   });
 
+  it("lets the card call every tool its buttons use, and asks for clipboard-write for Copy buttons", async () => {
+    const { client } = await start();
+    const { tools } = await client.listTools();
+    // Every tool a card button calls (see src/ui/client/app.js).
+    const cardTools = ["search_properties", "search_offplan_projects", "get_property_details", "get_offplan_project_details", "compare_listings", "update_shortlist", "get_shortlist", "share_shortlist", "delete_shortlist", "prepare_inquiry"];
+    for (const name of cardTools) {
+      const tool = tools.find((t) => t.name === name)!;
+      expect(tool._meta, name).toMatchObject({ ui: { visibility: ["model", "app"] }, "openai/widgetAccessible": true });
+    }
+    const item = (await client.readResource({ uri: "ui://savoir/listings-v2.html" })).contents[0] as any;
+    expect(item._meta.ui.permissions).toEqual({ clipboardWrite: {} });
+  });
+
   it("keeps serving the v0.1 widget URI so hosts with cached tool metadata still render cards", async () => {
     const { client } = await start();
     const current = (await client.readResource({ uri: "ui://savoir/listings-v2.html" })).contents[0] as any;

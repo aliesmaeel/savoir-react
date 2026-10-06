@@ -26,22 +26,43 @@ const q = new URLSearchParams(location.search);
 const iframe = document.createElement("iframe");
 iframe.style.cssText = "width:" + (q.get("w") || "760") + "px;height:" + (q.get("h") || "760") + "px;border:1px solid #ccc";
 document.body.appendChild(iframe);
-const bridge = new AppBridge(null, { name: "preview-host", version: "1.0.0" }, { openLinks: {}, serverTools: {}, updateModelContext: { text: {} } },
+// Host profiles. "full": everything supported. "chatgpt": no ui/open-link, a window.openai layer in the
+// frame, no tool-input notification, sandboxed without popups. "hostile": link requests and tool calls
+// never answered, sandboxed without popups. All are simulations, not real hosts.
+const profile = q.get("host") || "full";
+if (profile !== "full") iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
+const caps = profile === "full" ? { openLinks: {}, serverTools: {}, updateModelContext: { text: {} }, message: { text: {} } }
+  : profile === "chatgpt" ? { serverTools: {}, updateModelContext: { text: {} }, message: { text: {} } }
+  : { updateModelContext: { text: {} } };
+const bridge = new AppBridge(null, { name: "preview-host", version: "1.0.0" }, caps,
   { hostContext: { theme: q.get("theme") || "light", locale: q.get("locale") || "en-US", platform: q.get("platform") || "web" } });
-bridge.oncalltool = async (params) => { window.__calls.push(params.name); return (await fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) })).json(); };
-bridge.onopenlink = async ({ url }) => { window.__opened.push(url); return {}; };
+bridge.oncalltool = async (params) => {
+  window.__calls.push(params.name);
+  if (profile === "hostile") return new Promise(() => {});
+  return (await fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) })).json();
+};
+if (profile === "full") bridge.onopenlink = async ({ url }) => { window.__opened.push(url); return {}; };
+if (profile === "hostile") bridge.onopenlink = () => new Promise(() => {});
 // Like real hosts, grow the frame to the height the app reports (capped so runaway layouts show up).
 bridge.onsizechange = ({ height }) => { if (height) iframe.style.height = Math.min(Math.ceil(height) + 2, 3000) + "px"; };
 bridge.onmessage = async (p) => { window.__messages.push(p); return {}; };
 bridge.onupdatemodelcontext = async (p) => { window.__context.push(p); return {}; };
 bridge.oninitialized = async () => {
   const init = await (await fetch("/initial")).json();
-  bridge.sendToolInput({ arguments: init.args });
+  if (profile === "full") bridge.sendToolInput({ arguments: init.args });
   bridge.sendToolResult(init.result);
 };
 await bridge.connect(new PostMessageTransport(iframe.contentWindow, iframe.contentWindow));
-iframe.src = "/widget";
+iframe.src = profile === "chatgpt" ? "/widget?shim=openai" : "/widget";
 `;
+
+// Simulated subset of ChatGPT's window.openai (records what the card asks for).
+const OPENAI_SHIM = `<script>window.openai = {
+  widgetState: null, setWidgetState(s) { this.widgetState = s; },
+  openExternal(o) { parent.__opened.push(o.href); },
+  sendFollowUpMessage(o) { parent.__messages.push({ prompt: o.prompt }); },
+  callTool(name, args) { parent.__calls.push("openai:" + name); return fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, arguments: args }) }).then((r) => r.json()); },
+};</script>`;
 
 let failures = 0;
 const check = (ok: unknown, msg: string) => {
@@ -74,7 +95,7 @@ async function main() {
   const server = createServer(async (req, res) => {
     if (req.url?.startsWith("/widget")) {
       res.writeHead(200, { "Content-Type": "text/html", "Content-Security-Policy": csp });
-      res.end(widget.text);
+      res.end(req.url.includes("shim=openai") ? widget.text.replace("<head>", "<head>" + OPENAI_SHIM) : widget.text);
     } else if (req.url === "/host.js") {
       res.writeHead(200, { "Content-Type": "text/javascript" });
       res.end(hostJs);
@@ -109,7 +130,9 @@ async function main() {
     const page = await browser.newPage({ viewport: { width: vw, height: vh }, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
     await page.context().grantPermissions(["clipboard-read", "clipboard-write"], { origin: `http://127.0.0.1:${port}` }).catch(() => {});
     page.on("pageerror", (e) => errors.push(e.message));
-    page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && errors.push(m.text()));
+    // Chrome logs a console error when a sandboxed frame's popup is blocked; the "hostile" profile provokes
+    // that on purpose and checks the visible fallback instead.
+    page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && !(q.includes("host=hostile") && /Blocked opening .* sandboxed frame/.test(m.text())) && errors.push(m.text()));
     await page.goto(`http://127.0.0.1:${port}/?${q}`);
     return { page, f: page.frameLocator("iframe") };
   };
@@ -363,6 +386,215 @@ async function main() {
       await f.getByRole("button", { name: "Delete shortlist" }).click();
       await f.getByRole("button", { name: "Yes, delete" }).click();
       await f.locator(".sv-empty", { hasText: "Shortlist deleted." }).waitFor({ timeout: 15000 });
+      await page.close();
+    }
+
+    // ---------- G: every button, ChatGPT-like host (simulated) ----------
+    console.log("G. Button audit in a ChatGPT-like simulated host (window.openai, no ui/open-link, no tool input, sandboxed)");
+    {
+      await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+      const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=740&h=700", 760, 900);
+      const calls = () => g<string[]>(page, "window.__calls.slice()");
+      const opened = () => g<string[]>(page, "window.__opened.slice()");
+      const msgs = () => g<Array<{ prompt?: string }>>(page, "window.__messages.slice()");
+      const newCall = async (name: string, before: number) => (await calls()).slice(before).includes(name);
+      const notLoading = async () => (await f.locator("#root.sv-loading").count()) === 0;
+      await f.locator(".sv-card").first().waitFor({ timeout: 20000 });
+      let n = (await calls()).length;
+      // Heart: save then unsave
+      const heart0 = f.locator(".sv-row .sv-heart").first();
+      await heart0.click();
+      await f.locator(".sv-notice.ok", { hasText: "Saved to your shortlist." }).waitFor({ timeout: 15000 });
+      check((await newCall("update_shortlist", n)) && (await heart0.getAttribute("aria-pressed")) === "true" && (await f.getByRole("button", { name: "My shortlist (1)" }).first().isVisible()), "G heart save → update_shortlist, filled heart, count 1");
+      n = (await calls()).length;
+      await heart0.click();
+      await f.locator(".sv-notice.ok", { hasText: "Removed from your shortlist." }).waitFor({ timeout: 15000 });
+      check((await newCall("update_shortlist", n)) && (await heart0.getAttribute("aria-pressed")) === "false" && (await f.getByRole("button", { name: "My shortlist (0)" }).first().isVisible()), "G heart unsave → update_shortlist, empty heart, count 0");
+      // More results without tool input → asks the assistant for the next page
+      await f.getByRole("button", { name: "More results" }).click();
+      await f.locator(".sv-notice.ok", { hasText: "Sent to the chat" }).waitFor({ timeout: 8000 });
+      check((await msgs()).some((m) => /page 2/.test(JSON.stringify(m))), "G More results (no tool input) → asks the assistant for page 2 and says so");
+      // Card WhatsApp → openExternal
+      let o = (await opened()).length;
+      await f.locator(".sv-row .sv-card").first().getByRole("button", { name: /^WhatsApp:/ }).click();
+      await page.waitForFunction((k) => (window as any).__opened.length > k, o, { timeout: 5000 });
+      check(/\/go\/|wa\.me/.test((await opened())[o]!) && (await f.locator("#sv-linkpanel").count()) === 0, "G card WhatsApp → window.openai.openExternal (no fallback panel)");
+      // Details, photo arrows, More details, Website, WhatsApp, Save, Contact Savoir, Back
+      n = (await calls()).length;
+      await f.getByRole("button", { name: /^Details:/ }).first().click();
+      await f.locator(".sv-detail").waitFor({ timeout: 20000 });
+      check(await newCall("get_property_details", n), "G Details → get_property_details, detail view shown");
+      const count = f.locator(".sv-gal .count");
+      const c0 = await count.innerText();
+      await f.locator(".sv-gal .next").click();
+      const c1 = await count.innerText();
+      await f.locator(".sv-gal .prev").click();
+      const c2 = await count.innerText();
+      check(/^1 \//.test(c0) && /^2 \//.test(c1) && /^1 \//.test(c2), `G photo arrows → ${c0} → ${c1} → ${c2}`);
+      await f.getByText("More details").click();
+      check(await f.locator(".sv-dl").first().isVisible(), "G More details → facts shown");
+      o = (await opened()).length;
+      await f.getByRole("button", { name: "Website" }).click();
+      await page.waitForFunction((k) => (window as any).__opened.length > k, o, { timeout: 5000 });
+      check(/savoirproperties\.com|\/go\//.test((await opened())[o]!), "G detail Website → openExternal");
+      o = (await opened()).length;
+      await f.locator(".sv-detail .sv-actions").getByRole("button", { name: "WhatsApp", exact: true }).click();
+      await page.waitForFunction((k) => (window as any).__opened.length > k, o, { timeout: 5000 });
+      check(/\/go\/|wa\.me/.test((await opened())[o]!), "G detail WhatsApp → openExternal");
+      n = (await calls()).length;
+      const saveBtn = f.locator(".sv-detail .sv-actions button[aria-pressed]");
+      await saveBtn.click();
+      await f.locator(".sv-notice.ok", { hasText: "Saved to your shortlist." }).waitFor({ timeout: 15000 });
+      check((await newCall("update_shortlist", n)) && (await saveBtn.getAttribute("aria-pressed")) === "true", "G detail Save → update_shortlist, shows Saved");
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "Contact Savoir" }).click();
+      await f.locator("textarea.sv-msg").waitFor({ timeout: 20000 });
+      check(await newCall("prepare_inquiry", n), "G Contact Savoir → prepare_inquiry, message shown");
+      o = (await opened()).length;
+      await f.getByRole("button", { name: "Send on WhatsApp" }).click();
+      await page.waitForFunction((k) => (window as any).__opened.length > k, o, { timeout: 5000 });
+      o = (await opened()).length;
+      await f.getByRole("button", { name: "Send by email" }).click();
+      await page.waitForFunction((k) => (window as any).__opened.length > k, o, { timeout: 5000 });
+      check(/^mailto:/.test((await opened())[o]!), "G message: Send on WhatsApp and Send by email → openExternal");
+      await f.getByRole("button", { name: "Copy" }).click();
+      const copyNote = await f.locator(".sv-notice", { hasText: /Copied|Couldn't copy/ }).innerText({ timeout: 5000 });
+      check(/Copied|Couldn't copy/.test(copyNote), `G message Copy → reports outcome ("${copyNote.split("\n")[0]}")`);
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator(".sv-detail").waitFor({ timeout: 5000 });
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 5000 });
+      check(true, "G Back → detail, then results");
+      // Compare tray: select, clear, select again, compare view, show all, Why
+      const boxes = f.locator('.sv-row .sv-card input[type="checkbox"]');
+      await boxes.nth(0).check();
+      await boxes.nth(1).check();
+      await f.locator(".sv-bar").getByRole("button", { name: "Clear" }).click();
+      check((await f.locator(".sv-bar").count()) === 0 && !(await boxes.nth(0).isChecked()), "G compare tray Clear → selection cleared");
+      await boxes.nth(0).check();
+      await boxes.nth(1).check();
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "Compare (2)" }).click();
+      await f.locator("table.sv-cmp").waitFor({ timeout: 20000 });
+      check(await newCall("compare_listings", n), "G Compare (2) → compare_listings, comparison shown");
+      const more = f.locator("#sv-cmp-more");
+      await f.getByRole("button", { name: "Show all details" }).click();
+      const shown = await more.isVisible();
+      await f.getByRole("button", { name: "Show fewer details" }).click();
+      check(shown && !(await more.isVisible()), "G Show all / Show fewer details → extra rows toggle");
+      const whyCount = await f.locator(".sv-fitd").count();
+      if (whyCount) {
+        await f.locator(".sv-fitd summary").first().click();
+        check(await f.locator(".sv-fitlist").first().isVisible(), "G Why → requirement checks shown");
+      }
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "Message about these" }).click();
+      await f.locator("textarea.sv-msg").waitFor({ timeout: 20000 });
+      check(await newCall("prepare_inquiry", n), "G comparison Message about these → prepare_inquiry");
+      // Shortlist: open, Remove, Ask about my shortlist, compare from shortlist, share/copy/open/stop, delete cancel/confirm
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator("table.sv-cmp").waitFor({ timeout: 5000 });
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 5000 });
+      await f.locator(".sv-row .sv-heart").nth(1).click();
+      await f.getByRole("button", { name: "My shortlist (2)" }).first().waitFor({ timeout: 15000 });
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "My shortlist (2)" }).first().click();
+      await f.locator(".sv-li").nth(1).waitFor({ timeout: 15000 });
+      check(await newCall("get_shortlist", n), "G My shortlist → get_shortlist, 2 listings shown");
+      n = (await calls()).length;
+      await f.locator(".sv-li").first().locator("..").locator("..").getByRole("button", { name: "Compare (2)" }).click().catch(() => f.getByRole("button", { name: "Compare (2)" }).first().click());
+      await f.locator("table.sv-cmp").waitFor({ timeout: 20000 });
+      check(await newCall("compare_listings", n), "G shortlist Compare (2) → compare_listings");
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator(".sv-li").first().waitFor({ timeout: 5000 });
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "Ask about my shortlist" }).click();
+      await f.locator("textarea.sv-msg").waitFor({ timeout: 20000 });
+      check(await newCall("prepare_inquiry", n), "G Ask about my shortlist → prepare_inquiry");
+      await f.getByRole("button", { name: "← Back" }).click();
+      await f.locator(".sv-li").first().waitFor({ timeout: 5000 });
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "Create share link" }).click();
+      await f.locator("#sv-share-url").waitFor({ timeout: 15000 });
+      check(await newCall("share_shortlist", n), "G Create share link → share_shortlist, link shown");
+      await f.getByRole("button", { name: "Copy link" }).click();
+      const cl = await f.locator(".sv-notice", { hasText: /Copied|Couldn't copy/ }).innerText({ timeout: 5000 });
+      check(/Copied|Couldn't copy/.test(cl), `G Copy link → reports outcome ("${cl.split("\n")[0]}")`);
+      o = (await opened()).length;
+      await f.getByRole("button", { name: "Open link" }).click();
+      await page.waitForFunction((k) => (window as any).__opened.length > k, o, { timeout: 5000 });
+      check(/\/s\/[A-Za-z0-9_-]{22}$/.test((await opened())[o]!), "G Open link → openExternal with the share URL");
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "Stop sharing" }).click();
+      await f.getByRole("button", { name: "Create share link" }).waitFor({ timeout: 15000 });
+      check(await newCall("share_shortlist", n), "G Stop sharing → share_shortlist, back to Create share link");
+      n = (await calls()).length;
+      await f.getByRole("button", { name: /^Remove:/ }).first().click();
+      await f.locator(".sv-notice.ok", { hasText: "Removed from your shortlist." }).waitFor({ timeout: 15000 });
+      check((await newCall("update_shortlist", n)) && (await f.locator(".sv-li").count()) === 1, "G Remove → update_shortlist, 1 listing left");
+      await f.getByRole("button", { name: "Delete shortlist" }).click();
+      await f.getByRole("button", { name: "Cancel" }).click();
+      check(!(await f.locator(".sv-confirm").isVisible()), "G Delete → Cancel hides the confirmation");
+      n = (await calls()).length;
+      await f.getByRole("button", { name: "Delete shortlist" }).click();
+      await f.getByRole("button", { name: "Yes, delete" }).click();
+      await f.locator(".sv-empty", { hasText: "Shortlist deleted." }).waitFor({ timeout: 15000 });
+      check(await newCall("delete_shortlist", n), "G Yes, delete → delete_shortlist confirmed by the server");
+      check(await notLoading(), "G no loading state left behind");
+      await page.close();
+    }
+    // Pagination with tool input (full host): More results loads page 2 through the tool
+    {
+      await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+      const { page, f } = await open("theme=light&locale=en-US&w=740&h=700", 760, 900);
+      await f.locator(".sv-card").first().waitFor({ timeout: 20000 });
+      const before = (await g<string[]>(page, "window.__calls.slice()")).length;
+      await f.getByRole("button", { name: "More results" }).click();
+      await f.locator(".sv-hd-t p", { hasText: "page 2 of" }).waitFor({ timeout: 20000 });
+      check((await g<string[]>(page, "window.__calls.slice()")).slice(before).includes("search_properties"), "G More results (with tool input) → search_properties page 2");
+      await page.close();
+    }
+    // Off-plan: invalid and valid calculator input, Website, Contact Savoir (ChatGPT-like host)
+    {
+      const opq = (await client.callTool({ name: "search_offplan_projects", arguments: { max_starting_price_aed: 1_500_000, page_size: 1 } })) as { structuredContent: { items: Array<{ slug: string }> } };
+      await setInitial("get_offplan_project_details", { slug: opq.structuredContent.items[0]!.slug });
+      const { page, f } = await open("host=chatgpt&theme=dark&locale=en-US&w=740&h=700", 760, 900);
+      await f.locator(".sv-plan").waitFor({ timeout: 20000 });
+      const before = (await g<string[]>(page, "window.__calls.slice()")).length;
+      await f.getByRole("button", { name: "Calculate" }).click();
+      await f.locator(".sv-notice.error", { hasText: "at least AED 10,000" }).waitFor({ timeout: 5000 });
+      check((await g<string[]>(page, "window.__calls.slice()")).length === before, "G calculator empty → visible error, no tool call");
+      await f.getByRole("spinbutton", { name: "Unit price (AED)" }).fill("2000000");
+      await f.getByRole("button", { name: "Calculate" }).click();
+      await f.locator("table.sv-sched").waitFor({ timeout: 20000 });
+      check((await g<string[]>(page, "window.__calls.slice()")).slice(before).includes("get_offplan_project_details") && /AED 400,000/.test(await f.locator("table.sv-sched").innerText()), "G calculator 2,000,000 → get_offplan_project_details, schedule shown");
+      const o = (await g<string[]>(page, "window.__opened.slice()")).length;
+      await f.getByRole("button", { name: "Website" }).click();
+      await page.waitForFunction((k) => (window as any).__opened.length > k, o, { timeout: 5000 });
+      check(true, "G off-plan Website → openExternal");
+      await page.close();
+    }
+
+    // ---------- H: a host that ignores requests (simulated) ----------
+    console.log("H. Host that never answers link or tool requests (simulated): every action must end in a visible message");
+    {
+      await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+      const { page, f } = await open("host=hostile&theme=light&locale=en-US&w=740&h=700", 760, 900);
+      await f.locator(".sv-card").first().waitFor({ timeout: 20000 });
+      await f.locator(".sv-row .sv-card").first().getByRole("button", { name: /^WhatsApp:/ }).click();
+      await f.locator("#sv-linkpanel").waitFor({ timeout: 8000 });
+      const panel = await f.locator("#sv-linkpanel").innerText();
+      check(/Couldn't open this link here/.test(panel) && (await f.locator("#sv-link-fallback").inputValue()).length > 10, `H WhatsApp unanswered → link panel with the URL to copy ("${panel.split("\n")[0]}")`);
+      await f.getByRole("button", { name: "Dismiss" }).click();
+      check((await f.locator("#sv-linkpanel").count()) === 0, "H link panel Dismiss → closes");
+      const heart0 = f.locator(".sv-row .sv-heart").first();
+      await heart0.click();
+      await f.locator(".sv-notice.error", { hasText: "Couldn't save this listing" }).waitFor({ timeout: 16000 });
+      check((await heart0.getAttribute("aria-pressed")) === "false" && (await f.locator(".sv-notice.ok").count()) === 0 && (await f.locator("#root.sv-loading").count()) === 0, "H heart unanswered → error after timeout, no success, heart empty, loading cleared");
+      await f.getByRole("button", { name: /^Details:/ }).first().click();
+      await f.locator(".sv-notice.error", { hasText: "Something went wrong" }).waitFor({ timeout: 16000 });
+      check((await f.locator(".sv-detail").count()) === 0 && (await f.locator("#root.sv-loading").count()) === 0, "H Details unanswered → error with Try again, stays on results, loading cleared");
       await page.close();
     }
 

@@ -13,7 +13,7 @@ import { registerTools } from "./tools/register.js";
 import { buildWidgetHtml, LEGACY_WIDGET_URIS, WIDGET_URI } from "./ui/widget.js";
 
 export const SERVER_NAME = "savoir-properties";
-export const SERVER_VERSION = "0.3.4";
+export const SERVER_VERSION = "0.3.5";
 
 const INSTRUCTIONS = `Savoir Properties is a Dubai real-estate brokerage. These tools read Savoir's own listings CMS and help the customer from search to contacting an agent.
 Discovery
@@ -87,6 +87,8 @@ export function createMcpServer(ctx: AppContext): McpServer {
     ui: {
       prefersBorder: true,
       csp: { connectDomains: [] as string[], resourceDomains },
+      // "Copy link" / "Copy" buttons; hosts that do not grant it get an honest manual-copy fallback.
+      permissions: { clipboardWrite: {} },
       ...(ctx.config.widgetDomain ? { domain: ctx.config.widgetDomain } : {}),
     },
     // ChatGPT compatibility aliases (snake_case CSP). Same values as the standard fields above.

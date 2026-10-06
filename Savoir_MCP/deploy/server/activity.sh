@@ -17,6 +17,7 @@ cat "${files[@]}" | FROM="$FROM" TO="$TO" node -e '
 const from = process.env.FROM, to = process.env.TO;
 const safe = (v) => (typeof v === "string" && /^[\w .:\/@()-]{1,80}$/.test(v) ? v : typeof v === "boolean" ? String(v) : "other");
 const counts = new Map();
+const timeline = new Map(); // 10-minute bucket -> Map(label -> count)
 const bump = (k) => counts.set(k, (counts.get(k) ?? 0) + 1);
 let buf = "";
 process.stdin.on("data", (d) => (buf += d)).on("end", () => {
@@ -26,6 +27,12 @@ process.stdin.on("data", (d) => (buf += d)).on("end", () => {
     let e; try { e = JSON.parse(line.slice(i)); } catch { continue; }
     const ts = String(e.ts ?? "").slice(0, 16);
     if (ts < from || ts > to) continue;
+    const slot = ts.slice(0, 15) + "0";
+    const tl = (label) => { const m = timeline.get(slot) ?? new Map(); m.set(label, (m.get(label) ?? 0) + 1); timeline.set(slot, m); };
+    if (e.msg === "tool.call") tl(safe(e.tool));
+    if (e.msg === "mcp.resource.read") tl("card-read");
+    if (e.msg === "mcp.rpc" && e.method === "initialize") tl("connect:" + safe(e.client));
+    if (e.msg === "mcp.rpc" && e.method === "tools/list") tl("tools/list");
     switch (e.msg) {
       case "tool.call": bump(`tool.call       ${safe(e.tool)} -> ${safe(e.status)}`); break;
       case "tool.call.unhandled": bump(`tool.unhandled  ${safe(e.tool)}`); break;
@@ -39,5 +46,7 @@ process.stdin.on("data", (d) => (buf += d)).on("end", () => {
   console.log(`MCP activity ${from} .. ${to} UTC (counts only)`);
   if (!counts.size) console.log("  (no matching log lines)");
   for (const [k, n] of [...counts].sort()) console.log(`  ${String(n).padStart(5)}  ${k}`);
+  console.log("Timeline (10-minute buckets, UTC; counts only)");
+  for (const [slot, m] of [...timeline].sort()) console.log(`  ${slot}  ` + [...m].map(([k, n]) => `${k}×${n}`).join(" "));
 });
 '

@@ -111,7 +111,7 @@
     "handover": "Handover {h}",
     "video": "Video",
     "ask": "Ask Savoir",
-    "notAvailableHost": "This action isn't supported here — ask in the chat instead.",
+    "notAvailableHost": "This app can't do that here. Ask in the chat instead.",
     "rRef": "Reference",
     "rPermit": "Permit",
     "rTitleType": "Title type",
@@ -144,7 +144,13 @@
     "diffRent": "For rent, unlike this listing",
     "diffSale": "For sale, unlike this listing",
     "similarMixedSale": "This listing is for sale. Some similar listings are for rent.",
-    "similarMixedRent": "This listing is for rent. Some similar listings are for sale."
+    "similarMixedRent": "This listing is for rent. Some similar listings are for sale.",
+    "linkBlocked": "Couldn't open this link here. Copy it into your browser",
+    "dismiss": "Dismiss",
+    "askedChat": "Sent to the chat. The assistant will continue there.",
+    "moreAsk": "Show page {p} of these Savoir listings.",
+    "calcInvalid": "Enter a unit price of at least AED 10,000.",
+    "deleteFailed": "Couldn't delete the shortlist. Nothing was changed."
   },
   "ar": {
     "listings": "عقارات Savoir",
@@ -258,7 +264,7 @@
     "handover": "التسليم {h}",
     "video": "فيديو",
     "ask": "اسأل Savoir",
-    "notAvailableHost": "هذا الإجراء غير مدعوم هنا — اسأل في المحادثة بدلاً من ذلك.",
+    "notAvailableHost": "لا يمكن تنفيذ ذلك هنا. اطلبه في المحادثة.",
     "rRef": "الرقم المرجعي",
     "rPermit": "رقم التصريح",
     "rTitleType": "نوع الملكية",
@@ -308,6 +314,12 @@
     "diffRent": "للإيجار، بخلاف هذا العقار",
     "diffSale": "للبيع، بخلاف هذا العقار",
     "similarMixedSale": "هذا العقار للبيع. بعض العقارات المشابهة للإيجار.",
-    "similarMixedRent": "هذا العقار للإيجار. بعض العقارات المشابهة للبيع."
+    "similarMixedRent": "هذا العقار للإيجار. بعض العقارات المشابهة للبيع.",
+    "linkBlocked": "تعذّر فتح هذا الرابط هنا. انسخه إلى متصفحك",
+    "dismiss": "إغلاق",
+    "askedChat": "أُرسل إلى المحادثة، وسيتابع المساعد هناك.",
+    "moreAsk": "اعرض الصفحة {p} من عقارات Savoir هذه.",
+    "calcInvalid": "أدخل سعر وحدة لا يقل عن 10,000 درهم.",
+    "deleteFailed": "تعذّر حذف القائمة. لم يتغير شيء."
   }
 }
