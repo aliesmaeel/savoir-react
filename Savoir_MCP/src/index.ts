@@ -31,8 +31,9 @@ function main(): void {
     server.close(() => {
       try {
         ctx.shortlists.flush();
+        ctx.aggregates?.flush();
       } catch {
-        logger.error("shortlist.flush_failed");
+        logger.error("data.flush_failed");
       }
       void close().finally(() => process.exit(0));
     });

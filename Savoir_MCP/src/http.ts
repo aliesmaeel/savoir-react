@@ -5,6 +5,8 @@ import type { Express, NextFunction, Request, Response } from "express";
 import { createMcpServer, SERVER_NAME, SERVER_VERSION, type AppContext } from "./server.js";
 import { renderSharePage, shareNotFoundPage, sharePageCsp } from "./sharePage.js";
 import { SAVOIR_LOGO_URL } from "./ui/widget.js";
+import { buildInsights, renderInsightsHtml, verifyPassword } from "./insights.js";
+import { isAutomatedFetch } from "./trackedLinks.js";
 
 export function createHttpApp(ctx: AppContext): { app: Express; close: () => Promise<void> } {
   const { config, logger } = ctx;
@@ -22,8 +24,14 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
     const started = Date.now();
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.on("finish", () => {
-      // Never log share tokens: /s/<token> is logged as /s/:token.
-      const path = req.path.startsWith("/s/") ? "/s/:token" : req.path === "/mcp" || req.path.startsWith("/.well-known/") || req.path === "/health" || req.path === "/ready" ? req.path : "other";
+      // Never log share or link tokens: /s/<token> and /go/<token> are logged as route patterns.
+      const path = req.path.startsWith("/s/")
+        ? "/s/:token"
+        : req.path.startsWith("/go/")
+          ? "/go/:token"
+          : req.path === "/mcp" || req.path.startsWith("/.well-known/") || req.path === "/health" || req.path === "/ready" || req.path === "/internal/insights"
+            ? req.path
+            : "other";
       logger.info("http.request", { method: req.method, path, status: res.statusCode, ms: Date.now() - started });
     });
     next();
@@ -55,7 +63,57 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
       return;
     }
     ctx.analytics.record("shared_page_view", { items: record.items.length });
-    res.type("html").send(renderSharePage(record, config.publicSiteUrl, SAVOIR_LOGO_URL, config.attributionUtm));
+    const track = ctx.links ? (u: string, kind: "property" | "offplan", slug: string) => ctx.links!.wrap({ u, c: "website", s: "share_page", k: kind, l: slug }) : undefined;
+    res.type("html").send(renderSharePage(record, config.publicSiteUrl, SAVOIR_LOGO_URL, config.attributionUtm, track));
+  });
+
+  // Signed click-through redirect (counts a click; never an open redirect).
+  app.get("/go/:token", (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Referrer-Policy", "no-referrer");
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    const p = ctx.links?.open(String(req.params.token ?? ""));
+    if (!p) {
+      res.status(404).type("text/plain").send("Link not found");
+      return;
+    }
+    if (!isAutomatedFetch(req.get("user-agent"), req.get("sec-purpose") ?? req.get("purpose"))) {
+      ctx.analytics.record("link_click", { channel: p.c, source: p.s, kind: p.k }, p.k && p.l ? { kind: p.k, slug: p.l } : undefined);
+    }
+    res.redirect(302, p.u);
+  });
+
+  // Staff insights dashboard: disabled (404) unless INSIGHTS_USER and INSIGHTS_PASSWORD_HASH are set.
+  const failures = new Map<string, { n: number; until: number }>();
+  app.get("/internal/insights", (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    if (!config.insightsUser || !config.insightsPasswordHash || !ctx.aggregates) {
+      res.status(404).type("text/plain").send("Not found");
+      return;
+    }
+    const who = req.ip ?? "unknown"; // kept in memory only for login throttling; never logged or stored
+    const f = failures.get(who);
+    if (f && f.n >= 5 && f.until > Date.now()) {
+      res.status(429).type("text/plain").send("Too many attempts. Try again later.");
+      return;
+    }
+    const m = /^Basic\s+(.+)$/i.exec(req.get("authorization") ?? "");
+    const [user, ...pw] = m ? Buffer.from(m[1]!, "base64").toString("utf8").split(":") : [];
+    if (!m || user !== config.insightsUser || !verifyPassword(pw.join(":"), config.insightsPasswordHash)) {
+      const e = failures.get(who) ?? { n: 0, until: 0 };
+      e.n = e.until < Date.now() ? 1 : e.n + 1;
+      e.until = Date.now() + 15 * 60_000;
+      failures.set(who, e);
+      if (failures.size > 10_000) failures.clear();
+      res.setHeader("WWW-Authenticate", 'Basic realm="Savoir insights", charset="UTF-8"');
+      res.status(401).type("text/plain").send("Authentication required");
+      return;
+    }
+    failures.delete(who);
+    const days = Math.min(400, Math.max(1, Number(req.query.days) || 30));
+    res.setHeader("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'");
+    res.type("html").send(renderInsightsHtml(buildInsights(ctx.aggregates.snapshot(), { days, siteOrigin: config.publicSiteUrl })));
   });
 
   app.get("/.well-known/openai-apps-challenge", (_req, res) => {

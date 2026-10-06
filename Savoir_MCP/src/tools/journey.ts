@@ -359,7 +359,15 @@ export function registerJourneyTools(server: McpServer, deps: ToolDeps): void {
         const reference_code = newReferenceCode();
         const message = buildHandoffMessage({ listings, requirements: a.requirements, viewing: a.viewing_preference, lang: a.language, reference_code, campaign_code: a.campaign_code });
         const singleAgent = agents.size === 1 ? [...agents.values()][0] ?? null : null;
-        const channels = handoffChannels(message, `Property inquiry ${reference_code}`, singleAgent && singleAgent.phone ? singleAgent : null);
+        const raw = handoffChannels(message, `Property inquiry ${reference_code}`, singleAgent && singleAgent.phone ? singleAgent : null);
+        // Count clicks on the WhatsApp buttons (intent to contact, not a delivered message).
+        const channels = deps.links
+          ? {
+              ...raw,
+              whatsapp_company: deps.links.wrap({ u: raw.whatsapp_company, c: "whatsapp_company", s: "handoff" }),
+              whatsapp_agent: raw.whatsapp_agent ? { ...raw.whatsapp_agent, url: deps.links.wrap({ u: raw.whatsapp_agent.url, c: "whatsapp_agent", s: "handoff" }) } : null,
+            }
+          : raw;
         analytics.record("handoff_prepared", {
           listings: listings.length,
           unavailable: unavailable.length,

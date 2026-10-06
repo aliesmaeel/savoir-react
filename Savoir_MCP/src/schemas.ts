@@ -124,14 +124,18 @@ export type ContactOptions = z.infer<typeof ContactOptionsSchema>;
 
 export const AmenityCheckSchema = z.object({ matched: z.array(z.string()), not_listed: z.array(z.string()) });
 
+/** Button links: signed click-tracking redirects when analytics are on, plain links otherwise. */
+export const LinksSchema = z.object({ website: z.string(), whatsapp: z.string() });
+
 export const PropertyListItemSchema = PropertySummarySchema.extend({
   saved: z.boolean(),
+  links: LinksSchema,
   /** null = amenities not checked for this listing. */
   amenity_check: AmenityCheckSchema.nullable(),
 });
 export type PropertyListItem = z.infer<typeof PropertyListItemSchema>;
 
-export const OffplanListItemSchema = OffplanSummarySchema.extend({ saved: z.boolean() });
+export const OffplanListItemSchema = OffplanSummarySchema.extend({ saved: z.boolean(), links: LinksSchema });
 
 export const MissingPreferenceSchema = z.object({ field: z.enum(["purpose", "budget", "bedrooms", "area"]), question: z.string() });
 

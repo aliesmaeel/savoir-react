@@ -25,6 +25,10 @@ An MCP server that lets ChatGPT, Claude and other MCP clients search Savoir Prop
 
 All read tools are annotated `readOnlyHint: true, destructiveHint: false, openWorldHint: false`. The cards resource is `ui://savoir/listings-v2.html` (`text/html;profile=mcp-app`); its CSP allows the three image hosts and the Savoir website (for the logo), and `connectDomains` is empty. The UI is English/Arabic with RTL. See [docs/RELEASE_M1.md](docs/RELEASE_M1.md) for what is verified and what is not.
 
+## Business analytics
+
+Privacy-safe daily aggregate counters (no personal data or identifiers), signed click links (`/go/`) that count Website/WhatsApp button clicks separately from delivered leads, and a staff report or optional authenticated dashboard (`/internal/insights`). None of it is exposed through MCP tools. See [docs/ANALYTICS.md](docs/ANALYTICS.md) for what is collected and what each host lets us observe, and [docs/RELEASE_M2.md](docs/RELEASE_M2.md) for the release.
+
 ## Local setup
 
 ```bash
@@ -46,7 +50,8 @@ Checks:
 
 ```bash
 npm run typecheck
-npm test                    # 127 tests, no network access
+npm test                    # 148 tests, no network access
+npm run insights -- --data-dir ./data --out insights.html   # staff report from aggregate metrics
 npm run smoke               # read-only live calls against a running server (~10 CMS requests)
 npm run preview:widget      # 17 checks in local Chrome/Edge via the MCP Apps host bridge (a simulated host)
 npm run smoke:journey       # live read-only customer journey against a running server

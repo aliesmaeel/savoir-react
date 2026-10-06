@@ -21,6 +21,13 @@ export interface AppConfig {
    * no analytics to read them (verified Oct 2026), and they make shared messages harder to read.
    */
   attributionUtm: boolean;
+  /** Privacy-safe daily aggregate metrics and signed click links (on unless ANALYTICS=off). */
+  analyticsEnabled: boolean;
+  /** HMAC key for /go click links (>= 32 chars). Random per process when unset (links break on restart). */
+  analyticsLinkSecret: string | undefined;
+  /** Staff dashboard credentials; the dashboard is disabled unless both are set. */
+  insightsUser: string | undefined;
+  insightsPasswordHash: string | undefined;
   /** Per-request timeout for CMS calls. */
   cmsTimeoutMs: number;
   /**
@@ -82,6 +89,13 @@ function httpsOrigin(value: string, name: string, allowHttpLocalhost: boolean): 
   return url.origin;
 }
 
+function secretOrUndefined(value: string | undefined, name: string): string | undefined {
+  const v = value?.trim();
+  if (!v) return undefined;
+  if (v.length < 32) throw new Error(`${name} must be at least 32 characters`);
+  return v;
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const cmsBaseUrl = env.CMS_BASE_URL?.trim();
   if (!cmsBaseUrl) {
@@ -111,6 +125,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     publicMcpUrl: httpsOrigin(env.PUBLIC_MCP_URL?.trim() || "https://mcp.savoirproperties.com", "PUBLIC_MCP_URL", true),
     dataDir: env.DATA_DIR?.trim() ? env.DATA_DIR.trim() : null,
     attributionUtm: env.ATTRIBUTION_UTM?.trim() === "on",
+    analyticsEnabled: env.ANALYTICS?.trim() !== "off",
+    analyticsLinkSecret: secretOrUndefined(env.ANALYTICS_LINK_SECRET, "ANALYTICS_LINK_SECRET"),
+    insightsUser: env.INSIGHTS_USER?.trim() || undefined,
+    insightsPasswordHash: env.INSIGHTS_PASSWORD_HASH?.trim() || undefined,
     cmsTimeoutMs: int(env.CMS_TIMEOUT_MS, 8000, 1000, 30000, "CMS_TIMEOUT_MS"),
     cmsMaxRequestsPerMinute: int(env.CMS_MAX_REQUESTS_PER_MINUTE, 45, 1, 600, "CMS_MAX_REQUESTS_PER_MINUTE"),
     host: env.HOST?.trim() || "127.0.0.1",

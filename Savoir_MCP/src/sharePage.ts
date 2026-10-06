@@ -39,12 +39,13 @@ footer{margin-top:22px;border-top:1px solid var(--line);padding-top:12px}
 @media (max-width:520px){li{grid-template-columns:1fr}li img{width:100%;height:170px}.b{padding:0 12px 12px}}
 `;
 
-export function renderSharePage(r: ShortlistRecord, siteOrigin: string, logoUrl: string, utm = false): string {
+export function renderSharePage(r: ShortlistRecord, siteOrigin: string, logoUrl: string, utm = false, track?: (url: string, kind: "property" | "offplan", slug: string) => string): string {
   const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Dubai" });
   const items = r.items
     .map((i) => {
       const s = i.snapshot;
-      const url = utm ? withUtm(s.url, "shared_shortlist", undefined, siteOrigin) : s.url;
+      const plain = utm ? withUtm(s.url, "shared_shortlist", undefined, siteOrigin) : s.url;
+      const url = track ? track(plain, i.kind, i.slug) : plain;
       return `<li>${s.photo ? `<img src="${esc(s.photo)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : "<div></div>"}
 <div class="b"><p class="t">${esc(s.title)}</p>
 <div class="muted">${esc([s.location_label, s.bedrooms_label, i.kind === "offplan" ? "Off-plan project" : null].filter(Boolean).join(" · "))}</div>

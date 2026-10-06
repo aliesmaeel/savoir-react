@@ -200,6 +200,8 @@ jobs:
               deploy)
                 if [ "$(id -u)" -eq 0 ] && [ -n "$RUN_AS" ] && ! id "$RUN_AS" >/dev/null 2>&1; then echo "::error::run_as user '$RUN_AS' does not exist (run create-user first)"; exit 1; fi
                 as_app "mkdir -p ~/savoir-mcp/shared && { [ -f ~/savoir-mcp/shared/.env ] || install -m 600 $WORK/deploy/production.env.example ~/savoir-mcp/shared/.env; }"
+                # Settings added after v0.1: fill them in on the server if missing (secret generated there, never printed).
+                as_app 'f=~/savoir-mcp/shared/.env; grep -q "^PUBLIC_MCP_URL=." "$f" || echo "PUBLIC_MCP_URL=https://'"$MCP_DOMAIN"'" >> "$f"; grep -q "^ANALYTICS_LINK_SECRET=." "$f" || echo "ANALYTICS_LINK_SECRET=$(openssl rand -hex 32)" >> "$f"; chmod 600 "$f"'
                 as_app "grep -qx 'INQUIRY_MODE=disabled' ~/savoir-mcp/shared/.env" || { echo "::error::shared/.env must contain INQUIRY_MODE=disabled"; exit 1; }
                 as_app "bash $WORK/deploy/server/deploy.sh $REL"
                 # Survive reboots: rely on an existing 'pm2 startup' unit if present, else a user crontab entry.

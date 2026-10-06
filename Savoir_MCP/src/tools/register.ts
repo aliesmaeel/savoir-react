@@ -12,6 +12,7 @@ import { REFERENCE_CODE_RE } from "../handoff.js";
 import { buildContactPayload, type InquiryInput, type ListingRef } from "../inquiry.js";
 import {
   AlternativeSchema,
+  LinksSchema,
   ContactOptionsSchema,
   ErrorInfoSchema,
   MissingPreferenceSchema,
@@ -24,7 +25,7 @@ import {
   StatusSchema,
   type PropertyListItem,
 } from "../schemas.js";
-import { budgetBand, cmsNotFound, instrument, ListingRefInput, pageInput, READ_ONLY, RequirementsInput, shortlistIdInput, slugInput, text, toErrorInfo, widgetMeta, type ToolDeps } from "./common.js";
+import { budgetBand, cmsNotFound, instrument, listingLinks, ListingRefInput, pageInput, READ_ONLY, RequirementsInput, shortlistIdInput, slugInput, text, toErrorInfo, widgetMeta, type ToolDeps } from "./common.js";
 import { alternativesText, asOfLine, contactText, missingText, offplanDetailsText, offplanSearchText, propertyDetailsText, propertySearchText, scheduleText } from "./format.js";
 import { registerJourneyTools } from "./journey.js";
 
@@ -51,6 +52,7 @@ const PropertyDetailOutput = z.object({
   view: z.literal("property_detail"),
   status: StatusSchema,
   property: PropertyDetailsSchema.nullable(),
+  links: LinksSchema.nullable(),
   saved: z.boolean(),
   shortlist_id: z.string().nullable(),
   data_as_of: z.string().nullable(),
@@ -73,6 +75,7 @@ const OffplanDetailOutput = z.object({
   view: z.literal("offplan_detail"),
   status: StatusSchema,
   project: OffplanDetailsSchema.nullable(),
+  links: LinksSchema.nullable(),
   payment_schedule: PaymentScheduleSchema.nullable(),
   payment_schedule_note: z.string().nullable(),
   saved: z.boolean(),
@@ -243,7 +246,12 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
           amenityNote = v.note;
         }
         const saved = savedKeys(a.shortlist_id);
-        const items: PropertyListItem[] = ordered.map((o) => ({ ...o.item, saved: saved.has(`property:${o.item.slug}`), amenity_check: o.amenity_check }));
+        const items: PropertyListItem[] = ordered.map((o) => ({
+          ...o.item,
+          saved: saved.has(`property:${o.item.slug}`),
+          links: listingLinks(deps.links, { kind: "property", slug: o.item.slug, url: o.item.url }, "card"),
+          amenity_check: o.amenity_check,
+        }));
 
         analytics.record("search", {
           purpose: a.purpose ?? "any",
@@ -301,7 +309,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
       _meta: widgetMeta("Loading property…", "Property loaded"),
     },
     instrument(logger, "get_property_details", async ({ slug, shortlist_id }: { slug: string; shortlist_id?: string }) => {
-      const base = { view: "property_detail" as const, property: null, saved: false, shortlist_id: knownShortlist(shortlist_id), data_as_of: null };
+      const base = { view: "property_detail" as const, property: null, links: null, saved: false, shortlist_id: knownShortlist(shortlist_id), data_as_of: null };
       if (!isValidSlug(slug)) {
         const error = { code: "invalid_input", message: "That is not a valid listing slug. Use the slug from a search result." };
         return { content: text(error.message), structuredContent: { ...base, status: "invalid_input" as const, error }, isError: true };
@@ -317,7 +325,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
         const saved = savedKeys(shortlist_id).has(`property:${slug}`);
         return {
           content: text(`${propertyDetailsText(property)}\n${asOfLine(asOf)}`),
-          structuredContent: { ...base, status: "ok" as const, property, saved, data_as_of: asOf, error: null },
+          structuredContent: { ...base, status: "ok" as const, property, links: listingLinks(deps.links, { kind: "property", slug, url: property.url }, "detail", property.agent?.phone), saved, data_as_of: asOf, error: null },
         };
       } catch (err) {
         if (cmsNotFound(err)) {
@@ -349,7 +357,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
       try {
         const out = await cms.searchOffplan({ developers: a.developers, handover: a.handover, area: a.area, max_starting_price_aed: a.max_starting_price_aed, page: a.page, page_size: a.page_size });
         const saved = savedKeys(a.shortlist_id);
-        const items = out.items.map((i) => ({ ...i, saved: saved.has(`offplan:${i.slug}`) }));
+        const items = out.items.map((i) => ({ ...i, saved: saved.has(`offplan:${i.slug}`), links: listingLinks(deps.links, { kind: "offplan", slug: i.slug, url: i.url }, "card") }));
         analytics.record("offplan_search", { budget_band: budgetBand(a.max_starting_price_aed, "buy"), developer: (a.developers?.length ?? 0) > 0, handover: !!a.handover, area: !!a.area, outcome: out.status });
         return {
           content: text(`${offplanSearchText(out)}\n${asOfLine(out.data_as_of)}`),
@@ -385,7 +393,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
       _meta: widgetMeta("Loading project…", "Project loaded"),
     },
     instrument(logger, "get_offplan_project_details", async ({ slug, unit_price_aed, shortlist_id }: { slug: string; unit_price_aed?: number; shortlist_id?: string }) => {
-      const base = { view: "offplan_detail" as const, project: null, payment_schedule: null, payment_schedule_note: null, saved: false, shortlist_id: knownShortlist(shortlist_id), data_as_of: null };
+      const base = { view: "offplan_detail" as const, project: null, links: null, payment_schedule: null, payment_schedule_note: null, saved: false, shortlist_id: knownShortlist(shortlist_id), data_as_of: null };
       if (!isValidSlug(slug)) {
         const error = { code: "invalid_input", message: "That is not a valid project slug. Use the slug from a search result." };
         return { content: text(error.message), structuredContent: { ...base, status: "invalid_input" as const, error }, isError: true };
@@ -408,7 +416,7 @@ export function registerTools(server: McpServer, deps: ToolDeps): void {
         const extra = schedule ? `\n${scheduleText(schedule)}` : scheduleNote ? `\nPayment schedule: ${scheduleNote}` : "";
         return {
           content: text(`${offplanDetailsText(project)}${extra}\n${asOfLine(asOf)}`),
-          structuredContent: { ...base, status: "ok" as const, project, payment_schedule: schedule, payment_schedule_note: scheduleNote, saved: savedKeys(shortlist_id).has(`offplan:${slug}`), data_as_of: asOf, error: null },
+          structuredContent: { ...base, status: "ok" as const, project, links: listingLinks(deps.links, { kind: "offplan", slug, url: project.url }, "detail"), payment_schedule: schedule, payment_schedule_note: scheduleNote, saved: savedKeys(shortlist_id).has(`offplan:${slug}`), data_as_of: asOf, error: null },
         };
       } catch (err) {
         if (cmsNotFound(err)) {

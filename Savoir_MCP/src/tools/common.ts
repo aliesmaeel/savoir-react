@@ -7,6 +7,7 @@ import type { ConfirmationTokens } from "../inquiry.js";
 import type { Logger } from "../logger.js";
 import { ErrorInfoSchema } from "../schemas.js";
 import type { ShortlistStore } from "../shortlist.js";
+import type { LinkSigner, LinkSource } from "../trackedLinks.js";
 import { WIDGET_URI } from "../ui/widget.js";
 
 /**
@@ -25,6 +26,31 @@ export interface ToolDeps {
   tokens: ConfirmationTokens;
   shortlists: ShortlistStore;
   analytics: Analytics;
+  links: LinkSigner | null;
+}
+
+export interface ListingLinks {
+  website: string;
+  whatsapp: string;
+}
+
+/**
+ * Website + WhatsApp links for a listing button. Signed click-tracking links when analytics are
+ * enabled (clicks are counted, nothing else); plain links otherwise.
+ */
+export function listingLinks(
+  links: LinkSigner | null,
+  l: { kind: "property" | "offplan"; slug: string; url: string },
+  source: LinkSource,
+  agentPhone?: string | null,
+): ListingLinks {
+  const text = encodeURIComponent(`Hello, I'm interested in this property: ${l.url}`);
+  const wa = agentPhone ? `https://wa.me/${agentPhone.replace(/\D/g, "")}?text=${text}` : `https://wa.me/971505074686?text=${text}`;
+  if (!links) return { website: l.url, whatsapp: wa };
+  return {
+    website: links.wrap({ u: l.url, c: "website", s: source, k: l.kind, l: l.slug }),
+    whatsapp: links.wrap({ u: wa, c: agentPhone ? "whatsapp_agent" : "whatsapp_company", s: source, k: l.kind, l: l.slug }),
+  };
 }
 
 export type ErrorInfo = z.infer<typeof ErrorInfoSchema>;

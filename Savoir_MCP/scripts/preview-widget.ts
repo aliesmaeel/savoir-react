@@ -152,7 +152,14 @@ async function main() {
       await f.getByRole("button", { name: "Send on WhatsApp" }).click();
       await page.waitForFunction("window.__opened.length >= 1");
       const opened = await g<string[]>(page, "window.__opened");
-      check(opened[0]!.startsWith("https://wa.me/971505074686?text=") && decodeURIComponent(opened[0]!.split("text=")[1]!) === msg, "WhatsApp link carries exactly the shown message");
+      // With analytics on, the button is a signed /go/ link that redirects to WhatsApp.
+      let target = opened[0]!;
+      if (/\/go\//.test(target)) {
+        const hop = await fetch(target, { redirect: "manual", headers: { "user-agent": "Mozilla/5.0 preview-click" } });
+        check(hop.status === 302, "WhatsApp button goes through a counted /go/ redirect");
+        target = hop.headers.get("location") ?? "";
+      }
+      check(target.startsWith("https://wa.me/971505074686?text=") && decodeURIComponent(target.split("text=")[1]!) === msg, "WhatsApp link carries exactly the shown message");
       await f.getByRole("button", { name: "← Back" }).click();
       await f.getByRole("button", { name: "← Back" }).click();
       await f.getByRole("button", { name: /Shortlist \(1\)/ }).click();

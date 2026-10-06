@@ -5,13 +5,15 @@ import { SavoirCms } from "./cms/service.js";
 import type { AppConfig } from "./config.js";
 import { ConfirmationTokens } from "./inquiry.js";
 import type { Logger } from "./logger.js";
+import { AggregateAnalytics } from "./analytics.js";
 import { ShortlistStore } from "./shortlist.js";
+import { LinkSigner } from "./trackedLinks.js";
 import { noopAnalytics, type Analytics } from "./tools/common.js";
 import { registerTools } from "./tools/register.js";
 import { buildWidgetHtml, WIDGET_URI } from "./ui/widget.js";
 
 export const SERVER_NAME = "savoir-properties";
-export const SERVER_VERSION = "0.2.0";
+export const SERVER_VERSION = "0.3.0";
 
 const INSTRUCTIONS = `Savoir Properties is a Dubai real-estate brokerage. These tools read Savoir's own listings CMS and help the customer from search to contacting an agent.
 Discovery
@@ -40,10 +42,18 @@ export interface AppContext {
   tokens: ConfirmationTokens;
   shortlists: ShortlistStore;
   analytics: Analytics;
+  /** Aggregate store when analytics are enabled (staff reporting); null otherwise. */
+  aggregates: AggregateAnalytics | null;
+  /** Signed click-link factory when analytics are enabled; null = plain links. */
+  links: LinkSigner | null;
   widgetHtml: string;
 }
 
-export function createAppContext(config: AppConfig, logger: Logger, fetchImpl?: FetchLike, analytics: Analytics = noopAnalytics): AppContext {
+export function createAppContext(config: AppConfig, logger: Logger, fetchImpl?: FetchLike): AppContext {
+  const aggregates = config.analyticsEnabled ? new AggregateAnalytics(config.dataDir, logger) : null;
+  const analytics: Analytics = aggregates ?? noopAnalytics;
+  const links = config.analyticsEnabled ? new LinkSigner(config.analyticsLinkSecret, config.publicMcpUrl, config.publicSiteUrl) : null;
+  if (links?.ephemeral) logger.warn("analytics.link_secret_missing", { effect: "click links stop working after a restart" });
   const client = new CmsClient({
     baseUrl: config.cmsBaseUrl,
     timeoutMs: config.cmsTimeoutMs,
@@ -58,6 +68,8 @@ export function createAppContext(config: AppConfig, logger: Logger, fetchImpl?: 
     tokens: new ConfirmationTokens(config.inquiryTokenSecret),
     shortlists: new ShortlistStore(config.dataDir, logger),
     analytics,
+    aggregates,
+    links,
     widgetHtml: buildWidgetHtml(),
   };
 }
@@ -90,6 +102,6 @@ export function createMcpServer(ctx: AppContext): McpServer {
     }),
   );
 
-  registerTools(server, { cms: ctx.cms, config: ctx.config, logger: ctx.logger, tokens: ctx.tokens, shortlists: ctx.shortlists, analytics: ctx.analytics });
+  registerTools(server, { cms: ctx.cms, config: ctx.config, logger: ctx.logger, tokens: ctx.tokens, shortlists: ctx.shortlists, analytics: ctx.analytics, links: ctx.links });
   return server;
 }

@@ -219,7 +219,7 @@ describe("shortlist and share page", () => {
 
 describe("contact handoff", () => {
   it("re-verifies listings live, drops unavailable ones, and prepares an attributed message with no personal data", async () => {
-    const { call, calls, textOf } = await start();
+    const { call, calls, textOf, base } = await start();
     await call("get_property_details", { slug: "pool-1" }); // cached now
     const before = calls.filter((c) => c.url.pathname === "/api/property/pool-1").length;
     const r = await call("prepare_inquiry", {
@@ -241,7 +241,14 @@ describe("contact handoff", () => {
     expect(Object.keys(h)).not.toEqual(expect.arrayContaining(["name"]));
     expect(textOf(r)).toMatch(/This is not a booking/);
     expect(textOf(r)).not.toMatch(/viewing (is|has been) (booked|confirmed)/i);
-    expect(decodeURIComponent(h.channels.whatsapp_company.split("text=")[1])).toBe(h.message);
+    // The WhatsApp button is a signed click link that redirects to WhatsApp with exactly this message.
+    const go = new URL(h.channels.whatsapp_company);
+    expect(go.pathname).toMatch(/^\/go\//);
+    const redirect = await fetch(`${base}${go.pathname}`, { redirect: "manual" });
+    expect(redirect.status).toBe(302);
+    const target = redirect.headers.get("location")!;
+    expect(target.startsWith("https://wa.me/971505074686?text=")).toBe(true);
+    expect(decodeURIComponent(target.split("text=")[1]!)).toBe(h.message);
   });
 
   it("writes the message in Arabic when asked", async () => {

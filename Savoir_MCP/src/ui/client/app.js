@@ -98,7 +98,8 @@ function brand(title, sub) {
 
 // ---------- host bridge ----------
 async function openLink(url) {
-  if (!/^(https:|mailto:|tel:)/.test(url)) return;
+  // https only (plus local development servers); mailto/tel for contact buttons.
+  if (!/^(https:|mailto:|tel:|http:\/\/(127\.0\.0\.1|localhost)[:/])/.test(url)) return;
   try {
     if (state.app) {
       const r = await state.app.openLink({ url: url });
@@ -333,7 +334,7 @@ function propertyCard(p) {
       h("div", { class: "sv-price", text: aed(p.price) || t("priceOnRequest") }),
       h("div", { class: "sv-meta" }, meta.map((m) => h("span", { text: m }))),
       chips,
-      h("div", { class: "sv-actions" }, btn(t("details"), () => openDetail("property", p.slug, p.title), { primary: true, aria: t("details") + ": " + p.title }), btn(t("whatsapp"), () => openLink(waFor(p.url)), { aria: t("whatsapp") + ": " + p.title }), compareCheck(ref)),
+      h("div", { class: "sv-actions" }, btn(t("details"), () => openDetail("property", p.slug, p.title), { primary: true, aria: t("details") + ": " + p.title }), btn(t("whatsapp"), () => openLink((p.links && p.links.whatsapp) || waFor(p.url)), { aria: t("whatsapp") + ": " + p.title }), compareCheck(ref)),
     ),
   );
 }
@@ -350,7 +351,7 @@ function offplanCard(p) {
       p.location ? h("div", { class: "sv-loc", text: p.location }) : null,
       h("div", { class: "sv-price", text: p.starting_price_aed ? t("from", { p: aed(p.starting_price_aed) }) : t("priceOnRequest") }),
       h("div", { class: "sv-meta" }, [p.developer, p.handover ? t("handover", { h: p.handover }) : null].filter(Boolean).map((m) => h("span", { text: m }))),
-      h("div", { class: "sv-actions" }, btn(t("details"), () => openDetail("offplan", p.slug, p.title), { primary: true, aria: t("details") + ": " + p.title }), btn(t("whatsapp"), () => openLink(waFor(p.url))), compareCheck(ref)),
+      h("div", { class: "sv-actions" }, btn(t("details"), () => openDetail("offplan", p.slug, p.title), { primary: true, aria: t("details") + ": " + p.title }), btn(t("whatsapp"), () => openLink((p.links && p.links.whatsapp) || waFor(p.url))), compareCheck(ref)),
     ),
   );
 }
@@ -462,7 +463,8 @@ function renderPropertyDetail(d) {
     p.reference_number ? fact(t("rRef"), p.reference_number) : null,
     p.permit_number ? fact(t("rPermit"), p.permit_number) : null,
   ].filter(Boolean);
-  const wa = p.agent && p.agent.whatsapp_url ? p.agent.whatsapp_url + "?text=" + encodeURIComponent("Hello, I'm interested in this property: " + p.url) : waFor(p.url);
+  const wa = d.links ? d.links.whatsapp : p.agent && p.agent.whatsapp_url ? p.agent.whatsapp_url + "?text=" + encodeURIComponent("Hello, I'm interested in this property: " + p.url) : waFor(p.url);
+  const site = d.links ? d.links.website : p.url;
   out.push(
     h(
       "div",
@@ -486,7 +488,7 @@ function renderPropertyDetail(d) {
             btn(saved ? "♥ " + t("unsave") : "♡ " + t("save"), () => toggleSave(ref), { small: true }),
             btn(t("prepare"), () => prepareMessage([ref]), { primary: true, small: true }),
             btn(t("whatsapp"), () => openLink(wa), { small: true }),
-            btn(t("website"), () => openLink(p.url), { small: true }),
+            btn(t("website"), () => openLink(site), { small: true }),
           ),
         ),
         h("label", { class: "sv-check" }, (() => {
@@ -549,8 +551,8 @@ function renderOffplanDetail(d) {
           { class: "sv-actions" },
           btn(saved ? "♥ " + t("unsave") : "♡ " + t("save"), () => toggleSave(ref), { small: true }),
           btn(t("prepare"), () => prepareMessage([ref]), { primary: true, small: true }),
-          btn(t("whatsapp"), () => openLink(waFor(p.url)), { small: true }),
-          btn(t("website"), () => openLink(p.url), { small: true }),
+          btn(t("whatsapp"), () => openLink(d.links ? d.links.whatsapp : waFor(p.url)), { small: true }),
+          btn(t("website"), () => openLink(d.links ? d.links.website : p.url), { small: true }),
           p.video_url ? btn(t("video"), () => openLink(p.video_url), { small: true }) : null,
         ),
         asOf(d.data_as_of),
