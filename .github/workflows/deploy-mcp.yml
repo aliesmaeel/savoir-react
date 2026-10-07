@@ -17,6 +17,7 @@ name: Deploy Savoir MCP (manual)
 #   widget-domain-on   set WIDGET_DOMAIN=https://<MCP_DOMAIN> (the card's _meta.ui.domain, required for directory submission)
 #   widget-domain-off  remove WIDGET_DOMAIN again (undo)
 #   log-rotation     pm2-logrotate for the MCP user's pm2 only: daily, keep 30, compress; reports nginx rotation (read-only)
+#   map-on / map-off turn the property map (MapLibre + OpenFreeMap) on/off in shared/.env (timestamped backup first), reload
 #
 # target=test runs a SEPARATE test instance (never touches production): pm2 "savoir-mcp-test", app root
 # ~/savoir-mcp-test, 127.0.0.1:8797, https://mcp-test.savoirproperties.com, its own shared/.env and data.
@@ -27,7 +28,7 @@ on:
       action:
         description: "What to do"
         type: choice
-        options: [inspect, activity, create-user, deploy, configure-https, rollback, stop, set-challenge-token, widget-domain-on, widget-domain-off, log-rotation]
+        options: [inspect, activity, create-user, deploy, configure-https, rollback, stop, set-challenge-token, widget-domain-on, widget-domain-off, log-rotation, map-on, map-off]
         default: inspect
       target:
         description: "production (mcp.savoirproperties.com) or test (separate instance at mcp-test.savoirproperties.com)"
@@ -200,6 +201,8 @@ jobs:
               tools="$(grep -o '"name":"[a-z_]*"' "$WORK/tools.txt" | sort -u | tr '\n' ' ')"
               echo "tools: $tools"
               grep -q 'submit_property_inquiry' "$WORK/tools.txt" && { echo "::error::write tool is advertised"; exit 1; }
+              dash="$(as_app "curl -s -o /dev/null -w '%{http_code}' -m 5 -H 'Host: $MCP_DOMAIN' http://127.0.0.1:$MCP_PORT/internal/insights")"
+              [ "$dash" = "404" ] && echo "staff dashboard: off" || { echo "::error::staff dashboard answers ($dash); it must stay off"; exit 1; }
               for t in search_properties get_property_details search_offplan_projects get_offplan_project_details get_contact_options; do
                 grep -q "\"name\":\"$t\"" "$WORK/tools.txt" || { echo "::error::missing tool $t"; exit 1; }
               done
@@ -292,6 +295,19 @@ jobs:
                 fi
                 local_checks
                 ;;
+              map-on|map-off)
+                as_app "$AENV bash $WORK/deploy/server/map-setting.sh ${ACTION#map-}"
+                as_app "$AENV pm2 reload $A/current/deploy/ecosystem.config.cjs --update-env >/dev/null && pm2 save >/dev/null"
+                sleep 3
+                as_app "curl -fsS -m 15 -X POST -H 'Host: $MCP_DOMAIN' -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+                  -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"resources/read\",\"params\":{\"uri\":\"ui://savoir/listings-v2.html\"}}' http://127.0.0.1:$MCP_PORT/mcp" > "$WORK/card.txt"
+                if [ "$ACTION" = "map-on" ]; then
+                  grep -q '"connectDomains":\["https://tiles.openfreemap.org"\]' "$WORK/card.txt" && grep -q 'sv-ml-worker' "$WORK/card.txt" && echo "card: MapLibre map on, connectDomains https://tiles.openfreemap.org" || { echo "::error::card does not carry the map"; exit 1; }
+                else
+                  grep -q '"connectDomains":\[\]' "$WORK/card.txt" && ! grep -q 'sv-ml-worker' "$WORK/card.txt" && echo "card: map off" || { echo "::error::card still carries the map"; exit 1; }
+                fi
+                local_checks
+                ;;
               log-rotation)
                 # Only the MCP user's own pm2 daemon; the website's pm2 (root) is not touched.
                 as_app 'pm2 describe pm2-logrotate >/dev/null 2>&1 || pm2 install pm2-logrotate >/dev/null 2>&1 || { echo "::error::pm2 install pm2-logrotate failed"; exit 1; }'
@@ -311,7 +327,7 @@ jobs:
             bash "$MCP_REMOTE_SCRIPT" < /dev/null; rc=$?; rm -f "$MCP_REMOTE_SCRIPT"; exit $rc
 
       - name: Public endpoint verification
-        if: inputs.action == 'deploy' || inputs.action == 'configure-https' || inputs.action == 'rollback' || inputs.action == 'set-challenge-token' || inputs.action == 'widget-domain-on' || inputs.action == 'widget-domain-off'
+        if: inputs.action == 'deploy' || inputs.action == 'configure-https' || inputs.action == 'rollback' || inputs.action == 'set-challenge-token' || inputs.action == 'widget-domain-on' || inputs.action == 'widget-domain-off' || inputs.action == 'map-on' || inputs.action == 'map-off'
         env:
           CHALLENGE_TOKEN: ${{ inputs.challenge_token }}
         run: |

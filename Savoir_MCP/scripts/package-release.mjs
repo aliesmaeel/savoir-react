@@ -33,6 +33,7 @@ const files = [
   "deploy/server/activity.sh",
   "deploy/server/configure-https.sh",
   "deploy/server/test-env.sh",
+  "deploy/server/map-setting.sh",
 ];
 for (const f of files) if (!existsSync(f)) throw new Error(`missing ${f}`);
 
