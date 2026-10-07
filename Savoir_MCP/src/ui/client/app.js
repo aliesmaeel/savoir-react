@@ -39,6 +39,47 @@ function canonical(v) {
   if (v && typeof v === "object") return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + canonical(v[k])).join(",") + "}";
   return JSON.stringify(v === undefined ? null : v);
 }
+/**
+ * Identity of a tool result for host re-deliveries: the view and what it shows (listings, page,
+ * shortlist and share link, message reference). Re-serialised copies of the same result - reordered,
+ * with fields added or dropped - share this identity; a genuinely new result does not.
+ */
+function resultIdentity(sc) {
+  const slugs = (list) => (Array.isArray(list) ? list.map((i) => i && (i.slug || (i.property && i.property.slug) || (i.project && i.project.slug))) : []);
+  const id = { view: sc.view || null, status: sc.status || null };
+  switch (sc.view) {
+    case "property_list":
+    case "offplan_list":
+      id.items = slugs(sc.items);
+      id.page = sc.pagination ? sc.pagination.page : null;
+      id.alternatives = Array.isArray(sc.alternatives) ? sc.alternatives.map((a) => a && a.kind) : [];
+      break;
+    case "property_detail":
+      id.slug = sc.property ? sc.property.slug : null;
+      break;
+    case "offplan_detail":
+      id.slug = sc.project ? sc.project.slug : null;
+      id.schedule = sc.payment_schedule ? sc.payment_schedule.stages.map((s) => s.amount_aed) : null;
+      break;
+    case "compare":
+      id.items = slugs(sc.items);
+      break;
+    case "shortlist":
+      id.shortlist = sc.shortlist ? sc.shortlist.shortlist_id : null;
+      id.items = sc.shortlist ? slugs(sc.shortlist.items) : [];
+      id.share = sc.shortlist ? sc.shortlist.share_url || null : null;
+      break;
+    case "inquiry":
+      id.ref = sc.handoff ? sc.handoff.reference_code : null;
+      break;
+    case "area_guide":
+      id.areas = sc.guide && Array.isArray(sc.guide.areas) ? sc.guide.areas.map((a) => a.area) : [];
+      break;
+    default:
+      return canonical(sc);
+  }
+  return canonical(id);
+}
 function shortHash(s) {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
@@ -1085,27 +1126,37 @@ function applyHostContext(ctx) {
   } catch (e) {}
 }
 
-/** A tool result delivered by the host (not by a card button). */
+/**
+ * A tool result delivered by the host (not by a card button).
+ * - Stale: same identity as a result already delivered (hosts re-send the original, e.g. ChatGPT's
+ *   openai:set_globals snapshots). Ignored, so it can never undo the customer's navigation.
+ * - Genuinely new: a different identity. Shown, and the card starts again from it.
+ */
 function onToolResult(sc, input) {
   if (!sc || typeof sc !== "object") return;
-  if (input && !state.lastSearch) state.lastSearch = input;
   let key;
   try {
-    key = canonical(sc);
+    key = resultIdentity(sc);
   } catch (e) {
     return;
   }
-  if (state.seenResults.has(key)) return; // the same result again, in any field order, on any channel
+  if (state.seenResults.has(key)) {
+    if (input && !state.lastSearch) state.lastSearch = input;
+    return;
+  }
   state.seenResults.add(key);
-  if (state.userNavigated) return; // the customer opened another view: host deliveries never replace it
   const first = !state.originKey;
-  if (first) state.originKey = key;
+  state.originKey = key;
+  if (input) state.lastSearch = input;
   ingest(sc);
   state.history = [];
   state.navCalls = [];
+  state.nav = null;
+  state.userNavigated = false;
   state.current = sc;
   render(sc);
   if (first) restoreNavigation();
+  else persist();
 }
 /** After a card reload, reopen the view the customer had opened (saved in the host's widget state). */
 async function restoreNavigation() {
@@ -1114,7 +1165,7 @@ async function restoreNavigation() {
   if (!ws || !ws.nav || !RESTORABLE.has(ws.nav.name) || ws.origin !== shortHash(state.originKey)) return;
   const sc = await callTool(ws.nav.name, ws.nav.args || {}, { silentError: true });
   if (!sc) return notice(t("restoreFailed") + " (" + (state.lastError || "failed") + ")", "error", { label: t("retry"), fn: () => restoreNavigation() });
-  if (!state.userNavigated || state.current && canonical(state.current) === state.originKey) navigate(sc, true);
+  if (!state.userNavigated || (state.current && resultIdentity(state.current) === state.originKey)) navigate(sc, true);
 }
 
 function reportUiError(code) {

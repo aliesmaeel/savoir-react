@@ -1,6 +1,6 @@
 # Production deployment: mcp.savoirproperties.com (read-only launch)
 
-**Status: live since 2026-10-06.** v0.3.6 is deployed from branch `savoir-mcp-journey`, read-only with inquiries disabled. v0.3.7 (fix: views overwritten by re-delivered tool output) is ready and awaiting deploy approval.
+**Status: live since 2026-10-06.** Read-only with inquiries disabled. v0.3.8 (v0.3.7 fix + genuinely new results still shown) deployed 2026-10-07. Real ChatGPT retest pending.
 
 ## 1. The existing server
 

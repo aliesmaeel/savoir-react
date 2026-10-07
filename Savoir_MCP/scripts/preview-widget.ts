@@ -38,6 +38,9 @@ document.body.appendChild(iframe);
 const profile = q.get("host") || "full";
 const events = q.get("events") || "snapshot";
 const redeliver = q.get("redeliver") === "1";
+// mutate=1: stale copies carry an extra field and miss data_as_of (same result, different bytes)
+const mutate = q.get("mutate") === "1";
+const mutated = (result) => { const sc = JSON.parse(JSON.stringify(result.structuredContent)); delete sc.data_as_of; sc._host_copy = true; return { ...result, structuredContent: sc }; };
 let reloadPending = q.get("reload") === "1";
 if (profile !== "full") iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
 const caps = profile === "full" ? { openLinks: {}, serverTools: {}, updateModelContext: { text: {} }, message: { text: {} } }
@@ -47,7 +50,7 @@ const maxH = Number(q.get("maxh") || 3000);
 const reorder = (v) => Array.isArray(v) ? v.map(reorder) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).reverse().map((k) => [k, reorder(v[k])])) : v;
 let init = null;
 const snapshot = (changed) => events === "changed" ? changed
-  : { toolInput: init && init.args, toolOutput: init && reorder(init.result.structuredContent), widgetState: window.__widgetState, maxHeight: maxH, theme: q.get("theme") || "light", locale: q.get("locale") || "en-US", ...changed };
+  : { toolInput: init && init.args, toolOutput: init && reorder(mutate ? mutated(init.result).structuredContent : init.result.structuredContent), widgetState: window.__widgetState, maxHeight: maxH, theme: q.get("theme") || "light", locale: q.get("locale") || "en-US", ...changed };
 const globalsChanged = (changed) => {
   if (profile !== "chatgpt") return;
   try {
@@ -58,6 +61,12 @@ const globalsChanged = (changed) => {
   } catch (e) {}
 };
 window.__globalsChanged = globalsChanged;
+// A genuinely new tool result for this card (as when the host routes a new call's output here).
+window.__deliverNew = (result, args) => {
+  init = { args, result };
+  try { bridge.sendToolResult(result); } catch (e) {}
+  globalsChanged({ toolInput: args, toolOutput: result.structuredContent });
+};
 let bridge = null;
 async function mount() {
   window.__mounts++;
@@ -69,7 +78,7 @@ async function mount() {
     window.__calls.push(params.name);
     if (profile === "hostile") return new Promise(() => {});
     const r = await (await fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) })).json();
-    if (profile === "chatgpt" && redeliver) for (const ms of [300, 1500]) setTimeout(() => { try { br.sendToolResult(init.result); } catch (e) {} globalsChanged({}); }, ms);
+    if (profile === "chatgpt" && redeliver) for (const ms of [300, 1500]) setTimeout(() => { try { br.sendToolResult(mutate ? mutated(init.result) : init.result); } catch (e) {} globalsChanged({}); }, ms);
     if (profile === "chatgpt" && reloadPending) { reloadPending = false; setTimeout(() => mount(), 500); }
     return r;
   };
@@ -448,7 +457,22 @@ async function main() {
         return appeared && still;
       };
       const sr = (await client.callTool({ name: "search_properties", arguments: { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 } })) as { structuredContent: { items: Array<{ slug: string }> } };
-      for (const mode of ["events=snapshot&redeliver=1", "events=changed&redeliver=1"]) {
+      // Genuinely new result after the customer navigated: it must be shown (and then kept).
+      {
+        await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+        const { page, f } = await open("host=chatgpt&events=snapshot&redeliver=1&theme=light&locale=en-US&w=900&h=640&maxh=640", 960, 800);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        await settle();
+        await f.getByRole("button", { name: /^Details:/ }).first().click();
+        await stays(f, ".sv-detail", "Details before a new result arrives", "new-result");
+        const fresh = await client.callTool({ name: "search_properties", arguments: { purpose: "rent", page_size: 3 } });
+        await page.evaluate(([r, a]) => (window as any).__deliverNew(r, a), [fresh, { purpose: "rent", page_size: 3 }] as const);
+        const shown = await f.locator(".sv-row .sv-card .sv-badge", { hasText: "For rent" }).first().waitFor({ timeout: 10000 }).then(() => true).catch(() => false);
+        await settle();
+        check(shown && (await f.locator(".sv-detail").count()) === 0 && (await f.locator(".sv-row .sv-badge", { hasText: "For rent" }).count()) > 0, "J[new-result] a genuinely new host result replaces the old view and stays");
+        await page.close();
+      }
+      for (const mode of ["events=snapshot&redeliver=1", "events=changed&redeliver=1", "events=snapshot&redeliver=1&mutate=1"]) {
         await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
         const { page, f } = await open(`host=chatgpt&${mode}&theme=light&locale=en-US&w=900&h=640&maxh=640`, 960, 800);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
