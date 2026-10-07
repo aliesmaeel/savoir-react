@@ -810,121 +810,161 @@ async function main() {
       await page.close();
     }
 
-    // ---------- K: map view (simulated hosts; OpenStreetMap tiles for local testing only) ----------
-    console.log("K. Map view: toggle, pins, clustering, selection sync, fit, details, no search on move, mobile full screen, fallback, Arabic");
+    // ---------- K: map view, area groups (simulated hosts) ----------
+    console.log("K. Map: area groups, selection, preview, attribution, counts, no search on move, phone full screen, fallback, Arabic");
     {
       const mapCalls = (page: Page) => g<string[]>(page, "window.__calls.slice()");
-      // K1 desktop, ChatGPT-like host with re-deliveries
-      await setInitial("search_properties", { purpose: "buy", page_size: 10 });
+      const settleTiles = async (f: FrameLocator) => { await f.locator(".sv-map img.leaflet-tile").first().waitFor({ timeout: 15000 }).catch(() => {}); await new Promise((r) => setTimeout(r, 2500)); };
+      // Tap a single area with several homes, zooming into merged "N areas" markers first (as a person would).
+      const openMultiHomeArea = async (f: FrameLocator) => {
+        for (let i = 0; i < 4; i++) {
+          const single = f.locator(".sv-areamk:not(.multi)").filter({ hasText: /\d+ homes/ });
+          if (await single.count()) {
+            await single.first().click();
+            return true;
+          }
+          if (!(await f.locator(".sv-areamk.multi").count())) return false;
+          await f.locator(".sv-areamk.multi").first().click();
+          await new Promise((r) => setTimeout(r, 900));
+        }
+        return false;
+      };
+      const noOverlap = async (f: FrameLocator) => {
+        const att = await f.locator(".leaflet-control-attribution").boundingBox();
+        const pv = (await f.locator("#sv-mapsel").isVisible()) ? await f.locator("#sv-mapsel").boundingBox() : null;
+        return !!att && att.height > 0 && (!pv || pv.y + pv.height <= att.y + 1 || pv.x + pv.width <= att.x + 1 || att.x + att.width <= pv.x + 1);
+      };
+      // K1 desktop, large
+      await setInitial("search_properties", { purpose: "buy", page_size: 12 });
       {
-        const { page, f } = await open("host=chatgpt&events=snapshot&redeliver=1&theme=light&locale=en-US&w=900&h=900&maxh=1400", 960, 1000);
+        const { page, f } = await open("host=chatgpt&events=snapshot&redeliver=1&theme=light&locale=en-US&w=1180&h=1000&maxh=1800", 1280, 1100);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
-        check(await f.getByRole("button", { name: "Map", exact: true }).isVisible(), "K List / Map toggle shown");
         await f.getByRole("button", { name: "Map", exact: true }).click();
-        await f.locator(".sv-map .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
-        const tilesOk = await f.locator(".sv-map img.leaflet-tile").evaluateAll((els) => new Promise<number>((res) => setTimeout(() => res(els.filter((e) => (e as HTMLImageElement).naturalWidth > 0).length), 2500)));
-        check(tilesOk > 0, `K map tiles load under the declared CSP (${tilesOk} tiles)`);
-        const pins = await f.locator(".sv-pin").count();
-        const priced = await f.locator(".sv-pin:not(.cluster)").allInnerTexts();
-        check(pins > 0 && (priced.length === 0 || priced.every((x) => /AED|from/.test(x))), `K price pins / clusters drawn (${pins}; e.g. "${(priced[0] ?? "").replace(/\s+/g, " ")}")`);
-        check(/Pins show the area, not the exact building/.test(await f.locator(".sv-maplegend").innerText()), "K legend says pins show the area, not the exact building");
-        const box = await f.locator(".sv-map").boundingBox();
-        const pinBoxes = await f.locator(".sv-map .leaflet-marker-icon").evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }));
-        const frameOffset = await page.locator("iframe").boundingBox();
-        check(!!box && !!frameOffset && pinBoxes.every(([x, y]) => x! + frameOffset.x >= box.x - 2 && x! + frameOffset.x <= box.x + box.width + 2 && y! + frameOffset.y >= box.y - 2 && y! + frameOffset.y <= box.y + box.height + 30), "K map fitted: every pin inside the map");
-        // no search when the map moves or zooms
+        await f.locator(".sv-areamk").first().waitFor({ timeout: 15000 });
+        await settleTiles(f);
+        const tilesOk = await f.locator(".sv-map img.leaflet-tile").evaluateAll((els) => els.filter((e) => (e as HTMLImageElement).naturalWidth > 0).length);
+        check(tilesOk > 0, `K basemap tiles load under the declared CSP (${tilesOk})`);
+        const labels = await f.locator(".sv-areamk").allInnerTexts();
+        check(labels.length > 0 && labels.every((x) => /·\s*(\d+ homes|1 home)/.test(x.replace(/\s+/g, " "))), `K one marker per area, e.g. "${(labels[0] ?? "").replace(/\s+/g, " ")}"`);
+        check((await f.locator(".sv-pin").count()) === 0, "K no per-listing building pins");
+        const overlaps = async () => f.locator(".sv-areamk").evaluateAll((els) => { const r = els.map((e) => e.getBoundingClientRect()); let n = 0; for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) if (r[i]!.left < r[j]!.right && r[j]!.left < r[i]!.right && r[i]!.top < r[j]!.bottom && r[j]!.top < r[i]!.bottom) n++; return n; });
+        check((await overlaps()) === 0, "K area markers never overlap each other");
+        check(/Approximate areas · not exact buildings/.test(await f.locator(".sv-mapchip").innerText()), "K 'Approximate areas · not exact buildings' shown on the map");
+        const count = await f.locator(".sv-maphead .sv-note").innerText();
+        check(/^This page: \d+ of \d+ homes on the map · [\d,]+ results in total$/.test(count), `K count separates this page from all results ("${count}")`);
+        check((await f.locator(".leaflet-control-attribution").isVisible()) && /OpenStreetMap|Stadia/.test(await f.locator(".leaflet-control-attribution").innerText()), "K attribution visible");
+        // no search on move / zoom
         const before = (await mapCalls(page)).length;
         const m = await f.locator(".sv-map").boundingBox();
-        await page.mouse.move(m!.x + m!.width / 2, m!.y + m!.height / 2);
+        await page.mouse.move(m!.x + m!.width * 0.6, m!.y + m!.height * 0.6);
         await page.mouse.down();
-        await page.mouse.move(m!.x + m!.width / 2 + 120, m!.y + m!.height / 2 + 60, { steps: 6 });
+        await page.mouse.move(m!.x + m!.width * 0.6 + 80, m!.y + m!.height * 0.6 + 40, { steps: 6 });
         await page.mouse.up();
+        await f.locator(".leaflet-control-zoom-out").click();
         await f.locator(".leaflet-control-zoom-in").click();
         await new Promise((r) => setTimeout(r, 1200));
-        check((await mapCalls(page)).length === before, "K moving and zooming the map runs no search (filters unchanged)");
-        // cluster click: zooms in or lists the listings at that spot
-        if (await f.locator(".sv-pin.cluster").count()) {
-          await f.locator(".leaflet-marker-icon:has(.sv-pin.cluster)").first().click();
-          await new Promise((r) => setTimeout(r, 900));
-          check((await f.locator(".sv-mapsel-list").count()) > 0 || (await f.locator(".sv-pin").count()) >= pins, "K cluster click → zooms in or lists the listings at that spot");
-          if (await f.locator(".sv-mapsel-head").count()) await f.locator(".sv-mapsel-head").getByRole("button", { name: "Close" }).click();
-        }
-        // pin → panel + card highlight
-        await f.locator(".sv-card").nth(1).getByRole("button", { name: /^Show on map:/ }).click();
-        await f.locator(".sv-mapsel-card").waitFor({ timeout: 5000 });
-        const selKey = await f.locator(".sv-card").nth(1).getAttribute("data-key");
-        check((await f.locator(".sv-card.mapsel").getAttribute("data-key")) === selKey && (await f.locator(".sv-pin.sel").count()) === 1, "K card 'Show on map' → its pin highlighted, panel open");
-        const panelText = await f.locator(".sv-mapsel-card").innerText();
-        check(/AED|Price on request/.test(panelText) && /Area:|Approximate/.test(panelText) && (await f.locator(".sv-mapsel-card img").count()) > 0, "K panel shows photo, price, key facts and the location precision");
-        await f.locator(".leaflet-marker-icon:has(.sv-pin:not(.cluster):not(.sel))").first().click().catch(() => {});
-        await new Promise((r) => setTimeout(r, 500));
-        const sel2 = await f.locator(".sv-pin.sel").count();
-        check(sel2 === 1 && (await f.locator(".sv-card.mapsel").count()) === 1, "K pin click → that listing selected in the cards too");
-        await shot(page, "K1-map-desktop");
-        // Details from the panel; Back returns to the map with the selection kept
+        check((await mapCalls(page)).length === before, "K moving and zooming the map runs no search");
+        // group with several homes
+        if (await f.locator(".sv-areamk.multi").count()) check(true, "K overlapping areas merge into one 'N areas' marker at this zoom");
+        await openMultiHomeArea(f);
+        await f.locator("#sv-mapsel .sv-pv-list").waitFor({ timeout: 5000 });
+        const sel = await f.locator(".sv-areamk.sel").innerText();
+        const rows = await f.locator("#sv-mapsel .sv-pv-row").count();
+        check(/AED/.test(sel) && rows > 1 && (await f.locator(".sv-card.mapgroup").count()) >= rows - 1, `K area selected: price range on the marker ("${sel.replace(/\s+/g, " ")}"), ${rows} homes in the preview, cards highlighted`);
+        check(/Approximate area/.test(await f.locator("#sv-mapsel").innerText()), "K area preview labelled 'Approximate area'");
+        check(await noOverlap(f), "K attribution not covered by the preview");
+        await f.locator(".sv-map").scrollIntoViewIfNeeded();
+        await settleTiles(f);
+        await shot(page, "K1-map-desktop-area");
+        await f.locator("#sv-mapsel .sv-pv-row").nth(1).click();
+        await f.locator("#sv-mapsel .sv-pv-card").waitFor({ timeout: 5000 });
+        const pvText = await f.locator("#sv-mapsel").innerText();
+        check(/AED|Price on request/.test(pvText) && /exact building not shown/.test(pvText) && (await f.locator("#sv-mapsel .sv-pv-card img").count()) === 1 && (await f.locator(".sv-card.mapsel").count()) === 1, "K property preview: photo, price, facts, 'exact building not shown'; its card selected");
+        await settleTiles(f);
+        await shot(page, "K2-map-desktop-property");
+        // card 'Show on map' → area + property
+        const cardKey = await f.locator(".sv-card").nth(0).getAttribute("data-key");
+        await f.locator(".sv-card").nth(0).getByRole("button", { name: /^Show on map:/ }).click();
+        await new Promise((r) => setTimeout(r, 600));
+        check((await f.locator(".sv-card.mapsel").getAttribute("data-key")) === cardKey && (await f.locator(".sv-areamk.sel").count()) === 1, "K card 'Show on map' → its area marker and preview");
+        // Details from the preview, then Back keeps the selection
         const n0 = (await mapCalls(page)).length;
-        await f.locator(".sv-mapsel-card").getByRole("button", { name: /^Details:/ }).click();
+        await f.locator("#sv-mapsel").getByRole("button", { name: /^Details:/ }).click();
         await f.locator(".sv-detail").waitFor({ timeout: 20000 });
         await new Promise((r) => setTimeout(r, 3000));
-        check((await f.locator(".sv-detail").count()) === 1 && (await mapCalls(page)).slice(n0).includes("get_property_details"), "K panel Details → property details (and they stay)");
+        check((await f.locator(".sv-detail").count()) === 1 && (await mapCalls(page)).slice(n0).includes("get_property_details"), "K preview Details → property details (and they stay)");
         await f.getByRole("button", { name: "← Back" }).click();
-        await f.locator(".sv-map .leaflet-marker-icon").first().waitFor({ timeout: 10000 });
-        check((await f.locator(".sv-pin.sel").count()) === 1, "K Back → map again, selection kept");
+        await f.locator(".sv-areamk").first().waitFor({ timeout: 10000 });
+        check((await f.locator(".sv-areamk.sel").count()) === 1 && (await f.locator(".sv-card.mapsel").count()) === 1, "K Back → map with the selection kept");
         await f.getByRole("button", { name: "List", exact: true }).click();
-        check((await f.locator(".sv-map").count()) === 0 && (await f.locator(".sv-card.mapsel").count()) === 1, "K List → cards, the map selection still highlighted");
+        check((await f.locator(".sv-map").count()) === 0 && (await f.locator(".sv-card.mapsel").count()) === 1, "K List → cards, the selection still highlighted");
         await page.close();
       }
-      // K2 phone: full-screen map and Back to listings
+      // K3 phone, large: full screen, area selected, property preview, back
       {
-        const { page, f } = await open("host=chatgpt&theme=dark&locale=en-US&w=370&h=760&maxh=760", 390, 820, true);
+        const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=390&h=844&maxh=844", 390, 844, true);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
         await f.getByRole("button", { name: "Map", exact: true }).click();
-        await f.locator(".sv-mapwrap.full .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
+        await f.locator(".sv-mapwrap.full .sv-areamk").first().waitFor({ timeout: 15000 });
         check((await g<string[]>(page, "window.__display.slice()")).includes("fullscreen"), "K phone: Map asks the host for full screen");
-        await new Promise((r) => setTimeout(r, 1500));
-        await shot(page, "K2-map-phone-full");
+        await settleTiles(f);
+        check((await f.locator(".sv-areamk").evaluateAll((els) => { const r = els.map((e) => e.getBoundingClientRect()); let n = 0; for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) if (r[i]!.left < r[j]!.right && r[j]!.left < r[i]!.right && r[i]!.top < r[j]!.bottom && r[j]!.top < r[i]!.bottom) n++; return n; })) === 0, "K phone: area markers never overlap");
+        await shot(page, "K3-map-phone-areas");
+        await openMultiHomeArea(f);
+        await f.locator("#sv-mapsel .sv-pv-list").waitFor({ timeout: 5000 });
+        check(await noOverlap(f), "K phone: attribution not covered by the preview");
+        const markerVisible = await f.locator(".sv-areamk.sel").evaluate((el) => { const r = el.getBoundingClientRect(); const p = document.getElementById("sv-mapsel")!.getBoundingClientRect(); return r.bottom <= p.top + 2 || r.top >= p.bottom - 2 || r.right <= p.left || r.left >= p.right; });
+        check(markerVisible, "K phone: the selected area stays visible above the preview");
+        await settleTiles(f);
+        await shot(page, "K4-map-phone-area-selected");
+        await f.locator("#sv-mapsel .sv-pv-row").first().click();
+        await f.locator("#sv-mapsel .sv-pv-card").waitFor({ timeout: 5000 });
+        await settleTiles(f);
+        await shot(page, "K5-map-phone-property");
         await f.getByRole("button", { name: /Back to listings/ }).click();
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 5000 });
         check((await f.locator(".sv-mapwrap.full").count()) === 0 && (await g<string[]>(page, "window.__display.slice()")).includes("inline"), "K phone: Back to listings → cards, inline again");
         const docW = await f.locator("html").evaluate((e) => e.scrollWidth);
-        check(docW <= 372, `K phone: no sideways scroll (${docW})`);
+        check(docW <= 392, `K phone: no sideways scroll (${docW})`);
         await page.close();
       }
-      // K3 fallback: tiles blocked → accessible area list, listings still reachable
+      // K6 fallback: tiles blocked → accessible area list; listings still reachable
       {
         const { page, f } = await open("host=chatgpt&blocktiles=1&theme=light&locale=en-US&w=900&h=900&maxh=1400", 960, 1000);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
         await f.getByRole("button", { name: "Map", exact: true }).click();
         await f.locator(".sv-notice.error", { hasText: "map couldn't load" }).waitFor({ timeout: 12000 });
         const areaButtons = await f.locator(".sv-area-group li button").count();
-        check(areaButtons > 0 && (await f.locator("details.sv-disc[open] .sv-area-group").count()) > 0, `K tiles blocked → clear message and the area list opens (${areaButtons} listings)`);
-        check((await f.locator(".sv-row .sv-card").count()) > 0, "K tiles blocked → listing cards still available");
-        await shot(page, "K3-map-fallback");
+        check(areaButtons > 0 && (await f.locator("details.sv-disc[open] .sv-area-group").count()) > 0, `K tiles blocked → message and the area list opens (${areaButtons} listings, each opens its details)`);
+        await shot(page, "K6-map-fallback");
         await page.close();
       }
-      // K4 Arabic, phone, light
+      // K7 Arabic phone, dark
       {
-        const { page, f } = await open("host=chatgpt&theme=light&locale=ar-AE&w=370&h=760&maxh=760", 390, 820, true);
+        const { page, f } = await open("host=chatgpt&theme=dark&locale=ar-AE&w=390&h=844&maxh=844", 390, 844, true);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
         await f.getByRole("button", { name: "خريطة", exact: true }).click();
-        await f.locator(".sv-mapwrap.full .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
-        await new Promise((r) => setTimeout(r, 1500));
-        check(/الدبابيس تشير إلى المنطقة/.test(await f.locator(".sv-maplegend").innerText()), "K Arabic: map legend and labels translated");
-        await shot(page, "K4-map-arabic-phone");
+        await f.locator(".sv-mapwrap.full .sv-areamk").first().waitFor({ timeout: 15000 });
+        await settleTiles(f);
+        check(/مناطق تقريبية/.test(await f.locator(".sv-mapchip").innerText()), "K Arabic: approximate-area label translated");
+        const chip = await f.locator(".sv-mapchip").boundingBox();
+        const zoom = await f.locator(".leaflet-control-zoom").boundingBox();
+        check(!!chip && !!zoom && (chip.x + chip.width <= zoom.x || zoom.x + zoom.width <= chip.x || chip.y + chip.height <= zoom.y), "K Arabic: zoom buttons not covered by the label");
+        await shot(page, "K7-map-arabic-dark");
         await page.close();
       }
-      // K5 off-plan results on the map
+      // K8 off-plan results
       {
-        await setInitial("search_offplan_projects", { page_size: 8 });
-        const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=900&h=900&maxh=1400", 960, 1000);
+        await setInitial("search_offplan_projects", { page_size: 10 });
+        const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=1180&h=1000&maxh=1800", 1280, 1100);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
         if (await f.getByRole("button", { name: "Map", exact: true }).count()) {
           await f.getByRole("button", { name: "Map", exact: true }).click();
-          await f.locator(".sv-map .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
-          check((await f.locator(".sv-pin").count()) > 0, "K off-plan results on the map");
-          await new Promise((r) => setTimeout(r, 1500));
-          await shot(page, "K5-map-offplan");
-        } else check(true, "K off-plan: no locations to map (toggle hidden)");
+          await f.locator(".sv-areamk").first().waitFor({ timeout: 15000 });
+          check(/projects? on the map/.test(await f.locator(".sv-maphead .sv-note").innerText()), "K off-plan: counted as projects");
+          await settleTiles(f);
+          await shot(page, "K8-map-offplan");
+        } else check(true, "K off-plan: nothing to map (toggle hidden)");
         await page.close();
       }
     }

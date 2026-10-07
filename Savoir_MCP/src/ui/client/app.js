@@ -32,7 +32,7 @@ const state = {
   viewMode: "list", // "list" | "map"
   fullMap: false,
   mapSel: null, // "kind:slug" selected on the map / in the cards
-  mapCluster: null, // entries of a clicked cluster that cannot be split further
+  mapArea: null, // area selected on the map
   mapInst: null,
   mapView: null, // last centre/zoom per result, so redraws keep the customer's view
   pendingMap: null,
@@ -743,12 +743,33 @@ function moreButton(tool, pg) {
 }
 
 // ---------- map view ----------
-// Pins are placed from map_point: "area" = community centre (never a building), "approximate" = centre of
-// the developer's own map view. Moving the map never changes the search. Leaflet is inlined by the server
-// only when a tile provider is configured (CFG.map); without it the map is unavailable and the
+// Every placed listing is shown at AREA level (its community centre); the CMS has no verified building
+// positions. Listings are grouped into one marker per area ("JVC · 3 homes") with a soft area ring, so
+// nothing looks like an exact building pin. Moving the map never changes the search. Leaflet is inlined
+// by the server only when a tile provider is configured (CFG.map); otherwise, or if the map fails, the
 // "Listings by area" list is the accessible fallback.
 function mapEnabled() {
   return !!CFG.map;
+}
+const SHORT_AREA = {
+  "Jumeirah Village Circle": "JVC",
+  "Jumeirah Village Triangle": "JVT",
+  "Jumeirah Lake Towers": "JLT",
+  "Jumeirah Beach Residence": "JBR",
+  "Mohammed Bin Rashid City": "MBR City",
+  "Dubai Creek Harbour (The Lagoons)": "Dubai Creek Harbour",
+  "Dubai South (Dubai World Central)": "Dubai South",
+  "Dubai Investment Park (DIP)": "DIP",
+  "Dubai Investment Park 2": "DIP",
+  "Dubai Design District (D3)": "d3",
+  "Al Rowaiyah, Dubailand": "Al Rowaiyah",
+};
+function areaShort(a) {
+  return SHORT_AREA[a] || String(a || "").replace(/\s*\([^)]*\)/, "");
+}
+function countWord(n, kind) {
+  if (kind === "offplan") return n === 1 ? t("project1") : t("projectsN", { n: n });
+  return n === 1 ? t("home1") : t("homesN", { n: n });
 }
 function mapEntries(items, kind) {
   return items
@@ -757,20 +778,36 @@ function mapEntries(items, kind) {
       key: kind + ":" + i.slug,
       kind: kind,
       item: i,
+      area: i.map_point.area || "—",
       lat: i.map_point.lat,
       lng: i.map_point.lng,
+      radius: i.map_point.radius_m || 1000,
       price: kind === "offplan" ? i.starting_price_aed : i.price,
-      point: i.map_point,
     }));
+}
+/** One group per area; all members share the area centre. */
+function mapGroups(entries) {
+  const by = new Map();
+  for (const e of entries) {
+    if (!by.has(e.area)) by.set(e.area, { id: e.area, area: e.area, lat: e.lat, lng: e.lng, radius: e.radius, kind: e.kind, entries: [] });
+    by.get(e.area).entries.push(e);
+  }
+  return [...by.values()].map((g) => {
+    const prices = g.entries.map((e) => e.price).filter((n) => typeof n === "number");
+    g.min = prices.length ? Math.min(...prices) : null;
+    g.max = prices.length ? Math.max(...prices) : null;
+    return g;
+  });
+}
+function priceRange(g) {
+  if (g.min === null) return null;
+  return g.min === g.max ? aed(g.min) : "AED " + aedShort(g.min) + " – " + aedShort(g.max);
 }
 function aedShort(n) {
   if (typeof n !== "number" || !isFinite(n)) return null;
-  if (n >= 1e6) return (Math.round(n / 1e4) / 100).toString().replace(/\.0+$/, "").replace(/(\.\d)0$/, "$1") + "M";
+  if (n >= 1e6) return (Math.round(n / 1e4) / 100).toString().replace(/(\.\d)0$/, "$1") + "M";
   if (n >= 1e3) return Math.round(n / 1e3) + "K";
   return String(Math.round(n));
-}
-function precisionLabel(p) {
-  return p.precision === "area" ? t("areaLabel", { a: p.area || "" }) : t("approxLabel");
 }
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -811,118 +848,208 @@ function exitFullMap() {
   rerender();
   requestDisplay("inline");
 }
-/** Select a listing on the map (from a pin, a card or the area list). */
-function selectOnMap(key, opts) {
-  opts = opts || {};
-  state.mapSel = key;
+function groupOfKey(key) {
+  const m = state.mapInst;
+  return m ? m.groups.find((g) => g.entries.some((e) => e.key === key)) : null;
+}
+/** Select an area (and optionally one listing in it). */
+function selectArea(id, key) {
+  state.mapArea = id;
+  state.mapSel = key || null;
+  const m = state.mapInst;
+  const g = m && m.groups.find((x) => x.id === id);
+  if (g && !key && g.entries.length === 1) state.mapSel = g.entries[0].key;
+  if (m && g) {
+    // Zoom in just enough for this area to stand alone (not merged into an "N areas" marker).
+    const z = separateZoom(m.map, m.groups, g);
+    if (z > m.map.getZoom()) m.map.setView([g.lat, g.lng], z, { animate: false });
+    else m.map.panTo([g.lat, g.lng], { animate: false });
+  }
+  refreshMarkers();
+  refreshSelectionUi();
+  keepSelectionVisible();
+}
+/** Keep the selected area marker in the part of the map that the docked preview does not cover. */
+function keepSelectionVisible() {
+  const m = state.mapInst;
+  const g = m && m.groups.find((x) => x.id === state.mapArea);
+  const pv = document.getElementById("sv-mapsel");
+  if (!m || !g || !pv || pv.hidden) return;
+  const size = m.map.getSize();
+  const pvRect = pv.getBoundingClientRect();
+  const mapRect = m.map.getContainer().getBoundingClientRect();
+  const pt = m.map.latLngToContainerPoint([g.lat, g.lng]);
+  const coversFullWidth = pvRect.width > mapRect.width * 0.7;
+  if (coversFullWidth) {
+    const freeH = pvRect.top - mapRect.top; // visible band above the preview
+    const target = Math.max(40, freeH / 2);
+    if (Math.abs(pt.y - target) > 8) m.map.panBy([0, pt.y - target], { animate: false });
+  } else {
+    const freeX = pvRect.right - mapRect.left; // preview on the left: keep the marker to its right
+    const targetX = freeX + (size.x - freeX) / 2;
+    if (pt.x < freeX + 40) m.map.panBy([pt.x - targetX, 0], { animate: false });
+  }
+}
+function separateZoom(map, groups, g) {
+  for (let z = map.getZoom(); z <= 15; z++) {
+    const c = clustersAt(map, groups, z).find((x) => x.indexOf(g) >= 0);
+    if (c && c.length === 1) return z;
+  }
+  return 15;
+}
+/**
+ * Greedy screen-space merge: area labels whose centres are closer than a label's footprint
+ * (about 120 x 40 px) would overlap, so they merge into one "N areas" marker.
+ */
+function clustersAt(map, groups, z) {
+  const pts = groups.map((g) => ({ g: g, p: map.project([g.lat, g.lng], z) })).sort((a, b) => b.g.entries.length - a.g.entries.length);
+  const out = [];
+  for (const x of pts) {
+    const hit = out.find((c) => Math.abs(c.p.x - x.p.x) < 120 && Math.abs(c.p.y - x.p.y) < 40);
+    if (hit) {
+      hit.members.push(x.g);
+      const n = hit.members.length;
+      hit.p = { x: (hit.p.x * (n - 1) + x.p.x) / n, y: (hit.p.y * (n - 1) + x.p.y) / n };
+    } else out.push({ p: x.p, members: [x.g] });
+  }
+  return out.map((c) => c.members);
+}
+/** From a card's "Show on map" or the area list. */
+function selectOnMap(key) {
   if (state.viewMode !== "map") {
+    state.mapSel = key;
+    state.mapArea = null; // resolved once the map is drawn
     state.viewMode = "map";
     if (window.innerWidth < 600) return enterFullMap();
     return rerender();
   }
-  const m = state.mapInst;
-  const e = m && m.entries.find((x) => x.key === key);
-  if (m && e) {
-    if (opts.pan !== false) m.map.panTo([e.lat, e.lng], { animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches });
-    drawSelection(m, e);
-  }
+  const g = groupOfKey(key);
+  if (g) selectArea(g.id, key);
+}
+function clearMapSelection() {
+  state.mapArea = null;
+  state.mapSel = null;
+  refreshMarkers();
   refreshSelectionUi();
 }
 function refreshSelectionUi() {
-  const key = state.mapSel;
+  const g = state.mapInst && state.mapInst.groups.find((x) => x.id === state.mapArea);
+  const inArea = new Set(g ? g.entries.map((e) => e.key) : []);
   for (const c of document.querySelectorAll(".sv-card[data-key]")) {
-    const on = c.getAttribute("data-key") === key;
-    c.classList.toggle("mapsel", on);
-    if (on && state.viewMode === "map") {
+    const k = c.getAttribute("data-key");
+    c.classList.toggle("mapsel", k === state.mapSel);
+    c.classList.toggle("mapgroup", k !== state.mapSel && inArea.has(k));
+    if (k === state.mapSel && state.viewMode === "map") {
       try { c.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); } catch (e) {}
     }
   }
-  for (const p of document.querySelectorAll(".sv-pin[data-keys]")) {
-    const keys = p.getAttribute("data-keys").split(" ");
-    p.classList.toggle("sel", !!key && keys.indexOf(key) >= 0);
-  }
   const panel = document.getElementById("sv-mapsel");
-  if (panel) panel.replaceChildren(...selectionPanel());
-}
-function selectionPanel() {
-  const m = state.mapInst;
-  if (state.mapCluster && state.mapCluster.length) {
-    const list = state.mapCluster;
-    return [
-      h("div", { class: "sv-mapsel-head" }, h("b", { text: t("nListingsHere", { n: list.length }) }), btn(t("closeSel"), () => { state.mapCluster = null; refreshSelectionUi(); }, { small: true, ghost: true })),
-      h("div", { class: "sv-mapsel-list" }, list.map((e) => btn((aed(e.price) || t("priceOnRequest")) + " · " + cleanTitle(e.item.title), () => { state.mapCluster = null; selectOnMap(e.key); }, { small: true, aria: t("select") + ": " + e.item.title }))),
-    ];
+  if (panel) {
+    const nodes = previewNodes();
+    panel.replaceChildren(...nodes);
+    panel.hidden = nodes.length === 0;
   }
-  const e = m && m.entries.find((x) => x.key === state.mapSel);
-  if (!e) return state.mapFailed ? [] : [h("div", { class: "sv-note", text: t("mapHint") })];
-  const it = e.item;
-  const facts = e.kind === "offplan"
-    ? [it.developer, it.handover ? t("handover", { h: it.handover }) : null].filter(Boolean).join(" · ")
-    : [bedsLabel(it.bedrooms), it.bathrooms !== null && it.bathrooms !== undefined ? t("baths", { n: it.bathrooms }) : null, typeLabel(it.property_type)].filter(Boolean).join(" · ");
-  const price = e.kind === "offplan" ? (it.starting_price_aed ? t("from", { p: aed(it.starting_price_aed) }) : t("priceOnRequest")) : aed(it.price) || t("priceOnRequest");
-  return [
-    h(
-      "div",
-      { class: "sv-mapsel-card" },
-      img(e.kind === "offplan" ? it.image : it.photo, it.title) || h("span"),
+}
+function previewNodes() {
+  const m = state.mapInst;
+  const g = m && m.groups.find((x) => x.id === state.mapArea);
+  if (!g) return [];
+  const e = state.mapSel ? g.entries.find((x) => x.key === state.mapSel) : null;
+  const close = h("button", { type: "button", class: "sv-x", "aria-label": t("closeSel"), onclick: () => clearMapSelection() }, "×");
+  if (e) {
+    const it = e.item;
+    const facts = e.kind === "offplan"
+      ? [it.developer, it.handover ? t("handover", { h: it.handover }) : null].filter(Boolean).join(" · ")
+      : [bedsLabel(it.bedrooms), it.bathrooms !== null && it.bathrooms !== undefined ? t("baths", { n: it.bathrooms }) : null, typeLabel(it.property_type)].filter(Boolean).join(" · ");
+    const price = e.kind === "offplan" ? (it.starting_price_aed ? t("from", { p: aed(it.starting_price_aed) }) : t("priceOnRequest")) : aed(it.price) || t("priceOnRequest");
+    return [
       h(
         "div",
-        { class: "sv-mapsel-body" },
-        h("div", { class: "sv-price", text: price }),
-        h("div", { class: "sv-title", dir: "auto", text: cleanTitle(it.title) }),
-        facts ? h("div", { class: "sv-meta", text: facts }) : null,
-        h("div", { class: "sv-note", dir: "auto", text: precisionLabel(e.point) }),
+        { class: "sv-pv-head" },
+        g.entries.length > 1 ? btn((state.lang === "ar" ? "→ " : "← ") + areaShort(g.area) + " · " + countWord(g.entries.length, g.kind), () => { state.mapSel = null; refreshSelectionUi(); }, { small: true, ghost: true }) : h("span", { class: "sv-pv-tag", text: t("approxArea") + " · " + areaShort(g.area) }),
+        close,
+      ),
+      h(
+        "div",
+        { class: "sv-pv-card" },
+        img(e.kind === "offplan" ? it.image : it.photo, it.title) || h("span"),
         h(
           "div",
-          { class: "sv-actions" },
-          btn(t("details"), () => openDetail(e.kind, it.slug, it.title), { small: true, primary: true, aria: t("details") + ": " + it.title }),
-          btn(t("whatsapp"), () => openLink((it.links && it.links.whatsapp) || waFor(it.url)), { small: true, aria: t("whatsapp") + ": " + it.title }),
-          btn(t("closeSel"), () => { state.mapSel = null; if (state.mapInst) state.mapInst.ringLayer.clearLayers(); refreshMarkers(); refreshSelectionUi(); }, { small: true, ghost: true }),
+          { class: "sv-pv-body" },
+          h("div", { class: "sv-price", text: price }),
+          h("div", { class: "sv-title", dir: "auto", text: cleanTitle(it.title) }),
+          facts ? h("div", { class: "sv-meta", text: facts }) : null,
+          h("div", { class: "sv-pv-tag", dir: "auto", text: t("areaLabel", { a: g.area }) }),
+        ),
+      ),
+      h("div", { class: "sv-actions" }, btn(t("details"), () => openDetail(e.kind, it.slug, it.title), { small: true, primary: true, aria: t("details") + ": " + it.title }), btn(t("whatsapp"), () => openLink((it.links && it.links.whatsapp) || waFor(it.url)), { small: true, aria: t("whatsapp") + ": " + it.title })),
+    ];
+  }
+  const range = priceRange(g);
+  return [
+    h("div", { class: "sv-pv-head" }, h("span", { class: "sv-pv-tag", text: t("approxArea") }), close),
+    h("div", { class: "sv-pv-title", dir: "auto", text: g.area + " · " + countWord(g.entries.length, g.kind) }),
+    range ? h("div", { class: "sv-pv-range", text: range }) : null,
+    h(
+      "ul",
+      { class: "sv-pv-list" },
+      g.entries.map((x) =>
+        h(
+          "li",
+          null,
+          h(
+            "button",
+            { type: "button", class: "sv-pv-row", onclick: () => selectArea(g.id, x.key), "aria-label": t("select") + ": " + x.item.title },
+            img(x.kind === "offplan" ? x.item.image : x.item.photo, "") || h("span", { class: "ph" }),
+            h("span", { class: "tx" }, h("b", { text: (x.kind === "offplan" ? t("fromShort") + " " : "") + (aed(x.price) || t("priceOnRequest")) }), h("span", { dir: "auto", text: cleanTitle(x.item.title) })),
+          ),
         ),
       ),
     ),
   ];
 }
-function areaList(entries, missing) {
-  const groups = {};
-  for (const e of entries) {
-    const k = e.point.precision === "area" ? e.point.area || "—" : t("approxGroup");
-    (groups[k] = groups[k] || []).push(e);
-  }
-  const blocks = Object.keys(groups).sort().map((k) =>
-    h(
-      "div",
-      { class: "sv-area-group" },
-      h("div", { class: "t", dir: "auto", text: k + " (" + groups[k].length + ")" }),
-      h("ul", null, groups[k].map((e) => h("li", null, btn((aed(e.price) || t("priceOnRequest")) + " · " + cleanTitle(e.item.title), () => selectOnMap(e.key), { small: true, ghost: true, aria: t("showOnMap") + ": " + e.item.title })))),
-    ),
-  );
+function areaList(groups, missing, kind) {
+  const blocks = groups
+    .slice()
+    .sort((a, b) => a.area.localeCompare(b.area))
+    .map((g) =>
+      h(
+        "div",
+        { class: "sv-area-group" },
+        h("div", { class: "t", dir: "auto", text: g.area + " · " + countWord(g.entries.length, kind) + (priceRange(g) ? " · " + priceRange(g) : "") }),
+        h("ul", null, g.entries.map((e) => h("li", null, btn((aed(e.price) || t("priceOnRequest")) + " · " + cleanTitle(e.item.title), () => (state.mapFailed ? openDetail(e.kind, e.item.slug, e.item.title) : selectOnMap(e.key)), { small: true, ghost: true, aria: (state.mapFailed ? t("details") : t("showOnMap")) + ": " + e.item.title })))),
+      ),
+    );
   if (missing.length) blocks.push(h("div", { class: "sv-area-group" }, h("div", { class: "t", text: t("notOnMap") + " (" + missing.length + ")" }), h("ul", null, missing.map((i) => h("li", { dir: "auto", text: cleanTitle(i.title) })))));
-  return disclosure(t("byArea"), blocks, state.mapFailed);
+  return disclosure(t("byArea") + " (" + t("approxAreas") + ")", blocks, !!state.mapFailed);
+}
+function mapCountLine(placed, onPage, total, kind) {
+  const base = t("mapPageCount", { n: placed, p: countWord(onPage, kind) });
+  return typeof total === "number" && total > onPage ? base + " · " + t("totalResults", { n: nf().format(total) }) : base;
 }
 function mapSection(d, kind, items) {
   const entries = mapEntries(items, kind);
+  const groups = mapGroups(entries);
   const missing = items.filter((i) => !i.map_point);
-  const anyApprox = entries.some((e) => e.point.precision === "approximate");
-  const anyArea = entries.some((e) => e.point.precision === "area");
+  const total = d.pagination ? d.pagination.total_results : null;
+  const countLine = mapCountLine(entries.length, items.length, total, kind);
   const mapEl = h("div", { class: "sv-map", role: "region", "aria-label": t("mapAria") });
+  const frame = h(
+    "div",
+    { class: "sv-mapframe" },
+    mapEl,
+    h("div", { class: "sv-mapchip", "aria-hidden": "true", text: t("approxChip") }),
+    h("div", { id: "sv-mapsel", class: "sv-preview", "aria-live": "polite", hidden: true }),
+  );
   const wrap = h(
     "section",
     { class: "sv-mapwrap" + (state.fullMap ? " full" : ""), "aria-label": t("mapTitle") },
-    state.fullMap ? h("div", { class: "sv-mapbar" }, btn((state.lang === "ar" ? "→ " : "← ") + t("backToList"), () => exitFullMap(), { small: true, primary: true }), h("span", { class: "sv-note", text: t("onMapN", { n: entries.length, t: items.length }) })) : null,
-    state.mapFailed ? h("div", { class: "sv-notice error", role: "alert" }, h("span", { text: t("mapFailed") })) : mapEl,
-    h(
-      "div",
-      { class: "sv-maplegend" },
-      anyArea ? h("span", { text: t("mapLegendArea") }) : null,
-      anyApprox ? h("span", { text: t("mapLegendApprox") }) : null,
-      state.fullMap ? null : h("span", { class: "sv-note", text: t("onMapN", { n: entries.length, t: items.length }) }),
-      state.fullMap || state.mapFailed ? null : btn(t("mapFull"), () => enterFullMap(), { small: true, ghost: true }),
-    ),
-    h("div", { id: "sv-mapsel", class: "sv-mapsel", "aria-live": "polite" }, selectionPanel()),
-    areaList(entries, missing),
+    state.fullMap ? h("div", { class: "sv-mapbar" }, btn((state.lang === "ar" ? "→ " : "← ") + t("backToList"), () => exitFullMap(), { small: true, primary: true }), h("span", { class: "sv-note", text: countLine })) : h("div", { class: "sv-maphead" }, h("span", { class: "sv-note", text: countLine }), state.mapFailed ? null : btn(t("mapFull"), () => enterFullMap(), { small: true, ghost: true })),
+    state.mapFailed ? h("div", { class: "sv-notice error", role: "alert" }, h("span", { text: t("mapFailed") })) : frame,
+    state.mapFailed ? null : h("div", { class: "sv-note", text: t("mapHintAreas") }),
+    areaList(groups, missing, kind),
   );
-  if (!state.mapFailed) state.pendingMap = { el: mapEl, entries: entries, key: resultIdentity(d) };
+  if (!state.mapFailed) state.pendingMap = { el: mapEl, entries: entries, groups: groups, key: resultIdentity(d) };
   return wrap;
 }
 function destroyMap() {
@@ -946,7 +1073,9 @@ function initPendingMap() {
   const L = globalThis.L;
   if (!L || !L.map) return mapFailed("no-map-library");
   try {
-    const map = L.map(p.el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false, keyboard: true, worldCopyJump: false, minZoom: 9 });
+    const map = L.map(p.el, { zoomControl: false, attributionControl: true, scrollWheelZoom: false, keyboard: true, worldCopyJump: false, minZoom: 9 });
+    // Zoom buttons on the side opposite the "approximate areas" label (which follows the text direction).
+    L.control.zoom({ position: state.lang === "ar" ? "topleft" : "topright" }).addTo(map);
     map.attributionControl.setPrefix("Leaflet");
     let loaded = 0, failed = 0;
     const tiles = L.tileLayer(CFG.map.url, { attribution: escapeHtml(CFG.map.attribution), subdomains: CFG.map.subdomains && CFG.map.subdomains.length ? CFG.map.subdomains : "abc", maxZoom: CFG.map.maxZoom || 18 });
@@ -956,91 +1085,80 @@ function initPendingMap() {
     // Tiles blocked (CSP, network, provider key): fall back to the accessible area list.
     setTimeout(() => { if (state.mapInst && state.mapInst.map === map && loaded === 0 && failed > 0) mapFailed("tiles-unavailable"); }, 4000);
     map.on("click focus", () => map.scrollWheelZoom.enable()); // no scroll hijack until the customer uses the map
-    const ringLayer = L.layerGroup().addTo(map);
+    const rings = L.layerGroup().addTo(map);
     const layer = L.layerGroup().addTo(map);
-    const inst = { map: map, layer: layer, ringLayer: ringLayer, entries: p.entries, key: p.key };
+    const inst = { map: map, layer: layer, rings: rings, entries: p.entries, groups: p.groups, key: p.key };
     state.mapInst = inst;
+    if (state.mapSel && !state.mapArea) {
+      const g = inst.groups.find((x) => x.entries.some((e) => e.key === state.mapSel));
+      if (g) state.mapArea = g.id;
+    }
     map.on("zoomend", () => refreshMarkers());
     map.on("moveend", () => { state.mapView = { key: p.key, center: map.getCenter(), zoom: map.getZoom() }; }); // never triggers a search
     if (state.mapView && state.mapView.key === p.key) map.setView(state.mapView.center, state.mapView.zoom, { animate: false });
     else fitToResults(inst);
+    const selGroup = inst.groups.find((x) => x.id === state.mapArea);
+    if (selGroup) {
+      const z = separateZoom(map, inst.groups, selGroup);
+      if (z > map.getZoom()) map.setView([selGroup.lat, selGroup.lng], z, { animate: false });
+    }
     refreshMarkers();
-    const sel = inst.entries.find((x) => x.key === state.mapSel);
-    if (sel) drawSelection(inst, sel);
+    refreshSelectionUi();
+    keepSelectionVisible();
   } catch (e) {
     mapFailed("map-error");
   }
 }
 function fitToResults(inst) {
-  const pts = inst.entries.map((e) => [e.lat, e.lng]);
+  const pts = inst.groups.map((g) => [g.lat, g.lng]);
   if (!pts.length) return inst.map.setView([25.15, 55.25], 10);
   if (pts.length === 1) return inst.map.setView(pts[0], 13, { animate: false });
-  inst.map.fitBounds(pts, { padding: [36, 36], maxZoom: 14, animate: false });
+  inst.map.fitBounds(pts, { padding: [56, 56], maxZoom: 13, animate: false });
 }
-/** Grid clustering in screen space: pins closer than ~56 px (or at the same area centre) group together. */
-function clusterEntries(map, entries) {
-  const cell = 56;
-  const groups = new Map();
-  for (const e of entries) {
-    const pt = map.latLngToLayerPoint([e.lat, e.lng]);
-    const k = Math.floor(pt.x / cell) + ":" + Math.floor(pt.y / cell);
-    if (!groups.has(k)) groups.set(k, []);
-    groups.get(k).push(e);
-  }
-  return [...groups.values()];
-}
-function pinElement(group) {
-  const single = group.length === 1;
-  const prices = group.map((e) => e.price).filter((n) => typeof n === "number");
-  const el = h("div", { class: "sv-pin" + (single ? "" : " cluster"), "data-keys": group.map((e) => e.key).join(" "), dir: "ltr" });
-  if (single) {
-    const e = group[0];
-    const p = aedShort(e.price);
-    el.append(h("span", { class: "cur", text: e.kind === "offplan" ? t("fromShort") : "AED" }), document.createTextNode(p || "—"));
-  } else {
-    el.append(h("b", { text: String(group.length) }), document.createTextNode(prices.length ? " · " + aedShort(Math.min(...prices)) + "+" : ""));
-  }
-  if (state.mapSel && group.some((e) => e.key === state.mapSel)) el.classList.add("sel");
+function areaMarker(g, selected) {
+  const el = h("div", { class: "sv-areamk" + (selected ? " sel" : ""), "data-area": g.id });
+  el.append(h("span", { class: "ln" }, h("span", { class: "nm", dir: "auto", text: areaShort(g.area) }), h("span", { class: "ct", text: " · " + countWord(g.entries.length, g.kind) })));
+  const range = priceRange(g);
+  if (selected && range) el.append(h("span", { class: "pr", text: range }));
   return el;
+}
+/** Areas whose markers would overlap at this zoom merge into "2 areas · 7 homes"; a click zooms in. */
+function mergeGroups(map, groups) {
+  return clustersAt(map, groups, map.getZoom());
 }
 function refreshMarkers() {
   const inst = state.mapInst;
   const L = globalThis.L;
   if (!inst || !L) return;
   inst.layer.clearLayers();
-  for (const group of clusterEntries(inst.map, inst.entries)) {
-    const lat = group.reduce((s, e) => s + e.lat, 0) / group.length;
-    const lng = group.reduce((s, e) => s + e.lng, 0) / group.length;
-    const label = group.length === 1
-      ? (aed(group[0].price) || t("priceOnRequest")) + " · " + cleanTitle(group[0].item.title) + " · " + precisionLabel(group[0].point)
-      : t("nListingsHere", { n: group.length });
-    const marker = L.marker([lat, lng], { icon: L.divIcon({ html: pinElement(group), className: "sv-pin-wrap", iconSize: null }), keyboard: true, title: label, alt: label, riseOnHover: true });
+  inst.rings.clearLayers();
+  for (const g of inst.groups) {
+    const sel = g.id === state.mapArea;
+    // The ring says "somewhere in this area", not a building.
+    L.circle([g.lat, g.lng], { radius: g.radius, color: sel ? "#a8834a" : "#8a857d", weight: 1, dashArray: "4 4", fillColor: sel ? "#a8834a" : "#8a857d", fillOpacity: sel ? 0.1 : 0.04, interactive: false }).addTo(inst.rings);
+  }
+  for (const cluster of mergeGroups(inst.map, inst.groups)) {
+    const lat = cluster.reduce((s, g) => s + g.lat, 0) / cluster.length;
+    const lng = cluster.reduce((s, g) => s + g.lng, 0) / cluster.length;
+    let el, label;
+    if (cluster.length === 1) {
+      const g = cluster[0];
+      el = areaMarker(g, g.id === state.mapArea);
+      label = g.area + ": " + countWord(g.entries.length, g.kind) + ", " + t("approxArea") + (priceRange(g) ? ", " + priceRange(g) : "");
+    } else {
+      const n = cluster.reduce((s, g) => s + g.entries.length, 0);
+      el = h("div", { class: "sv-areamk multi" }, h("span", { class: "ln" }, h("span", { class: "nm", text: t("areasN", { n: cluster.length }) }), h("span", { class: "ct", text: " · " + countWord(n, cluster[0].kind) })));
+      label = t("areasN", { n: cluster.length }) + ": " + cluster.map((g) => g.area).join(", ");
+    }
+    const marker = L.marker([lat, lng], { icon: L.divIcon({ html: el, className: "sv-mk-wrap", iconSize: null }), keyboard: true, title: label, alt: label, riseOnHover: true, zIndexOffset: cluster.some((g) => g.id === state.mapArea) ? 1000 : 0 });
     marker.on("click", () => {
-      if (group.length === 1) {
-        state.mapCluster = null;
-        return selectOnMap(group[0].key, { pan: false });
-      }
-      const sameSpot = group.every((e) => e.lat === group[0].lat && e.lng === group[0].lng);
-      if (sameSpot || inst.map.getZoom() >= 15) {
-        state.mapCluster = group;
-        state.mapSel = null;
-        refreshSelectionUi();
-        return;
-      }
-      inst.map.fitBounds(group.map((e) => [e.lat, e.lng]), { padding: [48, 48], maxZoom: 15 });
+      if (cluster.length === 1) return selectArea(cluster[0].id);
+      inst.map.fitBounds(cluster.map((g) => [g.lat, g.lng]), { padding: [70, 70], maxZoom: 14 });
     });
     marker.addTo(inst.layer);
     const icon = marker.getElement && marker.getElement();
     if (icon) icon.setAttribute("aria-label", label);
   }
-}
-function drawSelection(inst, e) {
-  const L = globalThis.L;
-  inst.ringLayer.clearLayers();
-  if (!L || !e) return;
-  // Show the uncertainty: an area ring for community centres, a smaller ring for approximate points.
-  L.circle([e.lat, e.lng], { radius: e.point.radius_m, color: "#a8834a", weight: 1, fillColor: "#a8834a", fillOpacity: 0.08, interactive: false }).addTo(inst.ringLayer);
-  refreshMarkers();
 }
 
 // ---------- views ----------
@@ -1484,7 +1602,7 @@ function onToolResult(sc, input) {
   state.nav = null;
   state.userNavigated = false;
   state.mapSel = null;
-  state.mapCluster = null;
+  state.mapArea = null;
   state.mapFailed = null;
   state.current = sc;
   render(sc);

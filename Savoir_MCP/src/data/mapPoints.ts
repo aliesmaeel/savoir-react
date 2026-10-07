@@ -56,9 +56,9 @@ function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: numb
 }
 
 /**
- * Where to pin an off-plan project. The developer's map view is used only when it agrees with the area
- * the listing names (within both radii + 1.5 km); a contradicting view falls back to the area centre, and
- * a project whose area cannot be verified is not placed at all.
+ * Where to show an off-plan project: always at its area centre, never a building position. The developer's
+ * map view is only a cross-check of the listed area ("agrees" / "conflict"; conflicts are reported for a
+ * CMS fix). A project whose area cannot be verified is not placed at all.
  */
 export function offplanMapPoint(mapLink: unknown, ...areaNames: Array<string | null | undefined>): { point: MapPoint | null; check: "agrees" | "conflict" | "area-only" | "unverified" } {
   const area = areaPoint(...areaNames);
@@ -66,7 +66,8 @@ export function offplanMapPoint(mapLink: unknown, ...areaNames: Array<string | n
   if (!area) return { point: null, check: "unverified" };
   if (!embed) return { point: area, check: "area-only" };
   const ok = distanceKm(embed, area) <= area.radius_m / 1000 + embed.radius_m / 1000 + 1.5;
-  return ok ? { point: { ...embed, area: area.area }, check: "agrees" } : { point: area, check: "conflict" };
+  // Shown at area level either way; the developer map only confirms (or contradicts) the listed area.
+  return { point: area, check: ok ? "agrees" : "conflict" };
 }
 
 // Approximate project points learned from detail pages, so later off-plan lists can use them.

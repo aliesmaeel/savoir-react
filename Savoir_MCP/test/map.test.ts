@@ -40,7 +40,7 @@ describe("map points", () => {
     expect(embedPoint(null)).toBeNull();
   });
 
-  it("adds map_point to listings: area for ready listings, approximate for off-plan with a tight map", () => {
+  it("adds an area-level map_point to ready and off-plan listings", () => {
     const prop = mapPropertySummary({ ...searchItem(), community: "Dubai Marina" }, ctx)!;
     expect(prop.map_point).toMatchObject({ precision: "area", area: "Dubai Marina" });
     expect(mapPropertySummary({ ...searchItem(), community: "Al Furjan" }, ctx)!.map_point).toBeNull();
@@ -49,16 +49,16 @@ describe("map points", () => {
     const before = mapOffplanSummary({ ...offplanItem(), slug, location: "Business Bay" }, ctx)!;
     expect(before.map_point).toMatchObject({ precision: "area", area: "Business Bay" });
     const detail = mapOffplanDetails({ ...offplanDetailResponse(), slug, location: "Business Bay", area: "Business Bay", map_link: embed(452, 55.27, 25.18) }, ctx)!;
-    expect(detail.map_point).toMatchObject({ precision: "approximate", lat: 25.18, lng: 55.27, area: "Business Bay" });
-    // Learned from the detail page: later lists use the approximate project point.
-    expect(mapOffplanSummary({ ...offplanItem(), slug, location: "Business Bay" }, ctx)!.map_point).toMatchObject({ precision: "approximate" });
+    expect(detail.map_point).toMatchObject({ precision: "area", area: "Business Bay" });
+    // Learned from the detail page: later lists use the same area-level point.
+    expect(mapOffplanSummary({ ...offplanItem(), slug, location: "Business Bay" }, ctx)!.map_point).toMatchObject({ precision: "area", area: "Business Bay" });
   });
 });
 
 describe("off-plan pin verification", () => {
-  it("uses the developer map only when it agrees with the listed area", () => {
+  it("always shows projects at area level; the developer map only checks the listed area", () => {
     const { offplanMapPoint } = mapPointsModule;
-    expect(offplanMapPoint(embed(452, 55.27, 25.18), "Business Bay")).toMatchObject({ check: "agrees", point: { precision: "approximate" } });
+    expect(offplanMapPoint(embed(452, 55.27, 25.18), "Business Bay")).toMatchObject({ check: "agrees", point: { precision: "area", area: "Business Bay" } });
     // 14 km away from Business Bay: the map view contradicts the listing, so the area centre is used.
     expect(offplanMapPoint(embed(452, 55.14, 25.08), "Business Bay")).toMatchObject({ check: "conflict", point: { precision: "area", area: "Business Bay" } });
     // No verifiable area: not placed, even with a map view.
