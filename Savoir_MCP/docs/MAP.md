@@ -1,6 +1,6 @@
 # Property map
 
-**Status:** built and tested locally in simulated hosts. **Not deployed, and no provider billing is enabled.** The map is off unless `MAP_TILE_URL` is set.
+**Status (7 Oct 2026): LIVE in production** on v0.4.3, using MapLibre GL + OpenFreeMap (`MAP_ENGINE=maplibre`), turned on 11:42 UTC with the `map-on` workflow action. It was tested first on the separate test app, where Savoir reported ChatGPT web rendering, interactions and phone all pass. No paid provider and no billing. Turn it off with `map-off` (settings are backed up first).
 
 ## 1. What the CMS provides (checked 7 October 2026)
 
