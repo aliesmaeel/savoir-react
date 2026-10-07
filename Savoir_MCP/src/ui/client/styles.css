@@ -58,6 +58,7 @@ h1,h2,h3,p{margin:0}
 
 /* ---------- status messages ---------- */
 .sv-notice{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-radius:12px;padding:8px 8px 8px 12px;font-size:13px}
+#sv-notice,#sv-linkpanel{position:sticky;top:8px;z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.12)}
 :root[dir="rtl"] .sv-notice{padding:8px 12px 8px 8px}
 .sv-notice>span::before{display:inline-block;width:18px;font-weight:700}
 .sv-notice.ok{background:var(--sv-ok-bg);color:var(--sv-fg)}
@@ -69,7 +70,7 @@ h1,h2,h3,p{margin:0}
 .sv-error{background:var(--sv-no-bg);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:13px}
 .sv-note{color:var(--sv-muted);font-size:12px}
 #root.sv-loading>*{opacity:.45;pointer-events:none;transition:opacity .15s}
-#root.sv-loading::before{content:attr(data-loading);position:absolute;top:10px;inset-inline-start:50%;transform:translateX(-50%);z-index:5;background:var(--sv-primary);color:var(--sv-primary-fg);font-size:12px;font-weight:550;padding:5px 12px;border-radius:999px}
+#root.sv-loading::before{content:attr(data-loading);position:fixed;top:10px;inset-inline-start:50%;transform:translateX(-50%);z-index:5;background:var(--sv-primary);color:var(--sv-primary-fg);font-size:12px;font-weight:550;padding:5px 12px;border-radius:999px}
 :root[dir="rtl"] #root.sv-loading::before{transform:translateX(50%)}
 
 /* ---------- result cards ---------- */

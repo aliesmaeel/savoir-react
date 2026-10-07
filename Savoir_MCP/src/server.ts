@@ -13,7 +13,7 @@ import { registerTools } from "./tools/register.js";
 import { buildWidgetHtml, LEGACY_WIDGET_URIS, WIDGET_URI } from "./ui/widget.js";
 
 export const SERVER_NAME = "savoir-properties";
-export const SERVER_VERSION = "0.3.5";
+export const SERVER_VERSION = "0.3.6";
 
 const INSTRUCTIONS = `Savoir Properties is a Dubai real-estate brokerage. These tools read Savoir's own listings CMS and help the customer from search to contacting an agent.
 Discovery

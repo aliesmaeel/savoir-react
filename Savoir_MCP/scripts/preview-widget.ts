@@ -44,13 +44,23 @@ bridge.oncalltool = async (params) => {
 if (profile === "full") bridge.onopenlink = async ({ url }) => { window.__opened.push(url); return {}; };
 if (profile === "hostile") bridge.onopenlink = () => new Promise(() => {});
 // Like real hosts, grow the frame to the height the app reports (capped so runaway layouts show up).
-bridge.onsizechange = ({ height }) => { if (height) iframe.style.height = Math.min(Math.ceil(height) + 2, 3000) + "px"; };
+const maxH = Number(q.get("maxh") || 3000);
+const globalsChanged = (globals) => { try { iframe.contentWindow.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals } })); } catch (e) {} };
+bridge.onsizechange = ({ height }) => {
+  if (height) iframe.style.height = Math.min(Math.ceil(height) + 2, maxH) + "px";
+  if (profile === "chatgpt") globalsChanged({ maxHeight: maxH });
+};
 bridge.onmessage = async (p) => { window.__messages.push(p); return {}; };
 bridge.onupdatemodelcontext = async (p) => { window.__context.push(p); return {}; };
 bridge.oninitialized = async () => {
   const init = await (await fetch("/initial")).json();
   if (profile === "full") bridge.sendToolInput({ arguments: init.args });
   bridge.sendToolResult(init.result);
+  if (profile === "chatgpt" && iframe.contentWindow.openai) {
+    iframe.contentWindow.openai.toolInput = init.args;
+    iframe.contentWindow.openai.toolOutput = init.result.structuredContent;
+    globalsChanged({ toolInput: init.args, toolOutput: init.result.structuredContent });
+  }
 };
 await bridge.connect(new PostMessageTransport(iframe.contentWindow, iframe.contentWindow));
 iframe.src = profile === "chatgpt" ? "/widget?shim=openai" : "/widget";
@@ -58,7 +68,9 @@ iframe.src = profile === "chatgpt" ? "/widget?shim=openai" : "/widget";
 
 // Simulated subset of ChatGPT's window.openai (records what the card asks for).
 const OPENAI_SHIM = `<script>window.openai = {
-  widgetState: null, setWidgetState(s) { this.widgetState = s; },
+  // Like ChatGPT: changing any global (widget state, height, theme...) fires "openai:set_globals" with only the changed keys.
+  widgetState: null, toolOutput: null, toolInput: null,
+  setWidgetState(s) { this.widgetState = s; window.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals: { widgetState: s } } })); },
   openExternal(o) { parent.__opened.push(o.href); },
   sendFollowUpMessage(o) { parent.__messages.push({ prompt: o.prompt }); },
   callTool(name, args) { parent.__calls.push("openai:" + name); return fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, arguments: args }) }).then((r) => r.json()); },
@@ -389,6 +401,32 @@ async function main() {
       await page.close();
     }
 
+    // ---------- I: navigation must survive host global updates (reported in ChatGPT, 7 Oct 2026) ----------
+    console.log("I. Comparison card from the assistant → Message about these, in a ChatGPT-like host that sends set_globals and caps the height");
+    {
+      const sr = (await client.callTool({ name: "search_properties", arguments: { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 } })) as { structuredContent: { items: Array<{ slug: string }> } };
+      const items = sr.structuredContent.items.slice(0, 3).map((i) => ({ kind: "property", slug: i.slug }));
+      await setInitial("compare_listings", { items, requirements: { purpose: "buy", areas: ["Dubai Marina"] } });
+      const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=900&h=600&maxh=600", 960, 760);
+      await f.locator("table.sv-cmp").waitFor({ timeout: 20000 });
+      await f.getByRole("button", { name: "Message about these" }).scrollIntoViewIfNeeded();
+      await f.getByRole("button", { name: "Message about these" }).click();
+      await f.locator("textarea.sv-msg").waitFor({ timeout: 20000 }).catch(() => {});
+      await new Promise((r) => setTimeout(r, 2500)); // let size / state updates arrive
+      const stayed = (await f.locator("textarea.sv-msg").count()) === 1;
+      check(stayed, "I Message about these → message view shown and still shown after host updates");
+      const visible = stayed && (await f.locator("textarea.sv-msg").evaluate((el) => { const r = el.getBoundingClientRect(); return r.top < window.innerHeight && r.bottom > 0; }));
+      check(visible, "I message view is inside the visible part of a height-capped card");
+      await shot(page, "I1-compare-to-message");
+      // Back still works after host updates
+      if (stayed) {
+        await f.getByRole("button", { name: "← Back" }).click();
+        await f.locator("table.sv-cmp").waitFor({ timeout: 5000 });
+        check(true, "I Back → comparison");
+      }
+      await page.close();
+    }
+
     // ---------- G: every button, ChatGPT-like host (simulated) ----------
     console.log("G. Button audit in a ChatGPT-like simulated host (window.openai, no ui/open-link, no tool input, sandboxed)");
     {
@@ -411,9 +449,14 @@ async function main() {
       await f.locator(".sv-notice.ok", { hasText: "Removed from your shortlist." }).waitFor({ timeout: 15000 });
       check((await newCall("update_shortlist", n)) && (await heart0.getAttribute("aria-pressed")) === "false" && (await f.getByRole("button", { name: "My shortlist (0)" }).first().isVisible()), "G heart unsave → update_shortlist, empty heart, count 0");
       // More results without tool input → asks the assistant for the next page
+      n = (await calls()).length;
       await f.getByRole("button", { name: "More results" }).click();
-      await f.locator(".sv-notice.ok", { hasText: "Sent to the chat" }).waitFor({ timeout: 8000 });
-      check((await msgs()).some((m) => /page 2/.test(JSON.stringify(m))), "G More results (no tool input) → asks the assistant for page 2 and says so");
+      await f.locator(".sv-hd-t p", { hasText: "page 2 of" }).or(f.locator(".sv-notice.ok", { hasText: "Sent to the chat" })).first().waitFor({ timeout: 20000 });
+      check((await newCall("search_properties", n)) || (await msgs()).some((m) => /page 2/.test(JSON.stringify(m))), "G More results → page 2 shown (or the assistant is asked, when no input)");
+      if (await f.locator(".sv-hd-t p", { hasText: "page 2 of" }).count()) {
+        await f.getByRole("button", { name: "← Back" }).click();
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 5000 });
+      }
       // Card WhatsApp → openExternal
       let o = (await opened()).length;
       await f.locator(".sv-row .sv-card").first().getByRole("button", { name: /^WhatsApp:/ }).click();

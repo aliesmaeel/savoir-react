@@ -19,6 +19,7 @@ const state = {
   notice: null, // visible status bar {msg, kind, action, until}
   linkPanel: null, // {url, code} when no host API could open a link
   lastError: null, // short code of the last failed host request
+  lastResultKey: null, // the tool result currently shown (hosts may deliver it more than once)
 };
 
 // ---------- i18n & formatting ----------
@@ -424,6 +425,13 @@ function navigate(sc, push) {
   if (state.history.length > 10) state.history.shift();
   state.current = sc;
   render(sc);
+  scrollToTop();
+}
+function scrollToTop() {
+  try {
+    window.scrollTo({ top: 0, behavior: "auto" });
+    root.scrollIntoView({ block: "start" });
+  } catch (e) {}
 }
 function rerender() {
   if (state.current) render(state.current);
@@ -433,6 +441,7 @@ function backButton() {
   return btn((state.lang === "ar" ? "→ " : "← ") + t("back"), () => {
     state.current = state.history.pop();
     render(state.current);
+    scrollToTop();
   }, { small: true, ghost: true, aria: "← " + t("back") });
 }
 /** Small heart icon built with DOM calls (static path data, no markup strings). */
@@ -1018,12 +1027,33 @@ function applyHostContext(ctx) {
 }
 
 function onToolResult(sc, input) {
+  if (!sc || typeof sc !== "object") return;
   if (input) state.lastSearch = input;
+  let key;
+  try {
+    key = JSON.stringify(sc);
+  } catch (e) {
+    key = String(Math.random());
+  }
+  if (key === state.lastResultKey) return; // same result delivered again: keep where the customer is
+  state.lastResultKey = key;
   ingest(sc);
   state.history = [];
   state.current = sc;
   render(sc);
 }
+
+function reportUiError(code) {
+  try {
+    notice(t("error") + " (" + code + ")", "error");
+  } catch (e) {}
+}
+window.addEventListener("error", (e) => {
+  // Benign browser notices (e.g. ResizeObserver loop) are not failures of an action.
+  if (e && /ResizeObserver/.test(String(e.message || ""))) return;
+  reportUiError("ui-error");
+});
+window.addEventListener("unhandledrejection", () => reportUiError("ui-promise"));
 
 async function start() {
   setLocale(document.documentElement.lang || navigator.language);
@@ -1036,7 +1066,14 @@ async function start() {
     if (oa.locale) setLocale(oa.locale);
     if (oa.theme) applyHostContext({ theme: oa.theme });
     if (oa.toolOutput) onToolResult(oa.toolOutput, oa.toolInput || null);
-    window.addEventListener("openai:set_globals", () => globalThis.openai && globalThis.openai.toolOutput && onToolResult(globalThis.openai.toolOutput, globalThis.openai.toolInput || null));
+    window.addEventListener("openai:set_globals", (e) => {
+      // Only a changed tool result matters; theme, height and widget-state updates must not re-render the card.
+      const changed = (e && e.detail && e.detail.globals) || {};
+      const o = globalThis.openai;
+      if (changed.theme && (changed.theme === "dark" || changed.theme === "light")) applyHostContext({ theme: changed.theme });
+      if (!("toolOutput" in changed) || !o || !o.toolOutput) return;
+      onToolResult(o.toolOutput, o.toolInput || null);
+    });
   }
   if (SV && SV.App) {
     let pendingInput = null;
