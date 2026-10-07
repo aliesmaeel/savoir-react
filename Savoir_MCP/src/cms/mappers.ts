@@ -50,6 +50,25 @@ export function formatPrice(price: number | null, currency: string | null): stri
   return currency ? `${currency} ${amount}` : amount;
 }
 
+/**
+ * The rent period, only when the CMS states it for the listing (price_name, or a dedicated period field)
+ * in an unambiguous word. Anything else, including an empty field, is "not stated": never inferred from
+ * the price, the description or the website's display.
+ */
+export function rentPeriod(raw: Raw): "year" | "month" | "week" | "day" | null {
+  for (const key of ["rent_period", "rental_period", "rent_frequency", "price_period", "price_name"]) {
+    const v = raw[key];
+    if (typeof v !== "string") continue;
+    const s = v.trim().toLowerCase().replace(/^per\s+/, "").replace(/[.\s]+$/, "");
+    if (/^(year|yearly|annual|annually|annum|per annum|pa|p\.a|yr)$/.test(s)) return "year";
+    if (/^(month|monthly|mo)$/.test(s)) return "month";
+    if (/^(week|weekly|wk)$/.test(s)) return "week";
+    if (/^(day|daily)$/.test(s)) return "day";
+  }
+  return null;
+}
+const PERIOD_WORD = { year: "per year", month: "per month", week: "per week", day: "per day" } as const;
+
 function mapLocation(raw: Raw) {
   const community = cleanLine(raw.community ?? asRecord(raw.pcommunity)?.name, 80);
   const sub_community = cleanLine(raw.sub_community ?? raw.subcommunity ?? asRecord(raw.psubcommunity)?.name, 80);
@@ -72,6 +91,8 @@ export function mapPropertySummary(rawValue: unknown, ctx: MapContext): Property
   const currency = cleanLine(raw.currency, 8);
   const offering = raw.offering_type;
   const completion = raw.completion_status;
+  const period = offering === "RR" ? rentPeriod(raw) : null;
+  const priceLabel = formatPrice(price, currency);
 
   return {
     slug,
@@ -85,7 +106,8 @@ export function mapPropertySummary(rawValue: unknown, ctx: MapContext): Property
     bathrooms: toNumber(raw.bathroom),
     price,
     currency,
-    price_label: formatPrice(price, currency),
+    price_label: priceLabel && period ? `${priceLabel} ${PERIOD_WORD[period]}` : priceLabel,
+    rent_period: period,
     location,
     photo: safeHttpsUrl(raw.photo, ctx.imageHosts),
     // Community centre only: the CMS has no verified building coordinates (lat/lng are empty).

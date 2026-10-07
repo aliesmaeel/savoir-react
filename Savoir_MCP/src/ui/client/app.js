@@ -113,6 +113,15 @@ function nf() {
 function aed(n) {
   return n === null || n === undefined ? null : "AED " + nf().format(n);
 }
+/** " / yr" etc., only for rent listings whose period the listing data states (rent_period). */
+function periodSuffix(it) {
+  const p = it && it.purpose === "rent" ? it.rent_period : null;
+  return p === "year" || p === "month" || p === "week" || p === "day" ? " " + t("per_" + p) : "";
+}
+function propPrice(it) {
+  const a = aed(it.price);
+  return a ? a + periodSuffix(it) : null;
+}
 function when(iso) {
   try {
     return new Intl.DateTimeFormat(state.lang === "ar" ? "ar-AE-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Dubai" }).format(new Date(iso));
@@ -676,7 +685,7 @@ function propertyCard(p, flag) {
     title: p.title,
     photo: p.photo,
     badge: badgeFor(p),
-    price: aed(p.price) || t("priceOnRequest"),
+    price: propPrice(p) || t("priceOnRequest"),
     loc: p.location && p.location.label,
     meta: meta,
     chips: chips,
@@ -801,7 +810,10 @@ function mapGroups(entries) {
 }
 function priceRange(g) {
   if (g.min === null) return null;
-  return g.min === g.max ? aed(g.min) : "AED " + aedShort(g.min) + " – " + aedShort(g.max);
+  const range = g.min === g.max ? aed(g.min) : "AED " + aedShort(g.min) + " – " + aedShort(g.max);
+  const priced = g.entries.filter((e) => typeof e.price === "number");
+  const suffixes = new Set(priced.map((e) => (e.kind === "offplan" ? "" : periodSuffix(e.item))));
+  return range + (suffixes.size === 1 ? [...suffixes][0] : "");
 }
 function aedShort(n) {
   if (typeof n !== "number" || !isFinite(n)) return null;
@@ -961,7 +973,7 @@ function previewNodes() {
     const facts = e.kind === "offplan"
       ? [it.developer, it.handover ? t("handover", { h: it.handover }) : null].filter(Boolean).join(" · ")
       : [bedsLabel(it.bedrooms), it.bathrooms !== null && it.bathrooms !== undefined ? t("baths", { n: it.bathrooms }) : null, typeLabel(it.property_type)].filter(Boolean).join(" · ");
-    const price = e.kind === "offplan" ? (it.starting_price_aed ? t("from", { p: aed(it.starting_price_aed) }) : t("priceOnRequest")) : aed(it.price) || t("priceOnRequest");
+    const price = e.kind === "offplan" ? (it.starting_price_aed ? t("from", { p: aed(it.starting_price_aed) }) : t("priceOnRequest")) : propPrice(it) || t("priceOnRequest");
     return [
       h(
         "div",
@@ -1001,7 +1013,7 @@ function previewNodes() {
             "button",
             { type: "button", class: "sv-pv-row", onclick: () => selectArea(g.id, x.key), "aria-label": t("select") + ": " + x.item.title },
             img(x.kind === "offplan" ? x.item.image : x.item.photo, "") || h("span", { class: "ph" }),
-            h("span", { class: "tx" }, h("b", { text: (x.kind === "offplan" ? t("fromShort") + " " : "") + (aed(x.price) || t("priceOnRequest")) }), h("span", { dir: "auto", text: cleanTitle(x.item.title) })),
+            h("span", { class: "tx" }, h("b", { text: (x.kind === "offplan" ? t("fromShort") + " " + (aed(x.price) || t("priceOnRequest")) : propPrice(x.item) || t("priceOnRequest")) }), h("span", { dir: "auto", text: cleanTitle(x.item.title) })),
           ),
         ),
       ),
@@ -1017,7 +1029,7 @@ function areaList(groups, missing, kind) {
         "div",
         { class: "sv-area-group" },
         h("div", { class: "t", dir: "auto", text: g.area + " · " + countWord(g.entries.length, kind) + (priceRange(g) ? " · " + priceRange(g) : "") }),
-        h("ul", null, g.entries.map((e) => h("li", null, btn((aed(e.price) || t("priceOnRequest")) + " · " + cleanTitle(e.item.title), () => (state.mapFailed ? openDetail(e.kind, e.item.slug, e.item.title) : selectOnMap(e.key)), { small: true, ghost: true, aria: (state.mapFailed ? t("details") : t("showOnMap")) + ": " + e.item.title })))),
+        h("ul", null, g.entries.map((e) => h("li", null, btn(((e.kind === "offplan" ? aed(e.price) : propPrice(e.item)) || t("priceOnRequest")) + " · " + cleanTitle(e.item.title), () => (state.mapFailed ? openDetail(e.kind, e.item.slug, e.item.title) : selectOnMap(e.key)), { small: true, ghost: true, aria: (state.mapFailed ? t("details") : t("showOnMap")) + ": " + e.item.title })))),
       ),
     );
   if (missing.length) blocks.push(h("div", { class: "sv-area-group" }, h("div", { class: "t", text: t("notOnMap") + " (" + missing.length + ")" }), h("ul", null, missing.map((i) => h("li", { dir: "auto", text: cleanTitle(i.title) })))));
@@ -1459,7 +1471,7 @@ function renderPropertyDetail(d) {
         badgeFor(p) ? h("div", { class: "sv-status", text: badgeFor(p) }) : null,
         h("h2", { class: "sv-dtitle", dir: "auto", text: cleanTitle(p.title) }),
         h("div", { class: "sv-loc", dir: "auto", text: [p.building, p.location && p.location.label].filter(Boolean).join(", ") }),
-        h("div", { class: "sv-dprice" }, h("span", { class: "sv-price", text: aed(p.price) || t("priceOnRequest") }), ppsf ? h("span", { class: "sv-note", text: ppsf }) : null),
+        h("div", { class: "sv-dprice" }, h("span", { class: "sv-price", text: propPrice(p) || t("priceOnRequest") }), ppsf ? h("span", { class: "sv-note", text: ppsf }) : null),
         keyFacts ? h("div", { class: "sv-keyfacts", text: keyFacts }) : null,
       ),
       h("div", { class: "sv-actions" }, btn(t("prepare"), () => prepareMessage([ref]), { primary: true }), btn(t("whatsapp"), () => openLink(wa)), saveButton(ref)),
@@ -1571,7 +1583,7 @@ function renderCompare(d) {
   const anyOff = cols.some((c) => c.project);
   const main = [];
   const extra = [];
-  main.push(row(t("rPrice"), (c) => (c.property ? cell(aed(c.property.price) || null) : c.project ? cell(c.project.starting_price_aed ? t("from", { p: aed(c.project.starting_price_aed) }) : null) : na())));
+  main.push(row(t("rPrice"), (c) => (c.property ? cell(propPrice(c.property) || null) : c.project ? cell(c.project.starting_price_aed ? t("from", { p: aed(c.project.starting_price_aed) }) : null) : na())));
   if (anyProp) {
     main.push(row(t("rPpsf"), (c) => (c.property ? (c.property.purpose === "rent" ? h("span", { class: "na", text: t("naRent") }) : cell(c.property.price_per_sqft_aed ? aed(c.property.price_per_sqft_aed) : null)) : na())));
     main.push(row(t("rBeds"), (c) => cell(c.property ? bedsLabel(c.property.bedrooms) : null)));

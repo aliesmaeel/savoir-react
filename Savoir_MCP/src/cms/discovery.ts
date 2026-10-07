@@ -221,7 +221,7 @@ export async function areaGuide(
   entries.sort((a, b) => b.matching_listings - a.matching_listings);
   const notes = [
     "Listing counts and price ranges come from Savoir's current listings; tags and nearby areas are an editorial guide.",
-    "Rent prices are shown as listed; the rent period is not published.",
+    "Rent prices are shown as listed. A rent period is shown only when the listing data states it (rent_period); otherwise the period is not stated.",
   ];
   if (!inv.complete) notes.push(`Statistics cover the first ${inv.items.length} of ${inv.total} listings.`);
   return {

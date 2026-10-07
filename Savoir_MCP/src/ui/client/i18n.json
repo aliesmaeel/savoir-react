@@ -179,7 +179,11 @@
     "approxChip": "Approximate areas · not exact buildings",
     "mapPageCount": "This page: {n} of {p} on the map",
     "totalResults": "{n} results in total",
-    "mapHintAreas": "Tap an area to see its homes and price range. Moving the map doesn't change your search."
+    "mapHintAreas": "Tap an area to see its homes and price range. Moving the map doesn't change your search.",
+    "per_year": "/ yr",
+    "per_month": "/ mo",
+    "per_week": "/ wk",
+    "per_day": "/ day"
   },
   "ar": {
     "listings": "عقارات Savoir",
@@ -378,6 +382,10 @@
     "approxChip": "مناطق تقريبية · ليست مواقع مبانٍ دقيقة",
     "mapPageCount": "هذه الصفحة: {n} من {p} على الخريطة",
     "totalResults": "{n} نتيجة إجمالاً",
-    "mapHintAreas": "اضغط على منطقة لرؤية عقاراتها ونطاق الأسعار. تحريك الخريطة لا يغيّر بحثك."
+    "mapHintAreas": "اضغط على منطقة لرؤية عقاراتها ونطاق الأسعار. تحريك الخريطة لا يغيّر بحثك.",
+    "per_year": "/ سنويًا",
+    "per_month": "/ شهريًا",
+    "per_week": "/ أسبوعيًا",
+    "per_day": "/ يوميًا"
   }
 }

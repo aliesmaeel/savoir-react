@@ -141,6 +141,25 @@ async function main() {
   // Simulated failures for the card's next update_shortlist call: a tool error, or a store rejection.
   let failNextSave: null | "error" | "rejected" = null;
   let failNextTool: string | null = null; // the next card call of this tool returns a tool error
+  // Simulated CMS data: rent listings (by slug) whose period the CMS states. Applied to every result the card gets,
+  // because today's CMS states no period for any listing.
+  const statedPeriods = new Map<string, string>();
+  const withPeriods = <T>(v: T): T => {
+    if (!statedPeriods.size) return v;
+    const walk = (o: unknown): void => {
+      if (Array.isArray(o)) o.forEach(walk);
+      else if (o && typeof o === "object") {
+        const r = o as Record<string, unknown>;
+        if (typeof r.slug === "string" && r.purpose === "rent" && statedPeriods.has(r.slug)) {
+          r.rent_period = statedPeriods.get(r.slug);
+          if (typeof r.price_label === "string" && !/ per /.test(r.price_label)) r.price_label += " per " + r.rent_period;
+        }
+        Object.values(r).forEach(walk);
+      }
+    };
+    walk(v);
+    return v;
+  };
   const setInitial = async (name: string, args: Record<string, unknown>) => {
     initial = { args, result: await client.callTool({ name, arguments: args }) };
   };
@@ -175,7 +194,7 @@ async function main() {
       } else if (p.name === "update_shortlist" && failNextSave === "rejected") {
         const slug = ((p.arguments?.add as Array<{ slug: string }> | undefined) ?? [])[0]?.slug ?? "x";
         r = { content: [], structuredContent: { view: "shortlist", status: "ok", shortlist: { shortlist_id: "A".repeat(22), items: [], share_url: null, expires_at: new Date().toISOString(), updated_at: new Date().toISOString() }, rejected: [slug], change: { created: true, added: [], removed: [] }, error: null } };
-      } else r = await client.callTool({ name: p.name, arguments: p.arguments ?? {} });
+      } else r = withPeriods(await client.callTool({ name: p.name, arguments: p.arguments ?? {} }));
       if (p.name === "update_shortlist") failNextSave = null;
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(r));
@@ -1046,6 +1065,53 @@ async function main() {
         } else check(true, "K off-plan: nothing to map (toggle hidden)");
         await page.close();
       }
+    }
+
+    // ---------- R: rent period, shown only when the listing data states it (simulated CMS data) ----------
+    console.log("R. Rent period: shown only when stated (simulated: the CMS states 'yearly' for all but one listing)");
+    {
+      await setInitial("search_properties", { purpose: "rent", page_size: 12 });
+      const items = ((initial.result as { structuredContent: { items: Array<{ slug: string; purpose: string; map_point: unknown }> } }).structuredContent.items);
+      const unstated = items[items.length - 1]!.slug;
+      for (const it of items.slice(0, -1)) statedPeriods.set(it.slug, "year");
+      withPeriods(initial.result);
+      const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=1180&h=1000&maxh=1800", 1280, 1100);
+      await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+      const priceOf = (slug: string) => f.locator(`.sv-card[data-key="property:${slug}"] .sv-price`).innerText();
+      const first = await priceOf(items[0]!.slug);
+      const last = await priceOf(unstated);
+      check(/^AED [\d,]+ \/ yr$/.test(first) && /^AED [\d,]+$/.test(last), `R cards: stated period shown ("${first}"), none where not stated ("${last}")`);
+      if (await f.getByRole("button", { name: "Map", exact: true }).count()) {
+        const stated = items.find((i, n) => n < items.length - 1 && i.map_point);
+        if (stated) {
+          await f.locator(`.sv-card[data-key="property:${stated.slug}"]`).getByRole("button", { name: /^Show on map:/ }).click();
+          await f.locator("#sv-mapsel").waitFor({ timeout: 15000 });
+          await new Promise((r) => setTimeout(r, 1500));
+          if (!(await f.locator("#sv-mapsel .sv-pv-card").count()) && (await f.locator("#sv-mapsel .sv-pv-row").count())) {
+            await f.locator("#sv-mapsel .sv-pv-row").first().click();
+          }
+          await f.locator("#sv-mapsel .sv-pv-card").waitFor({ timeout: 5000 });
+          const pv = await f.locator("#sv-mapsel .sv-pv-card .sv-price").innerText();
+          check(/ \/ yr$/.test(pv), `R map preview shows the stated period ("${pv}")`);
+          // Marker ranges: "/ yr" only when every priced home in the area states it.
+          const ranges = await f.locator(".sv-areamk.sel .pr").allInnerTexts();
+          const groupHasUnstated = await f.locator(".sv-card.mapgroup, .sv-card.mapsel").evaluateAll((els, u) => els.some((e) => e.getAttribute("data-key") === "property:" + u), unstated);
+          check(ranges.length === 1 && (groupHasUnstated ? !/\/ yr/.test(ranges[0]!) : / \/ yr$/.test(ranges[0]!)), `R map area range follows the homes in it ("${ranges[0]}")`);
+          await shot(page, "R1-rent-period-map");
+        }
+      }
+      await f.locator(`.sv-card[data-key="property:${items[0]!.slug}"]`).getByRole("button", { name: /^Details:/ }).click();
+      await f.locator(".sv-detail .sv-dprice").waitFor({ timeout: 20000 });
+      const dp = await f.locator(".sv-detail .sv-dprice .sv-price").innerText();
+      check(/ \/ yr$/.test(dp), `R details show the stated period ("${dp}")`);
+      await page.close();
+      // Arabic label
+      const ar = await open("host=chatgpt&theme=light&locale=ar-AE&w=390&h=844&maxh=844", 390, 844, true);
+      await ar.f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+      const arPrice = await ar.f.locator(`.sv-card[data-key="property:${items[0]!.slug}"] .sv-price`).innerText();
+      check(/سنويًا/.test(arPrice), `R Arabic period label ("${arPrice}")`);
+      await ar.page.close();
+      statedPeriods.clear();
     }
 
     // ---------- B: area guide → search ----------

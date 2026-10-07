@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mapAgent, mapOffplanDetails, mapOffplanSummary, mapPropertyDetails, mapPropertySummary } from "../src/cms/mappers.js";
 import { cleanText } from "../src/cms/sanitize.js";
+import { propertyDetailsText } from "../src/tools/format.js";
 import { DEFAULT_IMAGE_HOSTS } from "../src/config.js";
 import { offplanDetailResponse, offplanItem, PF, propertyDetailResponse, searchItem } from "./fixtures.js";
 
@@ -38,6 +39,26 @@ describe("property summary mapping", () => {
     expect(p.purpose).toBe("rent");
     expect(p.completion).toBe("off_plan");
     expect(p.property_type).toBe("Office");
+  });
+
+  it("shows a rent period only when the listing data states it", () => {
+    const rent = (extra: Record<string, unknown>) => mapPropertySummary(searchItem({ offering_type: "RR", price: 145000, ...extra }), ctx)!;
+    // The CMS today: price_name empty, so no period and the price label is unchanged.
+    expect(rent({ price_name: null })).toMatchObject({ rent_period: null, price_label: "AED 145,000" });
+    expect(rent({})).toMatchObject({ rent_period: null });
+    for (const [v, p] of [["Yearly", "year"], ["per annum", "year"], ["Annually", "year"], ["Monthly", "month"], [" per month ", "month"], ["Weekly", "week"], ["Daily", "day"]] as const) {
+      expect(rent({ price_name: v }).rent_period, v).toBe(p);
+    }
+    expect(rent({ price_name: "Yearly" }).price_label).toBe("AED 145,000 per year");
+    expect(rent({ rent_frequency: "monthly" }).price_label).toBe("AED 145,000 per month");
+    // Anything ambiguous or not a period is not stated.
+    for (const v of ["Price", "Starting from", "1 cheque", "AED", "yearly or monthly", "", "Negotiable"]) expect(rent({ price_name: v }).rent_period, v).toBeNull();
+    // What the assistant reads: the period when stated, otherwise "does not state the period".
+    const detail = (extra: Record<string, unknown>) => mapPropertyDetails(propertyDetailResponse({ offering_type: "RR", price: 145000, ...extra }), ctx)!;
+    expect(propertyDetailsText(detail({ price_name: null }))).toMatch(/AED 145,000 \(rent; the listing data does not state the period\)/);
+    expect(propertyDetailsText(detail({ price_name: "Yearly" }))).toMatch(/AED 145,000 per year\n/);
+    // Sale listings never carry a rent period.
+    expect(mapPropertySummary(searchItem({ offering_type: "RS", price_name: "Yearly" }), ctx)!).toMatchObject({ rent_period: null, price_label: "AED 2,650,000" });
   });
 
   it("does not invent values that are missing", () => {

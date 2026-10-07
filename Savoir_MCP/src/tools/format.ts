@@ -62,7 +62,7 @@ function untrusted(label: string, text: string | null): string {
 
 export function propertyDetailsText(d: PropertyDetails): string {
   const rows: Array<[string, string | number | null]> = [
-    ["Price", d.price_label ? `${d.price_label}${d.purpose === "rent" ? " (rent; the listing data does not state the period)" : ""}` : "Price on request"],
+    ["Price", d.price_label ? `${d.price_label}${d.purpose === "rent" && !d.rent_period ? " (rent; the listing data does not state the period)" : ""}` : "Price on request"],
     ["Purpose", d.purpose === "rent" ? "For rent" : d.purpose === "sale" ? "For sale" : null],
     ["Status", d.completion === "off_plan" ? "Off-plan" : d.completion === "ready" ? "Ready" : null],
     ["Type", d.property_type],
@@ -215,7 +215,7 @@ export function compareText(items: Array<ComparedProperty | ComparedOffplan>, as
       const d = it.details;
       out.push(
         `${i + 1}. ${d.title} — ${d.url}`,
-        `   Price: ${na(d.price_label)}${d.purpose === "rent" ? " (rent; period not stated)" : ""} · Price/sq ft: ${d.price_per_sqft_aed !== null ? aed(d.price_per_sqft_aed) : "not available"}`,
+        `   Price: ${na(d.price_label)}${d.purpose === "rent" && !d.rent_period ? " (rent; period not stated)" : ""} · Price/sq ft: ${d.price_per_sqft_aed !== null ? aed(d.price_per_sqft_aed) : "not available"}`,
         `   ${na(d.bedrooms_label)} · ${na(d.bathrooms)} baths · Size: ${d.size_sqft !== null ? `${d.size_sqft.toLocaleString("en-US")} sq ft` : "not provided"} · ${na(d.property_type)} · ${d.completion === "off_plan" ? "Off-plan" : d.completion === "ready" ? "Ready" : "status not provided"}`,
         `   Location: ${na([d.building, d.location.label].filter(Boolean).join(", "))}`,
         `   Amenities: ${d.amenities.length ? d.amenities.join(", ") : "none listed"}`,

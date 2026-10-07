@@ -40,6 +40,8 @@ export const PropertySummarySchema = z.object({
   price: nullableNumber,
   currency: nullableString,
   price_label: nullableString,
+  /** Rent listings only, and only when the CMS states the period for this listing (never inferred). */
+  rent_period: z.enum(["year", "month", "week", "day"]).nullable(),
   location: LocationSchema,
   photo: nullableString,
   map_point: MapPointSchema.nullable(),
@@ -59,7 +61,7 @@ export const PropertyDetailsSchema = PropertySummarySchema.extend({
   permit_number: nullableString,
   building: nullableString,
   size_sqft: nullableNumber,
-  /** Sale listings with a verified size only (the rent period is not published). */
+  /** Sale listings with a verified size only. */
   price_per_sqft_aed: nullableNumber,
   amenities: z.array(z.string()),
   photos: z.array(z.string()),

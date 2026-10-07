@@ -97,7 +97,14 @@ Pay-as-you-go plans **bill automatically above the free tier**, so a spending li
 
 These timings come from a fast local connection. A mobile network in ChatGPT will be slower.
 
-**Still to verify in ChatGPT (not done):** WebGL, blob workers, `connect-src` to OpenFreeMap, load time on a real phone, and the fallback if any of these are blocked.
+**Actual ChatGPT (test app, 7 Oct 2026 ~15:10 Dubai, reported by Savoir): rendering PASSES in ChatGPT web.** The map draws, and area selection and the property preview are visible, so WebGL, the blob worker and the OpenFreeMap fetches worked in that session.
+
+**Still pending in ChatGPT:**
+- interactions: Details and Back from the preview, list sync, zoom and pan with no new search;
+- the ChatGPT phone app and full screen;
+- Arabic and dark mode;
+- load time on a real phone;
+- the fallback when something is blocked (this can only be simulated).
 
 **Run locally:** `MAP_ENGINE=maplibre MAP_STYLE_URL=https://tiles.openfreemap.org/styles/positron MAP_STYLE_URL_DARK=https://tiles.openfreemap.org/styles/dark`. Optional: `MAP_CONNECT_DOMAINS` (extra fetch origins) and `MAP_MAX_ZOOM` (default 16).
 

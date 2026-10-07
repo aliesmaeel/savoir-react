@@ -209,7 +209,8 @@ CI: `.github/workflows/savoir-mcp.yml` runs typecheck, tests, build and the Dock
 ## Known limitations
 
 - Bedroom and bathroom filters are exact, because the CMS has no "N or more" filter. The tool description tells the model so.
-- The CMS doesn't state the rent period (yearly or monthly), so rent prices are shown "as listed".
+- **Rent period:** shown ("/ yr", "per year") only when the CMS states it for a listing. The server reads `price_name`, or a dedicated `rent_period`/`rental_period`/`rent_frequency`/`price_period` field, and accepts only unambiguous values (yearly/annual, monthly, weekly, daily). Otherwise the price is shown as listed, "period not stated". As of 7 Oct 2026 `price_name` is empty on every sampled rent listing and missing from search results, so no period is shown yet. The website's "/ yr" is a fixed label on all rent listings, not listing data, so it isn't used.
+  - **For the CMS team:** fill `price_name` (e.g. "Yearly" or "Monthly") on rent listings, and include it in `/api/search` results so map prices and cards can show it, not only details.
 - One property type per search, because the CMS accepts a single type code.
 - Off-plan search sorts by most recently updated only. That is a CMS limitation.
 
