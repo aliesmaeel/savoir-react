@@ -4,7 +4,8 @@
 # other sites' configuration. Requires root or passwordless sudo.
 #
 #   bash configure-https.sh [--dry-run]
-# Env: DOMAIN (mcp.savoirproperties.com), PORT (8787), ACME_EMAIL (plain-nginx/certbot only)
+# Env: DOMAIN (mcp.savoirproperties.com), PORT (8787), ACME_EMAIL (plain-nginx/certbot only),
+#      SITE_USER (CloudPanel site user, default savoir-mcp-proxy)
 set -euo pipefail
 DOMAIN="${DOMAIN:-mcp.savoirproperties.com}"
 PORT="${PORT:-8787}"
@@ -52,7 +53,7 @@ if command -v clpctl >/dev/null 2>&1 || [ -x /usr/bin/clpctl ]; then
     pw="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)A1!"   # panel site user only; not used by the app, not printed
     echo "::add-mask::$pw"   # defence in depth: hidden even if a tool echoes it into the public Actions log
     run $S clpctl site:add:reverse-proxy --domainName="$DOMAIN" --reverseProxyUrl="http://127.0.0.1:$PORT" \
-      --siteUser="savoir-mcp-proxy" --siteUserPassword="$pw"
+      --siteUser="${SITE_USER:-savoir-mcp-proxy}" --siteUserPassword="$pw"
   fi
   run $S clpctl lets-encrypt:install:certificate --domainName="$DOMAIN"
 elif [ -d /etc/nginx/sites-available ] && [ -d /etc/nginx/sites-enabled ]; then

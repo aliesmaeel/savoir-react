@@ -825,6 +825,11 @@ async function main() {
         else await f.locator(".sv-map img.leaflet-tile").first().waitFor({ timeout: 15000 }).catch(() => {});
         await new Promise((r) => setTimeout(r, 2500));
       };
+      // The "Approximate areas" label never covers an area marker in the first view.
+      const chipClear = async (f: FrameLocator) => f.locator(".sv-mapframe").evaluate((fr) => {
+        const c = fr.querySelector(".sv-mapchip")!.getBoundingClientRect();
+        return Array.from(fr.querySelectorAll(".sv-areamk")).every((m) => { const r = m.getBoundingClientRect(); return r.bottom <= c.top - 4 || r.top >= c.bottom + 4 || r.right <= c.left - 4 || r.left >= c.right + 4; }); // a visible gap, not just touching
+      });
       const ATTRIB = MAPLIBRE ? ".maplibregl-ctrl-attrib" : ".leaflet-control-attribution";
       const ZOOM_IN = MAPLIBRE ? ".maplibregl-ctrl-zoom-in" : ".leaflet-control-zoom-in";
       const ZOOM_OUT = MAPLIBRE ? ".maplibregl-ctrl-zoom-out" : ".leaflet-control-zoom-out";
@@ -892,6 +897,7 @@ async function main() {
         check((await f.locator(".sv-pin").count()) === 0, "K no per-listing building pins");
         const overlaps = async () => f.locator(".sv-areamk").evaluateAll((els) => { const r = els.map((e) => e.getBoundingClientRect()); let n = 0; for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) if (r[i]!.left < r[j]!.right && r[j]!.left < r[i]!.right && r[i]!.top < r[j]!.bottom && r[j]!.top < r[i]!.bottom) n++; return n; });
         check((await overlaps()) === 0, "K area markers never overlap each other");
+        check(await chipClear(f), "K 'Approximate areas' label covers no marker in the first view");
         check(/Approximate areas · not exact buildings/.test(await f.locator(".sv-mapchip").innerText()), "K 'Approximate areas · not exact buildings' shown on the map");
         const count = await f.locator(".sv-maphead .sv-note").innerText();
         check(/^This page: \d+ of \d+ homes on the map · [\d,]+ results in total$/.test(count), `K count separates this page from all results ("${count}")`);
@@ -959,6 +965,7 @@ async function main() {
         check((await g<string[]>(page, "window.__display.slice()")).includes("fullscreen"), "K phone: Map asks the host for full screen");
         await settleTiles(f);
         check((await f.locator(".sv-areamk").evaluateAll((els) => { const r = els.map((e) => e.getBoundingClientRect()); let n = 0; for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) if (r[i]!.left < r[j]!.right && r[j]!.left < r[i]!.right && r[i]!.top < r[j]!.bottom && r[j]!.top < r[i]!.bottom) n++; return n; })) === 0, "K phone: area markers never overlap");
+        check(await chipClear(f), "K phone: 'Approximate areas' label covers no marker in the first view");
         await shot(page, "K3-map-phone-areas");
         await openMultiHomeArea(f);
         await f.locator("#sv-mapsel .sv-pv-list").waitFor({ timeout: 5000 });
@@ -1018,6 +1025,7 @@ async function main() {
         await f.locator(".sv-mapwrap.full .sv-areamk").first().waitFor({ timeout: 15000 });
         await settleTiles(f);
         check(/مناطق تقريبية/.test(await f.locator(".sv-mapchip").innerText()), "K Arabic: approximate-area label translated");
+        check(await chipClear(f), "K Arabic phone: the label covers no marker in the first view");
         const chip = await f.locator(".sv-mapchip").boundingBox();
         const zoom = await f.locator(ZOOM).first().boundingBox();
         check(!!chip && !!zoom && (chip.x + chip.width <= zoom.x || zoom.x + zoom.width <= chip.x || chip.y + chip.height <= zoom.y), "K Arabic: zoom buttons not covered by the label");

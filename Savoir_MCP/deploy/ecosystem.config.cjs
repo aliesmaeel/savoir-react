@@ -8,6 +8,9 @@
  *
  * Environment is read from shared/.env at (re)load time so secrets never live in
  * this file or in pm2's saved dump beyond what pm2 stores for the process.
+ *
+ * A separate test instance lives in its own APP_ROOT (~/savoir-mcp-test) and runs as
+ * pm2 process "savoir-mcp-test"; production is always "savoir-mcp".
  */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -15,6 +18,7 @@ const path = require("node:path");
 // releases/<ts>/deploy -> APP_ROOT (symlinks are resolved by Node, so the depth is stable).
 const appRoot = process.env.APP_ROOT || path.resolve(__dirname, "..", "..", "..");
 const envFile = path.join(appRoot, "shared", ".env");
+const appName = path.basename(appRoot) === "savoir-mcp-test" ? "savoir-mcp-test" : "savoir-mcp";
 
 function readEnv(file) {
   const env = {};
@@ -29,7 +33,7 @@ function readEnv(file) {
 module.exports = {
   apps: [
     {
-      name: "savoir-mcp",
+      name: appName,
       cwd: path.join(appRoot, "current"),
       script: "dist/index.js",
       exec_mode: "fork",

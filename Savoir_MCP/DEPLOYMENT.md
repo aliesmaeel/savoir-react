@@ -98,6 +98,32 @@ No other credentials are needed, and none should be shared in chat.
 
 None of these touch `savoir-react`, the website's or CMS's nginx blocks, or their certificates.
 
+## 5b. Separate test instance (`target: test`)
+
+This runs a second, independent copy of the server for trying changes in ChatGPT. It **never touches production**.
+
+| | Production | Test |
+|---|---|---|
+| URL | `https://mcp.savoirproperties.com/mcp` | `https://mcp-test.savoirproperties.com/mcp` |
+| pm2 process | `savoir-mcp` | `savoir-mcp-test` |
+| Port (loopback) | 8787 (boot test 8887) | 8797 (boot test 8897) |
+| App root, settings, data | `~/savoir-mcp`, own `shared/.env` and `shared/data` | `~/savoir-mcp-test`, own `shared/.env` (written by `deploy/server/test-env.sh`, never copied from production) and `shared/data` |
+| CloudPanel site user | `savoir-mcp-proxy` | `savoir-mcp-test-proxy` |
+| Inquiries / staff dashboard | disabled / off | disabled / off (deploy refuses a dashboard password on test) |
+| Map | off | MapLibre + OpenFreeMap (`MAP_ENGINE=maplibre`) |
+| CMS budget | 20 requests a minute | 10 requests a minute. Both share the server's IP and the CMS limit |
+
+- **Allowed actions** for `target: test`: `inspect`, `deploy`, `configure-https`, `rollback`, `stop`. The challenge token, widget domain, log rotation and user creation stay production-only.
+- **Setup order:**
+  1. Add a GoDaddy `A` record `mcp-test` with the same value as the existing `mcp` record.
+  2. Run `deploy` with `target: test`.
+  3. Run `configure-https` with `target: test`. This creates a separate CloudPanel reverse-proxy site and certificate.
+- **Removal:**
+  1. Run `stop` with `target: test`.
+  2. As the app user: `pm2 delete savoir-mcp-test && pm2 save` and `rm -rf ~/savoir-mcp-test`.
+  3. As root: `clpctl site:delete --domainName=mcp-test.savoirproperties.com --force`.
+  4. Delete the `mcp-test` DNS record and the ChatGPT test app.
+
 ## 6. ChatGPT end-to-end (after HTTPS is live)
 
 1. In ChatGPT, go to **Plugins → + → Add custom MCP server**. Name: `Savoir Properties`. URL: `https://mcp.savoirproperties.com/mcp`. Authentication: **None**. Then **Create as a plugin**.

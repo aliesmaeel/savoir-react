@@ -7,7 +7,7 @@
 #   bash rollback.sh --stop        # take the MCP service offline (website unaffected)
 set -euo pipefail
 APP_ROOT="${APP_ROOT:-$HOME/savoir-mcp}"
-APP_NAME="savoir-mcp"
+APP_NAME="${APP_NAME:-savoir-mcp}"
 ENV_FILE="$APP_ROOT/shared/.env"
 cd "$APP_ROOT/releases"
 CUR="$(basename "$(readlink "$APP_ROOT/current" 2>/dev/null || echo none)")"

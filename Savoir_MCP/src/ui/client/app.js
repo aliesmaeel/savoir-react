@@ -1056,6 +1056,7 @@ function destroyMap() {
   const inst = state.mapInst;
   state.mapInst = null;
   if (!inst) return;
+  try { if (inst.resizeObserver) inst.resizeObserver.disconnect(); } catch (e) {}
   // Stop pan/zoom animations first: removing a map mid-animation makes the engine touch detached DOM.
   try { inst.map.stop(); } catch (e) {}
   try { inst.map.off(); } catch (e) {}
@@ -1087,8 +1088,28 @@ function initPendingMap() {
     }
     map.on("zoomend", () => refreshMarkers());
     map.on("moveend", () => { const c = map.getCenter(); state.mapView = { key: p.key, center: [c.lat, c.lng], zoom: map.getZoom() }; }); // never triggers a search
-    if (state.mapView && state.mapView.key === p.key) map.setView(state.mapView.center, state.mapView.zoom);
+    const restored = !!(state.mapView && state.mapView.key === p.key);
+    if (restored) map.setView(state.mapView.center, state.mapView.zoom);
     else fitToResults(inst);
+    // The frame often changes size right after opening (full screen, host resizing). Until the customer touches
+    // the map, re-fit so the first view keeps every area in sight and clear of the label.
+    let auto = !restored;
+    for (const ev of ["pointerdown", "wheel", "keydown", "touchstart"]) p.el.addEventListener(ev, () => { auto = false; }, { passive: true });
+    if (typeof ResizeObserver === "function") {
+      let last = p.el.clientWidth + "x" + p.el.clientHeight;
+      inst.resizeObserver = new ResizeObserver(() => {
+        const size = p.el.clientWidth + "x" + p.el.clientHeight;
+        if (size === last || state.mapInst !== inst) return;
+        last = size;
+        map.resize();
+        if (!auto || !p.el.clientHeight) return;
+        if (state.mapArea) { const g = inst.groups.find((x) => x.id === state.mapArea); if (g) map.panTo([g.lat, g.lng]); }
+        else fitToResults(inst);
+        refreshMarkers();
+        keepSelectionVisible();
+      });
+      inst.resizeObserver.observe(p.el);
+    }
     const selGroup = inst.groups.find((x) => x.id === state.mapArea);
     if (selGroup) {
       const z = separateZoom(map, inst.groups, selGroup);
@@ -1101,11 +1122,17 @@ function initPendingMap() {
     fail("map-error");
   }
 }
+/** Padding for fitting markers: at the top, clear of the "Approximate areas" label so no marker starts under it. */
+function fitPadding(inst, side) {
+  const chip = inst.map.getContainer().parentNode && inst.map.getContainer().parentNode.querySelector(".sv-mapchip");
+  const below = chip ? chip.offsetTop + chip.offsetHeight + 26 : side; // + about half a marker's height and a gap
+  return { top: Math.max(side, below), right: side, bottom: side, left: side };
+}
 function fitToResults(inst) {
   const pts = inst.groups.map((g) => [g.lat, g.lng]);
   if (!pts.length) return inst.map.setView([25.15, 55.25], 10);
   if (pts.length === 1) return inst.map.setView(pts[0], 13);
-  inst.map.fitBounds(pts, { padding: [56, 56], maxZoom: 13 });
+  inst.map.fitBounds(pts, { padding: fitPadding(inst, 56), maxZoom: 13 });
 }
 function areaMarker(g, selected) {
   const el = h("div", { class: "sv-areamk" + (selected ? " sel" : ""), "data-area": g.id });
@@ -1139,7 +1166,7 @@ function refreshMarkers() {
     }
     const onClick = () => {
       if (cluster.length === 1) return selectArea(cluster[0].id);
-      inst.map.fitBounds(cluster.map((g) => [g.lat, g.lng]), { padding: [70, 70], maxZoom: 14 });
+      inst.map.fitBounds(cluster.map((g) => [g.lat, g.lng]), { padding: fitPadding(inst, 70), maxZoom: 14 });
     };
     markers.push({ lat: lat, lng: lng, el: el, label: label, onClick: onClick, front: cluster.some((g) => g.id === state.mapArea) });
   }
@@ -1149,10 +1176,10 @@ function refreshMarkers() {
 // ---------- map engines ----------
 // The area-group logic above talks to a small engine interface (Leaflet-style method names, Leaflet zoom
 // units). Leaflet is the default; MapLibre GL is a prototype (CFG.map.engine === "maplibre").
-//   getZoom, setView([lat,lng], z), panTo([lat,lng]), panBy([dx,dy]), fitBounds(points, {padding, maxZoom}),
+//   getZoom, setView([lat,lng], z), panTo([lat,lng]), panBy([dx,dy]), fitBounds(points, {padding: {top,right,bottom,left}, maxZoom}),
 //   getSize() {x,y}, getContainer(), getCenter() {lat,lng}, latLngToContainerPoint([lat,lng]) {x,y},
 //   project([lat,lng], z) {x,y}, on(events, fn), setMarkers([{lat,lng,el,label,onClick,front}]),
-//   setRings([{lat,lng,radius,sel}]), stop(), off(), remove()
+//   setRings([{lat,lng,radius,sel}]), resize(), stop(), off(), remove()
 function mercator(lat, lng, z) {
   const scale = 256 * Math.pow(2, z);
   const s = Math.min(Math.max(Math.sin((lat * Math.PI) / 180), -0.9999), 0.9999);
@@ -1181,10 +1208,11 @@ function leafletEngine(el, fail) {
     setView: (c, z) => map.setView(c, z, { animate: false }),
     panTo: (c) => map.panTo(c, { animate: false }),
     panBy: (d) => map.panBy(d, { animate: false }),
-    fitBounds: (pts, o) => map.fitBounds(pts, { padding: o.padding, maxZoom: o.maxZoom, animate: false }),
+    fitBounds: (pts, o) => map.fitBounds(pts, { paddingTopLeft: [o.padding.left, o.padding.top], paddingBottomRight: [o.padding.right, o.padding.bottom], maxZoom: o.maxZoom, animate: false }),
     getSize: () => map.getSize(),
     getContainer: () => map.getContainer(),
     getCenter: () => map.getCenter(),
+    resize: () => map.invalidateSize({ animate: false }),
     latLngToContainerPoint: (c) => map.latLngToContainerPoint(c),
     project: (c, z) => mercator(c[0], c[1], z),
     on: (ev, fn) => map.on(ev, fn),
@@ -1315,10 +1343,11 @@ function maplibreEngine(el, fail) {
     panBy: (d) => map.panBy(d, { animate: false }),
     fitBounds: (pts, o) => {
       const lats = pts.map((p) => p[0]), lngs = pts.map((p) => p[1]);
-      map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: o.padding ? o.padding[0] : 40, maxZoom: o.maxZoom - 1, animate: false });
+      map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: o.padding, maxZoom: o.maxZoom - 1, animate: false });
     },
     getSize: () => ({ x: el.clientWidth, y: el.clientHeight }),
     getContainer: () => el,
+    resize: () => map.resize(),
     getCenter: () => { const c = map.getCenter(); return { lat: c.lat, lng: c.lng }; },
     latLngToContainerPoint: (c) => { const p = map.project([c[1], c[0]]); return { x: p.x, y: p.y }; },
     project: (c, z) => mercator(c[0], c[1], z),

@@ -4,7 +4,7 @@
 #
 #   bash deploy.sh /path/to/savoir-mcp-<version>-<stamp>.tgz
 #
-# Env: APP_ROOT (default: $HOME/savoir-mcp), KEEP_RELEASES (default 5)
+# Env: APP_ROOT (default: $HOME/savoir-mcp), APP_NAME (default savoir-mcp), KEEP_RELEASES (default 5)
 #
 # Only releases that passed the post-switch health check get a .healthy marker;
 # rollback.sh only ever returns to a marked release.
@@ -16,7 +16,7 @@ KEEP="${KEEP_RELEASES:-5}"
 ENV_FILE="$APP_ROOT/shared/.env"
 TS="$(date -u +%Y%m%d%H%M%S)"
 REL="$APP_ROOT/releases/$TS"
-APP_NAME="savoir-mcp"
+APP_NAME="${APP_NAME:-savoir-mcp}"
 
 log() { printf '[deploy %s] %s\n' "$(date -u +%H:%M:%S)" "$*"; }
 die() { log "ERROR: $*"; exit 1; }

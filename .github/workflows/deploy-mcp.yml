@@ -17,6 +17,10 @@ name: Deploy Savoir MCP (manual)
 #   widget-domain-on   set WIDGET_DOMAIN=https://<MCP_DOMAIN> (the card's _meta.ui.domain, required for directory submission)
 #   widget-domain-off  remove WIDGET_DOMAIN again (undo)
 #   log-rotation     pm2-logrotate for the MCP user's pm2 only: daily, keep 30, compress; reports nginx rotation (read-only)
+#
+# target=test runs a SEPARATE test instance (never touches production): pm2 "savoir-mcp-test", app root
+# ~/savoir-mcp-test, 127.0.0.1:8797, https://mcp-test.savoirproperties.com, its own shared/.env and data.
+# Only inspect, deploy, configure-https, rollback and stop are allowed for it.
 on:
   workflow_dispatch:
     inputs:
@@ -25,6 +29,11 @@ on:
         type: choice
         options: [inspect, activity, create-user, deploy, configure-https, rollback, stop, set-challenge-token, widget-domain-on, widget-domain-off, log-rotation]
         default: inspect
+      target:
+        description: "production (mcp.savoirproperties.com) or test (separate instance at mcp-test.savoirproperties.com)"
+        type: choice
+        options: [production, test]
+        default: production
       confirm:
         description: "Type the action name again to confirm (not needed for inspect or activity)"
         required: false
@@ -58,8 +67,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  MCP_DOMAIN: mcp.savoirproperties.com
-  MCP_PORT: "8787"
+  MCP_DOMAIN: ${{ inputs.target == 'test' && 'mcp-test.savoirproperties.com' || 'mcp.savoirproperties.com' }}
+  MCP_PORT: ${{ inputs.target == 'test' && '8797' || '8787' }}
+  MCP_APP_ROOT: ${{ inputs.target == 'test' && '~/savoir-mcp-test' || '~/savoir-mcp' }}
+  MCP_APP_NAME: ${{ inputs.target == 'test' && 'savoir-mcp-test' || 'savoir-mcp' }}
+  MCP_TARGET: ${{ inputs.target || 'production' }}
 
 jobs:
   run:
@@ -73,6 +85,7 @@ jobs:
         env:
           ACTION: ${{ inputs.action }}
           CONFIRM: ${{ inputs.confirm }}
+          TARGET: ${{ inputs.target }}
           RUN_AS: ${{ inputs.run_as }}
           ROLLBACK_TO: ${{ inputs.rollback_to }}
           ACME_EMAIL: ${{ inputs.acme_email }}
@@ -90,6 +103,9 @@ jobs:
           [[ -z "$ACME_EMAIL" || "$ACME_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]] || { echo "::error::invalid acme_email"; exit 1; }
           [[ -z "$CHALLENGE_TOKEN" || "$CHALLENGE_TOKEN" =~ ^[A-Za-z0-9._~+/=-]{8,512}$ ]] || { echo "::error::invalid challenge_token"; exit 1; }
           if [ "$ACTION" = "set-challenge-token" ] && [ -z "$CHALLENGE_TOKEN" ]; then echo "::error::challenge_token is required"; exit 1; fi
+          if [ "$TARGET" = "test" ]; then
+            case "$ACTION" in inspect|deploy|configure-https|rollback|stop) ;; *) echo "::error::$ACTION is production-only"; exit 1 ;; esac
+          fi
           if [ "$ACTION" = "activity" ]; then
             [[ "$WINDOW" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}/[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}$ ]] || { echo "::error::window must be YYYY-MM-DDTHH:MM/YYYY-MM-DDTHH:MM (UTC)"; exit 1; }
           fi
@@ -143,7 +159,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           command_timeout: 15m
-          envs: ACTION,RUN_AS,ROLLBACK_TO,ACME_EMAIL,CHALLENGE_TOKEN,WINDOW,REL_NAME,MCP_DOMAIN,MCP_PORT
+          envs: ACTION,RUN_AS,ROLLBACK_TO,ACME_EMAIL,CHALLENGE_TOKEN,WINDOW,REL_NAME,MCP_DOMAIN,MCP_PORT,MCP_APP_ROOT,MCP_APP_NAME,MCP_TARGET
           script: |
             # Run under bash regardless of the remote login shell. The script goes to a file first
             # (not bash -s) so commands that read stdin cannot swallow the rest of it.
@@ -156,7 +172,9 @@ jobs:
             trap 'rm -rf "$WORK"' EXIT
             tar -xzf "$REL" -C "$WORK" deploy
             chmod 755 "$WORK" && chmod -R a+rX "$WORK/deploy" && chmod 755 "$UP" && chmod 644 "$REL"
-            echo "SSH user: $(id -un) (uid $(id -u))"
+            echo "SSH user: $(id -un) (uid $(id -u)); target: $MCP_TARGET ($MCP_APP_NAME)"
+            # Paths and names of the instance this run acts on (production: ~/savoir-mcp, savoir-mcp).
+            A="$MCP_APP_ROOT"; ENVF="$MCP_APP_ROOT/shared/.env"; AENV="APP_ROOT=$MCP_APP_ROOT APP_NAME=$MCP_APP_NAME"
 
             # Run a command as the user that owns the MCP process (never root).
             as_app() {
@@ -216,11 +234,20 @@ jobs:
                 ;;
               deploy)
                 if [ "$(id -u)" -eq 0 ] && [ -n "$RUN_AS" ] && ! id "$RUN_AS" >/dev/null 2>&1; then echo "::error::run_as user '$RUN_AS' does not exist (run create-user first)"; exit 1; fi
-                as_app "mkdir -p ~/savoir-mcp/shared && { [ -f ~/savoir-mcp/shared/.env ] || install -m 600 $WORK/deploy/production.env.example ~/savoir-mcp/shared/.env; }"
+                if [ "$MCP_TARGET" = "test" ]; then
+                  # First test deploy: the port must be free (not some other service).
+                  if ! as_app "pm2 describe $MCP_APP_NAME >/dev/null 2>&1" && (exec 3<>"/dev/tcp/127.0.0.1/$MCP_PORT") 2>/dev/null; then echo "::error::port $MCP_PORT is already in use"; exit 1; fi
+                  # The test instance gets its OWN settings (never copied from production): read-only, no dashboard,
+                  # MapLibre + OpenFreeMap map, a small CMS budget.
+                  as_app "$AENV bash $WORK/deploy/server/test-env.sh $MCP_DOMAIN $MCP_PORT"
+                else
+                  as_app "mkdir -p ~/savoir-mcp/shared && { [ -f ~/savoir-mcp/shared/.env ] || install -m 600 $WORK/deploy/production.env.example ~/savoir-mcp/shared/.env; }"
+                fi
                 # Settings added after v0.1: fill them in on the server if missing (secret generated there, never printed).
-                as_app 'f=~/savoir-mcp/shared/.env; grep -q "^PUBLIC_MCP_URL=." "$f" || echo "PUBLIC_MCP_URL=https://'"$MCP_DOMAIN"'" >> "$f"; grep -q "^ANALYTICS_LINK_SECRET=." "$f" || echo "ANALYTICS_LINK_SECRET=$(openssl rand -hex 32)" >> "$f"; chmod 600 "$f"'
-                as_app "grep -qx 'INQUIRY_MODE=disabled' ~/savoir-mcp/shared/.env" || { echo "::error::shared/.env must contain INQUIRY_MODE=disabled"; exit 1; }
-                as_app "bash $WORK/deploy/server/deploy.sh $REL"
+                as_app 'f='"$ENVF"'; grep -q "^PUBLIC_MCP_URL=." "$f" || echo "PUBLIC_MCP_URL=https://'"$MCP_DOMAIN"'" >> "$f"; grep -q "^ANALYTICS_LINK_SECRET=." "$f" || echo "ANALYTICS_LINK_SECRET=$(openssl rand -hex 32)" >> "$f"; chmod 600 "$f"'
+                as_app "grep -qx 'INQUIRY_MODE=disabled' $ENVF" || { echo "::error::shared/.env must contain INQUIRY_MODE=disabled"; exit 1; }
+                as_app "grep -q '^INSIGHTS_PASSWORD_HASH=.' $ENVF" && [ "$MCP_TARGET" = "test" ] && { echo "::error::the test instance must not enable the dashboard"; exit 1; }
+                as_app "$AENV bash $WORK/deploy/server/deploy.sh $REL"
                 # Survive reboots: rely on an existing 'pm2 startup' unit if present, else a user crontab entry.
                 as_app 'u=$(id -un); if ls /etc/systemd/system/pm2-"$u".service >/dev/null 2>&1; then echo "pm2 startup unit present for $u"; elif ! command -v crontab >/dev/null; then echo "::warning::no pm2 startup unit and no crontab: savoir-mcp will not restart after a reboot until one is configured"; elif crontab -l 2>/dev/null | grep -q "pm2 resurrect"; then echo "reboot cron present"; else (crontab -l 2>/dev/null; echo "@reboot $(command -v pm2) resurrect") | crontab - && echo "added @reboot pm2 resurrect"; fi'
                 local_checks
@@ -228,12 +255,13 @@ jobs:
                 ;;
               configure-https)
                 local_checks
-                if [ "$(id -u)" -eq 0 ]; then DOMAIN="$MCP_DOMAIN" PORT="$MCP_PORT" ACME_EMAIL="$ACME_EMAIL" bash "$WORK/deploy/server/configure-https.sh"
-                elif sudo -n true 2>/dev/null; then sudo -n env DOMAIN="$MCP_DOMAIN" PORT="$MCP_PORT" ACME_EMAIL="$ACME_EMAIL" bash "$WORK/deploy/server/configure-https.sh"
+                SITE_USER="$([ "$MCP_TARGET" = "test" ] && echo savoir-mcp-test-proxy || echo savoir-mcp-proxy)"
+                if [ "$(id -u)" -eq 0 ]; then DOMAIN="$MCP_DOMAIN" PORT="$MCP_PORT" ACME_EMAIL="$ACME_EMAIL" SITE_USER="$SITE_USER" bash "$WORK/deploy/server/configure-https.sh"
+                elif sudo -n true 2>/dev/null; then sudo -n env DOMAIN="$MCP_DOMAIN" PORT="$MCP_PORT" ACME_EMAIL="$ACME_EMAIL" SITE_USER="$SITE_USER" bash "$WORK/deploy/server/configure-https.sh"
                 else echo "::error::configure-https needs root or passwordless sudo"; exit 1; fi
                 ;;
               rollback)
-                as_app "bash ~/savoir-mcp/current/deploy/server/rollback.sh $ROLLBACK_TO"
+                as_app "$AENV bash $A/current/deploy/server/rollback.sh $ROLLBACK_TO"
                 local_checks
                 ;;
               set-challenge-token)
@@ -275,7 +303,7 @@ jobs:
                 local_checks
                 ;;
               stop)
-                as_app "bash ~/savoir-mcp/current/deploy/server/rollback.sh --stop"
+                as_app "$AENV bash $A/current/deploy/server/rollback.sh --stop"
                 curl -s -o /dev/null -w "https://savoirproperties.com/ -> %{http_code}\n" -m 15 https://savoirproperties.com/ || true
                 ;;
             esac
