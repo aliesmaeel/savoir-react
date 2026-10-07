@@ -99,8 +99,9 @@ These timings come from a fast local connection. A mobile network in ChatGPT wil
 
 **Actual ChatGPT (test app, 7 Oct 2026 ~15:10 Dubai, reported by Savoir): rendering PASSES in ChatGPT web.** The map draws, and area selection and the property preview are visible, so WebGL, the blob worker and the OpenFreeMap fetches worked in that session.
 
+**Interactions: PASS in ChatGPT web** (reported by Savoir later on 7 Oct; the test time was not given).
+
 **Still pending in ChatGPT:**
-- interactions: Details and Back from the preview, list sync, zoom and pan with no new search;
 - the ChatGPT phone app and full screen;
 - Arabic and dark mode;
 - load time on a real phone;
