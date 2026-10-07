@@ -48,7 +48,32 @@ export interface AppConfig {
   openaiAppsChallengeToken: string | undefined;
   /** Optional dedicated origin for the widget sandbox (`_meta.ui.domain`), if the host requires one. */
   widgetDomain: string | undefined;
+  /** Raster map tiles for the card's map view. null = map off (the default; a paid provider is needed in production). */
+  mapTiles: MapTilesConfig | null;
   logLevel: "debug" | "info" | "warn" | "error";
+}
+
+export interface MapTilesConfig {
+  /** XYZ template, e.g. https://tile.openstreetmap.org/{z}/{x}/{y}.png or a provider URL with its public key. */
+  url: string;
+  /** Required attribution text (provider and data licence). */
+  attribution: string;
+  /** Subdomains substituted for {s}, if the template uses it. */
+  subdomains: string[];
+  maxZoom: number;
+  /** Origins the card may load tiles from (added to the widget CSP resourceDomains). */
+  origins: string[];
+}
+
+function mapTiles(env: Record<string, string | undefined>): MapTilesConfig | null {
+  const url = env.MAP_TILE_URL?.trim();
+  if (!url) return null;
+  if (!/\{z\}/.test(url) || !/\{x\}/.test(url) || !/\{y\}/.test(url)) throw new Error("MAP_TILE_URL must contain {z}, {x} and {y}");
+  const subdomains = list(env.MAP_TILE_SUBDOMAINS).length ? list(env.MAP_TILE_SUBDOMAINS) : url.includes("{s}") ? ["a", "b", "c"] : [];
+  const hosts = url.includes("{s}") ? subdomains.map((s) => url.replace("{s}", s)) : [url];
+  const origins = [...new Set(hosts.map((u) => httpsOrigin(u.replace(/\{[a-z]+\}/g, "0"), "MAP_TILE_URL", false)))];
+  const attribution = env.MAP_TILE_ATTRIBUTION?.trim() || "© OpenStreetMap contributors";
+  return { url, attribution, subdomains, maxZoom: int(env.MAP_MAX_ZOOM, 18, 10, 20, "MAP_MAX_ZOOM"), origins };
 }
 
 export const DEFAULT_IMAGE_HOSTS = [
@@ -139,6 +164,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     inquiryTokenSecret: secret,
     openaiAppsChallengeToken: env.OPENAI_APPS_CHALLENGE_TOKEN?.trim() || undefined,
     widgetDomain: env.WIDGET_DOMAIN?.trim() ? httpsOrigin(env.WIDGET_DOMAIN.trim(), "WIDGET_DOMAIN", false) : undefined,
+    mapTiles: mapTiles(env),
     logLevel,
   };
 }

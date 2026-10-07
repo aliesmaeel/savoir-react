@@ -19,6 +19,7 @@ import type { Agent, OffplanDetails, OffplanSummary, PropertyDetails, PropertySu
 import { cleanLine, cleanText, safeEmail, safeHttpsUrl, safePhone, toNumber, whatsappUrl, isValidSlug } from "./sanitize.js";
 import { parseStartingPrice } from "./offplanPrice.js";
 import { propertyTypeLabel } from "./vocab.js";
+import { areaPoint, knownOffplanPoint, offplanMapPoint, rememberOffplanPoint } from "../data/mapPoints.js";
 
 type Raw = Record<string, unknown>;
 
@@ -67,6 +68,7 @@ export function mapPropertySummary(rawValue: unknown, ctx: MapContext): Property
 
   const bedrooms = toNumber(raw.bedroom);
   const price = toNumber(raw.price);
+  const location = mapLocation(raw);
   const currency = cleanLine(raw.currency, 8);
   const offering = raw.offering_type;
   const completion = raw.completion_status;
@@ -84,8 +86,10 @@ export function mapPropertySummary(rawValue: unknown, ctx: MapContext): Property
     price,
     currency,
     price_label: formatPrice(price, currency),
-    location: mapLocation(raw),
+    location,
     photo: safeHttpsUrl(raw.photo, ctx.imageHosts),
+    // Community centre only: the CMS has no verified building coordinates (lat/lng are empty).
+    map_point: areaPoint(location.community),
   };
 }
 
@@ -186,6 +190,7 @@ export function mapOffplanSummary(rawValue: unknown, ctx: MapContext): OffplanSu
     starting_price_label: priceLabel(raw.starting_price),
     starting_price_aed: parseStartingPrice(priceLabel(raw.starting_price)),
     image: safeHttpsUrl(raw.image, ctx.imageHosts),
+    map_point: knownOffplanPoint(slug) ?? areaPoint(cleanLine(raw.location, 120)),
   };
 }
 
@@ -207,9 +212,12 @@ export function mapOffplanDetails(response: unknown, ctx: MapContext): OffplanDe
 
   const images = imageList(raw.header_images, ctx, 12);
   if (summary.image && !images.includes(summary.image)) images.unshift(summary.image);
+  const placed = offplanMapPoint(raw.map_link, summary.location, cleanLine(raw.area, 80));
+  if (placed.point) rememberOffplanPoint(summary.slug, placed.point);
 
   return {
     ...summary,
+    map_point: placed.point,
     area: cleanLine(raw.area, 80),
     unit_sizes: cleanLine(raw.project_size, 80),
     title_type: cleanLine(raw.title_type, 40),

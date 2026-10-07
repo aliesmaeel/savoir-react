@@ -28,6 +28,15 @@ const state = {
   userNavigated: false, // the customer opened a view from a button
   lastCall: null, // {name, args} of the last successful card tool call
   navCalls: [], // restorable call per history entry (null when not restorable), parallel to state.history
+  // Map view (results only).
+  viewMode: "list", // "list" | "map"
+  fullMap: false,
+  mapSel: null, // "kind:slug" selected on the map / in the cards
+  mapCluster: null, // entries of a clicked cluster that cannot be split further
+  mapInst: null,
+  mapView: null, // last centre/zoom per result, so redraws keep the customer's view
+  pendingMap: null,
+  mapFailed: null,
   nav: null, // the restorable call behind the current view (saved in widget state for card reloads)
 };
 // Views that can be reopened by calling their tool again after the host reloads the card. Messages
@@ -635,7 +644,7 @@ function waFor(url) {
 function card(o) {
   return h(
     "article",
-    { class: "sv-card" + (o.selected ? " selected" : ""), "aria-label": o.title },
+    { class: "sv-card" + (o.selected ? " selected" : "") + (state.mapSel === o.ref.kind + ":" + o.ref.slug ? " mapsel" : ""), "aria-label": o.title, "data-key": o.ref.kind + ":" + o.ref.slug },
     h("div", { class: "sv-ph" }, img(o.photo, o.title), o.badge ? h("span", { class: "sv-badge", text: o.badge }) : null, heart(o.ref)),
     h(
       "div",
@@ -647,7 +656,12 @@ function card(o) {
       o.chips || null,
       o.flag ? h("div", { class: "sv-flag", text: o.flag }) : null,
       h("div", { class: "sv-card-actions" }, btn(t("details"), o.onDetails, { primary: true, grow: true, aria: t("details") + ": " + o.title }), btn(t("whatsapp"), o.onWa, { aria: t("whatsapp") + ": " + o.title })),
-      h("div", { class: "sv-card-sub" }, compareCheck(o.ref)),
+      h(
+        "div",
+        { class: "sv-card-sub" },
+        compareCheck(o.ref),
+        mapEnabled() ? (o.mapPoint ? btn(t("showOnMap"), () => selectOnMap(o.ref.kind + ":" + o.ref.slug), { small: true, ghost: true, aria: t("showOnMap") + ": " + o.title }) : h("span", { class: "sv-note", text: t("noMapShort") })) : null,
+      ),
     ),
   );
 }
@@ -667,6 +681,7 @@ function propertyCard(p, flag) {
     meta: meta,
     chips: chips,
     flag: flag || null,
+    mapPoint: p.map_point || null,
     selected: state.compare.some((c) => c.kind === "property" && c.slug === p.slug),
     onDetails: () => openDetail("property", p.slug, p.title),
     onWa: () => openLink((p.links && p.links.whatsapp) || waFor(p.url)),
@@ -682,6 +697,7 @@ function offplanCard(p) {
     loc: p.location,
     meta: [p.developer, p.handover ? t("handover", { h: p.handover }) : null].filter(Boolean).join(" · "),
     selected: state.compare.some((c) => c.kind === "offplan" && c.slug === p.slug),
+    mapPoint: p.map_point || null,
     onDetails: () => openDetail("offplan", p.slug, p.title),
     onWa: () => openLink((p.links && p.links.whatsapp) || waFor(p.url)),
   });
@@ -726,6 +742,307 @@ function moreButton(tool, pg) {
   return h("div", { class: "sv-more" }, btn(t("more"), go, { small: true }));
 }
 
+// ---------- map view ----------
+// Pins are placed from map_point: "area" = community centre (never a building), "approximate" = centre of
+// the developer's own map view. Moving the map never changes the search. Leaflet is inlined by the server
+// only when a tile provider is configured (CFG.map); without it the map is unavailable and the
+// "Listings by area" list is the accessible fallback.
+function mapEnabled() {
+  return !!CFG.map;
+}
+function mapEntries(items, kind) {
+  return items
+    .filter((i) => i.map_point && typeof i.map_point.lat === "number" && typeof i.map_point.lng === "number")
+    .map((i) => ({
+      key: kind + ":" + i.slug,
+      kind: kind,
+      item: i,
+      lat: i.map_point.lat,
+      lng: i.map_point.lng,
+      price: kind === "offplan" ? i.starting_price_aed : i.price,
+      point: i.map_point,
+    }));
+}
+function aedShort(n) {
+  if (typeof n !== "number" || !isFinite(n)) return null;
+  if (n >= 1e6) return (Math.round(n / 1e4) / 100).toString().replace(/\.0+$/, "").replace(/(\.\d)0$/, "$1") + "M";
+  if (n >= 1e3) return Math.round(n / 1e3) + "K";
+  return String(Math.round(n));
+}
+function precisionLabel(p) {
+  return p.precision === "area" ? t("areaLabel", { a: p.area || "" }) : t("approxLabel");
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+function viewToggle(d, entries) {
+  if (!mapEnabled() || !entries.length) return null;
+  const mk = (mode, label) => {
+    const b = btn(label, () => setViewMode(mode), { small: true, ghost: state.viewMode !== mode });
+    b.setAttribute("aria-pressed", state.viewMode === mode ? "true" : "false");
+    b.classList.add("sv-seg");
+    return b;
+  };
+  return h("div", { class: "sv-segs", role: "group", "aria-label": t("viewAs") }, mk("list", t("listTab")), mk("map", t("mapTab")));
+}
+function setViewMode(mode) {
+  state.viewMode = mode;
+  if (mode === "map" && window.innerWidth < 600) return enterFullMap();
+  if (mode === "list" && state.fullMap) return exitFullMap();
+  rerender();
+}
+async function requestDisplay(mode) {
+  try {
+    const o = globalThis.openai;
+    if (o && typeof o.requestDisplayMode === "function") return await withTimeout(o.requestDisplayMode({ mode: mode }), 3000, "display-timeout");
+    if (state.app && typeof state.app.requestDisplayMode === "function") return await withTimeout(state.app.requestDisplayMode({ mode: mode }), 3000, "display-timeout");
+  } catch (e) {}
+  return null;
+}
+function enterFullMap() {
+  state.viewMode = "map";
+  state.fullMap = true;
+  rerender();
+  requestDisplay("fullscreen"); // hosts that cannot go full screen still get the in-card full map
+}
+function exitFullMap() {
+  state.fullMap = false;
+  state.viewMode = "list";
+  rerender();
+  requestDisplay("inline");
+}
+/** Select a listing on the map (from a pin, a card or the area list). */
+function selectOnMap(key, opts) {
+  opts = opts || {};
+  state.mapSel = key;
+  if (state.viewMode !== "map") {
+    state.viewMode = "map";
+    if (window.innerWidth < 600) return enterFullMap();
+    return rerender();
+  }
+  const m = state.mapInst;
+  const e = m && m.entries.find((x) => x.key === key);
+  if (m && e) {
+    if (opts.pan !== false) m.map.panTo([e.lat, e.lng], { animate: !window.matchMedia("(prefers-reduced-motion: reduce)").matches });
+    drawSelection(m, e);
+  }
+  refreshSelectionUi();
+}
+function refreshSelectionUi() {
+  const key = state.mapSel;
+  for (const c of document.querySelectorAll(".sv-card[data-key]")) {
+    const on = c.getAttribute("data-key") === key;
+    c.classList.toggle("mapsel", on);
+    if (on && state.viewMode === "map") {
+      try { c.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" }); } catch (e) {}
+    }
+  }
+  for (const p of document.querySelectorAll(".sv-pin[data-keys]")) {
+    const keys = p.getAttribute("data-keys").split(" ");
+    p.classList.toggle("sel", !!key && keys.indexOf(key) >= 0);
+  }
+  const panel = document.getElementById("sv-mapsel");
+  if (panel) panel.replaceChildren(...selectionPanel());
+}
+function selectionPanel() {
+  const m = state.mapInst;
+  if (state.mapCluster && state.mapCluster.length) {
+    const list = state.mapCluster;
+    return [
+      h("div", { class: "sv-mapsel-head" }, h("b", { text: t("nListingsHere", { n: list.length }) }), btn(t("closeSel"), () => { state.mapCluster = null; refreshSelectionUi(); }, { small: true, ghost: true })),
+      h("div", { class: "sv-mapsel-list" }, list.map((e) => btn((aed(e.price) || t("priceOnRequest")) + " · " + cleanTitle(e.item.title), () => { state.mapCluster = null; selectOnMap(e.key); }, { small: true, aria: t("select") + ": " + e.item.title }))),
+    ];
+  }
+  const e = m && m.entries.find((x) => x.key === state.mapSel);
+  if (!e) return state.mapFailed ? [] : [h("div", { class: "sv-note", text: t("mapHint") })];
+  const it = e.item;
+  const facts = e.kind === "offplan"
+    ? [it.developer, it.handover ? t("handover", { h: it.handover }) : null].filter(Boolean).join(" · ")
+    : [bedsLabel(it.bedrooms), it.bathrooms !== null && it.bathrooms !== undefined ? t("baths", { n: it.bathrooms }) : null, typeLabel(it.property_type)].filter(Boolean).join(" · ");
+  const price = e.kind === "offplan" ? (it.starting_price_aed ? t("from", { p: aed(it.starting_price_aed) }) : t("priceOnRequest")) : aed(it.price) || t("priceOnRequest");
+  return [
+    h(
+      "div",
+      { class: "sv-mapsel-card" },
+      img(e.kind === "offplan" ? it.image : it.photo, it.title) || h("span"),
+      h(
+        "div",
+        { class: "sv-mapsel-body" },
+        h("div", { class: "sv-price", text: price }),
+        h("div", { class: "sv-title", dir: "auto", text: cleanTitle(it.title) }),
+        facts ? h("div", { class: "sv-meta", text: facts }) : null,
+        h("div", { class: "sv-note", dir: "auto", text: precisionLabel(e.point) }),
+        h(
+          "div",
+          { class: "sv-actions" },
+          btn(t("details"), () => openDetail(e.kind, it.slug, it.title), { small: true, primary: true, aria: t("details") + ": " + it.title }),
+          btn(t("whatsapp"), () => openLink((it.links && it.links.whatsapp) || waFor(it.url)), { small: true, aria: t("whatsapp") + ": " + it.title }),
+          btn(t("closeSel"), () => { state.mapSel = null; if (state.mapInst) state.mapInst.ringLayer.clearLayers(); refreshMarkers(); refreshSelectionUi(); }, { small: true, ghost: true }),
+        ),
+      ),
+    ),
+  ];
+}
+function areaList(entries, missing) {
+  const groups = {};
+  for (const e of entries) {
+    const k = e.point.precision === "area" ? e.point.area || "—" : t("approxGroup");
+    (groups[k] = groups[k] || []).push(e);
+  }
+  const blocks = Object.keys(groups).sort().map((k) =>
+    h(
+      "div",
+      { class: "sv-area-group" },
+      h("div", { class: "t", dir: "auto", text: k + " (" + groups[k].length + ")" }),
+      h("ul", null, groups[k].map((e) => h("li", null, btn((aed(e.price) || t("priceOnRequest")) + " · " + cleanTitle(e.item.title), () => selectOnMap(e.key), { small: true, ghost: true, aria: t("showOnMap") + ": " + e.item.title })))),
+    ),
+  );
+  if (missing.length) blocks.push(h("div", { class: "sv-area-group" }, h("div", { class: "t", text: t("notOnMap") + " (" + missing.length + ")" }), h("ul", null, missing.map((i) => h("li", { dir: "auto", text: cleanTitle(i.title) })))));
+  return disclosure(t("byArea"), blocks, state.mapFailed);
+}
+function mapSection(d, kind, items) {
+  const entries = mapEntries(items, kind);
+  const missing = items.filter((i) => !i.map_point);
+  const anyApprox = entries.some((e) => e.point.precision === "approximate");
+  const anyArea = entries.some((e) => e.point.precision === "area");
+  const mapEl = h("div", { class: "sv-map", role: "region", "aria-label": t("mapAria") });
+  const wrap = h(
+    "section",
+    { class: "sv-mapwrap" + (state.fullMap ? " full" : ""), "aria-label": t("mapTitle") },
+    state.fullMap ? h("div", { class: "sv-mapbar" }, btn((state.lang === "ar" ? "→ " : "← ") + t("backToList"), () => exitFullMap(), { small: true, primary: true }), h("span", { class: "sv-note", text: t("onMapN", { n: entries.length, t: items.length }) })) : null,
+    state.mapFailed ? h("div", { class: "sv-notice error", role: "alert" }, h("span", { text: t("mapFailed") })) : mapEl,
+    h(
+      "div",
+      { class: "sv-maplegend" },
+      anyArea ? h("span", { text: t("mapLegendArea") }) : null,
+      anyApprox ? h("span", { text: t("mapLegendApprox") }) : null,
+      state.fullMap ? null : h("span", { class: "sv-note", text: t("onMapN", { n: entries.length, t: items.length }) }),
+      state.fullMap || state.mapFailed ? null : btn(t("mapFull"), () => enterFullMap(), { small: true, ghost: true }),
+    ),
+    h("div", { id: "sv-mapsel", class: "sv-mapsel", "aria-live": "polite" }, selectionPanel()),
+    areaList(entries, missing),
+  );
+  if (!state.mapFailed) state.pendingMap = { el: mapEl, entries: entries, key: resultIdentity(d) };
+  return wrap;
+}
+function destroyMap() {
+  const inst = state.mapInst;
+  state.mapInst = null;
+  if (!inst) return;
+  // Stop pan/zoom animations first: removing a map mid-animation makes Leaflet touch detached DOM.
+  try { inst.map.stop(); } catch (e) {}
+  try { inst.map.off(); } catch (e) {}
+  try { inst.map.remove(); } catch (e) {}
+}
+function mapFailed(code) {
+  state.mapFailed = code || "failed";
+  destroyMap();
+  rerender();
+}
+function initPendingMap() {
+  const p = state.pendingMap;
+  state.pendingMap = null;
+  if (!p) return;
+  const L = globalThis.L;
+  if (!L || !L.map) return mapFailed("no-map-library");
+  try {
+    const map = L.map(p.el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false, keyboard: true, worldCopyJump: false, minZoom: 9 });
+    map.attributionControl.setPrefix("Leaflet");
+    let loaded = 0, failed = 0;
+    const tiles = L.tileLayer(CFG.map.url, { attribution: escapeHtml(CFG.map.attribution), subdomains: CFG.map.subdomains && CFG.map.subdomains.length ? CFG.map.subdomains : "abc", maxZoom: CFG.map.maxZoom || 18 });
+    tiles.on("tileload", () => loaded++);
+    tiles.on("tileerror", () => failed++);
+    tiles.addTo(map);
+    // Tiles blocked (CSP, network, provider key): fall back to the accessible area list.
+    setTimeout(() => { if (state.mapInst && state.mapInst.map === map && loaded === 0 && failed > 0) mapFailed("tiles-unavailable"); }, 4000);
+    map.on("click focus", () => map.scrollWheelZoom.enable()); // no scroll hijack until the customer uses the map
+    const ringLayer = L.layerGroup().addTo(map);
+    const layer = L.layerGroup().addTo(map);
+    const inst = { map: map, layer: layer, ringLayer: ringLayer, entries: p.entries, key: p.key };
+    state.mapInst = inst;
+    map.on("zoomend", () => refreshMarkers());
+    map.on("moveend", () => { state.mapView = { key: p.key, center: map.getCenter(), zoom: map.getZoom() }; }); // never triggers a search
+    if (state.mapView && state.mapView.key === p.key) map.setView(state.mapView.center, state.mapView.zoom, { animate: false });
+    else fitToResults(inst);
+    refreshMarkers();
+    const sel = inst.entries.find((x) => x.key === state.mapSel);
+    if (sel) drawSelection(inst, sel);
+  } catch (e) {
+    mapFailed("map-error");
+  }
+}
+function fitToResults(inst) {
+  const pts = inst.entries.map((e) => [e.lat, e.lng]);
+  if (!pts.length) return inst.map.setView([25.15, 55.25], 10);
+  if (pts.length === 1) return inst.map.setView(pts[0], 13, { animate: false });
+  inst.map.fitBounds(pts, { padding: [36, 36], maxZoom: 14, animate: false });
+}
+/** Grid clustering in screen space: pins closer than ~56 px (or at the same area centre) group together. */
+function clusterEntries(map, entries) {
+  const cell = 56;
+  const groups = new Map();
+  for (const e of entries) {
+    const pt = map.latLngToLayerPoint([e.lat, e.lng]);
+    const k = Math.floor(pt.x / cell) + ":" + Math.floor(pt.y / cell);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(e);
+  }
+  return [...groups.values()];
+}
+function pinElement(group) {
+  const single = group.length === 1;
+  const prices = group.map((e) => e.price).filter((n) => typeof n === "number");
+  const el = h("div", { class: "sv-pin" + (single ? "" : " cluster"), "data-keys": group.map((e) => e.key).join(" "), dir: "ltr" });
+  if (single) {
+    const e = group[0];
+    const p = aedShort(e.price);
+    el.append(h("span", { class: "cur", text: e.kind === "offplan" ? t("fromShort") : "AED" }), document.createTextNode(p || "—"));
+  } else {
+    el.append(h("b", { text: String(group.length) }), document.createTextNode(prices.length ? " · " + aedShort(Math.min(...prices)) + "+" : ""));
+  }
+  if (state.mapSel && group.some((e) => e.key === state.mapSel)) el.classList.add("sel");
+  return el;
+}
+function refreshMarkers() {
+  const inst = state.mapInst;
+  const L = globalThis.L;
+  if (!inst || !L) return;
+  inst.layer.clearLayers();
+  for (const group of clusterEntries(inst.map, inst.entries)) {
+    const lat = group.reduce((s, e) => s + e.lat, 0) / group.length;
+    const lng = group.reduce((s, e) => s + e.lng, 0) / group.length;
+    const label = group.length === 1
+      ? (aed(group[0].price) || t("priceOnRequest")) + " · " + cleanTitle(group[0].item.title) + " · " + precisionLabel(group[0].point)
+      : t("nListingsHere", { n: group.length });
+    const marker = L.marker([lat, lng], { icon: L.divIcon({ html: pinElement(group), className: "sv-pin-wrap", iconSize: null }), keyboard: true, title: label, alt: label, riseOnHover: true });
+    marker.on("click", () => {
+      if (group.length === 1) {
+        state.mapCluster = null;
+        return selectOnMap(group[0].key, { pan: false });
+      }
+      const sameSpot = group.every((e) => e.lat === group[0].lat && e.lng === group[0].lng);
+      if (sameSpot || inst.map.getZoom() >= 15) {
+        state.mapCluster = group;
+        state.mapSel = null;
+        refreshSelectionUi();
+        return;
+      }
+      inst.map.fitBounds(group.map((e) => [e.lat, e.lng]), { padding: [48, 48], maxZoom: 15 });
+    });
+    marker.addTo(inst.layer);
+    const icon = marker.getElement && marker.getElement();
+    if (icon) icon.setAttribute("aria-label", label);
+  }
+}
+function drawSelection(inst, e) {
+  const L = globalThis.L;
+  inst.ringLayer.clearLayers();
+  if (!L || !e) return;
+  // Show the uncertainty: an area ring for community centres, a smaller ring for approximate points.
+  L.circle([e.lat, e.lng], { radius: e.point.radius_m, color: "#a8834a", weight: 1, fillColor: "#a8834a", fillOpacity: 0.08, interactive: false }).addTo(inst.ringLayer);
+  refreshMarkers();
+}
+
 // ---------- views ----------
 function renderPropertyList(d) {
   const pg = d.pagination;
@@ -749,6 +1066,9 @@ function renderPropertyList(d) {
       );
     }
   } else {
+    const entries = mapEntries(d.items, "property");
+    out.push(viewToggle(d, entries));
+    if (state.viewMode === "map" && mapEnabled() && entries.length) out.push(mapSection(d, "property", d.items));
     out.push(h("div", { class: "sv-row" }, d.items.map((p) => propertyCard(p))));
     if (d.amenity_note) out.push(h("div", { class: "sv-note", text: t("amenNote") }));
   }
@@ -762,7 +1082,12 @@ function renderOffplanList(d) {
   const out = [header(t("offplan"), sub)];
   if (d.status === "error") return out.concat(errorBox(d), footer(d.data_as_of));
   if (!d.items.length) out.push(h("div", { class: "sv-empty", text: t("noResults") }));
-  else out.push(h("div", { class: "sv-row" }, d.items.map(offplanCard)));
+  else {
+    const entries = mapEntries(d.items, "offplan");
+    out.push(viewToggle(d, entries));
+    if (state.viewMode === "map" && mapEnabled() && entries.length) out.push(mapSection(d, "offplan", d.items));
+    out.push(h("div", { class: "sv-row" }, d.items.map((p) => offplanCard(p))));
+  }
   if (d.notes && d.notes.length) out.push(h("div", { class: "sv-note", text: d.notes.join(" ") }));
   out.push(moreButton("search_offplan_projects", pg), footer(d.data_as_of), compareBar());
   return out;
@@ -1097,6 +1422,7 @@ function renderAreaGuide(d) {
 
 function render(d) {
   if (!d || typeof d !== "object") return;
+  state.pendingMap = null;
   let nodes;
   switch (d.view) {
     case "property_list": nodes = renderPropertyList(d); break;
@@ -1109,7 +1435,11 @@ function render(d) {
     case "area_guide": nodes = renderAreaGuide(d); break;
     default: return;
   }
+  destroyMap();
+  const pending = state.pendingMap;
   root.replaceChildren(...[linkPanelNode(), noticeNode()].concat(nodes).filter(Boolean));
+  if (pending) initPendingMap();
+  else state.pendingMap = null;
 }
 
 // ---------- startup ----------
@@ -1153,6 +1483,9 @@ function onToolResult(sc, input) {
   state.navCalls = [];
   state.nav = null;
   state.userNavigated = false;
+  state.mapSel = null;
+  state.mapCluster = null;
+  state.mapFailed = null;
   state.current = sc;
   render(sc);
   if (first) restoreNavigation();

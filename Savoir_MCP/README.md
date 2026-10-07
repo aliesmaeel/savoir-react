@@ -121,6 +121,9 @@ All configuration comes from environment variables. See [.env.example](.env.exam
 | `INQUIRY_TOKEN_SECRET` | random per process | HMAC key for confirmation tokens. Required if you run more than one instance. |
 | `OPENAI_APPS_CHALLENGE_TOKEN` | — | Served as plain text at `/.well-known/openai-apps-challenge`. |
 | `WIDGET_DOMAIN` | — | `_meta.ui.domain` (and the ChatGPT alias `openai/widgetDomain`). Unset, ChatGPT uses its default sandbox; OpenAI requires a unique value **before directory submission**. |
+| `MAP_TILE_URL` | — | Turns on the property map (https XYZ tile template). Off by default: production needs a paid tile provider, see [docs/MAP.md](docs/MAP.md). |
+| `MAP_TILE_ATTRIBUTION` | `© OpenStreetMap contributors` | Attribution shown on the map. |
+| `MAP_TILE_SUBDOMAINS`, `MAP_MAX_ZOOM` | —, `18` | Only for `{s}` templates / zoom limit. |
 | `LOG_LEVEL` | `info` | Logs are JSON lines. |
 
 ## How the CMS actually behaves (verified October 2026)

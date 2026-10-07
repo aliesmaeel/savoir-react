@@ -14,6 +14,19 @@ export const LocationSchema = z.object({
   label: nullableString,
 });
 
+/**
+ * Where a listing can be shown on a map. "area": the community centre (not the building).
+ * "approximate": the centre of the developer's own map view of the project. Never an exact position.
+ */
+export const MapPointSchema = z.object({
+  lat: z.number(),
+  lng: z.number(),
+  precision: z.enum(["area", "approximate"]),
+  radius_m: z.number(),
+  area: nullableString,
+});
+export type MapPoint = z.infer<typeof MapPointSchema>;
+
 export const PropertySummarySchema = z.object({
   slug: z.string(),
   title: z.string(),
@@ -29,6 +42,7 @@ export const PropertySummarySchema = z.object({
   price_label: nullableString,
   location: LocationSchema,
   photo: nullableString,
+  map_point: MapPointSchema.nullable(),
 });
 export type PropertySummary = z.infer<typeof PropertySummarySchema>;
 
@@ -68,6 +82,7 @@ export const OffplanSummarySchema = z.object({
   /** Parsed "starting from" price (cheapest unit) in AED; null when not a price (e.g. "Call Us"). */
   starting_price_aed: nullableNumber,
   image: nullableString,
+  map_point: MapPointSchema.nullable(),
 });
 export type OffplanSummary = z.infer<typeof OffplanSummarySchema>;
 

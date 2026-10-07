@@ -1,6 +1,6 @@
 {
   "name": "savoir-mcp",
-  "version": "0.3.8",
+  "version": "0.4.0",
   "private": true,
   "description": "Savoir Properties MCP server (ChatGPT app / MCP Apps) backed by the Savoir CMS",
   "type": "module",
@@ -30,6 +30,7 @@
     "@modelcontextprotocol/node": "^2.1.1",
     "@modelcontextprotocol/server": "^2.3.1",
     "express": "^5.2.1",
+    "leaflet": "1.9.4",
     "zod": "^4.6.5"
   },
   "devDependencies": {

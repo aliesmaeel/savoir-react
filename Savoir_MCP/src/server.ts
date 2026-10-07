@@ -13,7 +13,7 @@ import { registerTools } from "./tools/register.js";
 import { buildWidgetHtml, LEGACY_WIDGET_URIS, WIDGET_URI } from "./ui/widget.js";
 
 export const SERVER_NAME = "savoir-properties";
-export const SERVER_VERSION = "0.3.8";
+export const SERVER_VERSION = "0.4.0";
 
 const INSTRUCTIONS = `Savoir Properties is a Dubai real-estate brokerage. These tools read Savoir's own listings CMS and help the customer from search to contacting an agent.
 Discovery
@@ -70,7 +70,7 @@ export function createAppContext(config: AppConfig, logger: Logger, fetchImpl?: 
     analytics,
     aggregates,
     links,
-    widgetHtml: buildWidgetHtml(),
+    widgetHtml: buildWidgetHtml(undefined, { map: config.mapTiles }),
   };
 }
 
@@ -79,9 +79,8 @@ export function createMcpServer(ctx: AppContext): McpServer {
     { name: SERVER_NAME, version: SERVER_VERSION, title: "Savoir Properties", websiteUrl: ctx.config.publicSiteUrl },
     { instructions: INSTRUCTIONS },
   );
-
-  // Listing photos plus the official Savoir logo (served by the website).
-  const resourceDomains = [...ctx.config.imageHosts.map((h) => `https://${h}`), ctx.config.publicSiteUrl];
+  // Listing photos, the official Savoir logo (website) and, when the map is on, its tile servers.
+  const resourceDomains = [...ctx.config.imageHosts.map((h) => `https://${h}`), ctx.config.publicSiteUrl, ...(ctx.config.mapTiles?.origins ?? [])];
   const description = "Property and off-plan cards with photos, AED prices, links and contact actions.";
   const uiMeta = {
     ui: {
@@ -94,6 +93,8 @@ export function createMcpServer(ctx: AppContext): McpServer {
     // ChatGPT compatibility aliases (snake_case CSP). Same values as the standard fields above.
     "openai/widgetCSP": { connect_domains: [] as string[], resource_domains: resourceDomains },
     "openai/widgetPrefersBorder": true,
+    // The map can be opened full screen (mobile map view).
+    "openai/ui": { availableDisplayModes: ["inline", "fullscreen"] },
     "openai/widgetDescription": description,
     ...(ctx.config.widgetDomain ? { "openai/widgetDomain": ctx.config.widgetDomain } : {}),
   };

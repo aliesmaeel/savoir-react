@@ -21,7 +21,7 @@ const BROWSERS = [process.env.BROWSER_PATH, "C:/Program Files/Google/Chrome/Appl
 
 const HOST_SCRIPT = `
 import { AppBridge, PostMessageTransport } from "@modelcontextprotocol/ext-apps/app-bridge";
-window.__opened = []; window.__messages = []; window.__context = []; window.__calls = []; window.__widgetState = null; window.__mounts = 0;
+window.__opened = []; window.__messages = []; window.__context = []; window.__calls = []; window.__widgetState = null; window.__mounts = 0; window.__display = [];
 const q = new URLSearchParams(location.search);
 const iframe = document.createElement("iframe");
 iframe.style.cssText = "width:" + (q.get("w") || "760") + "px;height:" + (q.get("h") || "760") + "px;border:1px solid #ccc";
@@ -98,7 +98,7 @@ async function mount() {
     globalsChanged({ toolInput: init.args, toolOutput: init.result.structuredContent });
   };
   await br.connect(new PostMessageTransport(iframe.contentWindow, iframe.contentWindow));
-  iframe.src = (profile === "chatgpt" ? "/widget?shim=openai&m=" : "/widget?m=") + window.__mounts;
+  iframe.src = (profile === "chatgpt" ? "/widget?shim=openai&m=" : "/widget?m=") + window.__mounts + (q.get("blocktiles") === "1" ? "&blocktiles=1" : "");
 }
 await mount();
 `;
@@ -109,6 +109,7 @@ const OPENAI_SHIM = `<script>window.openai = {
   widgetState: parent.__widgetState, toolOutput: null, toolInput: null,
   setWidgetState(s) { this.widgetState = s; parent.__widgetState = s; parent.__globalsChanged({ widgetState: s }); },
   openExternal(o) { parent.__opened.push(o.href); },
+  requestDisplayMode(o) { parent.__display.push(o.mode); return Promise.resolve({ mode: o.mode }); },
   sendFollowUpMessage(o) { parent.__messages.push({ prompt: o.prompt }); },
   callTool(name, args) { parent.__calls.push("openai:" + name); return fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, arguments: args }) }).then((r) => r.json()); },
 };</script>`;
@@ -128,7 +129,8 @@ async function main() {
   await client.connect(new StreamableHTTPClientTransport(new URL(MCP_URL)));
   // PREVIEW_WIDGET_URI lets the run simulate a host that cached an older tool list (e.g. listings-v1).
   const res = await client.readResource({ uri: process.env.PREVIEW_WIDGET_URI ?? "ui://savoir/listings-v2.html" });
-  const widget = res.contents[0] as { text?: string; mimeType?: string };
+  const widget = res.contents[0] as { text?: string; mimeType?: string; _meta?: { ui?: { csp?: { resourceDomains?: string[] } } } };
+  const declared = widget._meta?.ui?.csp?.resourceDomains ?? [];
   if (!widget?.text) throw new Error("widget resource empty");
   console.log(`widget resource: ${widget.mimeType}, ${(widget.text.length / 1024).toFixed(0)} KiB`);
 
@@ -140,11 +142,13 @@ async function main() {
     initial = { args, result: await client.callTool({ name, arguments: args }) };
   };
   const hostJs = (await build({ stdin: { contents: HOST_SCRIPT, resolveDir: process.cwd(), loader: "js" }, bundle: true, format: "esm", write: false, platform: "browser" })).outputFiles[0]!.text;
-  const csp = ["default-src 'none'", "script-src 'unsafe-inline'", "style-src 'unsafe-inline'", `img-src data: ${[...DEFAULT_IMAGE_HOSTS.map((h) => `https://${h}`), "https://savoirproperties.com"].join(" ")}`, "connect-src 'none'"].join("; ");
+  // img-src = what the card declares (photos, logo, map tiles). blocktiles=1 drops the tile hosts to test the fallback.
+  const imgHosts = (blockTiles: boolean) => (declared.length ? declared : [...DEFAULT_IMAGE_HOSTS.map((h) => `https://${h}`), "https://savoirproperties.com"]).filter((d) => !blockTiles || !/tile/i.test(d));
+  const cspFor = (blockTiles: boolean) => ["default-src 'none'", "script-src 'unsafe-inline'", "style-src 'unsafe-inline'", `img-src data: ${imgHosts(blockTiles).join(" ")}`, "connect-src 'none'"].join("; ");
 
   const server = createServer(async (req, res) => {
     if (req.url?.startsWith("/widget")) {
-      res.writeHead(200, { "Content-Type": "text/html", "Content-Security-Policy": csp });
+      res.writeHead(200, { "Content-Type": "text/html", "Content-Security-Policy": cspFor(req.url.includes("blocktiles=1")) });
       res.end(req.url.includes("shim=openai") ? (widget.text ?? "").replace("<head>", "<head>" + OPENAI_SHIM) : widget.text);
     } else if (req.url === "/host.js") {
       res.writeHead(200, { "Content-Type": "text/javascript" });
@@ -185,7 +189,7 @@ async function main() {
     page.on("pageerror", (e) => errors.push(e.message));
     // Chrome logs a console error when a sandboxed frame's popup is blocked; the "hostile" profile provokes
     // that on purpose and checks the visible fallback instead.
-    page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && !(q.includes("host=hostile") && /Blocked opening .* sandboxed frame/.test(m.text())) && errors.push(m.text()));
+    page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && !(q.includes("host=hostile") && /Blocked opening .* sandboxed frame/.test(m.text())) && !(q.includes("blocktiles=1") && /violates the following Content Security Policy directive: "img-src/.test(m.text())) && errors.push(m.text()));
     await page.goto(`http://127.0.0.1:${port}/?${q}`);
     return { page, f: page.frameLocator("iframe") };
   };
@@ -804,6 +808,125 @@ async function main() {
       await f.locator(".sv-notice.error", { hasText: "Something went wrong" }).waitFor({ timeout: 16000 });
       check((await f.locator(".sv-detail").count()) === 0 && (await f.locator("#root.sv-loading").count()) === 0, "H Details unanswered → error with Try again, stays on results, loading cleared");
       await page.close();
+    }
+
+    // ---------- K: map view (simulated hosts; OpenStreetMap tiles for local testing only) ----------
+    console.log("K. Map view: toggle, pins, clustering, selection sync, fit, details, no search on move, mobile full screen, fallback, Arabic");
+    {
+      const mapCalls = (page: Page) => g<string[]>(page, "window.__calls.slice()");
+      // K1 desktop, ChatGPT-like host with re-deliveries
+      await setInitial("search_properties", { purpose: "buy", page_size: 10 });
+      {
+        const { page, f } = await open("host=chatgpt&events=snapshot&redeliver=1&theme=light&locale=en-US&w=900&h=900&maxh=1400", 960, 1000);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        check(await f.getByRole("button", { name: "Map", exact: true }).isVisible(), "K List / Map toggle shown");
+        await f.getByRole("button", { name: "Map", exact: true }).click();
+        await f.locator(".sv-map .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
+        const tilesOk = await f.locator(".sv-map img.leaflet-tile").evaluateAll((els) => new Promise<number>((res) => setTimeout(() => res(els.filter((e) => (e as HTMLImageElement).naturalWidth > 0).length), 2500)));
+        check(tilesOk > 0, `K map tiles load under the declared CSP (${tilesOk} tiles)`);
+        const pins = await f.locator(".sv-pin").count();
+        const priced = await f.locator(".sv-pin:not(.cluster)").allInnerTexts();
+        check(pins > 0 && (priced.length === 0 || priced.every((x) => /AED|from/.test(x))), `K price pins / clusters drawn (${pins}; e.g. "${(priced[0] ?? "").replace(/\s+/g, " ")}")`);
+        check(/Pins show the area, not the exact building/.test(await f.locator(".sv-maplegend").innerText()), "K legend says pins show the area, not the exact building");
+        const box = await f.locator(".sv-map").boundingBox();
+        const pinBoxes = await f.locator(".sv-map .leaflet-marker-icon").evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }));
+        const frameOffset = await page.locator("iframe").boundingBox();
+        check(!!box && !!frameOffset && pinBoxes.every(([x, y]) => x! + frameOffset.x >= box.x - 2 && x! + frameOffset.x <= box.x + box.width + 2 && y! + frameOffset.y >= box.y - 2 && y! + frameOffset.y <= box.y + box.height + 30), "K map fitted: every pin inside the map");
+        // no search when the map moves or zooms
+        const before = (await mapCalls(page)).length;
+        const m = await f.locator(".sv-map").boundingBox();
+        await page.mouse.move(m!.x + m!.width / 2, m!.y + m!.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(m!.x + m!.width / 2 + 120, m!.y + m!.height / 2 + 60, { steps: 6 });
+        await page.mouse.up();
+        await f.locator(".leaflet-control-zoom-in").click();
+        await new Promise((r) => setTimeout(r, 1200));
+        check((await mapCalls(page)).length === before, "K moving and zooming the map runs no search (filters unchanged)");
+        // cluster click: zooms in or lists the listings at that spot
+        if (await f.locator(".sv-pin.cluster").count()) {
+          await f.locator(".leaflet-marker-icon:has(.sv-pin.cluster)").first().click();
+          await new Promise((r) => setTimeout(r, 900));
+          check((await f.locator(".sv-mapsel-list").count()) > 0 || (await f.locator(".sv-pin").count()) >= pins, "K cluster click → zooms in or lists the listings at that spot");
+          if (await f.locator(".sv-mapsel-head").count()) await f.locator(".sv-mapsel-head").getByRole("button", { name: "Close" }).click();
+        }
+        // pin → panel + card highlight
+        await f.locator(".sv-card").nth(1).getByRole("button", { name: /^Show on map:/ }).click();
+        await f.locator(".sv-mapsel-card").waitFor({ timeout: 5000 });
+        const selKey = await f.locator(".sv-card").nth(1).getAttribute("data-key");
+        check((await f.locator(".sv-card.mapsel").getAttribute("data-key")) === selKey && (await f.locator(".sv-pin.sel").count()) === 1, "K card 'Show on map' → its pin highlighted, panel open");
+        const panelText = await f.locator(".sv-mapsel-card").innerText();
+        check(/AED|Price on request/.test(panelText) && /Area:|Approximate/.test(panelText) && (await f.locator(".sv-mapsel-card img").count()) > 0, "K panel shows photo, price, key facts and the location precision");
+        await f.locator(".leaflet-marker-icon:has(.sv-pin:not(.cluster):not(.sel))").first().click().catch(() => {});
+        await new Promise((r) => setTimeout(r, 500));
+        const sel2 = await f.locator(".sv-pin.sel").count();
+        check(sel2 === 1 && (await f.locator(".sv-card.mapsel").count()) === 1, "K pin click → that listing selected in the cards too");
+        await shot(page, "K1-map-desktop");
+        // Details from the panel; Back returns to the map with the selection kept
+        const n0 = (await mapCalls(page)).length;
+        await f.locator(".sv-mapsel-card").getByRole("button", { name: /^Details:/ }).click();
+        await f.locator(".sv-detail").waitFor({ timeout: 20000 });
+        await new Promise((r) => setTimeout(r, 3000));
+        check((await f.locator(".sv-detail").count()) === 1 && (await mapCalls(page)).slice(n0).includes("get_property_details"), "K panel Details → property details (and they stay)");
+        await f.getByRole("button", { name: "← Back" }).click();
+        await f.locator(".sv-map .leaflet-marker-icon").first().waitFor({ timeout: 10000 });
+        check((await f.locator(".sv-pin.sel").count()) === 1, "K Back → map again, selection kept");
+        await f.getByRole("button", { name: "List", exact: true }).click();
+        check((await f.locator(".sv-map").count()) === 0 && (await f.locator(".sv-card.mapsel").count()) === 1, "K List → cards, the map selection still highlighted");
+        await page.close();
+      }
+      // K2 phone: full-screen map and Back to listings
+      {
+        const { page, f } = await open("host=chatgpt&theme=dark&locale=en-US&w=370&h=760&maxh=760", 390, 820, true);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        await f.getByRole("button", { name: "Map", exact: true }).click();
+        await f.locator(".sv-mapwrap.full .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
+        check((await g<string[]>(page, "window.__display.slice()")).includes("fullscreen"), "K phone: Map asks the host for full screen");
+        await new Promise((r) => setTimeout(r, 1500));
+        await shot(page, "K2-map-phone-full");
+        await f.getByRole("button", { name: /Back to listings/ }).click();
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 5000 });
+        check((await f.locator(".sv-mapwrap.full").count()) === 0 && (await g<string[]>(page, "window.__display.slice()")).includes("inline"), "K phone: Back to listings → cards, inline again");
+        const docW = await f.locator("html").evaluate((e) => e.scrollWidth);
+        check(docW <= 372, `K phone: no sideways scroll (${docW})`);
+        await page.close();
+      }
+      // K3 fallback: tiles blocked → accessible area list, listings still reachable
+      {
+        const { page, f } = await open("host=chatgpt&blocktiles=1&theme=light&locale=en-US&w=900&h=900&maxh=1400", 960, 1000);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        await f.getByRole("button", { name: "Map", exact: true }).click();
+        await f.locator(".sv-notice.error", { hasText: "map couldn't load" }).waitFor({ timeout: 12000 });
+        const areaButtons = await f.locator(".sv-area-group li button").count();
+        check(areaButtons > 0 && (await f.locator("details.sv-disc[open] .sv-area-group").count()) > 0, `K tiles blocked → clear message and the area list opens (${areaButtons} listings)`);
+        check((await f.locator(".sv-row .sv-card").count()) > 0, "K tiles blocked → listing cards still available");
+        await shot(page, "K3-map-fallback");
+        await page.close();
+      }
+      // K4 Arabic, phone, light
+      {
+        const { page, f } = await open("host=chatgpt&theme=light&locale=ar-AE&w=370&h=760&maxh=760", 390, 820, true);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        await f.getByRole("button", { name: "خريطة", exact: true }).click();
+        await f.locator(".sv-mapwrap.full .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
+        await new Promise((r) => setTimeout(r, 1500));
+        check(/الدبابيس تشير إلى المنطقة/.test(await f.locator(".sv-maplegend").innerText()), "K Arabic: map legend and labels translated");
+        await shot(page, "K4-map-arabic-phone");
+        await page.close();
+      }
+      // K5 off-plan results on the map
+      {
+        await setInitial("search_offplan_projects", { page_size: 8 });
+        const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=900&h=900&maxh=1400", 960, 1000);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        if (await f.getByRole("button", { name: "Map", exact: true }).count()) {
+          await f.getByRole("button", { name: "Map", exact: true }).click();
+          await f.locator(".sv-map .leaflet-marker-icon").first().waitFor({ timeout: 15000 });
+          check((await f.locator(".sv-pin").count()) > 0, "K off-plan results on the map");
+          await new Promise((r) => setTimeout(r, 1500));
+          await shot(page, "K5-map-offplan");
+        } else check(true, "K off-plan: no locations to map (toggle hidden)");
+        await page.close();
+      }
     }
 
     // ---------- B: area guide → search ----------
