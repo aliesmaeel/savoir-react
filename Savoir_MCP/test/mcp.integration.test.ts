@@ -311,19 +311,24 @@ describe("submit_property_inquiry", () => {
 
 describe("host-test evidence logging", () => {
   it("logs MCP method names and the client's self-reported name, nothing else", async () => {
-    const { logRpcMethods } = await import("../src/http.js");
+    const { logRpcMethods, agentCategory } = await import("../src/http.js");
     const { createLogger } = await import("../src/logger.js");
     const lines: string[] = [];
     const logger = createLogger("info", (l) => lines.push(l));
     logRpcMethods(logger, { jsonrpc: "2.0", id: 1, method: "initialize", params: { clientInfo: { name: "openai-mcp", version: "1.0.0" }, secret: "x" } });
-    logRpcMethods(logger, [{ method: "tools/list" }, { method: "tools/call", params: { arguments: { email: "a@b.com" } } }]);
+    logRpcMethods(logger, [{ method: "tools/list" }, { method: "tools/call", params: { name: "x", arguments: { email: "a@b.com" } } }], "openai");
     logRpcMethods(logger, { method: "initialize", params: { clientInfo: { name: "<script>alert(1)</script>" } } });
     const parsed = lines.map((l) => JSON.parse(l));
-    expect(parsed.map((p) => [p.method, p.client, p.client_version])).toEqual([
-      ["initialize", "openai-mcp", "1.0.0"],
-      ["tools/list", undefined, undefined],
-      ["initialize", "other", "other"],
+    expect(parsed.map((p) => [p.method, p.agent, p.client, p.client_version])).toEqual([
+      ["initialize", "none", "openai-mcp", "1.0.0"],
+      ["tools/list", "openai", undefined, undefined],
+      ["tools/call", "openai", undefined, undefined],
+      ["initialize", "none", "other", "other"],
     ]);
+    expect(agentCategory("Mozilla/5.0 (compatible; ChatGPT-User/1.0; +https://openai.com/bot)")).toBe("openai");
+    expect(agentCategory("node")).toBe("script");
+    expect(agentCategory("Mozilla/5.0 Chrome/140")).toBe("other");
+    expect(agentCategory(undefined)).toBe("none");
     expect(lines.join("\n")).not.toMatch(/a@b\.com|secret|script/);
   });
 });

@@ -19,8 +19,31 @@ const state = {
   notice: null, // visible status bar {msg, kind, action, until}
   linkPanel: null, // {url, code} when no host API could open a link
   lastError: null, // short code of the last failed host request
-  lastResultKey: null, // the tool result currently shown (hosts may deliver it more than once)
+  // Navigation lifecycle. A card is bound to one tool result (its origin). Hosts may deliver that result
+  // again at any time (ChatGPT's openai:set_globals can carry a full snapshot whose toolOutput is a
+  // re-serialised copy), so results are compared by content, and once the customer has opened another
+  // view, host deliveries never replace it.
+  seenResults: new Set(), // canonical keys of every tool result the host delivered
+  originKey: null, // canonical key of the card's own tool result
+  userNavigated: false, // the customer opened a view from a button
+  lastCall: null, // {name, args} of the last successful card tool call
+  navCalls: [], // restorable call per history entry (null when not restorable), parallel to state.history
+  nav: null, // the restorable call behind the current view (saved in widget state for card reloads)
 };
+// Views that can be reopened by calling their tool again after the host reloads the card. Messages
+// (new reference code) and shortlist writes are not repeated automatically.
+const RESTORABLE = new Set(["get_property_details", "get_offplan_project_details", "compare_listings", "get_shortlist", "search_properties", "search_offplan_projects", "get_area_guide"]);
+/** Order-independent identity of a JSON value. */
+function canonical(v) {
+  if (Array.isArray(v)) return "[" + v.map(canonical).join(",") + "]";
+  if (v && typeof v === "object") return "{" + Object.keys(v).sort().map((k) => JSON.stringify(k) + ":" + canonical(v[k])).join(",") + "}";
+  return JSON.stringify(v === undefined ? null : v);
+}
+function shortHash(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
 
 // ---------- i18n & formatting ----------
 function t(key, vars) {
@@ -208,6 +231,13 @@ async function callTool(name, args, opts) {
     const sc = r && r.structuredContent;
     if (!sc) throw new Error(r && r.isError ? "tool-error" : "empty-result");
     ingest(sc);
+    state.lastCall = { name: name, args: args };
+    // A success supersedes an earlier error message.
+    if (state.notice && state.notice.kind === "error") {
+      state.notice = null;
+      const el = document.getElementById("sv-notice");
+      if (el) el.remove();
+    }
     return sc;
   } catch (e) {
     state.lastError = errCode(e);
@@ -305,7 +335,7 @@ function persist() {
   const oa = globalThis.openai;
   if (oa && typeof oa.setWidgetState === "function") {
     try {
-      oa.setWidgetState({ shortlistId: state.shortlistId, compare: state.compare });
+      oa.setWidgetState({ shortlistId: state.shortlistId, compare: state.compare, nav: state.nav, origin: state.originKey ? shortHash(state.originKey) : null });
     } catch (e) {}
   }
 }
@@ -421,10 +451,37 @@ async function runSearch(tool, args) {
 
 // ---------- navigation ----------
 function navigate(sc, push) {
-  if (push && state.current) state.history.push(state.current);
-  if (state.history.length > 10) state.history.shift();
-  state.current = sc;
-  render(sc);
+  const previous = state.current;
+  const call = state.lastCall && RESTORABLE.has(state.lastCall.name) ? state.lastCall : null;
+  state.lastCall = null;
+  state.userNavigated = true;
+  // History first: the new view's Back button depends on it.
+  const pushed = !!(push && previous);
+  const prevNav = state.nav;
+  if (pushed) {
+    state.history.push(previous);
+    state.navCalls.push(prevNav);
+    if (state.history.length > 10) {
+      state.history.shift();
+      state.navCalls.shift();
+    }
+  }
+  try {
+    state.current = sc;
+    render(sc);
+  } catch (e) {
+    // Never leave the customer on a half-drawn or silently unchanged card.
+    if (pushed) {
+      state.history.pop();
+      state.navCalls.pop();
+    }
+    state.current = previous;
+    if (previous) render(previous);
+    notice(t("navFailed") + " (render-error)", "error");
+    return;
+  }
+  if (call) state.nav = call; // otherwise (message view, in-place updates) keep the last restorable view
+  persist();
   scrollToTop();
 }
 function scrollToTop() {
@@ -440,7 +497,9 @@ function backButton() {
   if (!state.history.length) return null;
   return btn((state.lang === "ar" ? "→ " : "← ") + t("back"), () => {
     state.current = state.history.pop();
+    state.nav = state.navCalls.pop() || null;
     render(state.current);
+    persist();
     scrollToTop();
   }, { small: true, ghost: true, aria: "← " + t("back") });
 }
@@ -1026,21 +1085,36 @@ function applyHostContext(ctx) {
   } catch (e) {}
 }
 
+/** A tool result delivered by the host (not by a card button). */
 function onToolResult(sc, input) {
   if (!sc || typeof sc !== "object") return;
-  if (input) state.lastSearch = input;
+  if (input && !state.lastSearch) state.lastSearch = input;
   let key;
   try {
-    key = JSON.stringify(sc);
+    key = canonical(sc);
   } catch (e) {
-    key = String(Math.random());
+    return;
   }
-  if (key === state.lastResultKey) return; // same result delivered again: keep where the customer is
-  state.lastResultKey = key;
+  if (state.seenResults.has(key)) return; // the same result again, in any field order, on any channel
+  state.seenResults.add(key);
+  if (state.userNavigated) return; // the customer opened another view: host deliveries never replace it
+  const first = !state.originKey;
+  if (first) state.originKey = key;
   ingest(sc);
   state.history = [];
+  state.navCalls = [];
   state.current = sc;
   render(sc);
+  if (first) restoreNavigation();
+}
+/** After a card reload, reopen the view the customer had opened (saved in the host's widget state). */
+async function restoreNavigation() {
+  const o = globalThis.openai;
+  const ws = o && o.widgetState;
+  if (!ws || !ws.nav || !RESTORABLE.has(ws.nav.name) || ws.origin !== shortHash(state.originKey)) return;
+  const sc = await callTool(ws.nav.name, ws.nav.args || {}, { silentError: true });
+  if (!sc) return notice(t("restoreFailed") + " (" + (state.lastError || "failed") + ")", "error", { label: t("retry"), fn: () => restoreNavigation() });
+  if (!state.userNavigated || state.current && canonical(state.current) === state.originKey) navigate(sc, true);
 }
 
 function reportUiError(code) {

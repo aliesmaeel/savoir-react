@@ -150,7 +150,9 @@
     "askedChat": "Sent to the chat. The assistant will continue there.",
     "moreAsk": "Show page {p} of these Savoir listings.",
     "calcInvalid": "Enter a unit price of at least AED 10,000.",
-    "deleteFailed": "Couldn't delete the shortlist. Nothing was changed."
+    "deleteFailed": "Couldn't delete the shortlist. Nothing was changed.",
+    "navFailed": "Couldn't open this view. Please try again.",
+    "restoreFailed": "Couldn't reopen your last view."
   },
   "ar": {
     "listings": "عقارات Savoir",
@@ -320,6 +322,8 @@
     "askedChat": "أُرسل إلى المحادثة، وسيتابع المساعد هناك.",
     "moreAsk": "اعرض الصفحة {p} من عقارات Savoir هذه.",
     "calcInvalid": "أدخل سعر وحدة لا يقل عن 10,000 درهم.",
-    "deleteFailed": "تعذّر حذف القائمة. لم يتغير شيء."
+    "deleteFailed": "تعذّر حذف القائمة. لم يتغير شيء.",
+    "navFailed": "تعذّر فتح هذه الصفحة. حاول مرة أخرى.",
+    "restoreFailed": "تعذّرت إعادة فتح آخر صفحة."
   }
 }

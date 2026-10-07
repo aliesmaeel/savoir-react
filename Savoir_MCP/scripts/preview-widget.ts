@@ -21,56 +21,84 @@ const BROWSERS = [process.env.BROWSER_PATH, "C:/Program Files/Google/Chrome/Appl
 
 const HOST_SCRIPT = `
 import { AppBridge, PostMessageTransport } from "@modelcontextprotocol/ext-apps/app-bridge";
-window.__opened = []; window.__messages = []; window.__context = []; window.__calls = [];
+window.__opened = []; window.__messages = []; window.__context = []; window.__calls = []; window.__widgetState = null; window.__mounts = 0;
 const q = new URLSearchParams(location.search);
 const iframe = document.createElement("iframe");
 iframe.style.cssText = "width:" + (q.get("w") || "760") + "px;height:" + (q.get("h") || "760") + "px;border:1px solid #ccc";
 document.body.appendChild(iframe);
-// Host profiles. "full": everything supported. "chatgpt": no ui/open-link, a window.openai layer in the
-// frame, no tool-input notification, sandboxed without popups. "hostile": link requests and tool calls
-// never answered, sandboxed without popups. All are simulations, not real hosts.
+// Host profiles (all simulations, not real hosts):
+//   full     everything supported
+//   chatgpt  no ui/open-link; a window.openai layer; sandboxed without popups. Global updates are sent as a
+//            full snapshot (events=snapshot, default) whose toolOutput is a key-reordered copy of the original,
+//            or only the changed keys (events=changed).
+//            redeliver=1: after each card-initiated tool call, the ORIGINAL result is delivered again
+//            (ui tool-result + set_globals), once after 300 ms and again after 1500 ms.
+//            reload=1: the card frame is reloaded 500 ms after its first card-initiated tool call.
+//   hostile  link requests and tool calls never answered
 const profile = q.get("host") || "full";
+const events = q.get("events") || "snapshot";
+const redeliver = q.get("redeliver") === "1";
+let reloadPending = q.get("reload") === "1";
 if (profile !== "full") iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
 const caps = profile === "full" ? { openLinks: {}, serverTools: {}, updateModelContext: { text: {} }, message: { text: {} } }
   : profile === "chatgpt" ? { serverTools: {}, updateModelContext: { text: {} }, message: { text: {} } }
   : { updateModelContext: { text: {} } };
-const bridge = new AppBridge(null, { name: "preview-host", version: "1.0.0" }, caps,
-  { hostContext: { theme: q.get("theme") || "light", locale: q.get("locale") || "en-US", platform: q.get("platform") || "web" } });
-bridge.oncalltool = async (params) => {
-  window.__calls.push(params.name);
-  if (profile === "hostile") return new Promise(() => {});
-  return (await fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) })).json();
-};
-if (profile === "full") bridge.onopenlink = async ({ url }) => { window.__opened.push(url); return {}; };
-if (profile === "hostile") bridge.onopenlink = () => new Promise(() => {});
-// Like real hosts, grow the frame to the height the app reports (capped so runaway layouts show up).
 const maxH = Number(q.get("maxh") || 3000);
-const globalsChanged = (globals) => { try { iframe.contentWindow.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals } })); } catch (e) {} };
-bridge.onsizechange = ({ height }) => {
-  if (height) iframe.style.height = Math.min(Math.ceil(height) + 2, maxH) + "px";
-  if (profile === "chatgpt") globalsChanged({ maxHeight: maxH });
+const reorder = (v) => Array.isArray(v) ? v.map(reorder) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).reverse().map((k) => [k, reorder(v[k])])) : v;
+let init = null;
+const snapshot = (changed) => events === "changed" ? changed
+  : { toolInput: init && init.args, toolOutput: init && reorder(init.result.structuredContent), widgetState: window.__widgetState, maxHeight: maxH, theme: q.get("theme") || "light", locale: q.get("locale") || "en-US", ...changed };
+const globalsChanged = (changed) => {
+  if (profile !== "chatgpt") return;
+  try {
+    const g = snapshot(changed);
+    const o = iframe.contentWindow.openai;
+    if (o) for (const k of Object.keys(g)) o[k] = g[k];
+    iframe.contentWindow.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals: g } }));
+  } catch (e) {}
 };
-bridge.onmessage = async (p) => { window.__messages.push(p); return {}; };
-bridge.onupdatemodelcontext = async (p) => { window.__context.push(p); return {}; };
-bridge.oninitialized = async () => {
-  const init = await (await fetch("/initial")).json();
-  if (profile === "full") bridge.sendToolInput({ arguments: init.args });
-  bridge.sendToolResult(init.result);
-  if (profile === "chatgpt" && iframe.contentWindow.openai) {
-    iframe.contentWindow.openai.toolInput = init.args;
-    iframe.contentWindow.openai.toolOutput = init.result.structuredContent;
+window.__globalsChanged = globalsChanged;
+let bridge = null;
+async function mount() {
+  window.__mounts++;
+  if (bridge) { try { await bridge.close(); } catch (e) {} }
+  const br = new AppBridge(null, { name: "preview-host", version: "1.0.0" }, caps,
+    { hostContext: { theme: q.get("theme") || "light", locale: q.get("locale") || "en-US", platform: q.get("platform") || "web" } });
+  bridge = br;
+  br.oncalltool = async (params) => {
+    window.__calls.push(params.name);
+    if (profile === "hostile") return new Promise(() => {});
+    const r = await (await fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(params) })).json();
+    if (profile === "chatgpt" && redeliver) for (const ms of [300, 1500]) setTimeout(() => { try { br.sendToolResult(init.result); } catch (e) {} globalsChanged({}); }, ms);
+    if (profile === "chatgpt" && reloadPending) { reloadPending = false; setTimeout(() => mount(), 500); }
+    return r;
+  };
+  if (profile === "full") br.onopenlink = async ({ url }) => { window.__opened.push(url); return {}; };
+  if (profile === "hostile") br.onopenlink = () => new Promise(() => {});
+  // Like real hosts, grow the frame to the height the app reports (capped so runaway layouts show up).
+  br.onsizechange = ({ height }) => {
+    if (height) iframe.style.height = Math.min(Math.ceil(height) + 2, maxH) + "px";
+    globalsChanged({ maxHeight: maxH });
+  };
+  br.onmessage = async (p) => { window.__messages.push(p); return {}; };
+  br.onupdatemodelcontext = async (p) => { window.__context.push(p); return {}; };
+  br.oninitialized = async () => {
+    init = init || (await (await fetch("/initial")).json());
+    if (profile === "full") br.sendToolInput({ arguments: init.args });
+    br.sendToolResult(init.result);
     globalsChanged({ toolInput: init.args, toolOutput: init.result.structuredContent });
-  }
-};
-await bridge.connect(new PostMessageTransport(iframe.contentWindow, iframe.contentWindow));
-iframe.src = profile === "chatgpt" ? "/widget?shim=openai" : "/widget";
+  };
+  await br.connect(new PostMessageTransport(iframe.contentWindow, iframe.contentWindow));
+  iframe.src = (profile === "chatgpt" ? "/widget?shim=openai&m=" : "/widget?m=") + window.__mounts;
+}
+await mount();
 `;
 
-// Simulated subset of ChatGPT's window.openai (records what the card asks for).
+// Simulated subset of ChatGPT's window.openai (records what the card asks for). Widget state survives a
+// frame reload (kept by the host page), like ChatGPT's per-widget state.
 const OPENAI_SHIM = `<script>window.openai = {
-  // Like ChatGPT: changing any global (widget state, height, theme...) fires "openai:set_globals" with only the changed keys.
-  widgetState: null, toolOutput: null, toolInput: null,
-  setWidgetState(s) { this.widgetState = s; window.dispatchEvent(new CustomEvent("openai:set_globals", { detail: { globals: { widgetState: s } } })); },
+  widgetState: parent.__widgetState, toolOutput: null, toolInput: null,
+  setWidgetState(s) { this.widgetState = s; parent.__widgetState = s; parent.__globalsChanged({ widgetState: s }); },
   openExternal(o) { parent.__opened.push(o.href); },
   sendFollowUpMessage(o) { parent.__messages.push({ prompt: o.prompt }); },
   callTool(name, args) { parent.__calls.push("openai:" + name); return fetch("/call-tool", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, arguments: args }) }).then((r) => r.json()); },
@@ -98,6 +126,7 @@ async function main() {
   let initial: { args: Record<string, unknown>; result: unknown } = { args: {}, result: {} };
   // Simulated failures for the card's next update_shortlist call: a tool error, or a store rejection.
   let failNextSave: null | "error" | "rejected" = null;
+  let failNextTool: string | null = null; // the next card call of this tool returns a tool error
   const setInitial = async (name: string, args: Record<string, unknown>) => {
     initial = { args, result: await client.callTool({ name, arguments: args }) };
   };
@@ -119,7 +148,10 @@ async function main() {
       for await (const chunk of req) body += chunk;
       const p = JSON.parse(body) as { name: string; arguments?: Record<string, unknown> };
       let r: unknown;
-      if (p.name === "update_shortlist" && failNextSave === "error") {
+      if (failNextTool && p.name === failNextTool) {
+        failNextTool = null;
+        r = { isError: true, content: [{ type: "text", text: "simulated failure" }] };
+      } else if (p.name === "update_shortlist" && failNextSave === "error") {
         r = { isError: true, content: [{ type: "text", text: "simulated failure" }] };
       } else if (p.name === "update_shortlist" && failNextSave === "rejected") {
         const slug = ((p.arguments?.add as Array<{ slug: string }> | undefined) ?? [])[0]?.slug ?? "x";
@@ -399,6 +431,115 @@ async function main() {
       await f.getByRole("button", { name: "Yes, delete" }).click();
       await f.locator(".sv-empty", { hasText: "Shortlist deleted." }).waitFor({ timeout: 15000 });
       await page.close();
+    }
+
+    // ---------- J: every server-driven navigation must show its view AND keep it (simulated host events) ----------
+    console.log("J. Server-driven buttons under host re-deliveries (full snapshots with reordered original output, duplicates, delays) and a card reload");
+    {
+      const settle = () => new Promise((r) => setTimeout(r, 3000)); // longer than the host's 300 ms / 1500 ms re-deliveries
+      const stays = async (f: FrameLocator, sel: string, label: string, mode: string) => {
+        const target = f.locator(sel).first();
+        const appeared = await target.waitFor({ timeout: 20000 }).then(() => true).catch(() => false);
+        await settle();
+        const still = (await f.locator(sel).count()) > 0;
+        const loading = await f.locator("#root.sv-loading").count();
+        const err = await f.locator(".sv-notice.error").count();
+        check(appeared && still && loading === 0 && err === 0, `J[${mode}] ${label}: view appeared=${appeared}, still shown after 3 s=${still}, loading cleared=${loading === 0}, no error=${err === 0}`);
+        return appeared && still;
+      };
+      const sr = (await client.callTool({ name: "search_properties", arguments: { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 } })) as { structuredContent: { items: Array<{ slug: string }> } };
+      for (const mode of ["events=snapshot&redeliver=1", "events=changed&redeliver=1"]) {
+        await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+        const { page, f } = await open(`host=chatgpt&${mode}&theme=light&locale=en-US&w=900&h=640&maxh=640`, 960, 800);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        await settle(); // initial deliveries settle; the original result must not be drawn twice into a mess
+        // A failing navigation shows an actionable error and leaves the customer where they were.
+        failNextTool = "get_property_details";
+        await f.getByRole("button", { name: /^Details:/ }).first().click();
+        await f.locator(".sv-notice.error").waitFor({ timeout: 15000 }).catch(() => {});
+        await settle();
+        check((await f.locator(".sv-notice.error").getByRole("button", { name: "Try again" }).count()) === 1 && (await f.locator(".sv-row .sv-card").count()) > 0 && (await f.locator("#root.sv-loading").count()) === 0, `J[${mode}] Details fails → error with Try again, results kept, loading cleared`);
+        await f.getByRole("button", { name: /^Details:/ }).first().click();
+        if (await stays(f, ".sv-detail", "Details → property details", mode)) {
+          await f.getByRole("button", { name: "Contact Savoir" }).click();
+          if (await stays(f, "textarea.sv-msg", "Contact Savoir → message", mode)) {
+            await f.getByRole("button", { name: "← Back" }).click();
+            await stays(f, ".sv-detail", "Back → details", mode);
+            await f.getByRole("button", { name: "← Back" }).click();
+            await stays(f, ".sv-row .sv-card", "Back → results", mode);
+          }
+        }
+        const boxes = f.locator('.sv-row .sv-card input[type="checkbox"]');
+        await boxes.nth(0).check();
+        await boxes.nth(1).check();
+        await f.getByRole("button", { name: "Compare (2)" }).click();
+        if (await stays(f, "table.sv-cmp", "Compare (2) → comparison", mode)) {
+          await f.getByRole("button", { name: "Message about these" }).click();
+          await stays(f, "textarea.sv-msg", "Message about these → message", mode);
+          await f.getByRole("button", { name: "← Back" }).click();
+          await f.getByRole("button", { name: "← Back" }).click();
+        }
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 10000 });
+        await f.locator(".sv-row .sv-heart").first().click();
+        await f.locator(".sv-notice.ok", { hasText: "Saved to your shortlist." }).waitFor({ timeout: 15000 });
+        await settle();
+        check((await f.locator('.sv-row .sv-heart[aria-pressed="true"]').count()) === 1 && (await f.getByRole("button", { name: "My shortlist (1)" }).count()) > 0, `J[${mode}] heart save: filled heart and count kept after host updates`);
+        // Quick actions right after a navigation must not be undone (no delayed re-render of the old view).
+        await f.locator(".sv-row .sv-heart").nth(1).click();
+        await f.getByRole("button", { name: "My shortlist (2)" }).first().waitFor({ timeout: 15000 });
+        await f.getByRole("button", { name: "My shortlist (2)" }).first().click();
+        await f.locator(".sv-li").nth(1).waitFor({ timeout: 15000 });
+        await f.getByRole("button", { name: /^Remove:/ }).first().click(); // immediately, no settle
+        await f.locator(".sv-notice.ok", { hasText: "Removed from your shortlist." }).waitFor({ timeout: 15000 });
+        await settle();
+        check((await f.locator(".sv-li").count()) === 1, `J[${mode}] quick Remove right after opening the shortlist stays removed after 3 s`);
+        await f.getByRole("button", { name: "← Back" }).click();
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 10000 });
+        await f.getByRole("button", { name: "My shortlist (1)" }).first().click();
+        if (await stays(f, ".sv-li", "My shortlist → shortlist", mode)) {
+          await f.getByRole("button", { name: "Create share link" }).click();
+          await stays(f, "#sv-share-url", "Create share link → link shown", mode);
+          await f.getByRole("button", { name: "Delete shortlist" }).click();
+          await f.getByRole("button", { name: "Yes, delete" }).click();
+          await stays(f, ".sv-empty:has-text('Shortlist deleted.')", "Delete → deleted", mode);
+        }
+        await page.close();
+      }
+      // The reported case: comparison card from the assistant, then "Message about these".
+      {
+        const items = sr.structuredContent.items.slice(0, 2).map((i) => ({ kind: "property", slug: i.slug }));
+        await setInitial("compare_listings", { items, requirements: { purpose: "buy", areas: ["Dubai Marina"] } });
+        const { page, f } = await open("host=chatgpt&events=snapshot&redeliver=1&theme=light&locale=en-US&w=900&h=600&maxh=600", 960, 760);
+        await f.locator("table.sv-cmp").waitFor({ timeout: 20000 });
+        await settle();
+        await f.getByRole("button", { name: "Message about these" }).click();
+        await stays(f, "textarea.sv-msg", "comparison card from the assistant → Message about these", "events=snapshot&redeliver=1");
+        await page.close();
+      }
+      // Card reload after a card-initiated tool call: the requested view must come back.
+      {
+        await setInitial("search_properties", { areas: ["Dubai Marina"], purpose: "buy", page_size: 3 });
+        const { page, f } = await open("host=chatgpt&events=snapshot&reload=1&theme=light&locale=en-US&w=900&h=640&maxh=640", 960, 800);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        await settle();
+        await f.getByRole("button", { name: /^Details:/ }).first().click();
+        await new Promise((r) => setTimeout(r, 1500)); // the host reloads the frame 500 ms after the call
+        check((await g<number>(page, "window.__mounts")) === 2, "J[reload] host reloaded the card frame");
+        await stays(f, ".sv-detail", "Details, then card reload → details restored", "reload");
+        await page.close();
+      }
+      // Off-plan calculator under re-deliveries
+      {
+        const opq = (await client.callTool({ name: "search_offplan_projects", arguments: { max_starting_price_aed: 1_500_000, page_size: 1 } })) as { structuredContent: { items: Array<{ slug: string }> } };
+        await setInitial("get_offplan_project_details", { slug: opq.structuredContent.items[0]!.slug });
+        const { page, f } = await open("host=chatgpt&events=snapshot&redeliver=1&theme=light&locale=en-US&w=900&h=700&maxh=700", 960, 800);
+        await f.locator(".sv-plan").waitFor({ timeout: 20000 });
+        await settle();
+        await f.getByRole("spinbutton", { name: "Unit price (AED)" }).fill("2000000");
+        await f.getByRole("button", { name: "Calculate" }).click();
+        await stays(f, "table.sv-sched", "Calculate → payment schedule", "events=snapshot&redeliver=1");
+        await page.close();
+      }
     }
 
     // ---------- I: navigation must survive host global updates (reported in ChatGPT, 7 Oct 2026) ----------
