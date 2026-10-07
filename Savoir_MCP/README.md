@@ -124,6 +124,7 @@ All configuration comes from environment variables. See [.env.example](.env.exam
 | `MAP_TILE_URL` | — | Turns on the property map (https XYZ tile template). Off by default: production needs a paid tile provider, see [docs/MAP.md](docs/MAP.md). |
 | `MAP_TILE_ATTRIBUTION` | `© OpenStreetMap contributors` | Attribution shown on the map. |
 | `MAP_TILE_SUBDOMAINS`, `MAP_MAX_ZOOM` | —, `18` | Only for `{s}` templates / zoom limit. |
+| `MAP_ENGINE`, `MAP_STYLE_URL`, `MAP_STYLE_URL_DARK`, `MAP_CONNECT_DOMAINS` | `leaflet` | Prototype only: `MAP_ENGINE=maplibre` draws an OpenFreeMap vector style with MapLibre GL instead of raster tiles. Not tested in ChatGPT yet; see [docs/MAP.md](docs/MAP.md) section 4b. |
 | `LOG_LEVEL` | `info` | Logs are JSON lines. |
 
 ## How the CMS actually behaves (verified October 2026)

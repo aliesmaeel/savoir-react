@@ -57,7 +57,7 @@ Area centres come from **OpenStreetMap contributors (ODbL)**, geocoded once thro
 | Mapbox: map loads (GL JS) | | 50,000 loads a month | $5.00 per 1,000 | **Not used.** That's Mapbox's own map library, not tiles |
 | **Stadia Maps** (Alidade Smooth) | **No** on Free | Free: 200,000 credits (non-commercial) | Starter **$20/month**: 1,000,000 credits, 1 credit per tile; then 3¢ per 1,000 | Needs an **API key**. Website-based authentication won't work from ChatGPT's sandbox origin |
 | **MapTiler Cloud** | **No** on Free | Free: non-commercial only | Flex **$30/month**: 500,000 requests, then $0.15 per 1,000 | Yes: raster plus a key |
-| OpenFreeMap | Yes, free, no key | Unlimited | Free | **Vector tiles only.** Needs MapLibre GL (a heavy library), fetch access, web workers and WebGL inside ChatGPT's sandbox. Higher risk and untested |
+| OpenFreeMap | Yes, free, no key | Unlimited (no SLA) | Free | **Vector tiles only.** Needs MapLibre GL, fetch access, a blob worker and WebGL inside ChatGPT's sandbox. Prototype passes in simulation; **untested in ChatGPT** (see 4b) |
 | OpenStreetMap tile servers | **No** (usage policy) | | | Testing only |
 
 **Rough monthly tile volume:** about 20–60 tiles per map opened (a first view plus some panning). 2,000,000 tiles is roughly 33,000–100,000 map opens a month.
@@ -69,6 +69,37 @@ Area centres come from **OpenStreetMap contributors (ODbL)**, geocoded once thro
 - check the attribution text.
 
 Pay-as-you-go plans **bill automatically above the free tier**, so a spending limit matters.
+
+## 4b. Free option under evaluation: MapLibre GL JS + OpenFreeMap (prototype)
+
+**Status:** prototype behind `MAP_ENGINE=maplibre`. Leaflet stays the default. **Not deployed, and not tested in ChatGPT.**
+
+- **Why MapLibre directly, not mapcn:** mapcn is a set of React, Tailwind and shadcn components on top of MapLibre. The card is plain JavaScript, so it uses MapLibre GL JS 6.13 (BSD-3-Clause) directly through a small engine adapter. Area groups, selection, preview, counts and the list fallback are shared code for both engines.
+- **OpenFreeMap terms:** free, commercial use allowed, no key, no registration, no usage limit. There's **no SLA**: it's a donation-funded public service.
+  - Required attribution: "OpenFreeMap © OpenMapTiles Data from OpenStreetMap". It comes from the style and is always visible.
+  - Self-hosting the same tiles is possible later if reliability matters.
+- **Styles:**
+  - light: `positron`, with road shields, path and minor-road names, POI and airport labels hidden, and names in English or Arabic;
+  - dark: `dark`.
+- **Card size:** about 2.1 MB, against about 0.67 MB with Leaflet. MapLibre (1.1 MB) and its worker (0.5 MB) are inlined, so no external scripts load.
+- **Security policy it needs:**
+  - `connectDomains: https://tiles.openfreemap.org` for the style, vector tiles, fonts and sprites. This is added automatically from `MAP_STYLE_URL`.
+  - **WebGL.**
+  - A **web worker started from a `blob:` URL**. The MCP Apps spec doesn't define a worker policy, so whether ChatGPT allows it is **unknown until tested there**.
+- **Fallbacks:** if WebGL is missing, the worker is blocked, the style can't be fetched, or loading takes over 9 s, the card shows "map couldn't load" and the accessible area list. All four cases are tested in the simulation.
+
+**Simulated host results (local Chrome, 7 Oct 2026):** 206 of 206 checks pass through both card addresses. Leaflet still passes its 204.
+
+| Check | Desktop 1280 px | Phone 390 px (touch emulated) |
+|---|---|---|
+| Map loads (markers / style ready / first idle) | about 0.1 s / 1.9–2.7 s / 2.1–3.1 s | first idle 1.9–2.6 s |
+| First-view traffic from OpenFreeMap | 22 requests, about 470–565 KiB (6 tiles, 12 font ranges, 2 sprites, style) | 17 requests, about 390–560 KiB |
+
+These timings come from a fast local connection. A mobile network in ChatGPT will be slower.
+
+**Still to verify in ChatGPT (not done):** WebGL, blob workers, `connect-src` to OpenFreeMap, load time on a real phone, and the fallback if any of these are blocked.
+
+**Run locally:** `MAP_ENGINE=maplibre MAP_STYLE_URL=https://tiles.openfreemap.org/styles/positron MAP_STYLE_URL_DARK=https://tiles.openfreemap.org/styles/dark`. Optional: `MAP_CONNECT_DOMAINS` (extra fetch origins) and `MAP_MAX_ZOOM` (default 16).
 
 ## 5. Configuration
 

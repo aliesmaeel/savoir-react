@@ -54,8 +54,15 @@ export interface AppConfig {
 }
 
 export interface MapTilesConfig {
-  /** XYZ template, e.g. https://tile.openstreetmap.org/{z}/{x}/{y}.png or a provider URL with its public key. */
+  /** "leaflet": raster XYZ tiles (default). "maplibre": vector style rendered with MapLibre GL (prototype). */
+  engine: "leaflet" | "maplibre";
+  /** Leaflet: XYZ template, e.g. https://tile.openstreetmap.org/{z}/{x}/{y}.png or a provider URL with its public key. */
   url: string;
+  /** MapLibre: style JSON URLs (light, and optionally dark). */
+  style: string | null;
+  styleDark: string | null;
+  /** MapLibre fetches style, vector tiles, fonts and sprites: these origins go to the CSP connectDomains. */
+  connectOrigins: string[];
   /** Required attribution text (provider and data licence). */
   attribution: string;
   /** Subdomains substituted for {s}, if the template uses it. */
@@ -66,6 +73,24 @@ export interface MapTilesConfig {
 }
 
 function mapTiles(env: Record<string, string | undefined>): MapTilesConfig | null {
+  if (env.MAP_ENGINE?.trim() === "maplibre") {
+    const style = env.MAP_STYLE_URL?.trim();
+    if (!style) throw new Error("MAP_STYLE_URL is required when MAP_ENGINE=maplibre");
+    const styleOrigin = httpsOrigin(style, "MAP_STYLE_URL", false);
+    const styleDark = env.MAP_STYLE_URL_DARK?.trim() || null;
+    const connect = [styleOrigin, ...(styleDark ? [httpsOrigin(styleDark, "MAP_STYLE_URL_DARK", false)] : []), ...list(env.MAP_CONNECT_DOMAINS).map((d) => httpsOrigin(d, "MAP_CONNECT_DOMAINS", false))];
+    return {
+      engine: "maplibre",
+      url: "",
+      style,
+      styleDark,
+      connectOrigins: [...new Set(connect)],
+      attribution: env.MAP_TILE_ATTRIBUTION?.trim() || "OpenFreeMap © OpenMapTiles Data from OpenStreetMap",
+      subdomains: [],
+      maxZoom: int(env.MAP_MAX_ZOOM, 16, 10, 20, "MAP_MAX_ZOOM"),
+      origins: [],
+    };
+  }
   const url = env.MAP_TILE_URL?.trim();
   if (!url) return null;
   if (!/\{z\}/.test(url) || !/\{x\}/.test(url) || !/\{y\}/.test(url)) throw new Error("MAP_TILE_URL must contain {z}, {x} and {y}");
@@ -73,7 +98,7 @@ function mapTiles(env: Record<string, string | undefined>): MapTilesConfig | nul
   const hosts = url.includes("{s}") ? subdomains.map((s) => url.replace("{s}", s)) : [url];
   const origins = [...new Set(hosts.map((u) => httpsOrigin(u.replace(/\{[a-z]+\}/g, "0"), "MAP_TILE_URL", false)))];
   const attribution = env.MAP_TILE_ATTRIBUTION?.trim() || "© OpenStreetMap contributors";
-  return { url, attribution, subdomains, maxZoom: int(env.MAP_MAX_ZOOM, 18, 10, 20, "MAP_MAX_ZOOM"), origins };
+  return { engine: "leaflet", url, style: null, styleDark: null, connectOrigins: [], attribution, subdomains, maxZoom: int(env.MAP_MAX_ZOOM, 18, 10, 20, "MAP_MAX_ZOOM"), origins };
 }
 
 export const DEFAULT_IMAGE_HOSTS = [

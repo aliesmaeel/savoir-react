@@ -79,7 +79,19 @@ describe("map configuration", () => {
     expect(config.mapTiles).toMatchObject({ origins: ["https://a.tiles.example.com", "https://b.tiles.example.com"], attribution: "© OpenStreetMap contributors" });
     const html = buildWidgetHtml("/*bundle*/", { map: config.mapTiles });
     expect(html).toContain("leafletjs.com");
-    expect(html).toContain('"map":{"url":"https://{s}.tiles.example.com/{z}/{x}/{y}.png?key=public"');
+    expect(html).toContain('"map":{"engine":"leaflet","url":"https://{s}.tiles.example.com/{z}/{x}/{y}.png?key=public"');
+  });
+
+  it("MapLibre prototype: style origins go to connectDomains, MapLibre and its worker are inlined, Leaflet is not", () => {
+    const config = loadConfig({ CMS_BASE_URL: "https://cms.test", MAP_ENGINE: "maplibre", MAP_STYLE_URL: "https://tiles.openfreemap.org/styles/positron", MAP_STYLE_URL_DARK: "https://tiles.openfreemap.org/styles/dark" });
+    expect(config.mapTiles).toMatchObject({ engine: "maplibre", connectOrigins: ["https://tiles.openfreemap.org"], origins: [], attribution: "OpenFreeMap © OpenMapTiles Data from OpenStreetMap" });
+    const html = buildWidgetHtml("/*bundle*/", { map: config.mapTiles });
+    expect(html).toContain("globalThis.maplibregl=");
+    expect(html).toContain('id="sv-ml-worker"');
+    expect(html).not.toContain("leafletjs.com");
+    expect(html).not.toMatch(/sourceMappingURL=maplibre/);
+    expect(() => loadConfig({ CMS_BASE_URL: "https://cms.test", MAP_ENGINE: "maplibre" })).toThrow(/MAP_STYLE_URL/);
+    expect(() => loadConfig({ CMS_BASE_URL: "https://cms.test", MAP_ENGINE: "maplibre", MAP_STYLE_URL: "http://tiles.example.com/style.json" })).toThrow(/https/);
   });
 
   it("rejects tile templates that are not https XYZ templates", () => {

@@ -227,6 +227,13 @@ table.sv-cmp{border-collapse:separate;border-spacing:0;width:100%;table-layout:f
 .sv-areamk.sel{background:#1f1e1d;color:#fff;border-color:#a8834a;box-shadow:0 0 0 2px #a8834a,0 3px 10px rgba(0,0,0,.25)}
 .sv-areamk.sel .ct,.sv-areamk.sel .pr{color:#f2e7d3}
 .leaflet-marker-icon:focus-visible .sv-areamk,.leaflet-marker-icon:focus .sv-areamk{outline:2px solid #a8834a;outline-offset:2px}
+/* MapLibre prototype: its markers are already centred on the point, and keyboard focus sits on the wrapper. */
+.sv-mk-ml{cursor:pointer}
+.sv-mk-ml .sv-areamk{transform:none}
+.sv-mk-ml:focus{outline:none}
+.sv-mk-ml:focus-visible .sv-areamk{outline:2px solid #a8834a;outline-offset:2px}
+.sv-map .maplibregl-ctrl-attrib{font-size:11px;background:rgba(255,255,255,.88);color:#2b2a28}
+.sv-map .maplibregl-ctrl-attrib a{color:inherit}
 .leaflet-container{font-family:var(--sv-sans)}
 .leaflet-control-attribution{font-size:10.5px;background:rgba(255,255,255,.85)!important}
 /* map frame with the "approximate" chip and the docked preview */

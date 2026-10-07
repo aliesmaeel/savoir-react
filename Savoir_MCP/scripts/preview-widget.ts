@@ -98,7 +98,7 @@ async function mount() {
     globalsChanged({ toolInput: init.args, toolOutput: init.result.structuredContent });
   };
   await br.connect(new PostMessageTransport(iframe.contentWindow, iframe.contentWindow));
-  iframe.src = (profile === "chatgpt" ? "/widget?shim=openai&m=" : "/widget?m=") + window.__mounts + (q.get("blocktiles") === "1" ? "&blocktiles=1" : "");
+  iframe.src = (profile === "chatgpt" ? "/widget?shim=openai&m=" : "/widget?m=") + window.__mounts + (q.get("blocktiles") === "1" ? "&blocktiles=1" : "") + (q.get("noworkers") === "1" ? "&noworkers=1" : "");
 }
 await mount();
 `;
@@ -129,8 +129,11 @@ async function main() {
   await client.connect(new StreamableHTTPClientTransport(new URL(MCP_URL)));
   // PREVIEW_WIDGET_URI lets the run simulate a host that cached an older tool list (e.g. listings-v1).
   const res = await client.readResource({ uri: process.env.PREVIEW_WIDGET_URI ?? "ui://savoir/listings-v2.html" });
-  const widget = res.contents[0] as { text?: string; mimeType?: string; _meta?: { ui?: { csp?: { resourceDomains?: string[] } } } };
+  const widget = res.contents[0] as { text?: string; mimeType?: string; _meta?: { ui?: { csp?: { resourceDomains?: string[]; connectDomains?: string[] } } } };
   const declared = widget._meta?.ui?.csp?.resourceDomains ?? [];
+  const declaredConnect = widget._meta?.ui?.csp?.connectDomains ?? [];
+  // MapLibre prototype: vector map drawn with WebGL, data fetched over connect-src, workers from blob: URLs.
+  const MAPLIBRE = (widget.text ?? "").includes('id="sv-ml-worker"');
   if (!widget?.text) throw new Error("widget resource empty");
   console.log(`widget resource: ${widget.mimeType}, ${(widget.text.length / 1024).toFixed(0)} KiB`);
 
@@ -144,11 +147,14 @@ async function main() {
   const hostJs = (await build({ stdin: { contents: HOST_SCRIPT, resolveDir: process.cwd(), loader: "js" }, bundle: true, format: "esm", write: false, platform: "browser" })).outputFiles[0]!.text;
   // img-src = what the card declares (photos, logo, map tiles). blocktiles=1 drops the tile hosts to test the fallback.
   const imgHosts = (blockTiles: boolean) => (declared.length ? declared : [...DEFAULT_IMAGE_HOSTS.map((h) => `https://${h}`), "https://savoirproperties.com"]).filter((d) => !blockTiles || !/tile/i.test(d));
-  const cspFor = (blockTiles: boolean) => ["default-src 'none'", "script-src 'unsafe-inline'", "style-src 'unsafe-inline'", `img-src data: ${imgHosts(blockTiles).join(" ")}`, "connect-src 'none'"].join("; ");
+  // connect-src = the declared connectDomains (MapLibre only). The MCP Apps spec does not cover workers, so the
+  // simulation allows blob: workers by default; noworkers=1 blocks them to test the fallback.
+  const cspFor = (blockTiles: boolean, noWorkers: boolean) =>
+    ["default-src 'none'", "script-src 'unsafe-inline'", "style-src 'unsafe-inline'", `img-src data: blob: ${imgHosts(blockTiles).join(" ")}`, `connect-src ${!blockTiles && declaredConnect.length ? declaredConnect.join(" ") : "'none'"}`, ...(MAPLIBRE && !noWorkers ? ["worker-src blob:"] : [])].join("; ");
 
   const server = createServer(async (req, res) => {
     if (req.url?.startsWith("/widget")) {
-      res.writeHead(200, { "Content-Type": "text/html", "Content-Security-Policy": cspFor(req.url.includes("blocktiles=1")) });
+      res.writeHead(200, { "Content-Type": "text/html", "Content-Security-Policy": cspFor(req.url.includes("blocktiles=1"), req.url.includes("noworkers=1")) });
       res.end(req.url.includes("shim=openai") ? (widget.text ?? "").replace("<head>", "<head>" + OPENAI_SHIM) : widget.text);
     } else if (req.url === "/host.js") {
       res.writeHead(200, { "Content-Type": "text/javascript" });
@@ -189,7 +195,7 @@ async function main() {
     page.on("pageerror", (e) => errors.push(e.message));
     // Chrome logs a console error when a sandboxed frame's popup is blocked; the "hostile" profile provokes
     // that on purpose and checks the visible fallback instead.
-    page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && !(q.includes("host=hostile") && /Blocked opening .* sandboxed frame/.test(m.text())) && !(q.includes("blocktiles=1") && /violates the following Content Security Policy directive: "img-src/.test(m.text())) && errors.push(m.text()));
+    page.on("console", (m) => m.type() === "error" && !/Failed to load resource/.test(m.text()) && !(q.includes("host=hostile") && /Blocked opening .* sandboxed frame/.test(m.text())) && !(q.includes("blocktiles=1") && /violates the following Content Security Policy directive: "(img|connect)-src/.test(m.text())) && !(q.includes("blocktiles=1") && /Failed to fetch|AJAXError|NetworkError|Fetch API cannot load|Refused to connect/.test(m.text())) && !(q.includes("noworkers=1") && /Content Security Policy|Worker/i.test(m.text())) && errors.push(m.text()));
     await page.goto(`http://127.0.0.1:${port}/?${q}`);
     return { page, f: page.frameLocator("iframe") };
   };
@@ -814,7 +820,29 @@ async function main() {
     console.log("K. Map: area groups, selection, preview, attribution, counts, no search on move, phone full screen, fallback, Arabic");
     {
       const mapCalls = (page: Page) => g<string[]>(page, "window.__calls.slice()");
-      const settleTiles = async (f: FrameLocator) => { await f.locator(".sv-map img.leaflet-tile").first().waitFor({ timeout: 15000 }).catch(() => {}); await new Promise((r) => setTimeout(r, 2500)); };
+      const settleTiles = async (f: FrameLocator) => {
+        if (MAPLIBRE) await f.locator(".sv-map[data-map-ready]").waitFor({ timeout: 15000 }).catch(() => {});
+        else await f.locator(".sv-map img.leaflet-tile").first().waitFor({ timeout: 15000 }).catch(() => {});
+        await new Promise((r) => setTimeout(r, 2500));
+      };
+      const ATTRIB = MAPLIBRE ? ".maplibregl-ctrl-attrib" : ".leaflet-control-attribution";
+      const ZOOM_IN = MAPLIBRE ? ".maplibregl-ctrl-zoom-in" : ".leaflet-control-zoom-in";
+      const ZOOM_OUT = MAPLIBRE ? ".maplibregl-ctrl-zoom-out" : ".leaflet-control-zoom-out";
+      const ZOOM = MAPLIBRE ? ".maplibregl-ctrl-group" : ".leaflet-control-zoom";
+      // Map network traffic (main frame and workers), measured by the browser, per page.
+      const traffic = (page: Page) => {
+        const t = { requests: 0, bytes: 0, failed: 0, kinds: {} as Record<string, number> };
+        page.on("requestfinished", async (req) => {
+          if (!/openfreemap|tile/i.test(new URL(req.url()).host)) return;
+          t.requests++;
+          const k = /fonts?\//.test(req.url()) ? "fonts" : /\.pbf/.test(req.url()) ? "tiles" : /sprite/.test(req.url()) ? "sprites" : /styles\//.test(req.url()) ? "style" : /\.png|\.jpg|\.webp/.test(req.url()) ? "raster" : "other";
+          t.kinds[k] = (t.kinds[k] ?? 0) + 1;
+          try { t.bytes += (await req.sizes()).responseBodySize; } catch (e) {}
+        });
+        page.on("requestfailed", (req) => { if (/openfreemap|tile/i.test(new URL(req.url()).host)) t.failed++; });
+        return t;
+      };
+      const fmtTraffic = (t: ReturnType<typeof traffic>) => `${t.requests} requests, ${(t.bytes / 1024).toFixed(0)} KiB (${Object.entries(t.kinds).map(([k, v]) => k + " " + v).join(", ")})${t.failed ? ", " + t.failed + " failed" : ""}`;
       // Tap a single area with several homes, zooming into merged "N areas" markers first (as a person would).
       const openMultiHomeArea = async (f: FrameLocator) => {
         for (let i = 0; i < 4; i++) {
@@ -830,7 +858,7 @@ async function main() {
         return false;
       };
       const noOverlap = async (f: FrameLocator) => {
-        const att = await f.locator(".leaflet-control-attribution").boundingBox();
+        const att = await f.locator(MAPLIBRE ? ".maplibregl-ctrl-attrib" : ".leaflet-control-attribution").boundingBox();
         const pv = (await f.locator("#sv-mapsel").isVisible()) ? await f.locator("#sv-mapsel").boundingBox() : null;
         return !!att && att.height > 0 && (!pv || pv.y + pv.height <= att.y + 1 || pv.x + pv.width <= att.x + 1 || att.x + att.width <= pv.x + 1);
       };
@@ -838,12 +866,27 @@ async function main() {
       await setInitial("search_properties", { purpose: "buy", page_size: 12 });
       {
         const { page, f } = await open("host=chatgpt&events=snapshot&redeliver=1&theme=light&locale=en-US&w=1180&h=1000&maxh=1800", 1280, 1100);
+        const net = traffic(page);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        const t0 = Date.now();
         await f.getByRole("button", { name: "Map", exact: true }).click();
         await f.locator(".sv-areamk").first().waitFor({ timeout: 15000 });
+        const tMarkers = Date.now() - t0;
+        if (MAPLIBRE) {
+          const ready = await f.locator(".sv-map[data-map-ready]").waitFor({ timeout: 15000 }).then(() => true, () => false);
+          const tReady = Date.now() - t0;
+          await f.locator(".sv-map[data-map-idle]").waitFor({ timeout: 15000 }).catch(() => {});
+          const tIdle = Date.now() - t0;
+          const gl = await f.locator(".sv-map canvas.maplibregl-canvas").evaluate((c) => { const x = (c as HTMLCanvasElement).getContext("webgl2") || (c as HTMLCanvasElement).getContext("webgl"); return x ? (x instanceof WebGL2RenderingContext ? "WebGL2" : "WebGL1") : "none"; }).catch(() => "none");
+          check(ready && gl !== "none", `K MapLibre: ${gl} canvas, style loaded under the declared CSP (simulated: worker-src blob: allowed)`);
+          console.log(`      timing (local, desktop Chrome): markers ${tMarkers} ms, style ready ${tReady} ms, first idle ${tIdle} ms`);
+          console.log(`      first view traffic: ${fmtTraffic(net)}`);
+        } else {
+          await settleTiles(f);
+          const tilesOk = await f.locator(".sv-map img.leaflet-tile").evaluateAll((els) => els.filter((e) => (e as HTMLImageElement).naturalWidth > 0).length);
+          check(tilesOk > 0, `K basemap tiles load under the declared CSP (${tilesOk})`);
+        }
         await settleTiles(f);
-        const tilesOk = await f.locator(".sv-map img.leaflet-tile").evaluateAll((els) => els.filter((e) => (e as HTMLImageElement).naturalWidth > 0).length);
-        check(tilesOk > 0, `K basemap tiles load under the declared CSP (${tilesOk})`);
         const labels = await f.locator(".sv-areamk").allInnerTexts();
         check(labels.length > 0 && labels.every((x) => /·\s*(\d+ homes|1 home)/.test(x.replace(/\s+/g, " "))), `K one marker per area, e.g. "${(labels[0] ?? "").replace(/\s+/g, " ")}"`);
         check((await f.locator(".sv-pin").count()) === 0, "K no per-listing building pins");
@@ -852,7 +895,8 @@ async function main() {
         check(/Approximate areas · not exact buildings/.test(await f.locator(".sv-mapchip").innerText()), "K 'Approximate areas · not exact buildings' shown on the map");
         const count = await f.locator(".sv-maphead .sv-note").innerText();
         check(/^This page: \d+ of \d+ homes on the map · [\d,]+ results in total$/.test(count), `K count separates this page from all results ("${count}")`);
-        check((await f.locator(".leaflet-control-attribution").isVisible()) && /OpenStreetMap|Stadia/.test(await f.locator(".leaflet-control-attribution").innerText()), "K attribution visible");
+        const attText = (await f.locator(ATTRIB).innerText()).replace(/\s+/g, " ");
+        check((await f.locator(ATTRIB).isVisible()) && /OpenStreetMap/.test(attText) && (!MAPLIBRE || /OpenFreeMap/.test(attText)), `K attribution visible ("${attText.slice(0, 90)}")`);
         // no search on move / zoom
         const before = (await mapCalls(page)).length;
         const m = await f.locator(".sv-map").boundingBox();
@@ -860,8 +904,8 @@ async function main() {
         await page.mouse.down();
         await page.mouse.move(m!.x + m!.width * 0.6 + 80, m!.y + m!.height * 0.6 + 40, { steps: 6 });
         await page.mouse.up();
-        await f.locator(".leaflet-control-zoom-out").click();
-        await f.locator(".leaflet-control-zoom-in").click();
+        await f.locator(ZOOM_OUT).click();
+        await f.locator(ZOOM_IN).click();
         await new Promise((r) => setTimeout(r, 1200));
         check((await mapCalls(page)).length === before, "K moving and zooming the map runs no search");
         // group with several homes
@@ -903,8 +947,14 @@ async function main() {
       // K3 phone, large: full screen, area selected, property preview, back
       {
         const { page, f } = await open("host=chatgpt&theme=light&locale=en-US&w=390&h=844&maxh=844", 390, 844, true);
+        const net = traffic(page);
         await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        const t0 = Date.now();
         await f.getByRole("button", { name: "Map", exact: true }).click();
+        if (MAPLIBRE) {
+          await f.locator(".sv-map[data-map-idle]").waitFor({ timeout: 15000 }).catch(() => {});
+          console.log(`      phone (local, emulated touch): first idle ${Date.now() - t0} ms; traffic ${fmtTraffic(net)}`);
+        }
         await f.locator(".sv-mapwrap.full .sv-areamk").first().waitFor({ timeout: 15000 });
         check((await g<string[]>(page, "window.__display.slice()")).includes("fullscreen"), "K phone: Map asks the host for full screen");
         await settleTiles(f);
@@ -939,6 +989,27 @@ async function main() {
         await shot(page, "K6-map-fallback");
         await page.close();
       }
+      if (MAPLIBRE) {
+        // K6b workers blocked by CSP (no worker-src): the card must still fall back to the area list.
+        const { page, f } = await open("host=chatgpt&noworkers=1&theme=light&locale=en-US&w=900&h=900&maxh=1400", 960, 1000);
+        await f.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        const t0 = Date.now();
+        await f.getByRole("button", { name: "Map", exact: true }).click();
+        const fell = await f.locator(".sv-notice.error", { hasText: "map couldn't load" }).waitFor({ timeout: 15000 }).then(() => true, () => false);
+        check(fell && (await f.locator(".sv-area-group li button").count()) > 0, `K MapLibre workers blocked → message and the area list (after ${Date.now() - t0} ms)`);
+        await page.close();
+        // K6c WebGL unavailable → area list
+        const p2 = await browser.newPage({ viewport: { width: 960, height: 1000 } });
+        p2.on("pageerror", (e) => errors.push(e.message));
+        await p2.addInitScript(() => { const orig = HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...a: unknown[]) { return /webgl/.test(type) ? null : (orig as (...x: unknown[]) => unknown).call(this, type, ...a); } as typeof orig; });
+        await p2.goto(`http://127.0.0.1:${port}/?host=chatgpt&theme=light&locale=en-US&w=900&h=900&maxh=1400`);
+        const f2 = p2.frameLocator("iframe");
+        await f2.locator(".sv-row .sv-card").first().waitFor({ timeout: 20000 });
+        await f2.getByRole("button", { name: "Map", exact: true }).click();
+        const fell2 = await f2.locator(".sv-notice.error", { hasText: "map couldn't load" }).waitFor({ timeout: 8000 }).then(() => true, () => false);
+        check(fell2, "K MapLibre no WebGL → message and the area list");
+        await p2.close();
+      }
       // K7 Arabic phone, dark
       {
         const { page, f } = await open("host=chatgpt&theme=dark&locale=ar-AE&w=390&h=844&maxh=844", 390, 844, true);
@@ -948,7 +1019,7 @@ async function main() {
         await settleTiles(f);
         check(/مناطق تقريبية/.test(await f.locator(".sv-mapchip").innerText()), "K Arabic: approximate-area label translated");
         const chip = await f.locator(".sv-mapchip").boundingBox();
-        const zoom = await f.locator(".leaflet-control-zoom").boundingBox();
+        const zoom = await f.locator(ZOOM).first().boundingBox();
         check(!!chip && !!zoom && (chip.x + chip.width <= zoom.x || zoom.x + zoom.width <= chip.x || chip.y + chip.height <= zoom.y), "K Arabic: zoom buttons not covered by the label");
         await shot(page, "K7-map-arabic-dark");
         await page.close();

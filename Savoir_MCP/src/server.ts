@@ -81,17 +81,19 @@ export function createMcpServer(ctx: AppContext): McpServer {
   );
   // Listing photos, the official Savoir logo (website) and, when the map is on, its tile servers.
   const resourceDomains = [...ctx.config.imageHosts.map((h) => `https://${h}`), ctx.config.publicSiteUrl, ...(ctx.config.mapTiles?.origins ?? [])];
+  // Only the MapLibre prototype fetches data (style, vector tiles, fonts, sprites); otherwise no network access.
+  const connectDomains: string[] = [...(ctx.config.mapTiles?.connectOrigins ?? [])];
   const description = "Property and off-plan cards with photos, AED prices, links and contact actions.";
   const uiMeta = {
     ui: {
       prefersBorder: true,
-      csp: { connectDomains: [] as string[], resourceDomains },
+      csp: { connectDomains, resourceDomains },
       // "Copy link" / "Copy" buttons; hosts that do not grant it get an honest manual-copy fallback.
       permissions: { clipboardWrite: {} },
       ...(ctx.config.widgetDomain ? { domain: ctx.config.widgetDomain } : {}),
     },
     // ChatGPT compatibility aliases (snake_case CSP). Same values as the standard fields above.
-    "openai/widgetCSP": { connect_domains: [] as string[], resource_domains: resourceDomains },
+    "openai/widgetCSP": { connect_domains: connectDomains, resource_domains: resourceDomains },
     "openai/widgetPrefersBorder": true,
     // The map can be opened full screen (mobile map view).
     "openai/ui": { availableDisplayModes: ["inline", "fullscreen"] },

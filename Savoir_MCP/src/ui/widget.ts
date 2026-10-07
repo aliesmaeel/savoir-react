@@ -55,19 +55,34 @@ function leafletAssets(): { css: string; js: string } {
   return { css: readFileSync(dir + "leaflet.css", "utf8"), js: readFileSync(dir + "leaflet.js", "utf8") };
 }
 
+/**
+ * MapLibre GL (BSD-3-Clause), prototype engine. The ES module build is exposed as globalThis.maplibregl;
+ * its worker module is inlined as text and started from a blob: URL at runtime (needs worker-src blob:).
+ */
+let cachedMaplibre: { css: string; js: string; worker: string } | null = null;
+function maplibreAssets(): { css: string; js: string; worker: string } {
+  if (cachedMaplibre) return cachedMaplibre;
+  const dir = fileURLToPath(new URL(".", import.meta.resolve("maplibre-gl/dist/maplibre-gl.css")));
+  const strip = (s: string) => s.replace(/\n\/\/# sourceMappingURL=\S+\s*$/, "\n");
+  const main = strip(readFileSync(dir + "maplibre-gl.mjs", "utf8"));
+  cachedMaplibre = { css: readFileSync(dir + "maplibre-gl.css", "utf8"), js: exposeExportsAsGlobal(main, "maplibregl"), worker: strip(readFileSync(dir + "maplibre-gl-worker.mjs", "utf8")) };
+  return cachedMaplibre;
+}
+
 export function buildWidgetHtml(bundle: string = loadAppBundle(), opts: { map?: MapTilesConfig | null } = {}): string {
   const css = clientFile("styles.css");
   const i18n = JSON.stringify(JSON.parse(clientFile("i18n.json")));
-  const map = opts.map ? { url: opts.map.url, attribution: opts.map.attribution, subdomains: opts.map.subdomains, maxZoom: opts.map.maxZoom } : null;
+  const map = opts.map ? { engine: opts.map.engine, url: opts.map.url, style: opts.map.style, styleDark: opts.map.styleDark, attribution: opts.map.attribution, subdomains: opts.map.subdomains, maxZoom: opts.map.maxZoom } : null;
   const config = JSON.stringify({ logoUrl: SAVOIR_LOGO_URL, companyWa: "https://wa.me/971505074686", map });
-  const leaflet = map ? leafletAssets() : null;
+  const leaflet = map && map.engine === "leaflet" ? leafletAssets() : null;
+  const maplibre = map && map.engine === "maplibre" ? maplibreAssets() : null;
   return `<!doctype html>
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Savoir Properties</title>
-${leaflet ? `<style>${leaflet.css}</style>` : ""}
+${leaflet ? `<style>${leaflet.css}</style>` : ""}${maplibre ? `<style>${maplibre.css}</style>` : ""}
 <style>${css}</style>
 </head>
 <body>
@@ -75,7 +90,7 @@ ${leaflet ? `<style>${leaflet.css}</style>` : ""}
 <div id="sv-live" class="sr" role="status" aria-live="polite"></div>
 <script type="application/json" id="sv-i18n">${scriptSafe(i18n)}</script>
 <script type="application/json" id="sv-config">${scriptSafe(config)}</script>
-${leaflet ? `<script>${scriptSafe(leaflet.js)}</script>` : ""}
+${leaflet ? `<script>${scriptSafe(leaflet.js)}</script>` : ""}${maplibre ? `<script type="module">${scriptSafe(maplibre.js)}</script><script type="text/plain" id="sv-ml-worker">${scriptSafe(maplibre.worker)}</script>` : ""}
 <script type="module">${scriptSafe(bundle)}</script>
 <script type="module">${scriptSafe(clientFile("app.js"))}</script>
 </body>

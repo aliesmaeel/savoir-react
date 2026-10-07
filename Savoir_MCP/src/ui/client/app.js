@@ -862,8 +862,8 @@ function selectArea(id, key) {
   if (m && g) {
     // Zoom in just enough for this area to stand alone (not merged into an "N areas" marker).
     const z = separateZoom(m.map, m.groups, g);
-    if (z > m.map.getZoom()) m.map.setView([g.lat, g.lng], z, { animate: false });
-    else m.map.panTo([g.lat, g.lng], { animate: false });
+    if (z > m.map.getZoom()) m.map.setView([g.lat, g.lng], z);
+    else m.map.panTo([g.lat, g.lng]);
   }
   refreshMarkers();
   refreshSelectionUi();
@@ -883,11 +883,11 @@ function keepSelectionVisible() {
   if (coversFullWidth) {
     const freeH = pvRect.top - mapRect.top; // visible band above the preview
     const target = Math.max(40, freeH / 2);
-    if (Math.abs(pt.y - target) > 8) m.map.panBy([0, pt.y - target], { animate: false });
+    if (Math.abs(pt.y - target) > 8) m.map.panBy([0, pt.y - target]);
   } else {
     const freeX = pvRect.right - mapRect.left; // preview on the left: keep the marker to its right
     const targetX = freeX + (size.x - freeX) / 2;
-    if (pt.x < freeX + 40) m.map.panBy([pt.x - targetX, 0], { animate: false });
+    if (pt.x < freeX + 40) m.map.panBy([pt.x - targetX, 0]);
   }
 }
 function separateZoom(map, groups, g) {
@@ -1056,7 +1056,7 @@ function destroyMap() {
   const inst = state.mapInst;
   state.mapInst = null;
   if (!inst) return;
-  // Stop pan/zoom animations first: removing a map mid-animation makes Leaflet touch detached DOM.
+  // Stop pan/zoom animations first: removing a map mid-animation makes the engine touch detached DOM.
   try { inst.map.stop(); } catch (e) {}
   try { inst.map.off(); } catch (e) {}
   try { inst.map.remove(); } catch (e) {}
@@ -1070,50 +1070,42 @@ function initPendingMap() {
   const p = state.pendingMap;
   state.pendingMap = null;
   if (!p) return;
-  const L = globalThis.L;
-  if (!L || !L.map) return mapFailed("no-map-library");
+  let done = false;
+  const fail = (code) => {
+    if (done) return;
+    done = true;
+    mapFailed(code);
+  };
   try {
-    const map = L.map(p.el, { zoomControl: false, attributionControl: true, scrollWheelZoom: false, keyboard: true, worldCopyJump: false, minZoom: 9 });
-    // Zoom buttons on the side opposite the "approximate areas" label (which follows the text direction).
-    L.control.zoom({ position: state.lang === "ar" ? "topleft" : "topright" }).addTo(map);
-    map.attributionControl.setPrefix("Leaflet");
-    let loaded = 0, failed = 0;
-    const tiles = L.tileLayer(CFG.map.url, { attribution: escapeHtml(CFG.map.attribution), subdomains: CFG.map.subdomains && CFG.map.subdomains.length ? CFG.map.subdomains : "abc", maxZoom: CFG.map.maxZoom || 18 });
-    tiles.on("tileload", () => loaded++);
-    tiles.on("tileerror", () => failed++);
-    tiles.addTo(map);
-    // Tiles blocked (CSP, network, provider key): fall back to the accessible area list.
-    setTimeout(() => { if (state.mapInst && state.mapInst.map === map && loaded === 0 && failed > 0) mapFailed("tiles-unavailable"); }, 4000);
-    map.on("click focus", () => map.scrollWheelZoom.enable()); // no scroll hijack until the customer uses the map
-    const rings = L.layerGroup().addTo(map);
-    const layer = L.layerGroup().addTo(map);
-    const inst = { map: map, layer: layer, rings: rings, entries: p.entries, groups: p.groups, key: p.key };
+    const map = CFG.map.engine === "maplibre" ? maplibreEngine(p.el, fail) : leafletEngine(p.el, fail);
+    if (!map || done) return;
+    const inst = { map: map, entries: p.entries, groups: p.groups, key: p.key };
     state.mapInst = inst;
     if (state.mapSel && !state.mapArea) {
       const g = inst.groups.find((x) => x.entries.some((e) => e.key === state.mapSel));
       if (g) state.mapArea = g.id;
     }
     map.on("zoomend", () => refreshMarkers());
-    map.on("moveend", () => { state.mapView = { key: p.key, center: map.getCenter(), zoom: map.getZoom() }; }); // never triggers a search
-    if (state.mapView && state.mapView.key === p.key) map.setView(state.mapView.center, state.mapView.zoom, { animate: false });
+    map.on("moveend", () => { const c = map.getCenter(); state.mapView = { key: p.key, center: [c.lat, c.lng], zoom: map.getZoom() }; }); // never triggers a search
+    if (state.mapView && state.mapView.key === p.key) map.setView(state.mapView.center, state.mapView.zoom);
     else fitToResults(inst);
     const selGroup = inst.groups.find((x) => x.id === state.mapArea);
     if (selGroup) {
       const z = separateZoom(map, inst.groups, selGroup);
-      if (z > map.getZoom()) map.setView([selGroup.lat, selGroup.lng], z, { animate: false });
+      if (z > map.getZoom()) map.setView([selGroup.lat, selGroup.lng], z);
     }
     refreshMarkers();
     refreshSelectionUi();
     keepSelectionVisible();
   } catch (e) {
-    mapFailed("map-error");
+    fail("map-error");
   }
 }
 function fitToResults(inst) {
   const pts = inst.groups.map((g) => [g.lat, g.lng]);
   if (!pts.length) return inst.map.setView([25.15, 55.25], 10);
-  if (pts.length === 1) return inst.map.setView(pts[0], 13, { animate: false });
-  inst.map.fitBounds(pts, { padding: [56, 56], maxZoom: 13, animate: false });
+  if (pts.length === 1) return inst.map.setView(pts[0], 13);
+  inst.map.fitBounds(pts, { padding: [56, 56], maxZoom: 13 });
 }
 function areaMarker(g, selected) {
   const el = h("div", { class: "sv-areamk" + (selected ? " sel" : ""), "data-area": g.id });
@@ -1128,15 +1120,10 @@ function mergeGroups(map, groups) {
 }
 function refreshMarkers() {
   const inst = state.mapInst;
-  const L = globalThis.L;
-  if (!inst || !L) return;
-  inst.layer.clearLayers();
-  inst.rings.clearLayers();
-  for (const g of inst.groups) {
-    const sel = g.id === state.mapArea;
-    // The ring says "somewhere in this area", not a building.
-    L.circle([g.lat, g.lng], { radius: g.radius, color: sel ? "#a8834a" : "#8a857d", weight: 1, dashArray: "4 4", fillColor: sel ? "#a8834a" : "#8a857d", fillOpacity: sel ? 0.1 : 0.04, interactive: false }).addTo(inst.rings);
-  }
+  if (!inst) return;
+  // The ring says "somewhere in this area", not a building.
+  inst.map.setRings(inst.groups.map((g) => ({ lat: g.lat, lng: g.lng, radius: g.radius, sel: g.id === state.mapArea })));
+  const markers = [];
   for (const cluster of mergeGroups(inst.map, inst.groups)) {
     const lat = cluster.reduce((s, g) => s + g.lat, 0) / cluster.length;
     const lng = cluster.reduce((s, g) => s + g.lng, 0) / cluster.length;
@@ -1150,15 +1137,213 @@ function refreshMarkers() {
       el = h("div", { class: "sv-areamk multi" }, h("span", { class: "ln" }, h("span", { class: "nm", text: t("areasN", { n: cluster.length }) }), h("span", { class: "ct", text: " · " + countWord(n, cluster[0].kind) })));
       label = t("areasN", { n: cluster.length }) + ": " + cluster.map((g) => g.area).join(", ");
     }
-    const marker = L.marker([lat, lng], { icon: L.divIcon({ html: el, className: "sv-mk-wrap", iconSize: null }), keyboard: true, title: label, alt: label, riseOnHover: true, zIndexOffset: cluster.some((g) => g.id === state.mapArea) ? 1000 : 0 });
-    marker.on("click", () => {
+    const onClick = () => {
       if (cluster.length === 1) return selectArea(cluster[0].id);
       inst.map.fitBounds(cluster.map((g) => [g.lat, g.lng]), { padding: [70, 70], maxZoom: 14 });
-    });
-    marker.addTo(inst.layer);
-    const icon = marker.getElement && marker.getElement();
-    if (icon) icon.setAttribute("aria-label", label);
+    };
+    markers.push({ lat: lat, lng: lng, el: el, label: label, onClick: onClick, front: cluster.some((g) => g.id === state.mapArea) });
   }
+  inst.map.setMarkers(markers);
+}
+
+// ---------- map engines ----------
+// The area-group logic above talks to a small engine interface (Leaflet-style method names, Leaflet zoom
+// units). Leaflet is the default; MapLibre GL is a prototype (CFG.map.engine === "maplibre").
+//   getZoom, setView([lat,lng], z), panTo([lat,lng]), panBy([dx,dy]), fitBounds(points, {padding, maxZoom}),
+//   getSize() {x,y}, getContainer(), getCenter() {lat,lng}, latLngToContainerPoint([lat,lng]) {x,y},
+//   project([lat,lng], z) {x,y}, on(events, fn), setMarkers([{lat,lng,el,label,onClick,front}]),
+//   setRings([{lat,lng,radius,sel}]), stop(), off(), remove()
+function mercator(lat, lng, z) {
+  const scale = 256 * Math.pow(2, z);
+  const s = Math.min(Math.max(Math.sin((lat * Math.PI) / 180), -0.9999), 0.9999);
+  return { x: ((lng + 180) / 360) * scale, y: (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * scale };
+}
+function leafletEngine(el, fail) {
+  const L = globalThis.L;
+  if (!L || !L.map) return fail("no-map-library");
+  const map = L.map(el, { zoomControl: false, attributionControl: true, scrollWheelZoom: false, keyboard: true, worldCopyJump: false, minZoom: 9 });
+  // Zoom buttons on the side opposite the "approximate areas" label (which follows the text direction).
+  L.control.zoom({ position: state.lang === "ar" ? "topleft" : "topright" }).addTo(map);
+  map.attributionControl.setPrefix("Leaflet");
+  let loaded = 0, failed = 0;
+  const tiles = L.tileLayer(CFG.map.url, { attribution: escapeHtml(CFG.map.attribution), subdomains: CFG.map.subdomains && CFG.map.subdomains.length ? CFG.map.subdomains : "abc", maxZoom: CFG.map.maxZoom || 18 });
+  tiles.on("tileload", () => loaded++);
+  tiles.on("tileerror", () => failed++);
+  tiles.addTo(map);
+  // Tiles blocked (CSP, network, provider key): fall back to the accessible area list.
+  setTimeout(() => { if (state.mapInst && state.mapInst.map === eng && loaded === 0 && failed > 0) fail("tiles-unavailable"); }, 4000);
+  map.on("click focus", () => map.scrollWheelZoom.enable()); // no scroll hijack until the customer uses the map
+  const rings = L.layerGroup().addTo(map);
+  const layer = L.layerGroup().addTo(map);
+  const eng = {
+    kind: "leaflet",
+    getZoom: () => map.getZoom(),
+    setView: (c, z) => map.setView(c, z, { animate: false }),
+    panTo: (c) => map.panTo(c, { animate: false }),
+    panBy: (d) => map.panBy(d, { animate: false }),
+    fitBounds: (pts, o) => map.fitBounds(pts, { padding: o.padding, maxZoom: o.maxZoom, animate: false }),
+    getSize: () => map.getSize(),
+    getContainer: () => map.getContainer(),
+    getCenter: () => map.getCenter(),
+    latLngToContainerPoint: (c) => map.latLngToContainerPoint(c),
+    project: (c, z) => mercator(c[0], c[1], z),
+    on: (ev, fn) => map.on(ev, fn),
+    setRings: (list) => {
+      rings.clearLayers();
+      for (const r of list) L.circle([r.lat, r.lng], { radius: r.radius, color: r.sel ? "#a8834a" : "#8a857d", weight: 1, dashArray: "4 4", fillColor: r.sel ? "#a8834a" : "#8a857d", fillOpacity: r.sel ? 0.1 : 0.04, interactive: false }).addTo(rings);
+    },
+    setMarkers: (list) => {
+      layer.clearLayers();
+      for (const m of list) {
+        const marker = L.marker([m.lat, m.lng], { icon: L.divIcon({ html: m.el, className: "sv-mk-wrap", iconSize: null }), keyboard: true, title: m.label, alt: m.label, riseOnHover: true, zIndexOffset: m.front ? 1000 : 0 });
+        marker.on("click", m.onClick);
+        marker.addTo(layer);
+        const icon = marker.getElement && marker.getElement();
+        if (icon) icon.setAttribute("aria-label", m.label);
+      }
+    },
+    stop: () => map.stop(),
+    off: () => map.off(),
+    remove: () => map.remove(),
+  };
+  return eng;
+}
+function webglAvailable() {
+  try {
+    const c = document.createElement("canvas");
+    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch (e) {
+    return false;
+  }
+}
+/** Hide clutter (road shields, minor road and path names, POI/airport labels) and label in the UI language. */
+function simplifyStyle(map) {
+  const name = state.lang === "ar" ? ["coalesce", ["get", "name:ar"], ["get", "name"]] : ["coalesce", ["get", "name:en"], ["get", "name_en"], ["get", "name:latin"], ["get", "name"]];
+  for (const layer of map.getStyle().layers || []) {
+    if (layer.type !== "symbol") continue;
+    if (/shield|oneway|path|minor|airport|label_other|poi|housenumber|transit|aerialway|ferry/i.test(layer.id)) {
+      map.setLayoutProperty(layer.id, "visibility", "none");
+      continue;
+    }
+    const tf = layer.layout && layer.layout["text-field"];
+    if (tf && /name/.test(JSON.stringify(tf))) {
+      try { map.setLayoutProperty(layer.id, "text-field", name); } catch (e) {}
+    }
+  }
+}
+function ringPolygon(lat, lng, radius) {
+  const pts = [];
+  const dLat = radius / 111320;
+  const dLng = radius / (111320 * Math.cos((lat * Math.PI) / 180));
+  for (let i = 0; i <= 48; i++) {
+    const a = (i / 48) * 2 * Math.PI;
+    pts.push([lng + dLng * Math.cos(a), lat + dLat * Math.sin(a)]);
+  }
+  return pts;
+}
+let mlWorkerUrl = null;
+function maplibreEngine(el, fail) {
+  const ml = globalThis.maplibregl;
+  if (!ml || !ml.Map) return fail("no-map-library");
+  if (!webglAvailable()) return fail("webgl-unavailable");
+  try {
+    if (!mlWorkerUrl) {
+      const src = document.getElementById("sv-ml-worker");
+      mlWorkerUrl = URL.createObjectURL(new Blob([src ? src.textContent : ""], { type: "text/javascript" }));
+      ml.setWorkerUrl(mlWorkerUrl);
+      ml.setWorkerCount(1); // one worker is plenty for a small card
+    }
+  } catch (e) {
+    return fail("worker-unavailable");
+  }
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  let map;
+  try {
+    map = new ml.Map({
+      container: el,
+      style: dark && CFG.map.styleDark ? CFG.map.styleDark : CFG.map.style,
+      center: [55.25, 25.15],
+      zoom: 9,
+      minZoom: 8,
+      maxZoom: (CFG.map.maxZoom || 16) - 1,
+      attributionControl: false,
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchPitch: false,
+      fadeDuration: 0,
+    });
+  } catch (e) {
+    return fail("map-error");
+  }
+  map.touchZoomRotate.disableRotation();
+  map.keyboard.disableRotation();
+  map.scrollZoom.disable(); // no scroll hijack until the customer uses the map
+  map.addControl(new ml.NavigationControl({ showCompass: false }), state.lang === "ar" ? "top-left" : "top-right");
+  // The style carries the provider attribution (with links); the configured text is only used if it has none.
+  map.addControl(new ml.AttributionControl({ compact: false }), "bottom-right");
+  map.once("load", () => { const at = el.querySelector(".maplibregl-ctrl-attrib-inner"); if (at && !at.textContent.trim()) at.textContent = CFG.map.attribution; });
+  let ready = false;
+  let pendingRings = [];
+  const markers = [];
+  // Style, vector tiles, fonts or the worker blocked (CSP, network, WebGL limits): fall back to the area list.
+  const timer = setTimeout(() => { if (!ready && state.mapInst && state.mapInst.map === eng) fail("map-timeout"); }, 9000);
+  map.on("load", () => {
+    ready = true;
+    clearTimeout(timer);
+    try {
+      simplifyStyle(map);
+      map.addSource("sv-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      const firstSymbol = (map.getStyle().layers || []).find((l) => l.type === "symbol");
+      map.addLayer({ id: "sv-rings-fill", type: "fill", source: "sv-rings", paint: { "fill-color": ["case", ["get", "sel"], "#a8834a", "#8a857d"], "fill-opacity": ["case", ["get", "sel"], 0.1, 0.04] } }, firstSymbol && firstSymbol.id);
+      map.addLayer({ id: "sv-rings-line", type: "line", source: "sv-rings", paint: { "line-color": ["case", ["get", "sel"], "#a8834a", "#8a857d"], "line-width": 1, "line-dasharray": [3, 3] } }, firstSymbol && firstSymbol.id);
+      eng.setRings(pendingRings);
+    } catch (e) {}
+    el.setAttribute("data-map-ready", "1");
+  });
+  map.once("idle", () => el.setAttribute("data-map-idle", "1"));
+  map.on("error", (e) => {
+    if (!ready && state.mapInst && state.mapInst.map === eng && e && e.error && /style|Failed to fetch|NetworkError|CSP|worker|Load failed/i.test(String(e.error.message || e.error))) fail("map-unavailable");
+  });
+  map.on("click", () => map.scrollZoom.enable());
+  el.addEventListener("focusin", () => map.scrollZoom.enable());
+  const eng = {
+    kind: "maplibre",
+    // MapLibre uses 512 px tiles: its zoom z equals Leaflet zoom z + 1. The shared code uses Leaflet units.
+    getZoom: () => map.getZoom() + 1,
+    setView: (c, z) => map.jumpTo({ center: [c[1], c[0]], zoom: z - 1 }),
+    panTo: (c) => map.jumpTo({ center: [c[1], c[0]] }),
+    panBy: (d) => map.panBy(d, { animate: false }),
+    fitBounds: (pts, o) => {
+      const lats = pts.map((p) => p[0]), lngs = pts.map((p) => p[1]);
+      map.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: o.padding ? o.padding[0] : 40, maxZoom: o.maxZoom - 1, animate: false });
+    },
+    getSize: () => ({ x: el.clientWidth, y: el.clientHeight }),
+    getContainer: () => el,
+    getCenter: () => { const c = map.getCenter(); return { lat: c.lat, lng: c.lng }; },
+    latLngToContainerPoint: (c) => { const p = map.project([c[1], c[0]]); return { x: p.x, y: p.y }; },
+    project: (c, z) => mercator(c[0], c[1], z),
+    on: (ev, fn) => { for (const e of String(ev).split(/\s+/)) map.on(e, fn); },
+    setRings: (list) => {
+      pendingRings = list;
+      const src = ready && map.getSource("sv-rings");
+      if (!src) return;
+      src.setData({ type: "FeatureCollection", features: list.map((r) => ({ type: "Feature", properties: { sel: !!r.sel }, geometry: { type: "Polygon", coordinates: [ringPolygon(r.lat, r.lng, r.radius)] } })) });
+    },
+    setMarkers: (list) => {
+      while (markers.length) markers.pop().remove();
+      for (const m of list) {
+        const wrap = h("div", { class: "sv-mk-wrap sv-mk-ml", role: "button", tabindex: "0", "aria-label": m.label, title: m.label }, m.el);
+        wrap.style.zIndex = m.front ? "2" : "1";
+        wrap.addEventListener("click", (e) => { e.stopPropagation(); m.onClick(); });
+        wrap.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); m.onClick(); } });
+        markers.push(new ml.Marker({ element: wrap, anchor: "center" }).setLngLat([m.lng, m.lat]).addTo(map));
+      }
+    },
+    stop: () => map.stop(),
+    off: () => {},
+    remove: () => { clearTimeout(timer); while (markers.length) markers.pop().remove(); map.remove(); },
+  };
+  return eng;
 }
 
 // ---------- views ----------
