@@ -264,3 +264,4 @@ table.sv-cmp{border-collapse:separate;border-spacing:0;width:100%;table-layout:f
 .sv-mapbar{display:flex;justify-content:space-between;align-items:center;gap:8px;position:sticky;top:0;z-index:2;background:var(--sv-bg);padding-bottom:4px}
 @media (max-width:520px){.sv-map{height:340px}.sv-preview{inset-inline-start:8px;width:calc(100% - 16px);max-height:55%}}
 @media (pointer:coarse){.sv-segs .sv-seg{min-height:44px}.leaflet-touch .leaflet-bar a{width:44px;height:44px;line-height:44px}.sv-pv-row{min-height:48px}.sv-x{width:44px;height:44px}}
+.sv-tech{font-size:12px;word-break:break-word;font-family:ui-monospace,Consolas,monospace}

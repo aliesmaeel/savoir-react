@@ -1012,6 +1012,9 @@ async function main() {
         await f.locator(".sv-notice.error", { hasText: "map couldn't load" }).waitFor({ timeout: 12000 });
         const areaButtons = await f.locator(".sv-area-group li button").count();
         check(areaButtons > 0 && (await f.locator("details.sv-disc[open] .sv-area-group").count()) > 0, `K tiles blocked → message and the area list opens (${areaButtons} listings, each opens its details)`);
+        await new Promise((r) => setTimeout(r, 500));
+        const detail = await f.locator("#sv-mapfail-detail").innerText();
+        check(MAPLIBRE ? /connect-src https:\/\/tiles\.openfreemap\.org/.test(detail) : /img-src/.test(detail) || /tiles-unavailable/.test(detail), `K fallback names what the browser blocked ("${detail.slice(0, 140)}")`);
         await shot(page, "K6-map-fallback");
         await page.close();
       }
@@ -1023,6 +1026,9 @@ async function main() {
         await f.getByRole("button", { name: "Map", exact: true }).click();
         const fell = await f.locator(".sv-notice.error", { hasText: "map couldn't load" }).waitFor({ timeout: 15000 }).then(() => true, () => false);
         check(fell && (await f.locator(".sv-area-group li button").count()) > 0, `K MapLibre workers blocked → message and the area list (after ${Date.now() - t0} ms)`);
+        await new Promise((r) => setTimeout(r, 500));
+        const wdetail = await f.locator("#sv-mapfail-detail").innerText();
+        check(/worker-src|script-src/.test(wdetail), `K workers blocked: fallback names the blocked worker ("${wdetail.slice(0, 140)}")`);
         await page.close();
         // K6c WebGL unavailable → area list
         const p2 = await browser.newPage({ viewport: { width: 960, height: 1000 } });

@@ -183,7 +183,9 @@
     "per_year": "/ yr",
     "per_month": "/ mo",
     "per_week": "/ wk",
-    "per_day": "/ day"
+    "per_day": "/ day",
+    "mapFailDetail": "Technical detail: {d}",
+    "mapBlockedBy": "blocked by the page's security policy:"
   },
   "ar": {
     "listings": "عقارات Savoir",
@@ -386,6 +388,8 @@
     "per_year": "/ سنويًا",
     "per_month": "/ شهريًا",
     "per_week": "/ أسبوعيًا",
-    "per_day": "/ يوميًا"
+    "per_day": "/ يوميًا",
+    "mapFailDetail": "تفاصيل تقنية: {d}",
+    "mapBlockedBy": "حظرته سياسة أمان الصفحة:"
   }
 }

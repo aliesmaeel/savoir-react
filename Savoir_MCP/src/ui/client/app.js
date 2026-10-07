@@ -1058,6 +1058,7 @@ function mapSection(d, kind, items) {
     { class: "sv-mapwrap" + (state.fullMap ? " full" : ""), "aria-label": t("mapTitle") },
     state.fullMap ? h("div", { class: "sv-mapbar" }, btn((state.lang === "ar" ? "→ " : "← ") + t("backToList"), () => exitFullMap(), { small: true, primary: true }), h("span", { class: "sv-note", text: countLine })) : h("div", { class: "sv-maphead" }, h("span", { class: "sv-note", text: countLine }), state.mapFailed ? null : btn(t("mapFull"), () => enterFullMap(), { small: true, ghost: true })),
     state.mapFailed ? h("div", { class: "sv-notice error", role: "alert" }, h("span", { text: t("mapFailed") })) : frame,
+    state.mapFailed ? h("div", { id: "sv-mapfail-detail", class: "sv-note sv-tech", dir: "ltr", text: t("mapFailDetail", { d: mapFailDetail() }) }) : null,
     state.mapFailed ? null : h("div", { class: "sv-note", text: t("mapHintAreas") }),
     areaList(groups, missing, kind),
   );
@@ -1074,8 +1075,28 @@ function destroyMap() {
   try { inst.map.off(); } catch (e) {}
   try { inst.map.remove(); } catch (e) {}
 }
-function mapFailed(code) {
+/**
+ * What the browser blocked (from securitypolicyviolation events), so a map failure inside a host can say
+ * exactly why: e.g. "connect-src https://tiles.openfreemap.org/styles/positron". No data leaves the card.
+ */
+const policyBlocks = [];
+try {
+  document.addEventListener("securitypolicyviolation", (e) => {
+    const entry = (e.effectiveDirective || e.violatedDirective || "?") + " " + String(e.blockedURI || "").slice(0, 120);
+    if (policyBlocks.indexOf(entry) < 0) policyBlocks.push(entry);
+    if (policyBlocks.length > 4) policyBlocks.shift();
+    const note = document.getElementById("sv-mapfail-detail");
+    if (note) note.textContent = t("mapFailDetail", { d: mapFailDetail() });
+  });
+} catch (e) {}
+function mapFailDetail() {
+  const parts = [state.mapFailed + (state.mapFailInfo ? ": " + state.mapFailInfo : "")];
+  if (policyBlocks.length) parts.push(t("mapBlockedBy") + " " + policyBlocks.join("; "));
+  return parts.join(" · ");
+}
+function mapFailed(code, info) {
   state.mapFailed = code || "failed";
+  state.mapFailInfo = info ? String(info).replace(/\s+/g, " ").slice(0, 160) : null;
   destroyMap();
   rerender();
 }
@@ -1084,10 +1105,10 @@ function initPendingMap() {
   state.pendingMap = null;
   if (!p) return;
   let done = false;
-  const fail = (code) => {
+  const fail = (code, info) => {
     if (done) return;
     done = true;
-    mapFailed(code);
+    mapFailed(code, info);
   };
   try {
     const map = CFG.map.engine === "maplibre" ? maplibreEngine(p.el, fail) : leafletEngine(p.el, fail);
@@ -1131,7 +1152,7 @@ function initPendingMap() {
     refreshSelectionUi();
     keepSelectionVisible();
   } catch (e) {
-    fail("map-error");
+    fail("map-error", e && e.message);
   }
 }
 /** Padding for fitting markers: at the top, clear of the "Approximate areas" label so no marker starts under it. */
@@ -1294,7 +1315,7 @@ function maplibreEngine(el, fail) {
       ml.setWorkerCount(1); // one worker is plenty for a small card
     }
   } catch (e) {
-    return fail("worker-unavailable");
+    return fail("worker-unavailable", e && e.message);
   }
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
   let map;
@@ -1313,7 +1334,7 @@ function maplibreEngine(el, fail) {
       fadeDuration: 0,
     });
   } catch (e) {
-    return fail("map-error");
+    return fail("map-error", e && e.message);
   }
   map.touchZoomRotate.disableRotation();
   map.keyboard.disableRotation();
@@ -1342,7 +1363,7 @@ function maplibreEngine(el, fail) {
   });
   map.once("idle", () => el.setAttribute("data-map-idle", "1"));
   map.on("error", (e) => {
-    if (!ready && state.mapInst && state.mapInst.map === eng && e && e.error && /style|Failed to fetch|NetworkError|CSP|worker|Load failed/i.test(String(e.error.message || e.error))) fail("map-unavailable");
+    if (!ready && state.mapInst && state.mapInst.map === eng && e && e.error && /style|Failed to fetch|NetworkError|CSP|worker|Load failed/i.test(String(e.error.message || e.error))) fail("map-unavailable", e.error.message || String(e.error));
   });
   map.on("click", () => map.scrollZoom.enable());
   el.addEventListener("focusin", () => map.scrollZoom.enable());

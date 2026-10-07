@@ -2,6 +2,8 @@
 
 **Status (7 Oct 2026): LIVE in production** on v0.4.3, using MapLibre GL + OpenFreeMap (`MAP_ENGINE=maplibre`), turned on 11:42 UTC with the `map-on` workflow action. It was tested first on the separate test app, where Savoir reported ChatGPT web rendering, interactions and phone all pass. No paid provider and no billing. Turn it off with `map-off` (settings are backed up first).
 
+**Production ChatGPT test FAILED (7 Oct ~16:07 Dubai):** "The map couldn't load here" with the fallback list, while the TEST app renders. The server output is identical on both. Cause under investigation (see DEPLOYMENT.md host test log).
+
 ## 1. What the CMS provides (checked 7 October 2026)
 
 | Source | Field | Finding |
