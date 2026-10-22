@@ -186,7 +186,8 @@ export function registerJourneyTools(server: McpServer, deps: ToolDeps): void {
         clear: z.boolean().optional().describe("Remove every listing (the shortlist itself remains)."),
       }),
       outputSchema: ShortlistOutput,
-      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      // destructive: remove/clear drop saved listings.
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
       _meta: widgetMeta("Updating shortlist…", "Shortlist updated"),
     },
     instrument(logger, "update_shortlist", async (a: { shortlist_id?: string; add?: Array<{ kind: "property" | "offplan"; slug: string }>; remove?: Array<{ kind: "property" | "offplan"; slug: string }>; clear?: boolean }) => {
@@ -269,7 +270,8 @@ export function registerJourneyTools(server: McpServer, deps: ToolDeps): void {
         "and expires with the shortlist. Anyone with the link can view it. Only do this when the customer asks for a link.",
       inputSchema: z.object({ shortlist_id: ShortlistIdInput, action: z.enum(["share", "stop_sharing"]).default("share") }),
       outputSchema: ShortlistOutput,
-      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+      // destructive: stop_sharing permanently disables the old link; share makes the shortlist publicly viewable.
+      annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true },
       _meta: widgetMeta("Updating share link…", "Share link updated"),
     },
     instrument(logger, "share_shortlist", async ({ shortlist_id, action }: { shortlist_id: string; action: "share" | "stop_sharing" }) => {

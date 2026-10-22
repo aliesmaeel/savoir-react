@@ -74,8 +74,8 @@ describe("MCP surface", () => {
       if (readOnly.includes(t.name)) expect(t.annotations, t.name).toMatchObject({ readOnlyHint: true, destructiveHint: false, openWorldHint: false });
     }
     const byName = (n: string) => tools.find((t) => t.name === n)!;
-    expect(byName("update_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, openWorldHint: false });
-    expect(byName("share_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: false, openWorldHint: true });
+    expect(byName("update_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: true, openWorldHint: false });
+    expect(byName("share_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: true, openWorldHint: true });
     expect(byName("delete_shortlist").annotations).toMatchObject({ readOnlyHint: false, destructiveHint: true });
     expect(byName("search_properties")._meta).toMatchObject({ ui: { resourceUri: "ui://savoir/listings-v2.html" }, "openai/outputTemplate": "ui://savoir/listings-v2.html" });
   });
