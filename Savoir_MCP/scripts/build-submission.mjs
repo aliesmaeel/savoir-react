@@ -6,6 +6,9 @@
  *   npm run submission:check                 # validate only
  *   npm run submission:check -- --check-urls # also fetch the listing URLs
  *   npm run submission:build                 # validate + zip
+ *   node scripts/build-submission.mjs --zip --draft
+ *       draft ZIP for the first upload only (creates the dashboard draft, needed for domain verification):
+ *       the demo video URL may still be missing and is left out. Never use it for Submit for review.
  */
 import { deflateRawSync } from "node:zlib";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -13,6 +16,7 @@ import { join } from "node:path";
 
 const DIR = "submission";
 const args = new Set(process.argv.slice(2));
+const DRAFT = args.has("--draft");
 const errors = [];
 const warnings = [];
 const err = (m) => errors.push(m);
@@ -35,6 +39,9 @@ const walk = (v, path) => {
   else if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${path}[${i}]`));
   else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, path ? `${path}.${k}` : k);
 };
+const DEMO_TODO = /\bTODO\b/.test(String(review_demo()));
+function review_demo() { return plugin?.extensions?.["com.openai"]?.review?.demo_recording_url; }
+if (DRAFT && DEMO_TODO) delete plugin.extensions["com.openai"].review.demo_recording_url;
 walk(plugin, "plugin.json");
 
 const limit = (name, value, max, required = true) => {
@@ -93,7 +100,8 @@ pos.forEach((t, i) => {
   if ((t.description ?? "").length > 4000) err(`positive[${i}].description too long`);
 });
 neg.forEach((t, i) => ["description", "prompt"].forEach((f) => !t[f] && err(`negative[${i}].${f} is required`)));
-if (!review.demo_recording_url) err("review.demo_recording_url is required");
+if (!review.demo_recording_url && !DRAFT) err("review.demo_recording_url is required");
+if (DRAFT && !review.demo_recording_url) warnings.push("DRAFT: demo_recording_url left out; add it before Submit for review");
 if (typeof review.commerce !== "boolean") err("review.commerce must be true/false");
 
 const server = Object.values(mcp.mcpServers ?? {})[0];
@@ -136,12 +144,12 @@ console.log("Submission metadata valid.");
 
 if (args.has("--zip")) {
   const files = [
-    ["plugin.json", readFileSync(join(DIR, "plugin.json"))],
+    ["plugin.json", DRAFT ? Buffer.from(JSON.stringify(plugin, null, 2) + "\n") : readFileSync(join(DIR, "plugin.json"))],
     ["mcp.json", readFileSync(join(DIR, "mcp.json"))],
     [ui.logo.replace(/^\.\//, ""), readFileSync(logoPath)],
   ];
   mkdirSync(join(DIR, "dist"), { recursive: true });
-  const out = join(DIR, "dist", "savoir-properties-plugin.zip");
+  const out = join(DIR, "dist", DRAFT ? "savoir-properties-plugin-DRAFT.zip" : "savoir-properties-plugin.zip");
   writeFileSync(out, zip(files));
   console.log(`wrote ${out} (not submitted)`);
 }
