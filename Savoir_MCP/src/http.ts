@@ -4,6 +4,7 @@ import { createMcpHandler } from "@modelcontextprotocol/server";
 import type { Express, NextFunction, Request, Response } from "express";
 import { createMcpServer, SERVER_NAME, SERVER_VERSION, type AppContext } from "./server.js";
 import { renderSharePage, shareNotFoundPage, sharePageCsp } from "./sharePage.js";
+import { LEGAL_PAGE_CSP, renderPrivacyPage, renderTermsPage } from "./legalPages.js";
 import { SAVOIR_LOGO_URL } from "./ui/widget.js";
 import { buildInsights, renderInsightsHtml, verifyPassword } from "./insights.js";
 import { isAutomatedFetch } from "./trackedLinks.js";
@@ -30,7 +31,7 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
         ? "/s/:token"
         : req.path.startsWith("/go/")
           ? "/go/:token"
-          : req.path === "/mcp" || req.path.startsWith("/.well-known/") || req.path === "/health" || req.path === "/ready" || req.path === "/internal/insights"
+          : req.path === "/mcp" || req.path.startsWith("/.well-known/") || req.path === "/health" || req.path === "/ready" || req.path === "/internal/insights" || req.path === "/terms" || req.path === "/privacy"
             ? req.path
             : "other";
       logger.info("http.request", { method: req.method, path, status: res.statusCode, ms: Date.now() - started });
@@ -115,6 +116,16 @@ export function createHttpApp(ctx: AppContext): { app: Express; close: () => Pro
     const days = Math.min(400, Math.max(1, Number(req.query.days) || 30));
     res.setHeader("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'");
     res.type("html").send(renderInsightsHtml(buildInsights(ctx.aggregates.snapshot(), { days, siteOrigin: config.publicSiteUrl })));
+  });
+
+  // Public legal pages linked from the directory listing.
+  app.get("/terms", (_req, res) => {
+    res.setHeader("Content-Security-Policy", LEGAL_PAGE_CSP);
+    res.type("html").send(renderTermsPage());
+  });
+  app.get("/privacy", (_req, res) => {
+    res.setHeader("Content-Security-Policy", LEGAL_PAGE_CSP);
+    res.type("html").send(renderPrivacyPage());
   });
 
   app.get("/.well-known/openai-apps-challenge", (_req, res) => {

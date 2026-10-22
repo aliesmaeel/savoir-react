@@ -16,8 +16,8 @@
         "category": "Productivity",
         "websiteURL": "https://savoirproperties.com/",
         "supportURL": "https://savoirproperties.com/contact-us",
-        "privacyPolicyURL": "https://savoirproperties.com/privacy-policy",
-        "termsOfServiceURL": "https://savoirproperties.com/terms",
+        "privacyPolicyURL": "https://mcp.savoirproperties.com/privacy",
+        "termsOfServiceURL": "https://mcp.savoirproperties.com/terms",
         "logo": "./assets/logo.png",
         "defaultPrompt": [
           "Show me 2-bedroom apartments for sale in Dubai Marina",

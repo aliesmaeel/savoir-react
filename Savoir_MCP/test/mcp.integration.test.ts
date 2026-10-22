@@ -142,6 +142,22 @@ describe("MCP surface", () => {
     expect(ch.headers.get("content-type")).toContain("text/plain");
     expect(await ch.text()).toBe("challenge-abc");
   });
+
+  it("serves the public Terms and privacy notice named for the verified company", async () => {
+    const { base } = await start();
+    for (const [path, heading] of [["/terms", "Terms of Use"], ["/privacy", "Privacy notice"]] as const) {
+      const r = await fetch(`${base}${path}`);
+      expect(r.status, path).toBe(200);
+      expect(r.headers.get("content-type"), path).toContain("text/html");
+      expect(r.headers.get("content-security-policy"), path).toContain("default-src 'none'");
+      const html = await r.text();
+      expect(html, path).toContain(heading);
+      expect(html, path).toContain("Savoir Privé Properties L.L.C.");
+      expect(html, path).toContain("572695");
+      expect(html, path).not.toMatch(/\[[^\]]*(counsel|date|name|number)[^\]]*\]/i); // no draft placeholders
+    }
+    expect(await (await fetch(`${base}/privacy`)).text()).toContain("tiles.openfreemap.org");
+  });
 });
 
 describe("read tools", () => {
