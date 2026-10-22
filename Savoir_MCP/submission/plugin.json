@@ -75,12 +75,12 @@
             }
           ]
         },
-        "demo_recording_url": "TODO: URL of the demo video recorded against the production server",
+        "demo_recording_url": "https://drive.google.com/file/d/1XDTC6OMmouHl6rNGw0SfonF34NF-JPuP/view?usp=sharing",
         "commerce": false,
         "commerce_description": ""
       },
       "publication": {
-        "release_notes": "Initial release: search Savoir Properties listings and off-plan projects, view details with photos, compare listings, keep a shareable shortlist, and prepare a message to Savoir. No bookings, payments or personal details."
+        "release_notes": "Initial release: search Savoir Privé Properties listings and off-plan projects, view details with photos, compare listings, keep a shareable shortlist, and prepare a message to Savoir. No bookings, payments or personal details."
       }
     }
   }
