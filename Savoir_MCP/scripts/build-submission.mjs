@@ -54,6 +54,9 @@ limit("shortDescription", ui.shortDescription, 30);
 limit("longDescription", ui.longDescription, 4000);
 limit("developerName", ui.developerName, 80);
 limit("category", ui.category, 80);
+// The dashboard only accepts these titles (developers.openai.com/plugins/deploy/submission-errors).
+const CATEGORIES = ["Productivity", "Creativity", "Developer Tools", "Business & Operations", "Data & Analytics", "Communication", "Education & Research", "Security", "Finance", "Healthcare", "Travel", "Entertainment", "Other"];
+if (ui.category && !/TODO/.test(ui.category) && !CATEGORIES.includes(ui.category)) err(`category "${ui.category}" is not one of: ${CATEGORIES.join(", ")}`);
 if (/plugin/i.test(ui.displayName ?? "")) err('displayName must not contain "Plugin"');
 
 const prompts = ui.defaultPrompt ?? [];
