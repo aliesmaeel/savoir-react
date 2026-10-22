@@ -104,6 +104,9 @@ if (!review.demo_recording_url && !DRAFT) err("review.demo_recording_url is requ
 if (DRAFT && !review.demo_recording_url) warnings.push("DRAFT: demo_recording_url left out; add it before Submit for review");
 if (typeof review.commerce !== "boolean") err("review.commerce must be true/false");
 
+// The Agent Plugins mcp.json schema requires $schema; without it the upload counts zero MCP servers.
+if (mcp.$schema !== "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json") err("mcp.json must declare $schema https://agent-plugins.org/schemas/1.0.0/mcp.schema.json");
+if (Object.keys(mcp.mcpServers ?? {}).length !== 1) err("mcp.json must declare exactly one MCP server");
 const server = Object.values(mcp.mcpServers ?? {})[0];
 if (!server || server.type !== "streamable-http" || !/^https:\/\/[^/]+\/mcp$/.test(server.url ?? "")) err("mcp.json must declare one streamable-http server at https://<host>/mcp");
 
