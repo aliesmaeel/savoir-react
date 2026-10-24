@@ -31,7 +31,9 @@ export default function OffPlanStartingPrice() {
         </p>
 
         <p className="text-[32px] font-semibold">
-          {formatCompactPrice(property.starting_price) || "N/A"}
+          {(typeof property.starting_price === "string"
+            ? property.starting_price
+            : formatCompactPrice(property.starting_price)) || "N/A"}
         </p>
       </div>
 

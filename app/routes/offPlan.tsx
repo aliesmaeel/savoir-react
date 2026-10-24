@@ -109,7 +109,9 @@ export default function offPlan() {
             <div className="flex flex-col items-start gap-[2px]">
               <p className="Jakarta text-[14px] font-bold text-[#111111]">Price</p>
               <p className="CormorantGaramond text-[27px] font-[900] text-[#050505] [text-shadow:0_0_0.45px_#050505]">
-                {formatCompactPrice(property.starting_price)}
+                {typeof property.starting_price === "string"
+                  ? property.starting_price
+                  : formatCompactPrice(property.starting_price)}
               </p>
             </div>
           </div>
