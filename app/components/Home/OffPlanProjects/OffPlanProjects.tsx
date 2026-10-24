@@ -162,7 +162,10 @@ export default function OffPlanProjects() {
                           opacity: 1,
                         }}
                       >
-                        From {formatCompactPrice(p.starting_price)}
+                        From{" "}
+                        {typeof p.starting_price === "string"
+                          ? p.starting_price
+                          : formatCompactPrice(p.starting_price)}
                       </span>
                     ) : (
                       <span
