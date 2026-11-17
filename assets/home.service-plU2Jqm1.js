@@ -1,0 +1,1 @@
+import{A as n}from"./apiClient-Bl539U1V.js";const t=new n;async function c(e,i,o,s="title_en",r="desc"){return t.post(`/api/search?page=${e}&sort_field=${s}&sort_order=${r}&limit=${i}`,o)}async function l(){return t.get("/api/savoirs-collection")}export{l as g,c as s};
