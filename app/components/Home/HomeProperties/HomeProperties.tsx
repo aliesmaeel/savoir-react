@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLoaderData, useNavigate } from "react-router";
 import { formatPrice } from "~/utils/formatPrice";
 import { shouldHideBedBath } from "~/utils/propertyType";
@@ -26,27 +26,6 @@ export default function HomeProperties() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabKey>("For Rent");
   const [activeIdx, setActiveIdx] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.25, rootMargin: "0px" }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [isVisible]);
 
   const featured = home?.featured_properties ?? {};
 
@@ -65,12 +44,7 @@ export default function HomeProperties() {
   const dotCount = Math.min(totalCount, 4);
 
   return (
-    <section
-      ref={containerRef}
-      className={`w-full bg-white py-[34px] transition-all duration-700 ease-out lg:py-[72px] ${
-        isVisible ? "translate-x-0 opacity-100" : "-translate-x-[200px] opacity-0"
-      }`}
-    >
+    <section className="w-full bg-white py-[34px] lg:py-[72px]">
       <div className="flex w-full flex-col">
         <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-[20px] px-[24px] pb-[24px] lg:flex-row lg:items-end lg:px-[52px] lg:pb-[32px]">
           <div>

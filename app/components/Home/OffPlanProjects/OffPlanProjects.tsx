@@ -1,37 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { Link, useLoaderData } from "react-router";
-import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 import { formatCompactPrice } from "~/utils/formatPrice";
 
 export default function OffPlanProjects() {
   const { home } = useLoaderData() as { home: any };
-  const isMobile = useIsMobile();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (isMobile) {
-      setIsVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.5, rootMargin: "0px" }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [isVisible, isMobile]);
 
   const projects: any[] = (home?.offplan_projects || []).slice(0, 5);
 
@@ -40,14 +12,7 @@ export default function OffPlanProjects() {
   }
 
   return (
-    <section
-      ref={containerRef}
-      className={`w-full bg-[#ffffff00] transition-all duration-700 ease-out ${
-        isVisible || isMobile
-          ? "opacity-100 translate-x-0"
-          : "opacity-0 -translate-x-[200px]"
-      }`}
-    >
+    <section className="w-full bg-[#ffffff00]">
       {/* Header */}
       <div className="max-w-[1280px] mx-auto w-full flex flex-col lg:flex-row lg:items-end justify-between gap-[20px] px-[24px] lg:px-[52px] pt-[36px] lg:pt-[64px] pb-[24px] lg:pb-[40px] border-b-[0.5px] border-[#35363540]">
         <div>
@@ -140,12 +105,9 @@ export default function OffPlanProjects() {
 
                       <div className="h-[1px] bg-[#35363540] mb-[14px] relative overflow-hidden">
                         <div
-                          className="absolute left-0 top-0 bottom-0 bg-[#C6A45A] transition-[width] duration-[1200ms] ease-out"
+                          className="absolute left-0 top-0 bottom-0 bg-[#C6A45A]"
                           style={{
-                            width:
-                              isVisible || isMobile
-                                ? `${30 + ((idx * 17) % 60)}%`
-                                : "0%",
+                            width: `${30 + ((idx * 17) % 60)}%`,
                           }}
                         />
                       </div>

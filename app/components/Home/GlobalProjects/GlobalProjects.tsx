@@ -1,36 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { Link, useLoaderData } from "react-router";
-import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 export default function GlobalProjects() {
   const { home } = useLoaderData() as { home: any };
-  const isMobile = useIsMobile();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (isMobile) {
-      setIsVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.5, rootMargin: "0px" }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [isVisible, isMobile]);
 
   const countries: any[] = (home?.countries || []).slice(0, 6);
 
@@ -39,14 +11,7 @@ export default function GlobalProjects() {
   }
 
   return (
-    <section
-      ref={containerRef}
-      className={`w-full bg-[#0A0A0A] transition-all duration-700 ease-out ${
-        isVisible || isMobile
-          ? "opacity-100 translate-x-0"
-          : "opacity-0 translate-x-[200px]"
-      }`}
-    >
+    <section className="w-full bg-[#0A0A0A]">
       {/* Header */}
       <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-[20px] border-b-[0.5px] border-white/[0.14] px-[24px] pb-[24px] pt-[36px] lg:flex-row lg:items-end lg:px-[52px] lg:pb-[48px] lg:pt-[60px]">
         <div>

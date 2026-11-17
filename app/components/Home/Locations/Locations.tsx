@@ -1,38 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLoaderData } from "react-router";
-import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
 
 export default function Locations() {
   const { home } = useLoaderData() as { home: any };
-  const isMobile = useIsMobile();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
-
-  useEffect(() => {
-    if (isMobile) {
-      setIsVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.5, rootMargin: "0px" }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [isVisible, isMobile]);
 
   const areas: any[] = (home?.areas || []).slice(0, 6);
 
@@ -58,18 +29,11 @@ export default function Locations() {
     return { first: parts[0], rest: parts.slice(1).join(" ") };
   };
 
-  const navTo = (dir: number) =>
+  const handleNavTo = (dir: number) =>
     setActiveIdx((i) => (i + dir + areas.length) % areas.length);
 
   return (
-    <section
-      ref={containerRef}
-      className={`w-full bg-white transition-all duration-700 ease-out ${
-        isVisible || isMobile
-          ? "translate-x-0 opacity-100"
-          : "-translate-x-[200px] opacity-0"
-      }`}
-    >
+    <section className="w-full bg-white">
       {/* Header */}
       <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-[20px] border-b-[0.5px] border-[#35363540] px-[24px] pb-[24px] pt-[36px] lg:flex-row lg:items-end lg:px-[52px] lg:pb-[40px] lg:pt-[64px]">
         <div>
@@ -162,8 +126,9 @@ export default function Locations() {
           <>
             <button
               type="button"
-              onClick={() => navTo(-1)}
+              onClick={() => handleNavTo(-1)}
               aria-label="Previous area"
+              tabIndex={0}
               className="absolute left-[16px] top-1/2 z-10 flex h-[42px] w-[42px] -translate-y-1/2 cursor-pointer items-center justify-center border-[0.5px] border-white/30 bg-[rgba(10,10,10,0.25)] text-[18px] text-white backdrop-blur-[4px] transition-colors hover:border-[#C6A45A] hover:bg-[#C6A45A] lg:left-[28px] lg:h-[52px] lg:w-[52px]"
             >
               ←
@@ -171,8 +136,9 @@ export default function Locations() {
 
             <button
               type="button"
-              onClick={() => navTo(1)}
+              onClick={() => handleNavTo(1)}
               aria-label="Next area"
+              tabIndex={0}
               className="absolute right-[16px] top-1/2 z-10 flex h-[42px] w-[42px] -translate-y-1/2 cursor-pointer items-center justify-center border-[0.5px] border-white/30 bg-[rgba(10,10,10,0.25)] text-[18px] text-white backdrop-blur-[4px] transition-colors hover:border-[#C6A45A] hover:bg-[#C6A45A] lg:right-[28px] lg:h-[52px] lg:w-[52px]"
             >
               →

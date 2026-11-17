@@ -64,8 +64,7 @@ export default function GlobalAccess() {
   });
 
   const onEnter = async () => {
-    if (dir.current !== "down") return;
-
+    // Reveal from either scroll direction (hash deep-links land below this section).
     await titleCtrl.start("visible");
 
     await textCtrl.start({
@@ -89,7 +88,7 @@ export default function GlobalAccess() {
           variants={variants}
           initial="hidden"
           animate={titleCtrl}
-          viewport={{ amount: 0.5 }}
+          viewport={{ amount: 0.2, once: false }}
           onViewportEnter={onEnter}
           style={{ willChange: "transform, opacity" }}
         >
