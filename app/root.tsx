@@ -56,7 +56,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
-        <ScrollRestoration />
+        <ScrollRestoration
+          getKey={(location) =>
+            // Keep hash deep-links from restoring a stale scrollY (blank mid-page).
+            location.hash
+              ? `${location.pathname}${location.search}${location.hash}`
+              : location.key
+          }
+        />
         <Scripts />
       </body>
     </html>
@@ -68,8 +75,8 @@ export default function App() {
   useEffect(() => {
     AOS.init({
       duration: 700, // ms
-      once: false, // <--- allow it to animate every time it enters viewport
-      mirror: true, // <--- animate elements out while scrolling past them
+      once: true, // keep content visible after first reveal (hash deep-links + scroll up)
+      mirror: false,
       offset: 0,
       delay: 100,
     });

@@ -1,55 +1,59 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useIcons from "~/hooks/imageHooks/useIcons";
-import { useIsMobile } from "~/hooks/functionHooks/useIsMobile";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 const CATEGORIES = ["Real Estate", "Design", "Travel", "Lifestyle", "Investment"];
+const SECTION_ID = "luxury-portfolio-magazine";
+const SECTION_HASH = `#${SECTION_ID}`;
+
+const hasSectionHash = () =>
+  typeof window !== "undefined" && window.location.hash === SECTION_HASH;
 
 export default function LuxuryPortfolio() {
   const icon = useIcons();
-  const isMobile = useIsMobile();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
   const [activeCat, setActiveCat] = useState("Real Estate");
+  const loadCoverEager = hasSectionHash() || location.hash === SECTION_HASH;
 
   useEffect(() => {
-    if (isMobile) {
-      setIsVisible(true);
-      return;
-    }
+    if (location.hash !== SECTION_HASH && !hasSectionHash()) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.5, rootMargin: "0px" }
-    );
+    const HEADER_OFFSET = 80;
+    let cancelled = false;
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    const scrollToSection = () => {
+      if (cancelled) return false;
 
-    return () => observer.disconnect();
-  }, [isVisible, isMobile]);
+      const section = document.getElementById(SECTION_ID);
+      if (!section) return false;
+
+      const top =
+        section.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+      window.scrollTo({ top: Math.max(0, top), behavior: "auto" });
+      return true;
+    };
+
+    // Retry while images/layout above this section finish shifting the offset.
+    const retryMs = [0, 50, 150, 300, 600, 1000, 1600];
+    const timers = retryMs.map((ms) => window.setTimeout(scrollToSection, ms));
+    const frameId = window.requestAnimationFrame(scrollToSection);
+    window.addEventListener("load", scrollToSection);
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frameId);
+      timers.forEach((id) => window.clearTimeout(id));
+      window.removeEventListener("load", scrollToSection);
+    };
+  }, [location.hash, location.pathname]);
 
   return (
-    <section
-      ref={containerRef}
-      className={`w-full transition-all duration-700 ease-out ${
-        isVisible || isMobile
-          ? "opacity-100 translate-x-0"
-          : "opacity-0 translate-x-[200px]"
-      }`}
-    >
+    <section id={SECTION_ID} className="w-full">
       <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[600px]">
         {/* Left — magazine cover */}
         <div className="relative overflow-hidden bg-[#1A1A18] aspect-[4/5] lg:aspect-auto group">
           <img
-            loading="lazy"
+            loading={loadCoverEager ? "eager" : "lazy"}
             src={icon.Magazine}
             alt="Luxury Portfolio Magazine"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.03]"
@@ -94,7 +98,6 @@ export default function LuxuryPortfolio() {
             className="text-[12px] lg:text-[13px] leading-[1.85] mb-[28px] lg:mb-[36px] max-w-[380px]"
             style={{
               color: "rgba(255,255,255,0.78)",
-              willChange: "transform, opacity",
               fontFamily: "Didot, serif",
             }}
           >
